@@ -1,0 +1,9 @@
+altair==4.2.2
+numpy==1.26.4
+pandas==2.2.2
+pydeck==0.9.1
+streamlit==1.39.0
+mysql-connector-python==8.4.0
+workalendar==17.0.0
+openpyxl==3.1.2
+pymysql==1.1.1

@@ -1,0 +1,6 @@
+# Ignorar arquivos dentro do diretório .streamlit
+.streamlit/secrets.toml
+
+# Ignorar pycache
+**/__pycache__/
+
