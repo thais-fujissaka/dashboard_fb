@@ -128,6 +128,7 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
    return dataframe_query(f'''
 	SELECT
 		tpep.ID as 'ID_Parcela',
+		tpep.FK_EVENTO_PRICELESS as 'ID_Evento',
 		tep.NOME_EVENTO as 'Nome_do_Evento',
 		tcep.DESCRICAO as 'Categoria_Parcela',
 		tpep.VALOR_PARCELA as 'Valor_Parcela',

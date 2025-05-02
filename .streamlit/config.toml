@@ -3,3 +3,6 @@ base = "light"
 
 [client]
 showSidebarNavigation = false
+
+[server]
+liveReload = true

@@ -23,6 +23,8 @@ def main():
 	config_sidebar()
 	st.title("Controle de Eventos")
 
+	st.write("Informações sobre eventos")
+
 
 
 if __name__ == '__main__':

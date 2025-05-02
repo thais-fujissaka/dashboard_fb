@@ -24,7 +24,6 @@ def config_sidebar():
 		if 'Administrador' in permissao:
 			st.sidebar.title("Menu")
 			st.sidebar.page_link("pages/2_Controle_de_Eventos.py", label="Controle de Eventos")
-			st.sidebar.page_link("pages/3_Parcelas.py", label="Parcelas")
 			st.sidebar.page_link("pages/4_Repasse_Gazit.py", label="Repasses - Gazit")
 		elif 'Aprovador' in permissao:
 			st.sidebar.title("Menu")
@@ -32,6 +31,12 @@ def config_sidebar():
 			st.sidebar.title("Menu")
 	else:
 		st.sidebar.write("Por favor, faça login para acessar o menu.")
+
+
+def filtrar_por_classe_selecionada(dataframe, classe, valores_selecionados):
+  if valores_selecionados:
+    dataframe = dataframe[dataframe[classe].isin(valores_selecionados)]
+  return dataframe
 
 
 def export_to_excel(df, sheet_name, excel_filename):
