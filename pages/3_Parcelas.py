@@ -101,7 +101,7 @@ if eventos:
 	)
 	# Parcelas
 	st.markdown("## Parcelas")
-	st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Repasse Gazit']], 
+	st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Repasse Gazit Parcela']], 
 		use_container_width=True, 
 		hide_index=True,
 		column_config={

@@ -21,6 +21,8 @@ st.set_page_config(
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 	st.switch_page('Login.py')
 
+st.markdown(" <style>iframe{ height: 300px !important } ", unsafe_allow_html=True)
+
 config_sidebar()
 
 # Recupera dados dos eventos e parcelas
@@ -62,7 +64,6 @@ col1, col2 = st.columns([1, 3])
 with col1:
 	ano = seletor_ano(2025, 2025, key='ano_faturamento')
 
-# Filtra parcelas pelo ano
 df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 
 # Calcula o valor de repasse para Gazit das parcelas
@@ -79,19 +80,19 @@ with tab1:
 
 with tab2:
     st.markdown("### Faturamento de Locação - Aroo")
-    # grafico_barras_locacao_aroo(df_parcelas)
+    grafico_barras_locacao_aroo(df_parcelas, df_eventos)
 
 with tab3:
     st.markdown("### Faturamento de Locação - Anexo")
-    # grafico_barras_locacao_anexo(df_parcelas)
+    # grafico_barras_locacao_anexo(df_parcelas, df_eventos)
 
 with tab4:
     st.markdown("### Faturamento de Locação - Notiê")
-	# grafico_barras_locacao_notie(df_parcelas)
+	# grafico_barras_locacao_notie(df_parcelas, df_eventos)
 
 with tab5:
     st.markdown("### Faturamento - Alimentos e Bebidas")
-	# grafico_barras_locacao_AB(df_parcelas)
+	# grafico_barras_locacao_AB(df_parcelas, df_eventos)
 
 with st.expander("Visualizar parcelas"):
     
@@ -114,10 +115,8 @@ with st.expander("Visualizar parcelas"):
 		# Formata datas: datetime[ns] -> str
 		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
 
-		# Renomeia colunas
+		# Formatacao de colunas
 		df_parcelas = rename_colunas_parcelas(df_parcelas)
-
-		# Formata valores monetários brasileiro
 		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit Parcela', 'Total Locação'])
 
 		st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
