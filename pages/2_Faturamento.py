@@ -62,26 +62,11 @@ col1, col2 = st.columns([1, 3])
 with col1:
 	ano = seletor_ano(2025, 2025, key='ano_faturamento')
 
-
-
 # Filtra parcelas pelo ano
 df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 
 # Calcula o valor de repasse para Gazit das parcelas
 df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
-
-# Formata datas: datetime[ns] -> str
-# df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Contratacao')
-# df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Evento')
-# df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
-
-# Renomeia colunas
-# df_eventos = rename_colunas_eventos(df_eventos)
-# df_parcelas = rename_colunas_parcelas(df_parcelas)
-
-# Formata valores monetários brasileiro
-# df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Gazit', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
-# df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit'])
 
 # FATURAMENTO #
      
@@ -89,42 +74,50 @@ df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Total de Eventos", "Locação Aroo", "Locação Anexo", "Locação Notiê", "Alimentos e Bebidas"])
 
 with tab1:
-    st.markdown("## Faturamento Total de Eventos")
+    st.markdown("### Faturamento Total de Eventos")
     grafico_barras_total_eventos(df_parcelas)
 
 with tab2:
-    st.markdown("## Faturamento de Locação - Aroo")
+    st.markdown("### Faturamento de Locação - Aroo")
     # grafico_barras_locacao_aroo(df_parcelas)
 
 with tab3:
-    st.markdown("## Faturamento de Locação - Anexo")
+    st.markdown("### Faturamento de Locação - Anexo")
     # grafico_barras_locacao_anexo(df_parcelas)
 
 with tab4:
-    st.markdown("## Faturamento de Locação - Notiê")
+    st.markdown("### Faturamento de Locação - Notiê")
 	# grafico_barras_locacao_notie(df_parcelas)
 
 with tab5:
-    st.markdown("## Faturamento - Alimentos e Bebidas")
+    st.markdown("### Faturamento - Alimentos e Bebidas")
 	# grafico_barras_locacao_AB(df_parcelas)
 
-
-# Eventos do mês
-
-st.markdown("## Eventos do mês")
-
-# Seletores de mês e ano
-col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
-with col1:
-    mes = seletor_mes('mes_faturamento')
+with st.expander("Visualizar parcelas"):
     
+	st.markdown("")
 
-# Filtra parcelas pelo mês da Data_Vencimento
-df_parcelas = df_filtrar_mes_ano(df_parcelas, 'Data_Vencimento', mes, ano)
+	# Seletores de mês
+	col1, col2, col3 = st.columns([1, 12, 1])
+	with col2:
+        
+		col1, col2 = st.columns([1, 3])
+		with col1:
+			mes = seletor_mes('mes_faturamento')
+		
+		# Filtra parcelas pelo mês da Data_Vencimento
+		df_parcelas = df_filtrar_mes_ano(df_parcelas, 'Data_Vencimento', mes, ano)
 
-df_parcelas.drop(columns=['Mes', 'Ano'], inplace=True)
+		# Drop colunas desnecessárias
+		df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
 
-st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+		# Formata datas: datetime[ns] -> str
+		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
 
-# Seleção de mês
-st.markdown("")
+		# Renomeia colunas
+		df_parcelas = rename_colunas_parcelas(df_parcelas)
+
+		# Formata valores monetários brasileiro
+		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit Parcela', 'Total Locação'])
+
+		st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
