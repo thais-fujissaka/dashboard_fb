@@ -23,8 +23,8 @@ def config_sidebar():
 		# if 'Administrador' in permissao or 'Financeiro Central' in permissao:
 		if 'Administrador' in permissao:
 			st.sidebar.title("Menu")
-			st.sidebar.page_link("pages/2_Controle_de_Eventos.py", label="Controle de Eventos")
-			st.sidebar.page_link("pages/4_Repasse_Gazit.py", label="Repasses - Gazit")
+			st.sidebar.page_link("pages/2_Faturamento.py", label="Faturamento")
+			st.sidebar.page_link("pages/3_Parcelas.py", label="Parcelas")
 		elif 'Aprovador' in permissao:
 			st.sidebar.title("Menu")
 		else:
@@ -111,3 +111,56 @@ def df_filtrar_periodo_data(df, coluna_data, data_inicio, data_fim):
 	return df_filtrado
 
 
+def df_filtrar_mes_ano(df, coluna_data, mes, ano):
+
+	df = df.copy()
+
+	df[coluna_data] = pd.to_datetime(df[coluna_data])
+    
+	df_filtrado = df.loc[(df[coluna_data].dt.month == int(mes)) & (df[coluna_data].dt.year == int(ano))]
+
+	return df_filtrado
+
+
+def df_filtrar_ano(df, coluna_data, ano):
+
+  df = df.copy()
+
+  df[coluna_data] = pd.to_datetime(df[coluna_data])
+    
+  df_filtrado = df.loc[(df[coluna_data].dt.year == int(ano))]
+
+  return df_filtrado
+
+def seletor_mes(key):
+  # Dicionário para mapear os meses
+  meses = {
+      "Janeiro": "01",
+      "Fevereiro": "02",
+      "Março": "03",
+      "Abril": "04",
+      "Maio": "05",
+      "Junho": "06",
+      "Julho": "07",
+      "Agosto": "08",
+      "Setembro": "09",
+      "Outubro": "10",
+      "Novembro": "11",
+      "Dezembro": "12"
+  }
+
+  # Seletor de mês
+  mes = st.selectbox("Selecione o mês", list(meses.keys()), key=key)
+
+  # Obter o mês correspondente ao mês selecionado
+  mes_selecionado = meses[mes]
+
+  return mes_selecionado
+
+
+def seletor_ano(ano_inicio, ano_fim, key):
+   anos = list(range(ano_inicio, ano_fim + 1))
+   ano = st.selectbox("Ano:", anos, key=key)
+   return ano
+
+   

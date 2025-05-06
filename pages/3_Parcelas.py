@@ -7,12 +7,12 @@ from utils.components import *
 from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.queries import *
-from utils.functions.repasses_gazit import *
+from utils.functions.parcelas import *
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
-	page_title="Repasses - Gazit",
+	page_title="Parcelas",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -56,7 +56,7 @@ df_eventos = calcular_repasses_gazit(df_eventos)
 # Lista de eventos para o filtro
 eventos_id_options = df_eventos['ID_Nome_Evento'].unique().tolist()
 
-st.title("Repasses - Gazit")
+st.title("Parcelas")
 
 # Seletores de eventos
 eventos = st.multiselect("Eventos", options=eventos_id_options, key='eventos_repasses_gazit', placeholder='Procurar eventos')
