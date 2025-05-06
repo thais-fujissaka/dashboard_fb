@@ -102,10 +102,11 @@ with tab3:
 
 with tab4:
     st.markdown("## Faturamento de Locação - Notiê")
-
+	# grafico_barras_locacao_notie(df_parcelas)
 
 with tab5:
     st.markdown("## Faturamento - Alimentos e Bebidas")
+	# grafico_barras_locacao_AB(df_parcelas)
 
 
 # Eventos do mês

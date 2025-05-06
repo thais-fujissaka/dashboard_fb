@@ -57,6 +57,7 @@ df_eventos = calcular_repasses_gazit(df_eventos)
 eventos_id_options = df_eventos['ID_Nome_Evento'].unique().tolist()
 
 st.title("Parcelas")
+st.divider()
 
 # Seletores de eventos
 eventos = st.multiselect("Eventos", options=eventos_id_options, key='eventos_repasses_gazit', placeholder='Procurar eventos')

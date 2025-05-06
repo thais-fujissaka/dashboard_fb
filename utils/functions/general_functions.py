@@ -5,6 +5,7 @@ from workalendar.america import Brazil
 import openpyxl
 import os
 from utils.queries import *
+from utils.functions.date_functions import *
 
 
 def config_permissoes_user():
@@ -149,8 +150,13 @@ def seletor_mes(key):
       "Dezembro": "12"
   }
 
+  # Obter o mês atual para defini-lo como padrão
+  mes_atual_num = get_today().month
+  nomes_meses = list(meses.keys())
+  mes_atual_nome = nomes_meses[mes_atual_num - 1]
+
   # Seletor de mês
-  mes = st.selectbox("Selecione o mês", list(meses.keys()), key=key)
+  mes = st.selectbox("Selecione o mês", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
 
   # Obter o mês correspondente ao mês selecionado
   mes_selecionado = meses[mes]
