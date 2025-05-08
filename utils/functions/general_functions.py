@@ -156,7 +156,7 @@ def seletor_mes(key):
   mes_atual_nome = nomes_meses[mes_atual_num - 1]
 
   # Seletor de mês
-  mes = st.selectbox("Selecione o mês", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
+  mes = st.selectbox("Mês do vencimento", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
 
   # Obter o mês correspondente ao mês selecionado
   mes_selecionado = meses[mes]
@@ -168,5 +168,3 @@ def seletor_ano(ano_inicio, ano_fim, key):
    anos = list(range(ano_inicio, ano_fim + 1))
    ano = st.selectbox("Ano:", anos, key=key)
    return ano
-
-   

@@ -4,6 +4,8 @@ from utils.components import *
 from streamlit_echarts import st_echarts
 
 
+# Total de Eventos
+
 def grafico_barras_total_eventos(df_parcelas):
     # Extrai mês e ano da coluna 'Data_Vencimento'
     df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
@@ -65,23 +67,38 @@ def grafico_barras_total_eventos(df_parcelas):
     # Cria o gráfico de barras
     grafico = st_echarts(option, height=300, width="100%", key="chart_total_eventos")
 
-def df_fracao_locacao_aroo(df_eventos):
+
+# Locação
+
+def df_fracao_locacao_espacos(df_eventos):
+
+    # Adiciona coluna de cálculo de fração de cada espaço em relação ao valor total de locação
+    # Aroo
     df_eventos['Fracao_Aroo'] = (df_eventos['Valor_Locacao_Aroo_1'] + df_eventos['Valor_Locacao_Aroo_2'] + df_eventos['Valor_Locacao_Aroo_3']) / df_eventos['Valor_Locacao_Total']
     df_eventos['Fracao_Aroo'] = df_eventos['Fracao_Aroo'].fillna(0)
 
+    # Anexo
+    df_eventos['Fracao_Anexo'] = df_eventos['Valor_Locacao_Anexo'] / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Anexo'] = df_eventos['Fracao_Anexo'].fillna(0)
+
+    # Notie
+    df_eventos['Fracao_Notie'] = df_eventos['Valor_Locacao_Notie'] / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Notie'] = df_eventos['Fracao_Notie'].fillna(0)
+
     return df_eventos
 
-def calculo_valor_aroos_parcela_locacao(df_parcelas, df_eventos):
+def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
 
-    df_eventos = df_fracao_locacao_aroo(df_eventos)
+    df_eventos = df_fracao_locacao_espacos(df_eventos)
 
-    # Merge df_parcelas com fracoes de Aroo
-    df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo']], how='left', on='ID_Evento')
+    # Merge df_parcelas com fracoes de cada espaço
+    df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie']], how='left', on='ID_Evento')
     
     df_parcelas['Valor_Parcela_Aroos'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Aroo']
+    df_parcelas['Valor_Parcela_Anexo'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Anexo']
+    df_parcelas['Valor_Parcela_Notie'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Notie']
 
     return df_parcelas
-
 
 def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
     # Normaliza
@@ -95,7 +112,7 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
     )
     
     # Calcula coluna 'Valor_Parcela_Aroos'
-    df_parcelas = calculo_valor_aroos_parcela_locacao(df_parcelas, df_eventos)
+    df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
 
     # Extrai mês e ano da coluna 'Data_Vencimento'
     df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
@@ -143,7 +160,7 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
         ],
         "series": [
             {
-                "name": "Direct",
+                "name": "Faturamento de Locação Aroo",
                 "type": "bar",
                 "barWidth": "60%",
                 "data": total_aroos,
@@ -157,3 +174,225 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
     # Cria o gráfico de barras
     grafico = st_echarts(option, height=300, width="100%", key="chart_aroos")
 
+
+# Locação Anexo
+
+def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
+    # Normaliza
+    df_parcelas['Categoria_Parcela'] = df_parcelas['Categoria_Parcela'].str.replace('ç', 'c')
+
+    # Filtra pela categoria 'Locação'
+    df_parcelas = (
+    df_parcelas
+    .loc[df_parcelas['Categoria_Parcela'] == 'Locacão']
+    .copy()
+    )
+
+    df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
+
+    # Extrai mês e ano da coluna 'Data_Vencimento'
+    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
+    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+
+    # Agrupa os valores por mês e ano
+    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela_Anexo'].sum().reset_index()
+
+    # Cria lista de meses
+    meses = df_parcelas_agrupado['Mes'].unique().tolist()
+    nomes_meses_pt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
+    
+    # Cria lista de valores
+    total_anexo = df_parcelas_agrupado['Valor_Parcela_Anexo'].tolist()
+
+    # Options do grafico
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "shadow"
+            }
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "3%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "data": nomes_meses,
+                "boundaryGap": True,
+                "axisTick": {
+                    "alignWithLabel": True
+                }
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value"
+            }
+        ],
+        "series": [
+            {
+                "name": "Faturamento de Locação Anexo",
+                "type": "bar",
+                "barWidth": "60%",
+                "data": total_anexo,
+                "itemStyle": {
+                    "color": "#FAC858"
+                }
+            }
+        ]
+    }
+
+    # Cria o gráfico de barras
+    grafico = st_echarts(option, height=300, width="100%", key="chart_anexo")
+    
+
+# Locação Notiê
+
+def grafico_barras_locacao_notie(df_parcelas, df_eventos):
+    # Normaliza
+    df_parcelas['Categoria_Parcela'] = df_parcelas['Categoria_Parcela'].str.replace('ç', 'c')
+
+    # Filtra pela categoria 'Locação'
+    df_parcelas = (
+    df_parcelas
+    .loc[df_parcelas['Categoria_Parcela'] == 'Locacão']
+    .copy()
+    )
+
+    df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
+
+    # Extrai mês e ano da coluna 'Data_Vencimento'
+    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
+    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+
+    # Agrupa os valores por mês e ano
+    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela_Notie'].sum().reset_index()
+
+    # Cria lista de meses
+    meses = df_parcelas_agrupado['Mes'].unique().tolist()
+    nomes_meses_pt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
+    
+    # Cria lista de valores
+    total_notie = df_parcelas_agrupado['Valor_Parcela_Notie'].tolist()
+
+    # Options do grafico
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "shadow"
+            }
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "3%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "data": nomes_meses,
+                "boundaryGap": True,
+                "axisTick": {
+                    "alignWithLabel": True
+                }
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value"
+            }
+        ],
+        "series": [
+            {
+                "name": "Faturamento de Locação Notiê",
+                "type": "bar",
+                "barWidth": "60%",
+                "data": total_notie,
+                "itemStyle": {
+                    "color": "#FAC858"
+                }
+            }
+        ]
+    }
+
+    # Cria o gráfico de barras
+    grafico = st_echarts(option, height=300, width="100%", key="chart_notie")
+
+
+# Alimentos e Bebidas
+
+def grafico_barras_faturamento_AB(df_parcelas):
+    # Extrai mês e ano da coluna 'Data_Vencimento'
+    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
+    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+
+    # Filtra pela categoria 'A&B'
+    df_parcelas = (
+    df_parcelas
+    .loc[df_parcelas['Categoria_Parcela'] == 'A&B']
+    .copy()
+    )
+
+    # Agrupa os valores por mês e ano
+    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela'].sum().reset_index()
+
+    # Cria lista de meses
+    meses = df_parcelas_agrupado['Mes'].unique().tolist()
+    nomes_meses_pt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
+    
+    # Cria lista de valores
+    total_AB = df_parcelas_agrupado['Valor_Parcela'].tolist()
+
+    # Options do grafico
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "shadow"
+            }
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "3%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "data": nomes_meses,
+                "boundaryGap": True,
+                "axisTick": {
+                    "alignWithLabel": True
+                }
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value"
+            }
+        ],
+        "series": [
+            {
+                "name": "Faturamento de Alimentos e Bebidas",
+                "type": "bar",
+                "barWidth": "60%",
+                "data": total_AB,
+                "itemStyle": {
+                    "color": "#FAC858"
+                }
+            }
+        ]
+    }
+
+    # Cria o gráfico de barras
+    grafico = st_echarts(option, height=300, width="100%", key="chart_AB")

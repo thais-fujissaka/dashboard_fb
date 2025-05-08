@@ -69,6 +69,7 @@ df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 # Calcula o valor de repasse para Gazit das parcelas
 df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
+
 # FATURAMENTO #
      
 # Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
@@ -79,21 +80,20 @@ with tab1:
     grafico_barras_total_eventos(df_parcelas)
 
 with tab2:
-    st.markdown("### Faturamento de Locação - Aroo")
+    st.markdown("### Faturamento - Locação Aroo")
     grafico_barras_locacao_aroo(df_parcelas, df_eventos)
 
 with tab3:
-    st.markdown("### Faturamento de Locação - Anexo")
-    # grafico_barras_locacao_anexo(df_parcelas, df_eventos)
+    st.markdown("### Faturamento - Locação Anexo")
+    grafico_barras_locacao_anexo(df_parcelas, df_eventos)
 
 with tab4:
-    st.markdown("### Faturamento de Locação - Notiê")
-	# grafico_barras_locacao_notie(df_parcelas, df_eventos)
+	st.markdown("### Faturamento - Locação Notiê")
+	grafico_barras_locacao_notie(df_parcelas, df_eventos)
 
 with tab5:
-    st.markdown("### Faturamento - Alimentos e Bebidas")
-	# grafico_barras_locacao_AB(df_parcelas, df_eventos)
-
+	st.markdown("### Faturamento - Alimentos e Bebidas")
+	grafico_barras_faturamento_AB(df_parcelas)
 with st.expander("Visualizar parcelas"):
     
 	st.markdown("")
