@@ -24,8 +24,9 @@ def config_sidebar():
 		# if 'Administrador' in permissao or 'Financeiro Central' in permissao:
 		if 'Administrador' in permissao:
 			st.sidebar.title("Menu")
-			st.sidebar.page_link("pages/2_Faturamento.py", label="Faturamento")
-			st.sidebar.page_link("pages/3_Parcelas.py", label="Parcelas")
+			st.sidebar.page_link("pages/2_Faturamento_Bruto.py", label="Faturamento Bruto")
+			st.sidebar.page_link("pages/3_Eventos_e_Parcelas.py", label="Eventos e Parcelas")
+			st.sidebar.page_link("pages/4_Gazit.py", label="Gazit")
 		elif 'Aprovador' in permissao:
 			st.sidebar.title("Menu")
 		else:
@@ -112,13 +113,13 @@ def df_filtrar_periodo_data(df, coluna_data, data_inicio, data_fim):
 	return df_filtrado
 
 
-def df_filtrar_mes_ano(df, coluna_data, mes, ano):
+def df_filtrar_mes(df, coluna_data, mes):
 
 	df = df.copy()
 
 	df[coluna_data] = pd.to_datetime(df[coluna_data])
     
-	df_filtrado = df.loc[(df[coluna_data].dt.month == int(mes)) & (df[coluna_data].dt.year == int(ano))]
+	df_filtrado = df.loc[(df[coluna_data].dt.month == int(mes))]
 
 	return df_filtrado
 
@@ -166,5 +167,5 @@ def seletor_mes(key):
 
 def seletor_ano(ano_inicio, ano_fim, key):
    anos = list(range(ano_inicio, ano_fim + 1))
-   ano = st.selectbox("Ano:", anos, key=key)
+   ano = st.selectbox("Selecionar ano:", anos, key=key)
    return ano

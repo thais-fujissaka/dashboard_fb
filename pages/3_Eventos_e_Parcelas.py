@@ -12,7 +12,7 @@ from utils.functions.parcelas import *
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
-	page_title="Parcelas",
+	page_title="Eventos e Parcelas",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -56,7 +56,7 @@ df_eventos = calcular_repasses_gazit(df_eventos)
 # Lista de eventos para o filtro
 eventos_id_options = df_eventos['ID_Nome_Evento'].unique().tolist()
 
-st.title("Parcelas")
+st.title("Eventos e Parcelas")
 st.divider()
 
 # Seletores de eventos

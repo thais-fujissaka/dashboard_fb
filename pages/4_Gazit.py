@@ -9,11 +9,12 @@ from utils.functions.general_functions import *
 from utils.queries import *
 from utils.functions.parcelas import *
 from utils.functions.faturamento import *
+from utils.functions.gazit import *
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
-	page_title="Faturamento Bruto",
+	page_title="Gazit",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -56,13 +57,14 @@ df_eventos['ID_Nome_Evento'] = df_eventos['ID_Evento'].astype(str) + " - " + df_
 # Calcula o valor de repasse para Gazit
 df_eventos = calcular_repasses_gazit(df_eventos)
 
-st.title("Faturamento Bruto")
+st.title("Gazit")
 st.divider()
 
 # Seletor de ano
 col1, col2 = st.columns([1, 3])
 with col1:
 	ano = seletor_ano(2025, 2025, key='ano_faturamento')
+st.divider()
 
 df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 
@@ -70,53 +72,32 @@ df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
 
-# FATURAMENTO #
+# Repasses Gazit #
      
 # Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Total de Eventos", "Locação Aroo", "Locação Anexo", "Locação Notiê", "Alimentos e Bebidas"])
+st.markdown("### Repasse Mensal - Gazit")
 
-with tab1:
-    st.markdown("### Faturamento Total de Eventos")
-    grafico_barras_total_eventos(df_parcelas)
+mes = grafico_barras_repasse_mensal(df_parcelas)
 
-with tab2:
-    st.markdown("### Faturamento - Locação Aroo")
-    grafico_barras_locacao_aroo(df_parcelas, df_eventos)
-
-with tab3:
-    st.markdown("### Faturamento - Locação Anexo")
-    grafico_barras_locacao_anexo(df_parcelas, df_eventos)
-
-with tab4:
-	st.markdown("### Faturamento - Locação Notiê")
-	grafico_barras_locacao_notie(df_parcelas, df_eventos)
-
-with tab5:
-	st.markdown("### Faturamento - Alimentos e Bebidas")
-	grafico_barras_faturamento_AB(df_parcelas)
-with st.expander("Visualizar parcelas"):
-    
-	st.markdown("")
-
-	# Seletores de mês
-	col1, col2, col3 = st.columns([1, 12, 1])
-	with col2:
-        
-		col1, col2 = st.columns([1, 3])
-		with col1:
-			mes = seletor_mes('mes_faturamento')
+if mes != None:
+	st.markdown("#### Parcelas")
 		
-		# Filtra parcelas pelo mês da Data_Vencimento
-		df_parcelas = df_filtrar_mes_ano(df_parcelas, 'Data_Vencimento', mes, ano)
+	# Filtra parcelas pelo mês da Data_Vencimento
+	df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes)
 
-		# Drop colunas desnecessárias
-		df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
+	# Drop colunas desnecessárias
+	df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
 
-		# Formata datas: datetime[ns] -> str
-		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
+	# Formata datas: datetime[ns] -> str
+	df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
 
-		# Formatacao de colunas
-		df_parcelas = rename_colunas_parcelas(df_parcelas)
-		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit Parcela', 'Total Locação'])
+	# Formatacao de colunas
+	df_parcelas = rename_colunas_parcelas(df_parcelas)
+	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit Parcela', 'Total Locação'])
 
-		st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+	st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+ 
+else:
+	st.markdown("#### Parcelas")
+	st.markdown("Clique em um mês no gráfico para visualizar parcelas.")
+ 

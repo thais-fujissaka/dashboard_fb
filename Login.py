@@ -32,8 +32,8 @@ def main():
   
   else:
     st.write("Você está logado!")
-    st.markdown("Redirecionando para a página de Faturamento...")
-    st.switch_page("pages/2_Faturamento.py")
+    st.markdown("Redirecionando para a página de Faturamento Bruto...")
+    st.switch_page("pages/2_Faturamento_Bruto.py")
 
 
 if __name__ == "__main__":
