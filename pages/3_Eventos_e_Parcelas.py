@@ -84,12 +84,13 @@ if eventos:
 	df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Gazit', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
 	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit'])
 
+	df_eventos = df_eventos.drop(columns=['Evento'])
+
 	# Eventos
 	st.markdown("## Eventos")
 	st.dataframe(df_eventos, 
 		use_container_width=True,
 		hide_index=True, 
-		# column_order=('Evento', 'Comercial Responsável', 'Data Contratação', 'Data Evento', 'Valor Total', 'Total Gazit', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'),
 		column_config={
 			'Evento': st.column_config.Column(
 				width="large"
