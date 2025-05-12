@@ -89,11 +89,11 @@ if mes != None:
 	df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
 
 	# Formata datas: datetime[ns] -> str
-	df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
+	df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
 
 	# Formatacao de colunas
 	df_parcelas = rename_colunas_parcelas(df_parcelas)
-	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit Parcela', 'Total Locação'])
+	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
 
 	st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
  

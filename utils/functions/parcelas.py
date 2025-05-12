@@ -62,8 +62,11 @@ def rename_colunas_parcelas(df):
 		'Data_Vencimento': 'Data Vencimento',
 		'Status_Pagamento': 'Status Pagamento',
 		'Data_Recebimento': 'Data Recebimento',
-		'Repasse_Gazit': 'Repasse Gazit Parcela',
-		'Valor_Locacao_Total': 'Total Locação'
+		'Repasse_Gazit': 'Valor Bruto Repasse Gazit',
+		'Valor_Locacao_Total': 'Total Locação',
+		'Valor_Parcela_Aroos': 'Valor Parcela Aroos',
+		'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
+		'Valor_Parcela_Notie': 'Valor Parcela Notiê'
 	}, inplace=True)
 	return df
 

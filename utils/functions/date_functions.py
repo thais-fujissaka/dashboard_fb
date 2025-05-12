@@ -60,3 +60,8 @@ def df_formata_data_horario_zero(df, date_column):
 def df_formata_data_sem_horario(df, date_column):
     df[date_column] = df[date_column].apply(lambda x: formata_data_sem_horario(x))
     return df
+
+def df_formata_datas_sem_horario(df, date_columns):
+    for column in date_columns:
+        df[column] = df[column].apply(lambda x: formata_data_sem_horario(x) if not pd.isnull(x) else x)
+    return df

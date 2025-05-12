@@ -82,7 +82,7 @@ if eventos:
 	
 	# Formata valores monetários brasileiro
 	df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Gazit', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
-	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Repasse Gazit'])
+	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit'])
 
 	# Eventos
 	st.markdown("## Eventos")
@@ -101,7 +101,7 @@ if eventos:
 	)
 	# Parcelas
 	st.markdown("## Parcelas")
-	st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Repasse Gazit Parcela']], 
+	st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Valor Bruto Repasse Gazit']], 
 		use_container_width=True, 
 		hide_index=True,
 		column_config={
