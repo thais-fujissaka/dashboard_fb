@@ -62,7 +62,8 @@ def rename_colunas_parcelas(df):
 		'Data_Vencimento': 'Data Vencimento',
 		'Status_Pagamento': 'Status Pagamento',
 		'Data_Recebimento': 'Data Recebimento',
-		'Repasse_Gazit': 'Valor Bruto Repasse Gazit',
+		'Repasse_Gazit_Bruto': 'Valor Bruto Repasse Gazit',
+		'Repasse_Gazit_Liquido': 'Valor Liquido Repasse Gazit',
 		'Valor_Locacao_Total': 'Total Locação',
 		'Valor_Parcela_Aroos': 'Valor Parcela Aroos',
 		'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
@@ -75,17 +76,30 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 
 	df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Total_Gazit', 'Valor_Locacao_Total']], how='left', on='ID_Evento')
 
-	if not 'Repasse_Gazit' in df_parcelas.columns:
-		df_parcelas['Repasse_Gazit'] = 0
+	if not 'Repasse_Gazit_Bruto' in df_parcelas.columns:
+		df_parcelas['Repasse_Gazit_Bruto'] = 0
 	# Zero se a categoria for "A&B"
-	df_parcelas['Repasse_Gazit'] = df_parcelas.apply(lambda x: 0 if x['Categoria_Parcela'] == 'A&B' else None, axis=1)
+	#df_parcelas['Repasse_Gazit_Bruto'] = df_parcelas.apply(lambda x: 0 if x['Categoria_Parcela'] == 'A&B' else None, axis=1)
 
-	# Calcula para categoria "Locação"
+	if not 'Repasse_Gazit_Liquido' in df_parcelas.columns:
+		df_parcelas['Repasse_Gazit_Liquido'] = 0
+	# df_parcelas['Repasse_Gazit_Liquido'] = df_parcelas.apply(lambda x: 0 if x['Categoria_Parcela'] == 'A&B' else None, axis=1)
+
+	# Calcula Valor Bruto de Repasse para categoria "Locação"
 	for idx, row in df_parcelas.iterrows():
 		if row['Categoria_Parcela'] == 'Locação':
 			porcentagem = df_parcelas.loc[idx, 'Valor_Parcela'] / df_parcelas.loc[idx, 'Valor_Locacao_Total']
-			df_parcelas.at[idx, 'Repasse_Gazit'] = row['Total_Gazit'] * porcentagem
+			df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = row['Total_Gazit'] * porcentagem
+
+	# Calcula Valor Liquido de Repasse para categoria "Locação"
+	for idx, row in df_parcelas.iterrows():
+		if row['Categoria_Parcela'] == 'Locação':
+			df_parcelas.at[idx, 'Repasse_Gazit_Liquido'] = round(row['Repasse_Gazit_Bruto'] * 0.8547, 2)
 
 	return df_parcelas
+   
+
+def calcular_repasses_gazit_parcelas_liquido(df_parcelas, df_eventos):
+    return 0
 	
 

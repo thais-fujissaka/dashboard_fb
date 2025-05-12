@@ -74,7 +74,7 @@ if eventos:
 	df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
 
 	# Calcula o valor de repasse para Gazit das parcelas
-	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
+	df_parcelas =calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
 	# Renomeia colunas
 	df_eventos = rename_colunas_eventos(df_eventos)
@@ -82,7 +82,7 @@ if eventos:
 	
 	# Formata valores monetários brasileiro
 	df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Gazit', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
-	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit'])
+	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit'])
 
 	df_eventos = df_eventos.drop(columns=['Evento'])
 
@@ -102,7 +102,7 @@ if eventos:
 	)
 	# Parcelas
 	st.markdown("## Parcelas")
-	st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Valor Bruto Repasse Gazit']], 
+	st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit']], 
 		use_container_width=True, 
 		hide_index=True,
 		column_config={

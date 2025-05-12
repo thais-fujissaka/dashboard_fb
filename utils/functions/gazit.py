@@ -8,7 +8,10 @@ def grafico_barras_repasse_mensal(df_parcelas):
     df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
 
     # Agrupa os valores por mês e ano
-    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Repasse_Gazit'].sum().reset_index()
+    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano']).agg({
+        'Repasse_Gazit_Bruto': 'sum',
+        'Repasse_Gazit_Liquido': 'sum'
+    }).reset_index()
 
     # Cria lista de meses
     meses = df_parcelas_agrupado['Mes'].unique().tolist()
@@ -16,7 +19,8 @@ def grafico_barras_repasse_mensal(df_parcelas):
     nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
     
     # Cria lista de valores
-    total_repasse_mes = df_parcelas_agrupado['Repasse_Gazit'].tolist()
+    total_repasse_bruto = df_parcelas_agrupado['Repasse_Gazit_Bruto'].tolist()
+    total_repasse_liquido = df_parcelas_agrupado['Repasse_Gazit_Liquido'].tolist()
 
     # Options do grafico
     option = {
@@ -49,12 +53,27 @@ def grafico_barras_repasse_mensal(df_parcelas):
         ],
         "series": [
             {
-                "name": "Repasse Gazit",
+                "name": "Repasse Bruto Gazit",
                 "type": "bar",
-                "barWidth": "60%",
-                "data": total_repasse_mes,
+                "barWidth": "35%",
+                "data": total_repasse_bruto,
                 "itemStyle": {
                     "color": "#FAC858"
+                },
+                "label": {
+                "show": True,
+                "position": "top",
+                "color": "#000"  # cor do texto
+                }
+            },
+            {
+                "name": "Repasse Líquido Gazit",
+                "type": "bar",
+                "barWidth": "35%",
+                "barGap": "5%",
+                "data": total_repasse_liquido,
+                "itemStyle": {
+                    "color": "#5470C6"
                 },
                 "label": {
                 "show": True,

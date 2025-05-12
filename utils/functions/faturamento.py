@@ -102,7 +102,7 @@ def grafico_barras_total_eventos(df_parcelas):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
@@ -253,7 +253,7 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
@@ -373,7 +373,7 @@ def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
@@ -492,7 +492,7 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
@@ -606,7 +606,7 @@ def grafico_barras_faturamento_AB(df_parcelas):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit', 'Valor_Locacao_Total'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Valor_Locacao_Total', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela'])

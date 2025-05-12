@@ -71,7 +71,6 @@ df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 # Calcula o valor de repasse para Gazit das parcelas
 df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
-
 # Repasses Gazit #
      
 # Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
@@ -93,7 +92,7 @@ if mes != None:
 
 	# Formatacao de colunas
 	df_parcelas = rename_colunas_parcelas(df_parcelas)
-	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
+	df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
 
 	st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
  

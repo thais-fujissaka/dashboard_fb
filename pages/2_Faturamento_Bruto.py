@@ -69,15 +69,14 @@ df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 # Calcula o valor de repasse para Gazit das parcelas
 df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
-
 # FATURAMENTO #
 
 # Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["Total de Eventos", "Locação Aroo", "Locação Anexo", "Locação Notiê", "Alimentos e Bebidas"])
 
 with tab1:
-	st.markdown("### Faturamento Total de Eventos")
-	mes_faturamento_eventos = grafico_barras_total_eventos(df_parcelas)
+    st.markdown("### Faturamento Total de Eventos")
+    mes_faturamento_eventos = grafico_barras_total_eventos(df_parcelas)
 
 with tab2:
 	st.markdown("### Faturamento - Locação Aroo")
