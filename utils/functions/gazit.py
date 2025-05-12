@@ -30,6 +30,12 @@ def grafico_barras_repasse_mensal(df_parcelas):
                 "type": "shadow"
             }
         },
+        "legend": {
+            "show": True,
+            "data": ["Repasse Bruto Gazit", "Repasse Líquido Gazit"],
+            "top": "top",
+            "textStyle": {"color": "#000"}
+        },
         "grid": {
             "left": "3%",
             "right": "4%",
