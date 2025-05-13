@@ -13,6 +13,9 @@ def grafico_barras_repasse_mensal(df_parcelas):
         'Repasse_Gazit_Liquido': 'sum'
     }).reset_index()
 
+    df_parcelas_agrupado['Repasse_Gazit_Bruto'] = df_parcelas_agrupado['Repasse_Gazit_Bruto'].round(2)
+    df_parcelas_agrupado['Repasse_Gazit_Liquido'] = df_parcelas_agrupado['Repasse_Gazit_Liquido'].round(2)
+
     # Cria lista de meses
     meses = df_parcelas_agrupado['Mes'].unique().tolist()
     nomes_meses_pt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']

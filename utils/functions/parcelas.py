@@ -89,7 +89,7 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 	for idx, row in df_parcelas.iterrows():
 		if row['Categoria_Parcela'] == 'Locação':
 			porcentagem = df_parcelas.loc[idx, 'Valor_Parcela'] / df_parcelas.loc[idx, 'Valor_Locacao_Total']
-			df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = row['Total_Gazit'] * porcentagem
+			df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = round(row['Total_Gazit'] * porcentagem, 2)
 
 	# Calcula Valor Liquido de Repasse para categoria "Locação"
 	for idx, row in df_parcelas.iterrows():
@@ -98,8 +98,4 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 
 	return df_parcelas
    
-
-def calcular_repasses_gazit_parcelas_liquido(df_parcelas, df_eventos):
-    return 0
-	
 
