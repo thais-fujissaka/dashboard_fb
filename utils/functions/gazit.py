@@ -1,6 +1,6 @@
 import streamlit as st
 from streamlit_echarts import st_echarts
-
+from utils.functions.general_functions import *
 
 def grafico_barras_repasse_mensal(df_parcelas):
     # Extrai mês e ano da coluna 'Data_Vencimento'
@@ -25,14 +25,18 @@ def grafico_barras_repasse_mensal(df_parcelas):
     total_repasse_bruto = df_parcelas_agrupado['Repasse_Gazit_Bruto'].tolist()
     total_repasse_liquido = df_parcelas_agrupado['Repasse_Gazit_Liquido'].tolist()
 
+    # Labels formatados
+    labels_brutos = [format_brazilian(v) for v in total_repasse_bruto]
+    labels_liquidos = [format_brazilian(v) for v in total_repasse_liquido]
+
+    # Dados com labels
+    dados_brutos_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_repasse_bruto, labels_brutos)]
+    dados_liquidos_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_repasse_liquido, labels_liquidos)]
+    
     # Options do grafico
+    # Montar gráfico
     option = {
-        "tooltip": {
-            "trigger": "axis",
-            "axisPointer": {
-                "type": "shadow"
-            }
-        },
+        "tooltip": {"trigger": "axis", "axisPointer": {"type": "shadow"}},
         "legend": {
             "show": True,
             "data": ["Repasse Bruto Gazit", "Repasse Líquido Gazit"],
@@ -40,57 +44,27 @@ def grafico_barras_repasse_mensal(df_parcelas):
             "textStyle": {"color": "#000"}
         },
         "grid": {
-            "left": "3%",
-            "right": "4%",
-            "bottom": "3%",
-            "containLabel": True
+            "left": "3%", "right": "4%", "bottom": "3%", "containLabel": True
         },
-        "xAxis": [
-            {
-                "type": "category",
-                "data": nomes_meses,
-                "boundaryGap": True,
-                "axisTick": {
-                    "alignWithLabel": True
-                }
-            }
-        ],
-        "yAxis": [
-            {
-                "type": "value"
-            }
-        ],
+        "xAxis": [{"type": "category", "data": nomes_meses}],
+        "yAxis": [{"type": "value"}],
         "series": [
             {
                 "name": "Repasse Bruto Gazit",
                 "type": "bar",
                 "barWidth": "35%",
-                "data": total_repasse_bruto,
-                "itemStyle": {
-                    "color": "#FAC858"
-                },
-                "label": {
-                "show": True,
-                "position": "top",
-                "color": "#000"  # cor do texto
-                }
+                "data": dados_brutos_com_labels,
+                "itemStyle": {"color": "#FAC858"}
             },
             {
                 "name": "Repasse Líquido Gazit",
                 "type": "bar",
                 "barWidth": "35%",
                 "barGap": "5%",
-                "data": total_repasse_liquido,
-                "itemStyle": {
-                    "color": "#5470C6"
-                },
-                "label": {
-                "show": True,
-                "position": "top",
-                "color": "#000"  # cor do texto
-                }
+                "data": dados_liquidos_com_labels,
+                "itemStyle": {"color": "#5470C6"}
             }
-        ]        
+        ]
     }
 
     # Evento de clique
