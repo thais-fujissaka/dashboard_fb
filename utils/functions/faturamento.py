@@ -6,8 +6,17 @@ from utils.functions.general_functions import *
 from utils.functions.parcelas import *
 
 
-# Total de Eventos
+def valores_labels_formatados(lista_valores):
+    # Labels formatados
+    labels = [format_brazilian(v) for v in lista_valores]
 
+    # Dados com labels
+    lista_valores_formatados = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(lista_valores, labels)]
+
+    return lista_valores_formatados
+
+
+# Total de Eventos
 def grafico_barras_total_eventos(df_parcelas):
     # Extrai mês e ano da coluna 'Data_Vencimento'
     df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
@@ -23,6 +32,9 @@ def grafico_barras_total_eventos(df_parcelas):
     
     # Cria lista de valores
     total_eventos = df_parcelas_agrupado['Valor_Parcela'].tolist()
+
+    # Valores e labels formatados
+    total_eventos_formatados = valores_labels_formatados(total_eventos)
 
     # Options do grafico
     option = {
@@ -58,7 +70,7 @@ def grafico_barras_total_eventos(df_parcelas):
                 "name": "Faturamento de Eventos",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_eventos,
+                "data": total_eventos_formatados,
                 "itemStyle": {
                     "color": "#FAC858"
                 },
@@ -174,6 +186,9 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
     # Cria lista de valores
     total_aroos = df_parcelas_agrupado['Valor_Parcela_Aroos'].tolist()
 
+    # Valores e labels formatados
+    total_aroos_formatados = valores_labels_formatados(total_aroos)
+    
     # Options do grafico
     option = {
         "tooltip": {
@@ -208,7 +223,7 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
                 "name": "Faturamento de Locação Aroo",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_aroos,
+                "data": total_aroos_formatados,
                 "itemStyle": {
                     "color": "#FAC858"
                 },
@@ -295,6 +310,9 @@ def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
     # Cria lista de valores
     total_anexo = df_parcelas_agrupado['Valor_Parcela_Anexo'].tolist()
 
+    # Valores e labels formatados
+    total_anexo_formatados = valores_labels_formatados(total_anexo)
+
     # Options do grafico
     option = {
         "tooltip": {
@@ -329,7 +347,7 @@ def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
                 "name": "Faturamento de Locação Anexo",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_anexo,
+                "data": total_anexo_formatados,
                 "itemStyle": {
                     "color": "#FAC858"
                 },
@@ -414,6 +432,9 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
     # Cria lista de valores
     total_notie = df_parcelas_agrupado['Valor_Parcela_Notie'].tolist()
 
+    # Valores e labels formatados
+    total_notie_formatados = valores_labels_formatados(total_notie)
+
     # Options do grafico
     option = {
         "tooltip": {
@@ -448,7 +469,7 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
                 "name": "Faturamento de Locação Notiê",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_notie,
+                "data": total_notie_formatados,
                 "itemStyle": {
                     "color": "#FAC858"
                 },
@@ -528,6 +549,9 @@ def grafico_barras_faturamento_AB(df_parcelas):
     # Cria lista de valores
     total_AB = df_parcelas_agrupado['Valor_Parcela'].tolist()
 
+    # Valores e labels formatados
+    total_AB_formatados = valores_labels_formatados(total_AB)
+
     # Options do grafico
     option = {
         "tooltip": {
@@ -562,7 +586,7 @@ def grafico_barras_faturamento_AB(df_parcelas):
                 "name": "Faturamento de Alimentos e Bebidas",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_AB,
+                "data": total_AB_formatados,
                 "itemStyle": {
                     "color": "#FAC858"
                 },

@@ -81,33 +81,62 @@ def main():
 	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
 	# Repasses Gazit #
+ 
+	tab1, tab2 = st.tabs(["Projeção por Vencimento", "Projeção por Recebimento"])
+	with tab1:
+		# Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
+		st.markdown("### Gazit - Projeção por Vencimento")
+
+		mes_vencimento = grafico_barras_repasse_mensal_vencimento(df_parcelas)
+
+		if mes_vencimento != None:
+			st.markdown("#### Parcelas")
+				
+			# Filtra parcelas pelo mês da Data_Vencimento
+			df_parcelas_vencimento = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_vencimento)
+
+			# Drop colunas desnecessárias
+			df_parcelas_vencimento.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
+
+			# Formata datas: datetime[ns] -> str
+			df_parcelas_vencimento = df_formata_datas_sem_horario(df_parcelas_vencimento, ['Data_Vencimento', 'Data_Recebimento'])
+
+			# Formatacao de colunas
+			df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
+			df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
+
+			st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
 		
-	# Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
-	st.markdown("### Repasse Mensal - Gazit")
+		else:
+			st.markdown("#### Parcelas")
+			st.markdown("Clique em um mês no gráfico para visualizar parcelas.")
 
-	mes = grafico_barras_repasse_mensal(df_parcelas)
+	with tab2:
+		st.markdown("### Gazit - Projeção por Recebimento")
 
-	if mes != None:
-		st.markdown("#### Parcelas")
-			
-		# Filtra parcelas pelo mês da Data_Vencimento
-		df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes)
+		mes_recebimento = grafico_barras_repasse_mensal_recebimento(df_parcelas)
 
-		# Drop colunas desnecessárias
-		df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
+		if mes_recebimento != None:
+			st.markdown("#### Parcelas")
 
-		# Formata datas: datetime[ns] -> str
-		df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
+			# Filtra parcelas pelo mês da Data_Recebimento
+			df_parcelas_recebimento = df_filtrar_mes(df_parcelas, 'Data_Recebimento', mes_recebimento)
 
-		# Formatacao de colunas
-		df_parcelas = rename_colunas_parcelas(df_parcelas)
-		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
+			# Drop colunas desnecessárias
+			df_parcelas_recebimento.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
 
-		st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
-	
-	else:
-		st.markdown("#### Parcelas")
-		st.markdown("Clique em um mês no gráfico para visualizar parcelas.")
-	
+			# Formata datas: datetime[ns] -> str
+			df_parcelas_recebimento = df_formata_datas_sem_horario(df_parcelas_recebimento, ['Data_Vencimento', 'Data_Recebimento'])
+
+			# Formatacao de colunas
+			df_parcelas_recebimento = rename_colunas_parcelas(df_parcelas_recebimento)
+			df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
+
+			st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
+		
+		else:
+			st.markdown("#### Parcelas")
+			st.markdown("Clique em um mês no gráfico para visualizar parcelas.")
+
 if __name__ == '__main__':
-  main()
+    main()

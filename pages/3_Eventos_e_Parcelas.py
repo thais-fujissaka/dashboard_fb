@@ -41,6 +41,8 @@ def main():
 		'Valor_Locacao_Total': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
+	df_eventos['Data_Contratacao'] = pd.to_datetime(df_eventos['Data_Contratacao'], errors='coerce')
+	df_eventos['Data_Evento'] = pd.to_datetime(df_eventos['Data_Evento'], errors='coerce')
 
 	# Formata tipos de dados do dataframe de parcelas
 	tipos_de_dados_parcelas = {
@@ -48,7 +50,9 @@ def main():
 		'Categoria_Parcela': str
 	}
 	df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
-
+	df_parcelas['Data_Vencimento'] = pd.to_datetime(df_parcelas['Data_Vencimento'], errors='coerce')
+	df_parcelas['Data_Recebimento'] = pd.to_datetime(df_parcelas['Data_Recebimento'], errors='coerce')
+ 
 	# Adiciona coluna de concatenação de ID e Nome do Evento
 	df_eventos['ID_Nome_Evento'] = df_eventos['ID_Evento'].astype(str) + " - " + df_eventos['Nome_do_Evento']
 
@@ -56,7 +60,8 @@ def main():
 	df_eventos = calcular_repasses_gazit(df_eventos)
 
 	# Lista de eventos para o filtro
-	eventos_id_options = df_eventos['ID_Nome_Evento'].unique().tolist()
+	eventos_unicos = df_eventos['ID_Nome_Evento'].unique().tolist()
+	eventos_id_options = ['Todos os Eventos'] + sorted(eventos_unicos)
 
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
@@ -73,9 +78,10 @@ def main():
 
 	# Janela de visualização
 	if eventos:
-		# Filtra os eventos e parcelas dos eventos selecionados
-		df_eventos = df_eventos[df_eventos['ID_Nome_Evento'].isin(eventos)]
-		df_parcelas = df_parcelas[df_parcelas['ID_Evento'].isin(df_eventos['ID_Evento'])]
+		if 'Todos os Eventos' not in eventos:
+			# Filtra os eventos e parcelas dos eventos selecionados
+			df_eventos = df_eventos[df_eventos['ID_Nome_Evento'].isin(eventos)]
+			df_parcelas = df_parcelas[df_parcelas['ID_Evento'].isin(df_eventos['ID_Evento'])]
 
 		# Formata datas: datetime[ns] -> str
 		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Contratacao')
@@ -83,7 +89,7 @@ def main():
 		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
 
 		# Calcula o valor de repasse para Gazit das parcelas
-		df_parcelas =calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
+		df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
 		# Renomeia colunas
 		df_eventos = rename_colunas_eventos(df_eventos)

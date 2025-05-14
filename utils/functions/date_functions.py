@@ -41,10 +41,14 @@ def df_format_date_brazilian(df, date_column):
   return df
 
 def formata_data_sem_horario(data):
+    if pd.isnull(data):
+        return None
     if isinstance(data, str):
-        data = datetime.datetime.strptime(data, "%d-%m-%Y")
-    data_formatada = data.strftime("%d-%m-%Y")
-    return data_formatada
+        try:
+            data = datetime.datetime.strptime(data, "%d-%m-%Y")
+        except ValueError:
+            return ""  # string inválida para conversão
+    return data.strftime("%d-%m-%Y")
 
 def formata_data_horario_zero(data):
     if isinstance(data, str):

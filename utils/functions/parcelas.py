@@ -53,7 +53,8 @@ def rename_colunas_eventos(df):
 	return df
 
 def rename_colunas_parcelas(df):
-	df.rename(columns={
+    df = df.copy()
+    df.rename(columns={
 		'ID_Parcela': 'ID Parcela',
 		'ID_Evento': 'ID Evento',
 		'Nome_do_Evento': 'Nome do Evento',
@@ -69,7 +70,7 @@ def rename_colunas_parcelas(df):
 		'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
 		'Valor_Parcela_Notie': 'Valor Parcela Notiê'
 	}, inplace=True)
-	return df
+    return df
 
 
 def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
@@ -88,8 +89,12 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 	# Calcula Valor Bruto de Repasse para categoria "Locação"
 	for idx, row in df_parcelas.iterrows():
 		if row['Categoria_Parcela'] == 'Locação':
-			porcentagem = df_parcelas.loc[idx, 'Valor_Parcela'] / df_parcelas.loc[idx, 'Valor_Locacao_Total']
-			df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = round(row['Total_Gazit'] * porcentagem, 2)
+			# Se o valor da locação é zero, repasse é igual a zero
+			if row['Valor_Locacao_Total'] != 0:
+				porcentagem = df_parcelas.loc[idx, 'Valor_Parcela'] / df_parcelas.loc[idx, 'Valor_Locacao_Total']
+				df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = round(row['Total_Gazit'] * porcentagem, 2)
+			else:
+				df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = 0.00
 
 	# Calcula Valor Liquido de Repasse para categoria "Locação"
 	for idx, row in df_parcelas.iterrows():
