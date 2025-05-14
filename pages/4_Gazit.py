@@ -96,7 +96,7 @@ def main():
 			df_parcelas_vencimento = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_vencimento)
 
 			# Drop colunas desnecessárias
-			df_parcelas_vencimento.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
+			df_parcelas_vencimento.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Valor_Locacao_Total'], inplace=True)
 
 			# Formata datas: datetime[ns] -> str
 			df_parcelas_vencimento = df_formata_datas_sem_horario(df_parcelas_vencimento, ['Data_Vencimento', 'Data_Recebimento'])
@@ -123,7 +123,7 @@ def main():
 			df_parcelas_recebimento = df_filtrar_mes(df_parcelas, 'Data_Recebimento', mes_recebimento)
 
 			# Drop colunas desnecessárias
-			df_parcelas_recebimento.drop(columns=['Mes', 'Ano', 'Total_Gazit'], inplace=True)
+			df_parcelas_recebimento.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Valor_Locacao_Total'], inplace=True)
 
 			# Formata datas: datetime[ns] -> str
 			df_parcelas_recebimento = df_formata_datas_sem_horario(df_parcelas_recebimento, ['Data_Vencimento', 'Data_Recebimento'])
