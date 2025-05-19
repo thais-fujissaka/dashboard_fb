@@ -82,7 +82,7 @@ def main():
 
 	# Repasses Gazit #
  
-	tab1, tab2 = st.tabs(["Projeção por Vencimento", "Projeção por Recebimento"])
+	tab1, tab2 = st.tabs(["Projeção por Vencimento", "Valor Realizado (R$)"])
 	with tab1:
 		# Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
 		st.markdown("### Gazit - Projeção por Vencimento")
