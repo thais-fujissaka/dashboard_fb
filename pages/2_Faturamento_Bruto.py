@@ -61,7 +61,7 @@ def main():
 
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
-		st.title("Faturamento Bruto")
+		st.title(":moneybag: Faturamento Bruto")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
 	with col3:

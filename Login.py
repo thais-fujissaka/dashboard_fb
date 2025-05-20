@@ -23,17 +23,20 @@ def main():
     st.session_state['loggedIn'] = False
 
   if not st.session_state['loggedIn']:
-    st.title("Controle de Eventos")
-    st.write("Insira seus dados de login:")
-    userName = st.text_input(label=" ", value="", placeholder="Email")
-    password = st.text_input(label=" ", value="", placeholder="Senha", type="password")
-    st.button("Login", on_click=handle_login, args=(userName, password))
-    st.stop()
-  
+    st.title(":calendar: Controle de Eventos")
+    st.write("")
+
+    with st.container(border=True):
+      userName = st.text_input(label="Login", value="", placeholder="nome@email.com")
+      password = st.text_input(label="Senha", value="", placeholder="senha", type="password")
+      col1, col2, col3 = st.columns([1, 1, 1])
+      with col2:
+        st.button("Login", on_click=handle_login, args=(userName, password), type="primary", use_container_width=True)
+      st.stop()
   else:
     st.write("Você está logado!")
-    st.markdown("Redirecionando para a página de Faturamento Bruto...")
-    st.switch_page("pages/2_Faturamento_Bruto.py")
+    st.markdown("Redirecionando para a página Home...")
+    st.switch_page("pages/1_Home.py")
 
 
 if __name__ == "__main__":

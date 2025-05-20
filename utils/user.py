@@ -2,24 +2,37 @@ import streamlit as st
 import requests
 
 def login(userName: str, userPassword: str) -> bool:
-    if (userName is None):
+    if (userName is None or userPassword is None):
         return False
     
-    login_data = {
+    users = list(st.secrets["gazit_users"].keys())
+    if userName not in users:
+      login_data = {
         "username": userName,
         "password": userPassword,
         "loginSource": 1,
-    }
-
-    login = requests.post('https://apps.blueprojects.com.br/fb/Security/Login',json=login_data).json()
-
-    if "error" in login:
+      }
+      response = requests.post('https://apps.blueprojects.com.br/fb/Security/Login',json=login_data).json()
+      if "error" in response:
         return False
+      elif response.get("data", {}).get("success") == True:
+        return login_data
+      else:
+          return False
     else:
-        if login["data"]["success"] == True:
-            return login
-        else:
-            return False
+      senha_correta = st.secrets["gazit_users"][userName]
+      if userPassword == senha_correta:
+        user_data = {
+          "data": {
+            "success": True,
+            "user": {
+              "name": userName
+            }
+          }
+        }
+        return user_data
+      else:
+        return False
 
 
 def logout():
