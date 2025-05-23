@@ -72,13 +72,15 @@ def main():
 	# Seletor de ano
 	col1, col2 = st.columns([1, 3])
 	with col1:
-		ano = seletor_ano(2025, 2025, key='ano_faturamento')
+		ano = seletor_ano(2024, 2025, key='ano_faturamento')
 	st.divider()
 
-	df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
+	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
+	
+	df_parcelas_vencimento = df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
+	df_parcelas_recebimento = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
 
 	# Calcula o valor de repasse para Gazit das parcelas
-	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
 	# Repasses Gazit #
  
@@ -87,13 +89,13 @@ def main():
 		# Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
 		st.markdown("### Gazit - Projeção por Vencimento")
 
-		mes_vencimento = grafico_barras_repasse_mensal_vencimento(df_parcelas)
+		mes_vencimento = grafico_barras_repasse_mensal_vencimento(df_parcelas_vencimento)
 
 		if mes_vencimento != None:
 			st.markdown("#### Parcelas")
 				
 			# Filtra parcelas pelo mês da Data_Vencimento
-			df_parcelas_vencimento = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_vencimento)
+			df_parcelas_vencimento = df_filtrar_mes(df_parcelas_vencimento, 'Data_Vencimento', mes_vencimento)
 
 			# Drop colunas desnecessárias
 			df_parcelas_vencimento.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Valor_Locacao_Total'], inplace=True)
@@ -114,13 +116,13 @@ def main():
 	with tab2:
 		st.markdown("### Gazit - Projeção por Recebimento")
 
-		mes_recebimento = grafico_barras_repasse_mensal_recebimento(df_parcelas)
+		mes_recebimento = grafico_barras_repasse_mensal_recebimento(df_parcelas_recebimento)
 
 		if mes_recebimento != None:
 			st.markdown("#### Parcelas")
 
 			# Filtra parcelas pelo mês da Data_Recebimento
-			df_parcelas_recebimento = df_filtrar_mes(df_parcelas, 'Data_Recebimento', mes_recebimento)
+			df_parcelas_recebimento = df_filtrar_mes(df_parcelas_recebimento, 'Data_Recebimento', mes_recebimento)
 
 			# Drop colunas desnecessárias
 			df_parcelas_recebimento.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Valor_Locacao_Total'], inplace=True)
