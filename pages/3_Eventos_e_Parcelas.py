@@ -87,7 +87,7 @@ def main():
 		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Contratacao')
 		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Evento')
 		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
-
+		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Recebimento')
 		# Calcula o valor de repasse para Gazit das parcelas
 		df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 
@@ -117,7 +117,7 @@ def main():
 		)
 		# Parcelas
 		st.markdown("## Parcelas")
-		st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit']], 
+		st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit']], 
 			use_container_width=True, 
 			hide_index=True,
 			column_config={

@@ -87,7 +87,7 @@ def main():
 	tab1, tab2 = st.tabs(["Projeção por Vencimento", "Valor Realizado (R$)"])
 	with tab1:
 		# Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
-		st.markdown("### Gazit - Projeção por Vencimento")
+		st.markdown("### Projeção por Vencimento")
 
 		mes_vencimento = grafico_barras_repasse_mensal_vencimento(df_parcelas_vencimento)
 
@@ -114,7 +114,7 @@ def main():
 			st.markdown("Clique em um mês no gráfico para visualizar parcelas.")
 
 	with tab2:
-		st.markdown("### Gazit - Projeção por Recebimento")
+		st.markdown("### Valor Realizado (R$)")
 
 		mes_recebimento = grafico_barras_repasse_mensal_recebimento(df_parcelas_recebimento)
 
