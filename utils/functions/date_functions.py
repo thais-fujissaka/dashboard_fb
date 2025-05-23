@@ -40,6 +40,19 @@ def df_format_date_brazilian(df, date_column):
   df[date_column] = df[date_column].dt.strftime('%d-%m-%Y')
   return df
 
+
+def formata_data_horario_zero_str(data):
+    if isinstance(data, str):
+        data = datetime.datetime.strptime(data, "%Y-%m-%d 00:00:00")
+    data_formatada = data.strftime("%Y-%m-%d 00:00:00")
+    return data_formatada
+
+
+def df_formata_data_horario_zero_str(df, date_column):
+    df[date_column] = df[date_column].apply(lambda x: formata_data_horario_zero_str(x))
+    return df
+
+
 def formata_data_sem_horario(data):
     if pd.isnull(data):
         return None
@@ -50,22 +63,31 @@ def formata_data_sem_horario(data):
             return ""  # string inválida para conversão
     return data.strftime("%d-%m-%Y")
 
-def formata_data_horario_zero(data):
-    if isinstance(data, str):
-        data = datetime.datetime.strptime(data, "%Y-%m-%d 00:00:00")
-    data_formatada = data.strftime("%Y-%m-%d 00:00:00")
-    return data_formatada
-
-
-def df_formata_data_horario_zero(df, date_column):
-    df[date_column] = df[date_column].apply(lambda x: formata_data_horario_zero(x))
-    return df
 
 def df_formata_data_sem_horario(df, date_column):
     df[date_column] = df[date_column].apply(lambda x: formata_data_sem_horario(x))
     return df
 
+
 def df_formata_datas_sem_horario(df, date_columns):
     for column in date_columns:
         df[column] = df[column].apply(lambda x: formata_data_sem_horario(x) if not pd.isnull(x) else x)
+    return df
+
+
+def formata_data_sem_horario_YYYY_MM_DD(data):
+    if pd.isnull(data):
+        return None
+    if isinstance(data, str):
+        try:
+            data = datetime.datetime.strptime(data, "%Y-%m-%d")
+        except ValueError:
+            return ""  # string inválida para conversão
+    return data.strftime("%Y-%m-%d")
+
+
+def df_formata_datas_sem_horario_YYYY_MM_DD(df, date_columns):
+    df = df.copy()
+    for column in date_columns:
+        df[column] = df[column].apply(lambda x: formata_data_sem_horario_YYYY_MM_DD(x) if not pd.isnull(x) else x)
     return df

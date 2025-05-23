@@ -15,6 +15,7 @@ from utils.user import *
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
+	page_icon=":house:",
 	page_title="Gazit",
 	layout="wide",
 	initial_sidebar_state="collapsed"
