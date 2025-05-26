@@ -5,6 +5,57 @@ from streamlit_echarts import st_echarts
 from utils.functions.general_functions import *
 from utils.functions.parcelas import *
 
+def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
+    if filtro_data == 'Competência':
+
+        df = df_parcelas.merge(
+            df_eventos[['Data_Evento', 'ID_Evento']],
+            how='left',
+            on='ID_Evento'
+        )
+        return df_filtrar_ano(df, 'Data_Evento', ano)
+    elif filtro_data == 'Recebimento (Caixa)':
+        return df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
+
+
+def montar_tabs_geral(df_parcelas, casa):
+    tab_names = ['Total de Eventos', 'Alimentos e Bebidas', 'Couvert', 'Locação', 'Serviço']
+    tabs = st.tabs(tab_names)
+    with tabs[0]:
+        st.markdown(f"#### Faturamento Total de Eventos - {casa}")
+        grafico_barras_total_eventos(df_parcelas)
+    with tabs[1]:
+        st.markdown("#### Alimentos e Bebidas")
+        grafico_barras_faturamento_AB(df_parcelas)
+    with tabs[2]:
+        st.markdown("#### Couvert")
+    with tabs[3]:
+        st.markdown("#### Locação")
+    with tabs[4]:
+        st.markdown("#### Serviço")
+
+
+def montar_tabs_priceless(df_parcelas_casa, df_eventos):
+    df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas_casa, df_eventos)
+    tab_names = ['Total de Eventos - Priceless', 'Locação Aroo', 'Locação Anexo', 'Locação Notiê', 'Alimentos e Bebidas']
+    tabs = st.tabs(tab_names)
+
+    with tabs[0]:
+        st.markdown("### Faturamento Total de Eventos - Priceless")
+        grafico_barras_total_eventos(df_parcelas)
+    with tabs[1]:
+        st.markdown("### Locação Aroo")
+        grafico_barras_locacao_aroo(df_parcelas, df_eventos)
+    with tabs[2]:
+        st.markdown("### Locação Anexo")
+        grafico_barras_locacao_anexo(df_parcelas, df_eventos)
+    with tabs[3]:
+        st.markdown("### Locação Notiê")
+        grafico_barras_locacao_notie(df_parcelas, df_eventos)
+    with tabs[4]:
+        st.markdown("### Alimentos e Bebidas")
+        grafico_barras_faturamento_AB(df_parcelas)
+
 
 def valores_labels_formatados(lista_valores):
     # Labels formatados
@@ -114,7 +165,15 @@ def grafico_barras_total_eventos(df_parcelas):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido'], inplace=True)
+            if 'Total_Gazit' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Total_Gazit'], inplace=True)
+            if 'Repasse_Gazit_Bruto' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Repasse_Gazit_Bruto'], inplace=True)
+            if 'Repasse_Gazit_Liquido' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
+            if 'Valor_Locacao_Total' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
@@ -128,7 +187,6 @@ def grafico_barras_total_eventos(df_parcelas):
 # Locação
 
 def df_fracao_locacao_espacos(df_eventos):
-
     # Adiciona coluna de cálculo de fração de cada espaço em relação ao valor total de locação
     # Aroo
     df_eventos['Fracao_Aroo'] = (df_eventos['Valor_Locacao_Aroo_1'] + df_eventos['Valor_Locacao_Aroo_2'] + df_eventos['Valor_Locacao_Aroo_3']) / df_eventos['Valor_Locacao_Total']
@@ -268,7 +326,7 @@ def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
@@ -391,7 +449,7 @@ def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
@@ -405,6 +463,8 @@ def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
 # Locação Notiê
 
 def grafico_barras_locacao_notie(df_parcelas, df_eventos):
+    df_parcelas = df_parcelas.copy()
+
     # Normaliza
     df_parcelas['Categoria_Parcela'] = df_parcelas['Categoria_Parcela'].str.replace('ç', 'c')
 
@@ -513,7 +573,7 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
@@ -527,6 +587,8 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
 # Alimentos e Bebidas
 
 def grafico_barras_faturamento_AB(df_parcelas):
+
+    df_parcelas = df_parcelas.copy()
     # Extrai mês e ano da coluna 'Data_Vencimento'
     df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
     df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
@@ -630,7 +692,15 @@ def grafico_barras_faturamento_AB(df_parcelas):
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Valor_Locacao_Total', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano'], inplace=True)
+            if 'Total_Gazit' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Total_Gazit'], inplace=True)
+            if 'Repasse_Gazit_Bruto' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Repasse_Gazit_Bruto'], inplace=True)
+            if 'Repasse_Gazit_Liquido' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
+            if 'Valor_Locacao_Total' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela'])

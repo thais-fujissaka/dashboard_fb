@@ -4,9 +4,9 @@ import numpy as np
 from workalendar.america import Brazil
 import openpyxl
 import os
-from utils.queries import *
 from utils.functions.date_functions import *
 from utils.user import *
+from utils.queries import GET_PERMISSIONS, GET_USERNAME, get_casas_validas
 
 
 def config_permissoes_user():
