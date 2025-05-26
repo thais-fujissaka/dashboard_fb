@@ -28,6 +28,16 @@ def main():
 
 	config_sidebar()
 
+	col1, col2, col3 = st.columns([6, 1, 1])
+	with col1:
+		st.title(":moneybag: Faturamento Bruto")
+	with col2:
+		st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
+	with col3:
+		if st.button('Logout', key='logout_gazit'):
+			logout()
+	st.divider()
+
 	# Recupera dados dos eventos e parcelas
 	df_eventos = GET_EVENTOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
@@ -45,6 +55,8 @@ def main():
 		'Valor_Locacao_Total': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
+	df_eventos['Data_Contratacao'] = pd.to_datetime(df_eventos['Data_Contratacao'], errors='coerce')
+	df_eventos['Data_Evento'] = pd.to_datetime(df_eventos['Data_Evento'], errors='coerce')
 
 	# Formata tipos de dados do dataframe de parcelas
 	tipos_de_dados_parcelas = {
@@ -52,6 +64,8 @@ def main():
 		'Categoria_Parcela': str
 	}
 	df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
+	df_parcelas['Data_Vencimento'] = pd.to_datetime(df_parcelas['Data_Vencimento'], errors='coerce')
+	df_parcelas['Data_Recebimento'] = pd.to_datetime(df_parcelas['Data_Recebimento'], errors='coerce')
 
 	# Adiciona coluna de concatenação de ID e Nome do Evento
 	df_eventos['ID_Nome_Evento'] = df_eventos['ID_Evento'].astype(str) + " - " + df_eventos['Nome_do_Evento']
@@ -59,50 +73,40 @@ def main():
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
 
-	col1, col2, col3 = st.columns([6, 1, 1])
+	# Seletor de ano
+	col0, col1, col2 = st.columns(3, gap="large", vertical_alignment="center")
+	with col0:
+		id_casa, casa, id_zigpay = input_selecao_casas(key='faturamento_bruto')
 	with col1:
-		st.title(":moneybag: Faturamento Bruto")
+		filtro_data = st.segmented_control(
+			label="Filtrar por Data de:",
+			options=["Competência", "Recebimento (Caixa)"],
+			selection_mode="single",
+			default="Competência"
+		)
 	with col2:
-		st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_gazit'):
-			logout()
+		ano = seletor_ano(2024, 2025, key='ano_faturamento')
+	
 	st.divider()
 
-	# Seletor de ano
-	col1, col2 = st.columns([1, 3])
-	with col1:
-		ano = seletor_ano(2025, 2025, key='ano_faturamento')
+	df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano)
+	
+	if casa == "Todas as Casas":
+		st.markdown("## Por Categoria")
+		montar_tabs_geral(df_parcelas_filtradas_por_data, casa)
+				
+	else:
+		df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
+		if casa == "Priceless":
+			st.markdown("## Por Categoria")
+			montar_tabs_priceless(df_parcelas_casa, df_eventos)
+			
+		else:
+			montar_tabs_geral(df_parcelas_casa, casa)
 
-	df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
+	# st.markdown("### Por Tipo de Evento", help="Social, Corporativo, Turismo, Filmagem ou Sessão de Fotos")
+	# st.markdown("### Por Modelo de Evento", help="Pacote Exclusivo, Consumação Mínima, Comanda Aberta / Couvert Antecipado ou Locação de Espaço")
 
-	# Calcula o valor de repasse para Gazit das parcelas
-	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
-
-	# FATURAMENTO #
-
-	# Gráfico de barras de Faturamento Bruto por mês, ver exemplo do faturamento por dia do dash da Luana
-	tab1, tab2, tab3, tab4, tab5 = st.tabs(["Total de Eventos", "Locação Aroo", "Locação Anexo", "Locação Notiê", "Alimentos e Bebidas"])
-
-	with tab1:
-		st.markdown("### Faturamento Total de Eventos")
-		mes_faturamento_eventos = grafico_barras_total_eventos(df_parcelas)
-
-	with tab2:
-		st.markdown("### Faturamento - Locação Aroo")
-		mes_aroo = grafico_barras_locacao_aroo(df_parcelas, df_eventos)
-
-	with tab3:
-		st.markdown("### Faturamento - Locação Anexo")
-		mes_anexo = grafico_barras_locacao_anexo(df_parcelas, df_eventos)
-
-	with tab4:
-		st.markdown("### Faturamento - Locação Notiê")
-		mes_notie = grafico_barras_locacao_notie(df_parcelas, df_eventos)
-
-	with tab5:
-		st.markdown("### Faturamento - Alimentos e Bebidas")
-		mes_AB = grafico_barras_faturamento_AB(df_parcelas)
 
 if __name__ == '__main__':
   main()

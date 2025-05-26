@@ -1,7 +1,35 @@
 import pandas as pd
 import streamlit as st
-from utils.functions.date_functions import *
 import io
+from utils.functions.date_functions import *
+from utils.queries import *
+
+
+def input_selecao_casas(key):
+    
+    df_casas = get_casas_validas()
+    lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
+    df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
+    casa = st.selectbox("Casa", lista_casas_validas, key=key)
+
+    if casa == "Todas as Casas":
+        id_casa = -1  # Valor padrão para "Todas as Casas"
+        casa = "Todas as Casas"
+        id_zigpay = -1
+    else:
+        df = df_casas.merge(df_validas, on="Casa", how="inner")
+        # Definindo um dicionário para mapear nomes de casas a IDs de casas
+        mapeamento_ids = dict(zip(df["Casa"], df["ID_Casa"]))
+        # Definindo um dicionário para mapear IDs de casas a IDs da Zigpay
+        mapeamento_zigpay = dict(zip(df["Casa"], df["ID_Zigpay"]))
+
+        # Obtendo o ID da casa selecionada
+        id_casa = mapeamento_ids[casa]
+        # Obtendo o ID da Zigpay correspondente ao ID da casa
+        id_zigpay = mapeamento_zigpay[casa]
+
+    return id_casa, casa, id_zigpay
+
 
 def input_periodo_datas(key):
     today = get_today()
@@ -68,3 +96,5 @@ def button_download(df):
         file_name="data.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+
+

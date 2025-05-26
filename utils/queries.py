@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit.logger import get_logger
-from utils.functions.general_functions import *
 import pandas as pd
 import mysql.connector
 
@@ -87,6 +86,24 @@ def GET_USERNAME(email):
 
 
 @st.cache_data
+def get_casas_validas():
+    result, column_names = execute_query("""
+		SELECT te.ID AS ID_Casa,
+		te.NOME_FANTASIA AS Casa,
+		te.ID_ZIGPAY AS ID_Zigpay
+		FROM T_EMPRESAS te
+		"""
+	)
+    df_casas = pd.DataFrame(result, columns=column_names)
+    lista_casas_validas = ['Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Ultra Evil Premium Ltda ']
+    df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
+    df = df_casas.merge(df_validas, on="Casa", how="inner")
+    return df
+
+
+# Dados de Eventos
+
+@st.cache_data
 def GET_EVENTOS_PRICELESS():
    return dataframe_query(f'''
 	SELECT 
@@ -132,6 +149,7 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
 	SELECT
 		tpep.ID as 'ID_Parcela',
 		tpep.FK_EVENTO_PRICELESS as 'ID_Evento',
+		te.NOME_FANTASIA AS 'Casa',
 		tep.NOME_EVENTO as 'Nome_do_Evento',
 		tcep.DESCRICAO as 'Categoria_Parcela',
 		tpep.VALOR_PARCELA as 'Valor_Parcela',
@@ -142,6 +160,7 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
 		LEFT JOIN T_EVENTOS_PRICELESS tep ON (tpep.FK_EVENTO_PRICELESS = tep.ID)
 		LEFT JOIN T_STATUS_PAGAMENTO tsp ON (tpep.FK_STATUS_PAGAMENTO = tsp.ID)
 		LEFT JOIN T_CATEGORIA_EVENTO_PRICELESS tcep ON (tpep.FK_CATEGORIA_PARCELA = tcep.ID)
+		LEFT JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
 	# WHERE tpep.DATA_VENCIMENTO_PARCELA >= '2024-01-01'
     # AND tpep.DATA_RECEBIMENTO_PARCELA >= '2024-01-01'
 	ORDER BY tep.ID DESC, tpep.ID DESC
