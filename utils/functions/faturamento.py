@@ -14,10 +14,10 @@ def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
             on='ID_Evento'
         )
         df = df_filtrar_ano(df, 'Data_Evento', ano)
+        return df
     elif filtro_data == 'Recebimento (Caixa)':
         df = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
-    return df
-
+        return df
 
 def montar_tabs_geral(df_parcelas, casa, tipo_data):
 
@@ -102,10 +102,12 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data):
     
     # Cria lista de valores
     total_eventos = df_parcelas_agrupado['Valor_Parcela'].tolist()
+    
+    # Labels formatados
+    labels = [format_brazilian(v) for v in total_eventos]
 
-    # Valores e labels formatados
-    total_eventos_formatados = valores_labels_formatados(total_eventos)
-
+    # Dados com labels
+    dados_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_eventos, labels)]
     # Options do grafico
     option = {
         "tooltip": {
@@ -123,11 +125,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data):
         "xAxis": [
             {
                 "type": "category",
-                "data": nomes_meses,
-                "boundaryGap": True,
-                "axisTick": {
-                    "alignWithLabel": True
-                }
+                "data": nomes_meses
             }
         ],
         "yAxis": [
@@ -140,14 +138,9 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data):
                 "name": "Faturamento de Eventos",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_eventos_formatados,
+                "data": dados_com_labels,
                 "itemStyle": {
                     "color": "#FAC858"
-                },
-                "label": {
-                "show": True,
-                "position": "top",
-                "color": "#000"  # cor do texto
                 }
             }
         ]

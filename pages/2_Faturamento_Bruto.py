@@ -73,6 +73,7 @@ def main():
 
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
+	filtro_data = "Competência"
 
 	# Seletor de ano
 	col0, col1, col2 = st.columns(3, gap="large", vertical_alignment="center")
@@ -83,12 +84,16 @@ def main():
 			label="Filtrar por Data de:",
 			options=["Competência", "Recebimento (Caixa)"],
 			selection_mode="single",
-			default="Competência"
+			default="Competência",
 		)
 	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')
 	
 	st.divider()
+
+	if filtro_data is None:
+			st.warning("Por favor, selecione um filtro de data.")
+			st.stop()
 
 	df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano)
 	
