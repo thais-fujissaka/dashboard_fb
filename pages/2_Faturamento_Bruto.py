@@ -94,7 +94,7 @@ def main():
 	
 	if casa == "Todas as Casas":
 		st.markdown("## Por Categoria")
-		montar_tabs_geral(df_parcelas_filtradas_por_data, casa)
+		montar_tabs_geral(df_parcelas_filtradas_por_data, casa, filtro_data)
 				
 	else:
 		df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
@@ -103,7 +103,7 @@ def main():
 			montar_tabs_priceless(df_parcelas_casa, df_eventos, filtro_data)
 			
 		else:
-			montar_tabs_geral(df_parcelas_casa, casa)
+			montar_tabs_geral(df_parcelas_casa, casa, filtro_data)
 
 	# st.markdown("### Por Tipo de Evento", help="Social, Corporativo, Turismo, Filmagem ou Sessão de Fotos")
 	# st.markdown("### Por Modelo de Evento", help="Pacote Exclusivo, Consumação Mínima, Comanda Aberta / Couvert Antecipado ou Locação de Espaço")
