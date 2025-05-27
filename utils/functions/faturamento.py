@@ -13,9 +13,10 @@ def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
             how='left',
             on='ID_Evento'
         )
-        return df_filtrar_ano(df, 'Data_Evento', ano)
+        df = df_filtrar_ano(df, 'Data_Evento', ano)
     elif filtro_data == 'Recebimento (Caixa)':
-        return df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
+        df = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
+    return df
 
 
 def montar_tabs_geral(df_parcelas, casa):
@@ -51,13 +52,16 @@ def montar_tabs_priceless(df_parcelas_casa, df_eventos, tipo_data):
         grafico_barras_total_eventos(df_parcelas)
     with tabs[1]:
         st.markdown("### Locação Aroo")
-        grafico_barras_locacao_aroo(df_parcelas, df_eventos)
+        #grafico_barras_locacao_aroo(df_parcelas, df_eventos)
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Aroo", f"Aroo-{tipo_data}")
     with tabs[2]:
         st.markdown("### Locação Anexo")
-        grafico_barras_locacao_anexo(df_parcelas, df_eventos)
+        #grafico_barras_locacao_anexo(df_parcelas, df_eventos)
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Anexo", f"Anexo-{tipo_data}")
     with tabs[3]:
         st.markdown("### Locação Notiê")
-        grafico_barras_locacao_notie(df_parcelas, df_eventos)
+        #grafico_barras_locacao_notie(df_parcelas, df_eventos)
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Notiê", f"Notie-{tipo_data}")
     with tabs[4]:
         st.markdown("### Locação Mirante")
         grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Mirante", f"Mirante-{tipo_data}")
@@ -719,8 +723,9 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
         
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
+            df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
             df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante', 'Repasse_Gazit_Liquido'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê', 'Valor Parcela Mirante'])
         st.markdown("#### Parcelas")
