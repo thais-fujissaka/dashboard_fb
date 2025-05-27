@@ -49,6 +49,7 @@ def main():
 		'Valor_Locacao_Aroo_3': float,
 		'Valor_Locacao_Anexo': float,
 		'Valor_Locacao_Notie': float,
+		'Valor_Locacao_Mirante': float,
 		'Valor_Imposto': float,
 		'Valor_AB': float,
 		'Valor_Total': float,
@@ -72,6 +73,7 @@ def main():
 
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
+	filtro_data = "Competência"
 
 	# Seletor de ano
 	col0, col1, col2 = st.columns(3, gap="large", vertical_alignment="center")
@@ -82,27 +84,31 @@ def main():
 			label="Filtrar por Data de:",
 			options=["Competência", "Recebimento (Caixa)"],
 			selection_mode="single",
-			default="Competência"
+			default="Competência",
 		)
 	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')
 	
 	st.divider()
 
+	if filtro_data is None:
+			st.warning("Por favor, selecione um filtro de data.")
+			st.stop()
+
 	df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano)
 	
 	if casa == "Todas as Casas":
 		st.markdown("## Por Categoria")
-		montar_tabs_geral(df_parcelas_filtradas_por_data, casa)
+		montar_tabs_geral(df_parcelas_filtradas_por_data, casa, filtro_data)
 				
 	else:
 		df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
 		if casa == "Priceless":
 			st.markdown("## Por Categoria")
-			montar_tabs_priceless(df_parcelas_casa, df_eventos)
+			montar_tabs_priceless(df_parcelas_casa, df_eventos, filtro_data)
 			
 		else:
-			montar_tabs_geral(df_parcelas_casa, casa)
+			montar_tabs_geral(df_parcelas_casa, casa, filtro_data)
 
 	# st.markdown("### Por Tipo de Evento", help="Social, Corporativo, Turismo, Filmagem ou Sessão de Fotos")
 	# st.markdown("### Por Modelo de Evento", help="Pacote Exclusivo, Consumação Mínima, Comanda Aberta / Couvert Antecipado ou Locação de Espaço")

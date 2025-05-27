@@ -128,9 +128,13 @@ def grafico_barras_repasse_mensal_recebimento(df_parcelas):
     labels_liquidos = [format_brazilian(v) for v in total_repasse_liquido]
 
     # Dados com labels
-    dados_brutos_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_repasse_bruto, labels_brutos)]
-    dados_liquidos_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_repasse_liquido, labels_liquidos)]
-    
+    dados_brutos_com_labels = [{"value": v,
+                                "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}}
+                                for v, lbl in zip(total_repasse_bruto, labels_brutos)]
+    dados_liquidos_com_labels = [{"value": v,
+                                  "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl},}
+                                  for v, lbl in zip(total_repasse_liquido, labels_liquidos)]
+        
     # Options do grafico
     # Montar gráfico
     option = {

@@ -13,20 +13,27 @@ def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
             how='left',
             on='ID_Evento'
         )
-        return df_filtrar_ano(df, 'Data_Evento', ano)
+        df = df_filtrar_ano(df, 'Data_Evento', ano)
+        return df
     elif filtro_data == 'Recebimento (Caixa)':
-        return df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
+        df = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
+        return df
 
+def montar_tabs_geral(df_parcelas, casa, tipo_data):
 
-def montar_tabs_geral(df_parcelas, casa):
+    if tipo_data == 'Competência':
+        tipo_data = 'Data_Evento'
+    elif tipo_data == 'Recebimento (Caixa)':
+        tipo_data = 'Data_Recebimento'
+
     tab_names = ['Total de Eventos', 'Alimentos e Bebidas', 'Couvert', 'Locação', 'Serviço']
     tabs = st.tabs(tab_names)
     with tabs[0]:
         st.markdown(f"#### Faturamento Total de Eventos - {casa}")
-        grafico_barras_total_eventos(df_parcelas)
+        grafico_barras_total_eventos(df_parcelas, tipo_data)
     with tabs[1]:
         st.markdown("#### Alimentos e Bebidas")
-        grafico_barras_faturamento_AB(df_parcelas)
+        grafico_barras_faturamento_AB(df_parcelas, tipo_data)
     with tabs[2]:
         st.markdown("#### Couvert")
     with tabs[3]:
@@ -35,26 +42,38 @@ def montar_tabs_geral(df_parcelas, casa):
         st.markdown("#### Serviço")
 
 
-def montar_tabs_priceless(df_parcelas_casa, df_eventos):
+def montar_tabs_priceless(df_parcelas_casa, df_eventos, tipo_data):
+
+    if tipo_data == 'Competência':
+        tipo_data = 'Data_Evento'
+    elif tipo_data == 'Recebimento (Caixa)':
+        tipo_data = 'Data_Recebimento'
+    
     df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas_casa, df_eventos)
-    tab_names = ['Total de Eventos - Priceless', 'Locação Aroo', 'Locação Anexo', 'Locação Notiê', 'Alimentos e Bebidas']
+    tab_names = ['Total de Eventos - Priceless', 'Locação Aroo', 'Locação Anexo', 'Locação Notiê', 'Locação Mirante', 'Alimentos e Bebidas']
     tabs = st.tabs(tab_names)
 
     with tabs[0]:
         st.markdown("### Faturamento Total de Eventos - Priceless")
-        grafico_barras_total_eventos(df_parcelas)
+        grafico_barras_total_eventos(df_parcelas, tipo_data)
     with tabs[1]:
         st.markdown("### Locação Aroo")
-        grafico_barras_locacao_aroo(df_parcelas, df_eventos)
+        #grafico_barras_locacao_aroo(df_parcelas, df_eventos)
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Aroo", f"Aroo-{tipo_data}")
     with tabs[2]:
         st.markdown("### Locação Anexo")
-        grafico_barras_locacao_anexo(df_parcelas, df_eventos)
+        #grafico_barras_locacao_anexo(df_parcelas, df_eventos)
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Anexo", f"Anexo-{tipo_data}")
     with tabs[3]:
         st.markdown("### Locação Notiê")
-        grafico_barras_locacao_notie(df_parcelas, df_eventos)
+        #grafico_barras_locacao_notie(df_parcelas, df_eventos)
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Notiê", f"Notie-{tipo_data}")
     with tabs[4]:
+        st.markdown("### Locação Mirante")
+        grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Mirante", f"Mirante-{tipo_data}")
+    with tabs[5]:
         st.markdown("### Alimentos e Bebidas")
-        grafico_barras_faturamento_AB(df_parcelas)
+        grafico_barras_faturamento_AB(df_parcelas, tipo_data)
 
 
 def valores_labels_formatados(lista_valores):
@@ -68,10 +87,10 @@ def valores_labels_formatados(lista_valores):
 
 
 # Total de Eventos
-def grafico_barras_total_eventos(df_parcelas):
+def grafico_barras_total_eventos(df_parcelas, tipo_data):
     # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+    df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
+    df_parcelas['Ano'] = df_parcelas[tipo_data].dt.year
 
     # Agrupa os valores por mês e ano
     df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela'].sum().reset_index()
@@ -83,10 +102,12 @@ def grafico_barras_total_eventos(df_parcelas):
     
     # Cria lista de valores
     total_eventos = df_parcelas_agrupado['Valor_Parcela'].tolist()
+    
+    # Labels formatados
+    labels = [format_brazilian(v) for v in total_eventos]
 
-    # Valores e labels formatados
-    total_eventos_formatados = valores_labels_formatados(total_eventos)
-
+    # Dados com labels
+    dados_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_eventos, labels)]
     # Options do grafico
     option = {
         "tooltip": {
@@ -104,11 +125,7 @@ def grafico_barras_total_eventos(df_parcelas):
         "xAxis": [
             {
                 "type": "category",
-                "data": nomes_meses,
-                "boundaryGap": True,
-                "axisTick": {
-                    "alignWithLabel": True
-                }
+                "data": nomes_meses
             }
         ],
         "yAxis": [
@@ -121,14 +138,9 @@ def grafico_barras_total_eventos(df_parcelas):
                 "name": "Faturamento de Eventos",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_eventos_formatados,
+                "data": dados_com_labels,
                 "itemStyle": {
                     "color": "#FAC858"
-                },
-                "label": {
-                "show": True,
-                "position": "top",
-                "color": "#000"  # cor do texto
                 }
             }
         ]
@@ -140,7 +152,7 @@ def grafico_barras_total_eventos(df_parcelas):
     }
 
     # Exibir gráfico com captura de clique
-    mes_selecionado = st_echarts(option, events=events, height=300, width="100%", key="chart_total_eventos")
+    mes_selecionado = st_echarts(option, events=events, height=300, width="100%", key=f"chart_total_eventos_{tipo_data}")
     
     # Dicionário para mapear os meses
     meses = {
@@ -164,7 +176,7 @@ def grafico_barras_total_eventos(df_parcelas):
         
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
-            df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
+            df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
             if 'Total_Gazit' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Total_Gazit'], inplace=True)
             if 'Repasse_Gazit_Bruto' in df_parcelas.columns:
@@ -174,7 +186,7 @@ def grafico_barras_total_eventos(df_parcelas):
             if 'Valor_Locacao_Total' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
             df_parcelas.drop(columns=['Mes', 'Ano'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
         st.markdown("#### Parcelas")
@@ -200,6 +212,10 @@ def df_fracao_locacao_espacos(df_eventos):
     df_eventos['Fracao_Notie'] = df_eventos['Valor_Locacao_Notie'] / df_eventos['Valor_Locacao_Total']
     df_eventos['Fracao_Notie'] = df_eventos['Fracao_Notie'].fillna(0)
 
+    # Mirante
+    df_eventos['Fracao_Mirante'] = df_eventos['Valor_Locacao_Mirante'] / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Mirante'] = df_eventos['Fracao_Mirante'].fillna(0)
+
     return df_eventos
 
 def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
@@ -207,262 +223,18 @@ def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
     df_eventos = df_fracao_locacao_espacos(df_eventos)
 
     # Merge df_parcelas com fracoes de cada espaço
-    df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie']], how='left', on='ID_Evento')
+    df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante']], how='left', on='ID_Evento')
     
     df_parcelas['Valor_Parcela_Aroos'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Aroo']
     df_parcelas['Valor_Parcela_Anexo'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Anexo']
     df_parcelas['Valor_Parcela_Notie'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Notie']
+    df_parcelas['Valor_Parcela_Mirante'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Mirante']
 
     return df_parcelas
 
-def grafico_barras_locacao_aroo(df_parcelas, df_eventos):
-    # Normaliza
-    df_parcelas['Categoria_Parcela'] = df_parcelas['Categoria_Parcela'].str.replace('ç', 'c')
 
-    # Filtra pela categoria 'Locação'
-    df_parcelas = (
-    df_parcelas
-    .loc[df_parcelas['Categoria_Parcela'] == 'Locacão']
-    .copy()
-    )
-    
-    # Calcula coluna 'Valor_Parcela_Aroos'
-    df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
-
-    # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
-
-    # Agrupa os valores por mês e ano
-    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela_Aroos'].sum().reset_index()
-
-    # Cria lista de meses
-    meses = df_parcelas_agrupado['Mes'].unique().tolist()
-    nomes_meses_pt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
-    
-    # Cria lista de valores
-    total_aroos = df_parcelas_agrupado['Valor_Parcela_Aroos'].tolist()
-
-    # Valores e labels formatados
-    total_aroos_formatados = valores_labels_formatados(total_aroos)
-    
-    # Options do grafico
-    option = {
-        "tooltip": {
-            "trigger": "axis",
-            "axisPointer": {
-                "type": "shadow"
-            }
-        },
-        "grid": {
-            "left": "3%",
-            "right": "4%",
-            "bottom": "3%",
-            "containLabel": True
-        },
-        "xAxis": [
-            {
-                "type": "category",
-                "data": nomes_meses,
-                "boundaryGap": True,
-                "axisTick": {
-                    "alignWithLabel": True
-                }
-            }
-        ],
-        "yAxis": [
-            {
-                "type": "value"
-            }
-        ],
-        "series": [
-            {
-                "name": "Faturamento de Locação Aroo",
-                "type": "bar",
-                "barWidth": "60%",
-                "data": total_aroos_formatados,
-                "itemStyle": {
-                    "color": "#FAC858"
-                },
-                "label": {
-                "show": True,
-                "position": "top",
-                "color": "#000"  # cor do texto
-                }
-            }
-        ]
-    }
-    
-    # Evento de clique
-    events = {
-        "click": "function(params) { return params.name; }"
-    }
-
-    # Exibir gráfico com captura de clique
-    mes_selecionado = st_echarts(option, events=events, height=300, width="100%", key="chart_faturamento_aroos")
-    
-    # Dicionário para mapear os meses
-    meses = {
-        "Janeiro": "01",
-        "Fevereiro": "02",
-        "Março": "03",
-        "Abril": "04",
-        "Maio": "05",
-        "Junho": "06",
-        "Julho": "07",
-        "Agosto": "08",
-        "Setembro": "09",
-        "Outubro": "10",
-        "Novembro": "11",
-        "Dezembro": "12"
-    }
-    
-    
-    # Obter o mês correspondente ao mês selecionado
-    if mes_selecionado != None:
-        mes_selecionado = meses[mes_selecionado]
-        
-        col1, col2, col3 = st.columns([1, 12, 1])
-        with col2:
-            df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
-            df_parcelas = rename_colunas_parcelas(df_parcelas)
-            df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
-        st.markdown("#### Parcelas")
-        st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
-    else:
-        st.markdown("### Parcelas")
-        st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
-
-
-
-# Locação Anexo
-
-def grafico_barras_locacao_anexo(df_parcelas, df_eventos):
-    # Normaliza
-    df_parcelas['Categoria_Parcela'] = df_parcelas['Categoria_Parcela'].str.replace('ç', 'c')
-
-    # Filtra pela categoria 'Locação'
-    df_parcelas = (
-    df_parcelas
-    .loc[df_parcelas['Categoria_Parcela'] == 'Locacão']
-    .copy()
-    )
-
-    df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
-
-    # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
-
-    # Agrupa os valores por mês e ano
-    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela_Anexo'].sum().reset_index()
-
-    # Cria lista de meses
-    meses = df_parcelas_agrupado['Mes'].unique().tolist()
-    nomes_meses_pt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-    nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
-    
-    # Cria lista de valores
-    total_anexo = df_parcelas_agrupado['Valor_Parcela_Anexo'].tolist()
-
-    # Valores e labels formatados
-    total_anexo_formatados = valores_labels_formatados(total_anexo)
-
-    # Options do grafico
-    option = {
-        "tooltip": {
-            "trigger": "axis",
-            "axisPointer": {
-                "type": "shadow"
-            }
-        },
-        "grid": {
-            "left": "3%",
-            "right": "4%",
-            "bottom": "3%",
-            "containLabel": True
-        },
-        "xAxis": [
-            {
-                "type": "category",
-                "data": nomes_meses,
-                "boundaryGap": True,
-                "axisTick": {
-                    "alignWithLabel": True
-                }
-            }
-        ],
-        "yAxis": [
-            {
-                "type": "value"
-            }
-        ],
-        "series": [
-            {
-                "name": "Faturamento de Locação Anexo",
-                "type": "bar",
-                "barWidth": "60%",
-                "data": total_anexo_formatados,
-                "itemStyle": {
-                    "color": "#FAC858"
-                },
-                "label": {
-                "show": True,
-                "position": "top",
-                "color": "#000"  # cor do texto
-                }
-            }
-        ]
-    }
-
-    # Evento de clique
-    events = {
-        "click": "function(params) { return params.name; }"
-    }
-
-    # Exibir gráfico com captura de clique
-    mes_selecionado = st_echarts(option, events=events, height=300, width="100%", key="chart_faturamento_anexo")
-    
-    # Dicionário para mapear os meses
-    meses = {
-        "Janeiro": "01",
-        "Fevereiro": "02",
-        "Março": "03",
-        "Abril": "04",
-        "Maio": "05",
-        "Junho": "06",
-        "Julho": "07",
-        "Agosto": "08",
-        "Setembro": "09",
-        "Outubro": "10",
-        "Novembro": "11",
-        "Dezembro": "12"
-    }
-    
-    # Obter o mês correspondente ao mês selecionado
-    if mes_selecionado != None:
-        mes_selecionado = meses[mes_selecionado]
-        
-        col1, col2, col3 = st.columns([1, 12, 1])
-        with col2:
-            df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
-            df_parcelas = rename_colunas_parcelas(df_parcelas)
-            df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
-        st.markdown("#### Parcelas")
-        st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
-    else:
-        st.markdown("### Parcelas")
-        st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
-    
-
-# Locação Notiê
-
-def grafico_barras_locacao_notie(df_parcelas, df_eventos):
+# Gráficos de Locação dos espaços Priceless (Aroo, Anexo, Notiê e Mirante)
+def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco, key):
     df_parcelas = df_parcelas.copy()
 
     # Normaliza
@@ -477,12 +249,21 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
 
     df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
 
+    # Define o nome da coluna de valor da parcela de acordo com o espaço
+    dict_espacos = {
+        'Aroo': 'Valor_Parcela_Aroos',
+        'Anexo': 'Valor_Parcela_Anexo',
+        'Notiê': 'Valor_Parcela_Notie',
+        'Mirante': 'Valor_Parcela_Mirante'
+    }
+
+
     # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+    df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
+    df_parcelas['Ano'] = df_parcelas[tipo_data].dt.year
 
     # Agrupa os valores por mês e ano
-    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])['Valor_Parcela_Notie'].sum().reset_index()
+    df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano'])[dict_espacos[espaco]].sum().reset_index()
 
     # Cria lista de meses
     meses = df_parcelas_agrupado['Mes'].unique().tolist()
@@ -490,10 +271,10 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
     nomes_meses = [nomes_meses_pt[mes - 1] for mes in meses]
     
     # Cria lista de valores
-    total_notie = df_parcelas_agrupado['Valor_Parcela_Notie'].tolist()
+    total_espaco = df_parcelas_agrupado[dict_espacos[espaco]].tolist()
 
     # Valores e labels formatados
-    total_notie_formatados = valores_labels_formatados(total_notie)
+    total_espaco_formatados = valores_labels_formatados(total_espaco)
 
     # Options do grafico
     option = {
@@ -526,10 +307,10 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
         ],
         "series": [
             {
-                "name": "Faturamento de Locação Notiê",
+                "name": f"Faturamento de Locação {espaco}",
                 "type": "bar",
                 "barWidth": "60%",
-                "data": total_notie_formatados,
+                "data": total_espaco_formatados,
                 "itemStyle": {
                     "color": "#FAC858"
                 },
@@ -548,7 +329,7 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
     }
 
     # Exibir gráfico com captura de clique
-    mes_selecionado = st_echarts(option, events=events, height=300, width="100%", key="chart_faturamento_notie")
+    mes_selecionado = st_echarts(option, events=events, height=300, width="100%", key=key)
     
     # Dicionário para mapear os meses
     meses = {
@@ -572,11 +353,11 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
         
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
-            df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Repasse_Gazit_Liquido'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
+            df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
-            df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê'])
+            df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê', 'Valor Parcela Mirante'])
         st.markdown("#### Parcelas")
         st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
     else:
@@ -586,12 +367,12 @@ def grafico_barras_locacao_notie(df_parcelas, df_eventos):
 
 # Alimentos e Bebidas
 
-def grafico_barras_faturamento_AB(df_parcelas):
+def grafico_barras_faturamento_AB(df_parcelas, tipo_data):
 
     df_parcelas = df_parcelas.copy()
     # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+    df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
+    df_parcelas['Ano'] = df_parcelas[tipo_data].dt.year
 
     # Filtra pela categoria 'A&B'
     df_parcelas = (
@@ -691,7 +472,7 @@ def grafico_barras_faturamento_AB(df_parcelas):
         
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
-            df_parcelas = df_filtrar_mes(df_parcelas, 'Data_Vencimento', mes_selecionado)
+            df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
             df_parcelas.drop(columns=['Mes', 'Ano'], inplace=True)
             if 'Total_Gazit' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Total_Gazit'], inplace=True)
@@ -701,7 +482,7 @@ def grafico_barras_faturamento_AB(df_parcelas):
                 df_parcelas.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
             if 'Valor_Locacao_Total' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento'])
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela'])
         st.markdown("#### Parcelas")

@@ -125,6 +125,7 @@ def GET_EVENTOS_PRICELESS():
 		tep.VALOR_LOCACAO_AROO_3 as 'Valor_Locacao_Aroo_3',
 		tep.VALOR_LOCACAO_ANEXO as 'Valor_Locacao_Anexo',
 		tep.VALOR_LOCACAO_NOTIE as 'Valor_Locacao_Notie',
+        tep.VALOR_LOCACAO_MIRANTE as 'Valor_Locacao_Mirante',
 		tep.VALOR_IMPOSTO as 'Valor_Imposto',
 		tsep.DESCRICAO as 'Status_Evento',
 		temd.DESCRICAO as 'Motivo_Declinio',
