@@ -68,7 +68,8 @@ def rename_colunas_parcelas(df):
 		'Valor_Locacao_Total': 'Total Locação',
 		'Valor_Parcela_Aroos': 'Valor Parcela Aroos',
 		'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
-		'Valor_Parcela_Notie': 'Valor Parcela Notiê'
+		'Valor_Parcela_Notie': 'Valor Parcela Notiê',
+		'Valor_Parcela_Mirante': 'Valor Parcela Mirante'
 	}, inplace=True)
     return df
 

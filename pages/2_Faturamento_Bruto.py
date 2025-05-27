@@ -49,6 +49,7 @@ def main():
 		'Valor_Locacao_Aroo_3': float,
 		'Valor_Locacao_Anexo': float,
 		'Valor_Locacao_Notie': float,
+		'Valor_Locacao_Mirante': float,
 		'Valor_Imposto': float,
 		'Valor_AB': float,
 		'Valor_Total': float,
@@ -99,7 +100,7 @@ def main():
 		df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
 		if casa == "Priceless":
 			st.markdown("## Por Categoria")
-			montar_tabs_priceless(df_parcelas_casa, df_eventos)
+			montar_tabs_priceless(df_parcelas_casa, df_eventos, filtro_data)
 			
 		else:
 			montar_tabs_geral(df_parcelas_casa, casa)
