@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
 	page_icon="🔎",
-	page_title="Eventos e Parcelas",
+	page_title="Informações de Eventos",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -66,7 +66,7 @@ def main():
 
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
-		st.title("🔎 Eventos e Parcelas")
+		st.title("🔎 Informações de Eventos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
 	with col3:
