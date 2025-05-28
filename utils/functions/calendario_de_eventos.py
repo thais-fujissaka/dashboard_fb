@@ -9,8 +9,6 @@ def dataframe_to_json_calendar(df_eventos):
     """
     Converte um DataFrame de eventos em um formato JSON adequado para o calendário.
     """
-    # Remove eventos declinados
-    df_eventos = df_eventos[df_eventos['Status_Evento'] != 'Declinado']
 
     # Formata Data_Evento para o formato YYYY-MM-DD (preparar para inserir no JSON)
     df_eventos = df_formata_datas_sem_horario_YYYY_MM_DD(df_eventos, ['Data_Evento'])
@@ -20,19 +18,23 @@ def dataframe_to_json_calendar(df_eventos):
     for _, row in df_eventos.iterrows():
         # Define a cor baseada no status
         if row['Status_Evento'] == 'Confirmado':
-            cor = '#007BFF'  # Azul
+            cor = '#22C55E'  # Verde
         elif row['Status_Evento'] == 'Em negociação':
-            cor = '#F97316'  # Laranja
+            cor = '#EAB308'  # Amarelo
         else:
-            cor = '#9CA3AF'  # Cinza para outros status
+            cor = '#EF4444'  # Vermelho
 
         evento = {
+            "id": row['ID_Evento'],
             "allDay": True,
-            "title": f"{row['Nome_do_Evento']}",
             "start": row['Data_Evento'],
             "end": row['Data_Evento'],
+            "title": f"{row['Nome_do_Evento']}",
             "color": cor,
-            "status": row['Status_Evento']
+            "cliente": row['Cliente'],
+            "event_date": row['Data_Evento'],
+            "status": row['Status_Evento'],
+            "comercial_responsavel": row['Comercial_Responsavel'],
         }
         eventos_json.append(evento)
     return eventos_json
@@ -123,3 +125,9 @@ def get_calendar_options():
         },
         "dayMaxEvents": False,
     }
+
+
+def infos_evento(id_evento, df_eventos):
+    
+    nome_evento = df_eventos.loc[df_eventos['ID_Evento'] == id_evento, 'Nome_do_Evento'].values[0]
+    st.markdown(f"### Informações do Evento: {nome_evento}")
