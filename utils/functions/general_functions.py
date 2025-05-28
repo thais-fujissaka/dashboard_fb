@@ -30,18 +30,20 @@ def config_sidebar():
         # if 'Administrador' in permissao or 'Financeiro Central' in permissao:
         if "Administrador" in permissao:
             st.sidebar.title("Menu")
-            st.sidebar.page_link("pages/1_Home.py", label=":house: Home")
-            st.sidebar.page_link("pages/2_Faturamento_Bruto.py", label=":moneybag: Faturamento Bruto")
-            st.sidebar.page_link("pages/3_Eventos_e_Parcelas.py", label="🔎 Eventos e Parcelas")
-            st.sidebar.page_link("pages/4_Gazit.py", label=":shopping_bags: Gazit")
-            st.sidebar.page_link("pages/5_Calendario_de_Eventos.py", label=":calendar: Calendário de Eventos")
+            st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
+            # st.sidebar.page_link("pages/2_KPIs_de_Vendas.py", label=":bar_chart: KPI's de Vendas - Conversão de Eventos")
+            st.sidebar.page_link("pages/3_Faturamento_Bruto.py", label=":moneybag: Faturamento Bruto")
+            st.sidebar.page_link("pages/4_Informações_de_Eventos.py", label="🔎 Informaçoes de Eventos")
+            # st.sidebar.page_link("pages/5_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
+            st.sidebar.page_link("pages/6_Gazit.py", label=":shopping_bags: Gazit")
+
+            
         elif "Gazit" in permissao:
             st.sidebar.title("Menu")
-            st.sidebar.page_link("pages/1_Home.py", label=":house: Home")
-            st.sidebar.page_link("pages/4_Gazit.py", label=":shopping_bags: Gazit")
+            # st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
+            st.sidebar.page_link("pages/6_Gazit.py", label=":shopping_bags: Gazit")
         else:
             st.sidebar.title("Menu")
-            st.sidebar.page_link("pages/1_Home.py", label=":house: Home")
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 

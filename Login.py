@@ -49,7 +49,7 @@ def main():
     else:
         st.write("Você está logado!")
         st.markdown("Redirecionando para a página Home...")
-        st.switch_page("pages/1_Home.py")
+        st.switch_page("pages/1_Calendário_de_Eventos.py")
 
 if __name__ == "__main__":
     main()
