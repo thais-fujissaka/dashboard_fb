@@ -24,6 +24,7 @@ def main():
 
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS_PRICELESS()
+    df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
     # Substitui NaT ou datas nulas por uma data padrão ou remove linhas
     df_eventos = df_eventos.dropna(subset=["Data_Evento"])
@@ -68,18 +69,20 @@ def main():
     )
 
     if selected:
-        st.json(selected)
         
         if selected.get("callback") == "eventClick":
             id_evento_seleciondo = selected["eventClick"]["event"]["id"]
-            infos_evento(id_evento_seleciondo, df_eventos)
-            
-        if selected.get("callback") == "dateClick":
-            data_selecionada = selected['dateClick']['date']
-            # print(data_selecionada)
-            # st.markdown(f"## Data - {selected['dateClick']['date']}")
-            # st.markdown(f"**Dia da semana:** {selected['dateClick']}")
-            # st.markdown(f"**Data completa:** {selected['dateClick']}")
+            with st.container(border=True):
+                st.write("")
+                col1, col2, col3 = st.columns([1, 15, 1])
+                with col2:
+                    infos_evento(id_evento_seleciondo, df_eventos)
+                    st.write("")
+                    mostrar_parcelas(id_evento_seleciondo, df_parcelas)
+                    st.write("")
+                    st.write("")
+        else:
+            st.info("Selecione um evento no calendário para ver os detalhes.")
 
 if __name__ == '__main__':
   main()
