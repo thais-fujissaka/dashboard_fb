@@ -41,6 +41,17 @@ def df_format_date_brazilian(df, date_column):
   return df
 
 
+def df_format_date_columns_brazilian(df, date_columns):
+    df = df.copy()
+    for col in date_columns:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors='coerce')
+            df[col] = df[col].dt.strftime('%d-%m-%Y')
+        else:
+            print(f"Aviso: coluna '{col}' não encontrada no DataFrame.")
+    return df
+
+
 def formata_data_horario_zero_str(data):
     if isinstance(data, str):
         data = datetime.datetime.strptime(data, "%Y-%m-%d 00:00:00")
