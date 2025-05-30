@@ -47,7 +47,7 @@ def input_periodo_datas(key):
     return date_input
 
 
-def seletor_mes(key):
+def seletor_mes(label, key):
   # Dicionário para mapear os meses
   meses = {
       "Janeiro": "01",
@@ -70,7 +70,7 @@ def seletor_mes(key):
   mes_atual_nome = nomes_meses[mes_atual_num - 1]
 
   # Seletor de mês
-  mes = st.selectbox("Mês do vencimento", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
+  mes = st.selectbox(label, nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
 
   # Obter o mês correspondente ao mês selecionado
   mes_selecionado = meses[mes]

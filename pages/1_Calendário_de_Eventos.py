@@ -25,7 +25,7 @@ def main():
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS_PRICELESS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
-
+    
     # Substitui NaT ou datas nulas por uma data padrão ou remove linhas
     df_eventos = df_eventos.dropna(subset=["Data_Evento"])
 
