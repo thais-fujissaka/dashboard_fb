@@ -153,7 +153,8 @@ def infos_evento(id_evento, df_eventos):
         if evento['Status_Evento'].values[0] == 'Declinado':
             st.markdown(f"<b>Motivo do Declinio:</b> {evento['Motivo_Declinio'].values[0]}", unsafe_allow_html=True)
         
-        st.markdown(f"<b>Observações:</b> {evento['Observacoes'].values[0]}", unsafe_allow_html=True)
+        texto_observacoes = escape_dolar(evento['Observacoes'].values[0])
+        st.markdown(f"<b>Observações:</b> {texto_observacoes}", unsafe_allow_html=True)
     with st.expander("Ver detalhes"):
         evento = format_columns_brazilian(evento, [
             'Valor_Total',
