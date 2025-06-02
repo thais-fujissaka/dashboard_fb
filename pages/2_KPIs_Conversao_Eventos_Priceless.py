@@ -68,6 +68,10 @@ def main():
     df_eventos_ano = df_filtrar_ano(df_eventos, 'Data Envio Proposta', ano)
     df_eventos = df_filtrar_mes(df_eventos_ano, 'Data Envio Proposta', mes)
 
+    if id_vendedor != -1:
+        df_eventos = df_eventos[df_eventos['ID Responsavel Comercial'] == id_vendedor]
+        df_eventos_ano = df_eventos_ano[df_eventos_ano['ID Responsavel Comercial'] == id_vendedor]
+
     col1, col2, col3 = st.columns([1.1, 1.15, 3], gap="small", vertical_alignment="bottom")
     with col1:
         num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao = calculo_numero_propostas(df_eventos, ano, mes)
