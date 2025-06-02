@@ -31,31 +31,15 @@ def main():
 
     # Força espaçamento e quebra no DOM
     st.markdown("<div style='margin-top: 30px'></div>", unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns([6, 1, 1])
     with col1:
         st.title("📅 Calendário de Eventos")
     with col2:
-         
-        # Adiciona a legenda de cores dos eventos
-        st.markdown("""
-        <div style="margin-top: 24px; padding: 10px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb; display: flex; align-items: center;">
-            <h6 style="padding: 0">Legenda:</h6>
-            <div style="display: flex; gap: 16px;">
-                <div style="display: flex; align-items: center;">
-                    <div style="width: 16px; height: 16px; background-color: #22C55E; border-radius: 4px; margin-right: 8px;"></div>
-                    <span>Confirmado</span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <div style="width: 16px; height: 16px; background-color: #EAB308; border-radius: 4px; margin-right: 8px;"></div>
-                    <span>Em negociação</span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <div style="width: 16px; height: 16px; background-color: #EF4444; border-radius: 4px; margin-right: 8px;"></div>
-                    <span>Declinados</span>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
+    with col3:
+        if st.button('Logout', key='logout_gazit'):
+            logout()
+               
     st.divider()
     
     json_eventos = dataframe_to_json_calendar(df_eventos)
@@ -67,6 +51,29 @@ def main():
         custom_css=get_custom_css(),
         key="calendar",
     )
+
+    # Adiciona a legenda de cores dos eventos
+    st.markdown("""
+    <div style="margin-top: -24px; padding: 10px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; align-items: center;">
+        <h6 style="padding: 0">Legenda:</h6>
+        <div style="display: flex; gap: 16px;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: #22C55E; border-radius: 4px; margin-right: 8px;"></div>
+                <span>Confirmado</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: #EAB308; border-radius: 4px; margin-right: 8px;"></div>
+                <span>Em negociação</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: #EF4444; border-radius: 4px; margin-right: 8px;"></div>
+                <span>Declinados</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("")
 
     if selected:
         
