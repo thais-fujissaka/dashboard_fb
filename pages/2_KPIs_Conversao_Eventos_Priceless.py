@@ -26,7 +26,11 @@ def main():
     df_eventos = GET_EVENTOS_PRICELESS_KPIS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
-    # Busca vendedores
+    # Vendedores
+    df_vendedores = df_eventos[['ID Responsavel Comercial', 'Comercial Responsável']].drop_duplicates().dropna()
+    df_vendedores["ID Responsavel Comercial"] = df_vendedores["ID Responsavel Comercial"].astype(int)
+    df_vendedores["ID - Responsavel"] = df_vendedores["ID Responsavel Comercial"].astype(str) + " - " + df_vendedores["Comercial Responsável"].astype(str)
+
     col1, col2, col3 = st.columns([6, 1, 1])
     with col1:
         st.title("📈 KPI's de Vendas")
@@ -38,7 +42,7 @@ def main():
     st.divider()
 
     # Adiciona selecao de mes e ano
-    col1, col2, col3 = st.columns([1,1,2])
+    col1, col2, col3, col4= st.columns([1,1,1,1])
     with col1:
         ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_conversao_eventos_priceless")
     with col2:
@@ -46,9 +50,12 @@ def main():
             "Selecionar mês:", key="seletor_mes_kpi_conversao_eventos_priceless"
         )
         mes = int(mes)
+    with col3:
+        id_vendedor, nome_vendedor = seletor_vendedor("Comercial Responsável:", df_vendedores, "seletor_vendedor_kpi_conversao_eventos")
+
     st.divider()
 
-    col1, col2 = st.columns([2.25, 3])
+    col1, col2 = st.columns([6, 3])
     with col1:
         st.markdown("## Conversão de Eventos *")
     with col2:

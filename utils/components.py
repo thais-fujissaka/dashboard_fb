@@ -98,3 +98,20 @@ def button_download(df):
     )
 
 
+def seletor_vendedor(label, df_vendedores, key):
+    
+    lista_vendedores = df_vendedores['ID - Responsavel'].tolist()
+    lista_vendedores.insert(0, "Todos")
+
+    vendedor = st.selectbox(label, lista_vendedores, key=key)
+    if vendedor == "Todos":
+        id_vendedor = -1  # Valor padrão para "Todos"
+        nome_vendedor = "Todos"
+    else:
+        # Extrai o ID do vendedor selecionado
+        id_vendedor = int(vendedor.split(" - ")[0])
+        nome_vendedor = vendedor.split(" - ")[1]
+    return id_vendedor, nome_vendedor
+
+
+
