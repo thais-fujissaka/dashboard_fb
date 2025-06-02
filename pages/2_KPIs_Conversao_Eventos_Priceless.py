@@ -48,7 +48,7 @@ def main():
         mes = int(mes)
     st.divider()
 
-    st.markdown("## Conversão de Eventos")
+    st.markdown("## Conversão de Eventos", help="Com base no mês de envio da proposta")
     st.divider()
 
     # Filtra por data de envio de proposta
@@ -62,7 +62,11 @@ def main():
             num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao
         )
     with col2:
-        valor_lancadas,valor_confirmadas, valor_declinadas, valor_em_negociacao = calculo_valores_propostas(df_eventos, ano, mes)
+        valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao = calculo_valores_propostas(df_eventos, ano, mes)
+        valor_lancadas = format_brazilian(valor_lancadas)
+        valor_confirmadas = format_brazilian(valor_confirmadas)
+        valor_declinadas = format_brazilian(valor_declinadas)
+        valor_em_negociacao = format_brazilian(valor_em_negociacao)
         cards_valor_propostas(
             valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
         )
