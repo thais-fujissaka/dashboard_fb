@@ -191,4 +191,109 @@ def grafico_pizza_num_propostas(num_confirmadas, num_declinadas, num_em_negociac
         ]
     }
     with st.container(border=True):
-        st_echarts(option, height="338px")
+        st_echarts(option, height="308px")
+		
+
+def grafico_barras_num_propostas(df_eventos_ano):
+	
+    # Normaliza a coluna 'Status do Evento'
+    df_eventos_ano['Status do Evento'] = df_eventos_ano['Status do Evento'].str.replace('ç', 'c')
+	
+    # Extrai o mês da coluna 'Data Envio Proposta'
+    df_eventos_ano['Mes'] = df_eventos_ano['Data Envio Proposta'].dt.month
+	
+    # Agrupa os dados por ano e mês, contando o número de eventos
+    df_eventos_agrupado = df_eventos_ano.groupby(['Mes', 'Status do Evento']).size().reset_index(name='Número de Eventos')
+
+    # Cria lista de meses
+    nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+
+    # Dataframe filtrado por status do evento
+    df_lancados = df_eventos_ano.groupby(['Mes']).size().reset_index(name='Número de Eventos')
+    df_confirmados = df_eventos_agrupado[df_eventos_agrupado['Status do Evento'] == 'Confirmado']
+    df_declinados = df_eventos_agrupado[df_eventos_agrupado['Status do Evento'] == 'Declinado']
+    df_em_negociacao = df_eventos_agrupado[df_eventos_agrupado['Status do Evento'] == 'Em negociacão']
+
+    # Cria series de valores
+    serie_propostas_lancadas = [0] * 12
+    serie_propostas_confirmadas = [0] * 12
+    serie_propostas_declinadas = [0] * 12
+    serie_propostas_em_negociacao = [0] * 12
+
+    # Inserir numeros de propostas nas series
+    if not df_lancados.empty:
+        for _, row in df_lancados.iterrows():
+            serie_propostas_lancadas[int(row['Mes']) - 1] = int(row['Número de Eventos'])
+    if not df_confirmados.empty:
+        for _, row in df_confirmados.iterrows():
+            serie_propostas_confirmadas[int(row['Mes']) - 1] = int(row['Número de Eventos'])
+    if not df_declinados.empty:
+        for _, row in df_declinados.iterrows():
+            serie_propostas_declinadas[int(row['Mes']) - 1] = int(row['Número de Eventos'])
+    if not df_em_negociacao.empty:
+        for _, row in df_em_negociacao.iterrows():
+            serie_propostas_em_negociacao[int(row['Mes']) - 1] = int(row['Número de Eventos'])
+
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross",
+                "crossStyle": {"color": "#999"}
+            }
+        },
+        "legend": {
+            "data": [
+                "Confirmadas", 
+                "Declinadas", 
+                "Em negociação",
+                "Lançadas"
+            ]
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "data": nomes_meses,
+                "axisPointer": {"type": "shadow"}
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value",
+                "name": "Número",
+                "min": 0,
+                "axisLabel": {
+                    "formatter": "{value}"
+                }
+            }
+        ],
+        "series": [
+            {
+                "name": "Confirmadas",
+                "type": "bar",
+                "data": serie_propostas_confirmadas,
+                "color": "#22C55E"
+            },
+            {
+                "name": "Declinadas",
+                "type": "bar",
+                "data": serie_propostas_declinadas,
+                "color": "#EF4444"
+            },
+            {
+                "name": "Em negociação",
+                "type": "bar",
+                "data": serie_propostas_em_negociacao,
+                "color": "#EAB308"
+            },
+            {
+                "name": "Lançadas",
+                "type": "line",
+                "data": serie_propostas_lancadas,
+                "yAxisIndex": 0,
+                "color": "#1E3A8A"
+            }
+        ]
+    }
+    with st.container(border=True):
+	    st_echarts(option, height="368px")

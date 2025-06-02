@@ -48,12 +48,18 @@ def main():
         mes = int(mes)
     st.divider()
 
-    st.markdown("## Conversão de Eventos", help="Com base no mês de envio da proposta")
+    col1, col2 = st.columns([2.25, 3])
+    with col1:
+        st.markdown("## Conversão de Eventos *")
+    with col2:
+        st.markdown("")
+        st.markdown("")
+        st.markdown("*Com base nos eventos lançados no mês selecionado.")
     st.divider()
 
     # Filtra por data de envio de proposta
-    df_eventos = df_filtrar_ano(df_eventos, 'Data Envio Proposta', ano)
-    df_eventos = df_filtrar_mes(df_eventos, 'Data Envio Proposta', mes)
+    df_eventos_ano = df_filtrar_ano(df_eventos, 'Data Envio Proposta', ano)
+    df_eventos = df_filtrar_mes(df_eventos_ano, 'Data Envio Proposta', mes)
 
     col1, col2, col3 = st.columns([1.1, 1.15, 3], gap="small", vertical_alignment="bottom")
     with col1:
@@ -74,6 +80,7 @@ def main():
         grafico_pizza_num_propostas(
             num_confirmadas, num_declinadas, num_em_negociacao
         )
+        grafico_barras_num_propostas(df_eventos_ano)
 
 if __name__ == "__main__":
     main()
