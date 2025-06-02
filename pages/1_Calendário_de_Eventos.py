@@ -25,7 +25,7 @@ def main():
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS_PRICELESS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
-
+    
     # Substitui NaT ou datas nulas por uma data padrão ou remove linhas
     df_eventos = df_eventos.dropna(subset=["Data_Evento"])
 
@@ -35,9 +35,9 @@ def main():
     with col1:
         st.title("📅 Calendário de Eventos")
     with col2:
-        st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
+        st.button(label='Atualizar', key='atualizar_calendario', on_click=st.cache_data.clear)
     with col3:
-        if st.button('Logout', key='logout_gazit'):
+        if st.button('Logout', key='logout_calendario'):
             logout()
                
     st.divider()

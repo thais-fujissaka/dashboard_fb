@@ -47,7 +47,7 @@ def input_periodo_datas(key):
     return date_input
 
 
-def seletor_mes(key):
+def seletor_mes(label, key):
   # Dicionário para mapear os meses
   meses = {
       "Janeiro": "01",
@@ -70,7 +70,7 @@ def seletor_mes(key):
   mes_atual_nome = nomes_meses[mes_atual_num - 1]
 
   # Seletor de mês
-  mes = st.selectbox("Mês do vencimento", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
+  mes = st.selectbox(label, nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key)
 
   # Obter o mês correspondente ao mês selecionado
   mes_selecionado = meses[mes]
@@ -96,5 +96,22 @@ def button_download(df):
         file_name="data.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+
+
+def seletor_vendedor(label, df_vendedores, key):
+    
+    lista_vendedores = df_vendedores['ID - Responsavel'].tolist()
+    lista_vendedores.insert(0, "Todos")
+
+    vendedor = st.selectbox(label, lista_vendedores, key=key)
+    if vendedor == "Todos":
+        id_vendedor = -1  # Valor padrão para "Todos"
+        nome_vendedor = "Todos"
+    else:
+        # Extrai o ID do vendedor selecionado
+        id_vendedor = int(vendedor.split(" - ")[0])
+        nome_vendedor = vendedor.split(" - ")[1]
+    return id_vendedor, nome_vendedor
+
 
 
