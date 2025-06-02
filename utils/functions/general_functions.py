@@ -148,3 +148,7 @@ def df_filtrar_ano(df, coluna_data, ano):
     df_filtrado = df.loc[(df[coluna_data].dt.year == int(ano))]
 
     return df_filtrado
+
+
+def escape_dolar(texto):
+    return texto.replace('$', r'\$')
