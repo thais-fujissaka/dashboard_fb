@@ -27,8 +27,14 @@ def main():
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
     # Busca vendedores
-
-    st.title("📈 KPI's de Vendas Priceless")
+    col1, col2, col3 = st.columns([6, 1, 1])
+    with col1:
+        st.title("📈 KPI's de Vendas")
+    with col2:
+        st.button(label='Atualizar', key='atualizar_kpis_vendas', on_click=st.cache_data.clear)
+    with col3:
+        if st.button('Logout', key='logout_kpis_vendas'):
+            logout()
     st.divider()
 
     # Adiciona selecao de mes e ano

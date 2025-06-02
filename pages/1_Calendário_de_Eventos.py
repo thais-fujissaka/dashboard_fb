@@ -35,9 +35,9 @@ def main():
     with col1:
         st.title("📅 Calendário de Eventos")
     with col2:
-        st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
+        st.button(label='Atualizar', key='atualizar_calendario', on_click=st.cache_data.clear)
     with col3:
-        if st.button('Logout', key='logout_gazit'):
+        if st.button('Logout', key='logout_calendario'):
             logout()
                
     st.divider()

@@ -31,7 +31,7 @@ def config_sidebar():
         if "Administrador" in permissao:
             st.sidebar.title("Menu")
             st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
-            st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas Priceless - Conversão de Eventos")
+            st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
             st.sidebar.page_link("pages/3_Faturamento_Bruto.py", label=":moneybag: Faturamento Bruto")
             st.sidebar.page_link("pages/4_Informações_de_Eventos.py", label="🔎 Informaçoes de Eventos")
             # st.sidebar.page_link("pages/5_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
