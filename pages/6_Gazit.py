@@ -32,6 +32,8 @@ def main():
 	df_eventos = GET_EVENTOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
+	df_eventos = df_eventos[(df_eventos['Valor_Locacao_Aroo_1'] > 0) | (df_eventos['Valor_Locacao_Aroo_2'] > 0) | (df_eventos['Valor_Locacao_Aroo_3'] > 0) | (df_eventos['Valor_Locacao_Anexo'] > 0)]
+	
 	# Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
 		'Valor_Locacao_Aroo_1': float,
@@ -39,6 +41,7 @@ def main():
 		'Valor_Locacao_Aroo_3': float,
 		'Valor_Locacao_Anexo': float,
 		'Valor_Locacao_Notie': float,
+		'Valor_Locacao_Mirante': float,
 		'Valor_Imposto': float,
 		'Valor_AB': float,
 		'Valor_Total': float,

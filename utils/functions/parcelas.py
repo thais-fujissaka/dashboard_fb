@@ -42,6 +42,7 @@ def rename_colunas_eventos(df):
 		'Valor_Locacao_Aroo_3': 'Valor Locação Aroo 3',
 		'Valor_Locacao_Anexo': 'Valor Locação Anexo',
 		'Valor_Locacao_Notie': 'Valor Locação Notiê',
+		'Valor_Locacao_Mirante': 'Valor Locação Mirante',
 		'Valor_Imposto': 'Imposto',
 		'Total_Gazit': 'Total Gazit',
 		'Valor_Locacao_Total': 'Total Locação',
@@ -75,8 +76,7 @@ def rename_colunas_parcelas(df):
 
 
 def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
-
-	df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Total_Gazit', 'Valor_Locacao_Total']], how='left', on='ID_Evento')
+	df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Total_Gazit', 'Valor_Locacao_Total']], how='inner', on='ID_Evento')
 
 	if not 'Repasse_Gazit_Bruto' in df_parcelas.columns:
 		df_parcelas['Repasse_Gazit_Bruto'] = 0
