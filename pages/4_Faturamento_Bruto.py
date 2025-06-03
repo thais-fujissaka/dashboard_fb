@@ -78,7 +78,8 @@ def main():
 	# Seletor de ano
 	col0, col1, col2 = st.columns(3, gap="large", vertical_alignment="center")
 	with col0:
-		id_casa, casa, id_zigpay = input_selecao_casas(key='faturamento_bruto')
+		lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col1:
 		filtro_data = st.segmented_control(
 			label="Filtrar por Data de:",

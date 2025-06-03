@@ -5,9 +5,10 @@ from utils.functions.date_functions import *
 from utils.queries import *
 
 
-def input_selecao_casas(key):
+def input_selecao_casas(lista_casas_retirar, key):
     
     df_casas = get_casas_validas()
+    df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
     lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
     df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
     casa = st.selectbox("Casa", lista_casas_validas, key=key)

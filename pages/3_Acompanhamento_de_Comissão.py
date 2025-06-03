@@ -9,7 +9,7 @@ from utils.functions.kpis_conversao_eventos_priceless import *
 
 st.set_page_config(
     page_icon="📈",
-    page_title="KPI's de Vendas Priceless",
+    page_title="KPI's de Vendas Priceless - Comissões",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -25,6 +25,7 @@ def main():
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS_PRICELESS_KPIS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
+    df_orcamentos = GET_ORCAMENTOS_EVENTOS
 
     # Vendedores
     df_vendedores = df_eventos[['ID Responsavel Comercial', 'Comercial Responsável']].drop_duplicates().dropna()
@@ -41,28 +42,27 @@ def main():
             logout()
     st.divider()
 
-    col1, col2 = st.columns([6, 3])
-    with col1:
-        st.markdown("## Conversão de Eventos *")
-    with col2:
-        st.markdown("")
-        st.markdown("")
-        st.markdown("*Com base nos eventos lançados no mês selecionado.")
+    st.markdown("## Acompanhamento de Comissão")
     st.divider()
 
     # Adiciona selecao de mes e ano
-    col1, col2, col3, col4= st.columns([1,1,1,1])
+    col0, col1, col2, col3= st.columns([1,1,1,1])
+    with col0:
+        lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret', 'Ultra Evil Premium Ltda ']
+        id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='acompanhamento_comissao_casas')
     with col1:
-        ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_conversao_eventos_priceless")
+        ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_comissao")
     with col2:
         mes = seletor_mes(
-            "Selecionar mês:", key="seletor_mes_kpi_conversao_eventos_priceless"
+            "Selecionar mês:", key="seletor_mes_kpi_comissao"
         )
         mes = int(mes)
     with col3:
-        id_vendedor, nome_vendedor = seletor_vendedor("Comercial Responsável:", df_vendedores, "seletor_vendedor_kpi_conversao_eventos")
+        id_vendedor, nome_vendedor = seletor_vendedor("Comercial Responsável:", df_vendedores, "seletor_vendedor_kpi_comissao")
 
     st.divider()
+
+    
 
     # Filtra por data de envio de proposta
     df_eventos_ano = df_filtrar_ano(df_eventos, 'Data Envio Proposta', ano)
@@ -72,26 +72,7 @@ def main():
         df_eventos = df_eventos[df_eventos['ID Responsavel Comercial'] == id_vendedor]
         df_eventos_ano = df_eventos_ano[df_eventos_ano['ID Responsavel Comercial'] == id_vendedor]
 
-    col1, col2, col3 = st.columns([1.1, 1.15, 3], gap="small", vertical_alignment="bottom")
-    with col1:
-        num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao = calculo_numero_propostas(df_eventos, ano, mes)
-        cards_numero_propostas(
-            num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao
-        )
-    with col2:
-        valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao = calculo_valores_propostas(df_eventos, ano, mes)
-        valor_lancadas = format_brazilian(valor_lancadas)
-        valor_confirmadas = format_brazilian(valor_confirmadas)
-        valor_declinadas = format_brazilian(valor_declinadas)
-        valor_em_negociacao = format_brazilian(valor_em_negociacao)
-        cards_valor_propostas(
-            valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
-        )
-    with col3:
-        grafico_pizza_num_propostas(
-            num_confirmadas, num_declinadas, num_em_negociacao
-        )
-        grafico_barras_num_propostas(df_eventos_ano)
+
 
 if __name__ == "__main__":
     main()
