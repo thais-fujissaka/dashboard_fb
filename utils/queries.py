@@ -195,10 +195,11 @@ def GET_EVENTOS_PRICELESS_KPIS():
 			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
 	''')
 
-
+@st.cache_data
 def GET_ORCAMENTOS_EVENTOS():
 	return dataframe_query(f'''
 		SELECT 
+			te.ID AS 'ID Casa',
 			te.NOME_FANTASIA AS 'Casa',
 			to2.MES AS 'Mês',
 			to2.ANO AS 'Ano',
@@ -209,4 +210,21 @@ def GET_ORCAMENTOS_EVENTOS():
 			INNER JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON to2.FK_CLASSIFICACAO_2 = tccg2.ID
 		WHERE tccg.DESCRICAO = 'Faturamento Bruto' AND tccg2.ID IN (939, 940, 942, 943)
 		GROUP BY te.NOME_FANTASIA, to2.ANO, to2.MES
+	''')
+
+
+@st.cache_data
+def GET_RECEBIMENTOS_EVENTOS():
+	return dataframe_query(f'''
+		SELECT 
+			CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO) AS 'ID - Responsavel',
+			te.ID AS 'ID Casa',
+			YEAR(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Ano Recebimento',
+			MONTH(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Mês Recebimento',
+			SUM(tpep.VALOR_PARCELA) AS 'Valor Total Parcelas'
+		FROM T_EVENTOS_PRICELESS tep 
+			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
+			INNER JOIN T_EXECUTIVAS_EVENTOS tee ON tee.ID = tep.FK_EXECUTIVA_EVENTOS
+			INNER JOIN T_PARCELAS_EVENTOS_PRICELESS tpep ON tpep.FK_EVENTO_PRICELESS = tep.ID
+		GROUP BY CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO), te.ID, DATE_FORMAT(tpep.DATA_RECEBIMENTO_PARCELA, '%Y'), DATE_FORMAT(tpep.DATA_RECEBIMENTO_PARCELA, '%m')
 	''')
