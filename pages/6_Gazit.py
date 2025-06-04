@@ -161,7 +161,7 @@ def main():
 			st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
 
 			st.markdown("#### Eventos")
-			df_eventos_recebimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_vencimento['ID Evento'])]
+			df_eventos_recebimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_recebimento['ID Evento'])]
 			st.dataframe(df_eventos_recebimento, use_container_width=True, hide_index=True)
 		
 		else:
