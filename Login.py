@@ -1,6 +1,7 @@
 import streamlit as st
 from utils.user import *
 from utils.queries import *
+from utils.functions.general_functions import config_permissoes_user
 
 st.set_page_config(
     initial_sidebar_state="collapsed",
@@ -47,9 +48,13 @@ def main():
                     use_container_width=True,
                 )
     else:
+        permissao, Nomeuser, username = config_permissoes_user()
         st.write("Você está logado!")
         st.markdown("Redirecionando...")
-        st.switch_page("pages/1_Calendário_de_Eventos.py")
+        if "Admin Dash Eventos" in permissao:
+            st.switch_page("pages/1_Calendário_de_Eventos.py")
+        elif "Gazit" in permissao:
+            st.switch_page("pages/6_Gazit.py")
 
 if __name__ == "__main__":
     main()

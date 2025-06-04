@@ -17,7 +17,6 @@ def login(userName: str, userPassword: str) -> bool:
       if "error" in response:
         return False
       elif response.get("data", {}).get("success") == True:
-        print(login_data)
         return login_data
       else:
           return False
@@ -34,7 +33,6 @@ def login(userName: str, userPassword: str) -> bool:
             }
           }
         }
-        print(user_data)
         return user_data
       else:
         return False
