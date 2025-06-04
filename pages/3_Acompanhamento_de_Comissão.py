@@ -67,9 +67,11 @@ def main():
     # Filtra por ano e mês
     df_recebimentos = df_recebimentos[(df_recebimentos['Ano Recebimento'] == ano) & (df_recebimentos['Mês Recebimento'] == mes)]
     df_orcamentos = df_orcamentos[(df_orcamentos['Ano'] == ano) & (df_orcamentos['Mês'] == mes)]
-    
-    # st.dataframe(df_recebimentos, use_container_width=True)
-    # st.dataframe(df_orcamentos, use_container_width=True)
+
+    print(id_vendedor)
+
+    st.dataframe(df_recebimentos, use_container_width=True, hide_index=True)
+    st.dataframe(df_orcamentos, use_container_width=True, hide_index=True)
 
     # Calcula o atingimento
     total_recebido_mes = df_recebimentos['Valor Total Parcelas'].sum()
@@ -80,13 +82,24 @@ def main():
     if total_recebido_mes >= orcamento_mes:
         meta_atingida = True
 
-    st.write(f"**Total Recebido no Mês: R$ {total_recebido_mes:,.2f}**")
-    st.write(f"**Orçamento do Mês: R$ {orcamento_mes:,.2f}**")
     if meta_atingida:
         st.success("Meta Atingida!")
     else:
         st.error("Meta Não Atingida!")
+    
+    st.write(f"**Total Recebido no Mês: R$ {total_recebido_mes:,.2f}**")
+    st.write(f"**Orçamento do Mês: R$ {orcamento_mes:,.2f}**")
+    
+    
+    if orcamento_mes > 0:
+        porcentagem_atingimento = (total_recebido_mes / orcamento_mes) * 100
+    else:
+        porcentagem_atingimento = 0
+    st.write(f"**Porcentagem de Atingimento: {porcentagem_atingimento:,.2f}%**")
 
+    # Filtra por vendedor
+    if id_vendedor != -1:
+        df_recebimentos = df_recebimentos[df_recebimentos['ID Responsavel'] == id_vendedor]
 
 
 if __name__ == "__main__":

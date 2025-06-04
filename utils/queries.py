@@ -218,6 +218,7 @@ def GET_RECEBIMENTOS_EVENTOS():
 	return dataframe_query(f'''
 		SELECT 
 			CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO) AS 'ID - Responsavel',
+			tee.ID AS 'ID Responsavel',
 			te.ID AS 'ID Casa',
 			YEAR(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Ano Recebimento',
 			MONTH(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Mês Recebimento',
