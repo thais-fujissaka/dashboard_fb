@@ -9,6 +9,7 @@ from utils.user import *
 from utils.queries import GET_PERMISSIONS, GET_USERNAME, get_casas_validas
 
 
+
 def config_permissoes_user():
     username = st.session_state.get("userName", "Usuário desconhecido")
     dfpermissao = GET_PERMISSIONS(username)
@@ -152,3 +153,8 @@ def df_filtrar_ano(df, coluna_data, ano):
 
 def escape_dolar(texto):
     return texto.replace('$', r'\$')
+
+
+def load_css(file_path):
+    with open(file_path) as file:
+        st.html(f"<style>{file.read()}</style>")
