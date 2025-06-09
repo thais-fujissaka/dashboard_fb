@@ -100,7 +100,7 @@ def main():
         grafico_barras_num_propostas(df_eventos_ano)
 
     st.divider()
-    col1, col2 = st.columns([1, 1], vertical_alignment = "center")
+    col1, col2 = st.columns([1, 1], vertical_alignment = "bottom")
     with col1:
         st.markdown("### Eventos por status")
     with col2:
@@ -115,15 +115,15 @@ def main():
     df_eventos_data_lead = format_columns_brazilian(df_eventos_data_lead, ['Valor Total', 'Valor AB', 'Valor Locação otal', 'Valor Imposto'])
     df_eventos_data_lead = df_formata_datas_sem_horario(df_eventos_data_lead, ['Data Envio Proposta', 'Data de Contratação', 'Data Recebimento Lead', 'Data do Evento'])
     if selection == "Leads Recebidos":
-        st.dataframe(df_eventos_data_lead, use_container_width=True)
+        st.dataframe(df_eventos_data_lead, use_container_width=True, hide_index=True)
     elif selection == "Com Propostas Enviadas":
-        st.dataframe(df_eventos, use_container_width=True)
+        st.dataframe(df_eventos, use_container_width=True, hide_index=True)
     elif selection == "Confirmados":
-        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True)
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
     elif selection == "Declinados":
-        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True)
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
     elif selection == "Em Negociação":
-        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True)
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
     
 
 if __name__ == "__main__":
