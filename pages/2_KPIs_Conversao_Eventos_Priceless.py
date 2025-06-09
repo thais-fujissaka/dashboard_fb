@@ -67,15 +67,6 @@ def main():
 
     st.divider()
 
-    col1, col2 = st.columns([6, 3])
-    with col1:
-        st.markdown("## Conversão de Eventos *")
-    with col2:
-        st.markdown("")
-        st.markdown("")
-        st.markdown("*Com base nas propostas enviadas no mês selecionado.")
-    st.divider()
-
     # Filtra por data de envio de proposta
     df_eventos_ano = df_filtrar_ano(df_eventos, 'Data Envio Proposta', ano)
     df_eventos = df_filtrar_mes(df_eventos_ano, 'Data Envio Proposta', mes)
