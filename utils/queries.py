@@ -165,34 +165,35 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
 @st.cache_data
 def GET_EVENTOS_PRICELESS_KPIS():
    	return dataframe_query(f'''
-		SELECT 
-			tep.ID AS 'ID Evento',
-			te.NOME_FANTASIA AS 'Casa',
-			tee.NOME_COMPLETO AS 'Comercial Responsável',
-			tee.ID AS 'ID Responsavel Comercial',
-			tep.NOME_EVENTO AS 'Nome do Evento',
-			trec.NOME AS 'Cliente',
-			tep.DATA_ENVIO_PROPOSTA AS 'Data Envio Proposta',
-			tep.DATA_CONTRATACAO AS 'Data de Contratação',
-			tep.DATA_EVENTO AS 'Data do Evento',
-			tte.DESCRICAO AS 'Tipo do Evento',
-			tme.DESCRICAO AS 'Modelo do Evento',
-			tep.VALOR_TOTAL_EVENTO AS 'Valor Total',
-			tep.NUM_CLIENTES AS 'Número de Pessoas',
-			tep.VALOR_AB AS 'Valor AB',
-			COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) as 'Valor_Locacao_Total',
-			tep.VALOR_IMPOSTO AS 'Valor Imposto',
-			tsep.DESCRICAO AS 'Status do Evento',
-			temd.DESCRICAO AS 'Motivo do Declínio',
-			tep.OBSERVACOES AS 'Observações'
-		FROM T_EVENTOS_PRICELESS tep
-			LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
-			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
-			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
-			LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
-			LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
-			LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
-			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+	SELECT 
+		tep.ID AS 'ID Evento',
+		te.NOME_FANTASIA AS 'Casa',
+		tee.NOME_COMPLETO AS 'Comercial Responsável',
+		tee.ID AS 'ID Responsavel Comercial',
+		tep.NOME_EVENTO AS 'Nome do Evento',
+		trec.NOME AS 'Cliente',
+		tep.DATA_ENVIO_PROPOSTA AS 'Data Envio Proposta',
+		tep.DATA_CONTRATACAO AS 'Data de Contratação',
+		tep.DATA_RECEBIMENTO_LEAD AS 'Data Recebimento Lead',
+		tep.DATA_EVENTO AS 'Data do Evento',
+		tte.DESCRICAO AS 'Tipo do Evento',
+		tme.DESCRICAO AS 'Modelo do Evento',
+		tep.VALOR_TOTAL_EVENTO AS 'Valor Total',
+		tep.NUM_CLIENTES AS 'Número de Pessoas',
+		tep.VALOR_AB AS 'Valor AB',
+		COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) as 'Valor Locação Total',
+		tep.VALOR_IMPOSTO AS 'Valor Imposto',
+		tsep.DESCRICAO AS 'Status do Evento',
+		temd.DESCRICAO AS 'Motivo do Declínio',
+		tep.OBSERVACOES AS 'Observações'
+	FROM T_EVENTOS_PRICELESS tep
+		LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+		LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+		LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
+		LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
+		LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
+		LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+		LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
 	''')
 
 @st.cache_data

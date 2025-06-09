@@ -49,6 +49,20 @@ def main():
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
 
+	# Fillna em colunas de valores monetários
+	df_eventos.fillna({
+		'Valor_Locacao_Aroo_1': 0,
+		'Valor_Locacao_Aroo_2': 0,
+		'Valor_Locacao_Aroo_3': 0,
+		'Valor_Locacao_Anexo': 0,
+		'Valor_Locacao_Notie': 0,
+		'Valor_Locacao_Mirante': 0,
+		'Valor_Imposto': 0,
+		'Valor_AB': 0,
+		'Valor_Total': 0,
+		'Valor_Locacao_Total': 0
+	}, inplace=True)
+
 	# Formata tipos de dados do dataframe de parcelas
 	tipos_de_dados_parcelas = {
 		'Valor_Parcela': float,
@@ -79,11 +93,14 @@ def main():
 	st.divider()
 
 	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
-	
+
 	df_parcelas_vencimento = df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 	df_parcelas_recebimento = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
 
-	# Calcula o valor de repasse para Gazit das parcelas
+	# Formata colunas de eventos
+	df_eventos = rename_colunas_eventos(df_eventos)
+	df_eventos = df_format_date_columns_brazilian(df_eventos, ['Data Contratação', 'Data Evento'])
+	df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Valor A&B', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Valor Locação Mirante', 'Imposto', 'Total Gazit'])
 
 	# Repasses Gazit #
  
@@ -110,7 +127,15 @@ def main():
 			df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
 			df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
 
+			df_eventos_vencimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_vencimento['ID Evento'])]
+			df_eventos_vencimento = df_eventos_vencimento[df_eventos_vencimento['Status Evento'] != 'Declinado']
+
+			df_parcelas_vencimento = df_parcelas_vencimento[df_parcelas_vencimento['ID Evento'].isin(df_eventos_vencimento['ID Evento'])]
+
 			st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
+
+			st.markdown("#### Eventos")
+			st.dataframe(df_eventos_vencimento, use_container_width=True, hide_index=True)
 		
 		else:
 			st.markdown("#### Parcelas")
@@ -138,6 +163,10 @@ def main():
 			df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
 
 			st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
+
+			st.markdown("#### Eventos")
+			df_eventos_recebimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_recebimento['ID Evento'])]
+			st.dataframe(df_eventos_recebimento, use_container_width=True, hide_index=True)
 		
 		else:
 			st.markdown("#### Parcelas")

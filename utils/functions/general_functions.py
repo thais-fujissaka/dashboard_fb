@@ -9,6 +9,7 @@ from utils.user import *
 from utils.queries import GET_PERMISSIONS, GET_USERNAME, get_casas_validas
 
 
+
 def config_permissoes_user():
     username = st.session_state.get("userName", "Usuário desconhecido")
     dfpermissao = GET_PERMISSIONS(username)
@@ -28,7 +29,7 @@ def config_sidebar():
     st.sidebar.header(f"Bem-vindo(a) {Nomeuser}!")
     if st.session_state["loggedIn"]:
         # if 'Administrador' in permissao or 'Financeiro Central' in permissao:
-        if "Administrador" in permissao:
+        if "Admin Dash Eventos" in permissao:
             st.sidebar.title("Menu")
             st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
             st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -153,3 +154,8 @@ def df_filtrar_ano(df, coluna_data, ano):
 
 def escape_dolar(texto):
     return texto.replace('$', r'\$')
+
+
+def load_css(file_path):
+    with open(file_path) as file:
+        st.html(f"<style>{file.read()}</style>")

@@ -51,12 +51,12 @@ def kpi_card_propostas(valor, rgb_tupla, label, icon):
                     border-radius: 7px;
 					margin-bottom: 16px;
 					padding: 12px 12px 0 12px;
-					height: 180px;'>
+					height: 150px;'>
             <div style='font-size: 16px; padding: 10px 14px 10px 14px;'>
 			    <i class='{iconname}' style='padding: 10px 12px 0 0; font-size: 12px;'></i>
 				{sline}
 			</div>
-            <div style="display: flex; align-items: center; justify-content: center; padding-top:20px;">
+            <div style="display: flex; align-items: center; justify-content: center; padding-top:10px;">
 				<div style='font-size: {fontsize}px; font-weight: bold'>{valor}</div>
             </div>
         <div>
@@ -80,11 +80,11 @@ def kpi_card_propostas_valores(valor, rgb_tupla, label):
                     border-radius: 7px;
 					margin-bottom: 16px;
 					padding: 12px;
-					height: 180px;'>
+					height: 150px;'>
             <div style='font-size: 16px; padding: 10px 14px 10px 14px;'>
 				{sline}
 			</div>
-            <div style="display: flex; align-items: center; justify-content: center; padding-top:20px">
+            <div style="display: flex; align-items: center; justify-content: center; padding-top:10px">
 				<div style='font-size: {fontsize}px; font-weight: bold'>R$ {valor}</div>
             </div>
         <div>
@@ -93,56 +93,61 @@ def kpi_card_propostas_valores(valor, rgb_tupla, label):
 	st.markdown(htmlstr, unsafe_allow_html=True)
 	
 
-def cards_numero_propostas(num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao):
+def cards_numero_propostas(num_leads_recebidos, num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao):
 	
     # N propostas lancadas no periodo
     azul = (30, 58, 138)
     verde = (34, 197, 94)
     amarelo = (234, 179, 8) 
     vermelho = (239, 68, 68)
+    kpi_card_propostas(num_leads_recebidos, azul, "Nº de leads recebidos:", "leads")
     kpi_card_propostas(num_lancadas, azul, "Nº de propostas lançadas:", "enviado")
     kpi_card_propostas(num_confirmadas, verde, "Nº de propostas confirmadas:", "confirmado")
     kpi_card_propostas(num_declinadas, vermelho, "Nº de propostas declinadas:", "cancelado")
     kpi_card_propostas(num_em_negociacao, amarelo, "Nº de propostas em negociação:", "negociacao")
     
-def cards_valor_propostas(valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao):
-	azul = (30, 58, 138)
-	verde = (34, 197, 94)
-	amarelo = (234, 179, 8)
-	vermelho = (239, 68, 68)
-	kpi_card_propostas_valores(valor_lancadas, azul, "Valor de propostas lançadas:")
-	kpi_card_propostas_valores(valor_confirmadas, verde, "Valor de propostas confirmadas:")
-	kpi_card_propostas_valores(valor_declinadas, vermelho, "Valor de propostas declinadas:")
-	kpi_card_propostas_valores(valor_em_negociacao, amarelo, "Valor de propostas em negociação:")
-	
-def calculo_numero_propostas(df_eventos, ano, mes):
+def cards_valor_propostas(valor_leads_recebidos, valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao):
+    azul = (30, 58, 138)
+    verde = (34, 197, 94)
+    amarelo = (234, 179, 8)
+    vermelho = (239, 68, 68)
+    kpi_card_propostas_valores(valor_leads_recebidos, azul, "Valor de leads recebidos:")
+    kpi_card_propostas_valores(valor_lancadas, azul, "Valor de propostas lançadas:")
+    kpi_card_propostas_valores(valor_confirmadas, verde, "Valor de propostas confirmadas:")
+    kpi_card_propostas_valores(valor_declinadas, vermelho, "Valor de propostas declinadas:")
+    kpi_card_propostas_valores(valor_em_negociacao, amarelo, "Valor de propostas em negociação:")
+    
+
+def calculo_numero_propostas(df_eventos, df_eventos_data_lead, ano, mes):
     """
     Calcula o número de propostas lançadas, confirmadas, declinadas e em negociação
     para o ano e mês especificados.
     """
     df_eventos['Data do Evento'] = pd.to_datetime(df_eventos['Data do Evento'])
     
+    num_leads_recebidos = len(df_eventos_data_lead)
     num_lancadas = len(df_eventos)
     num_confirmadas = len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])
     num_declinadas = len(df_eventos[df_eventos['Status do Evento'] == 'Declinado'])
     num_em_negociacao = len(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'])
     
-    return num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao
+    return num_leads_recebidos, num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao
 
 
-def calculo_valores_propostas(df_eventos, ano, mes):
+def calculo_valores_propostas(df_eventos, df_eventos_data_lead, ano, mes):
     """
     Calcula os valores das propostas lançadas, confirmadas, declinadas e em negociação
     para o ano e mês especificados.
     """
     df_eventos['Data do Evento'] = pd.to_datetime(df_eventos['Data do Evento'])
     
+    valor_leads_recebidos = df_eventos_data_lead['Valor Total'].sum() if not df_eventos_data_lead.empty else 0
     valor_lancadas = df_eventos['Valor Total'].sum()
     valor_confirmadas = df_eventos[df_eventos['Status do Evento'] == 'Confirmado']['Valor Total'].sum()
     valor_declinadas = df_eventos[df_eventos['Status do Evento'] == 'Declinado']['Valor Total'].sum()
     valor_em_negociacao = df_eventos[df_eventos['Status do Evento'] == 'Em negociação']['Valor Total'].sum()
     
-    return valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
+    return valor_leads_recebidos,valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
 
 def grafico_pizza_num_propostas(num_confirmadas, num_declinadas, num_em_negociacao):
         
@@ -191,7 +196,7 @@ def grafico_pizza_num_propostas(num_confirmadas, num_declinadas, num_em_negociac
         ]
     }
     with st.container(border=True):
-        st_echarts(option, height="308px")
+        st_echarts(option, height="300px")
 		
 
 def grafico_barras_num_propostas(df_eventos_ano):
@@ -296,4 +301,4 @@ def grafico_barras_num_propostas(df_eventos_ano):
         ]
     }
     with st.container(border=True):
-	    st_echarts(option, height="368px")
+	    st_echarts(option, height="420px")

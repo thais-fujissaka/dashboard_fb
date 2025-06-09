@@ -6,6 +6,7 @@ from utils.queries import *
 from utils.functions.parcelas import *
 from utils.user import *
 from utils.functions.kpis_conversao_eventos_priceless import *
+import pathlib
 
 st.set_page_config(
     page_icon="📈",
@@ -17,6 +18,8 @@ st.set_page_config(
 if "loggedIn" not in st.session_state or not st.session_state["loggedIn"]:
     st.switch_page("Login.py")
 
+css_path = pathlib.Path("assets/styles.css")
+load_css(css_path)
 
 def main():
 
@@ -64,28 +67,40 @@ def main():
 
     st.divider()
 
+    col1, col2 = st.columns([6, 3])
+    with col1:
+        st.markdown("## Conversão de Eventos *")
+    with col2:
+        st.markdown("")
+        st.markdown("")
+        st.markdown("*Com base nas propostas enviadas no mês selecionado.")
+    st.divider()
+
     # Filtra por data de envio de proposta
     df_eventos_ano = df_filtrar_ano(df_eventos, 'Data Envio Proposta', ano)
     df_eventos = df_filtrar_mes(df_eventos_ano, 'Data Envio Proposta', mes)
+    df_eventos_data_lead = df_filtrar_mes(df_eventos_ano, 'Data Recebimento Lead', mes)
 
     if id_vendedor != -1:
         df_eventos = df_eventos[df_eventos['ID Responsavel Comercial'] == id_vendedor]
         df_eventos_ano = df_eventos_ano[df_eventos_ano['ID Responsavel Comercial'] == id_vendedor]
+        df_eventos_data_lead = df_eventos_data_lead[df_eventos_data_lead['ID Responsavel Comercial'] == id_vendedor]
 
-    col1, col2, col3 = st.columns([1.1, 1.15, 3], gap="small", vertical_alignment="bottom")
+    col1, col2, col3 = st.columns([1.3, 1.5, 3], gap="small", vertical_alignment="top")
     with col1:
-        num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao = calculo_numero_propostas(df_eventos, ano, mes)
+        num_leads_recebidos, num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao = calculo_numero_propostas(df_eventos, df_eventos_data_lead, ano, mes)
         cards_numero_propostas(
-            num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao
+            num_leads_recebidos, num_lancadas, num_confirmadas, num_declinadas, num_em_negociacao
         )
     with col2:
-        valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao = calculo_valores_propostas(df_eventos, ano, mes)
+        valor_leads_recebidos, valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao = calculo_valores_propostas(df_eventos, df_eventos_data_lead, ano, mes)
+        valor_leads_recebidos = format_brazilian(valor_leads_recebidos)
         valor_lancadas = format_brazilian(valor_lancadas)
         valor_confirmadas = format_brazilian(valor_confirmadas)
         valor_declinadas = format_brazilian(valor_declinadas)
         valor_em_negociacao = format_brazilian(valor_em_negociacao)
         cards_valor_propostas(
-            valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
+            valor_leads_recebidos, valor_lancadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
         )
     with col3:
         grafico_pizza_num_propostas(
@@ -93,5 +108,32 @@ def main():
         )
         grafico_barras_num_propostas(df_eventos_ano)
 
+    st.divider()
+    col1, col2 = st.columns([1, 1], vertical_alignment = "bottom")
+    with col1:
+        st.markdown("### Eventos por status")
+    with col2:
+        options_eventos = ["Leads Recebidos", "Com Propostas Enviadas", "Confirmados", "Declinados", "Em Negociação"]
+        selection = st.segmented_control(
+            "Selecione o status do evento", options_eventos, selection_mode="single", key="segmented_control_kpi_conversao", label_visibility="collapsed"
+        )
+
+    # Formata datas
+    df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto'])
+    df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
+    df_eventos_data_lead = format_columns_brazilian(df_eventos_data_lead, ['Valor Total', 'Valor AB', 'Valor Locação otal', 'Valor Imposto'])
+    df_eventos_data_lead = df_formata_datas_sem_horario(df_eventos_data_lead, ['Data Envio Proposta', 'Data de Contratação', 'Data Recebimento Lead', 'Data do Evento'])
+    if selection == "Leads Recebidos":
+        st.dataframe(df_eventos_data_lead, use_container_width=True, hide_index=True)
+    elif selection == "Com Propostas Enviadas":
+        st.dataframe(df_eventos, use_container_width=True, hide_index=True)
+    elif selection == "Confirmados":
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
+    elif selection == "Declinados":
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
+    elif selection == "Em Negociação":
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
+    
+
 if __name__ == "__main__":
-    main()
+        main()
