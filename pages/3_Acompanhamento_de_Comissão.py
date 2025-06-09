@@ -6,6 +6,8 @@ from utils.queries import *
 from utils.functions.parcelas import *
 from utils.user import *
 from utils.functions.kpis_conversao_eventos_priceless import *
+from utils.functions.acompanhamento_comissao import *
+from streamlit_card import card
 
 st.set_page_config(
     page_icon="📈",
@@ -28,6 +30,10 @@ def main():
 
     # Vendedores
     df_vendedores = df_recebimentos[['ID - Responsavel']].drop_duplicates().dropna()
+
+    # Formata valores monetários
+    df_recebimentos['Valor Total Parcelas'] = df_recebimentos['Valor Total Parcelas'].astype(float)
+    df_orcamentos['Valor'] = df_orcamentos['Valor'].astype(float)
 
     # Header
     col1, col2, col3 = st.columns([6, 1, 1])
@@ -58,48 +64,54 @@ def main():
         mes = seletor_mes(
             "Selecionar mês:", key="seletor_mes_kpi_comissao"
         )
-        mes = int(mes)
     with col3:
         id_vendedor, nome_vendedor = seletor_vendedor("Comercial Responsável:", df_vendedores, "seletor_vendedor_kpi_comissao")
+
     st.divider()
 
     
     # Filtra por ano e mês
-    df_recebimentos = df_recebimentos[(df_recebimentos['Ano Recebimento'] == ano) & (df_recebimentos['Mês Recebimento'] == mes)]
-    df_orcamentos = df_orcamentos[(df_orcamentos['Ano'] == ano) & (df_orcamentos['Mês'] == mes)]
-
-    print(id_vendedor)
-
-    st.dataframe(df_recebimentos, use_container_width=True, hide_index=True)
-    st.dataframe(df_orcamentos, use_container_width=True, hide_index=True)
+    df_recebimentos = df_recebimentos[(df_recebimentos['Ano Recebimento'] == ano) & (df_recebimentos['Mês Recebimento'] == int(mes))]
+    df_orcamentos = df_orcamentos[(df_orcamentos['Ano'] == ano) & (df_orcamentos['Mês'] == int(mes))]
 
     # Calcula o atingimento
     total_recebido_mes = df_recebimentos['Valor Total Parcelas'].sum()
     orcamento_mes = df_orcamentos['Valor'].values[0]
-    print(f"Total Recebido no Mês: {total_recebido_mes}")
-    print(f"Orçamento do Mês: {orcamento_mes}")
-    meta_atingida = False
-    if total_recebido_mes >= orcamento_mes:
-        meta_atingida = True
-
-    if meta_atingida:
-        st.success("Meta Atingida!")
-    else:
-        st.error("Meta Não Atingida!")
-    
-    st.write(f"**Total Recebido no Mês: R$ {total_recebido_mes:,.2f}**")
-    st.write(f"**Orçamento do Mês: R$ {orcamento_mes:,.2f}**")
-    
-    
-    if orcamento_mes > 0:
-        porcentagem_atingimento = (total_recebido_mes / orcamento_mes) * 100
-    else:
-        porcentagem_atingimento = 0
-    st.write(f"**Porcentagem de Atingimento: {porcentagem_atingimento:,.2f}%**")
 
     # Filtra por vendedor
     if id_vendedor != -1:
         df_recebimentos = df_recebimentos[df_recebimentos['ID Responsavel'] == id_vendedor]
+        if not df_recebimentos.empty:
+            valor_total_vendido = df_recebimentos['Valor Total Parcelas'].values[0]
+        else:
+            valor_total_vendido = 0
+    else:
+        valor_total_vendido = total_recebido_mes
+
+    if orcamento_mes > 0:
+        porcentagem_atingimento = (total_recebido_mes / orcamento_mes) * 100
+    else:
+        porcentagem_atingimento = 0
+    
+    # Verifica se o vendedor atingiu a meta
+    meta_atingida = False
+    if valor_total_vendido >= orcamento_mes:
+        meta_atingida = True
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        kpi_card("Orçamento do Mês", f"R$ {format_brazilian(orcamento_mes)}", "white", "#31333F", "#31333F")
+    with col2:
+        kpi_card("Total Vendido/Recebido", f"R$ {format_brazilian(valor_total_vendido)}", "white", "#31333F", "#31333F")
+    with col3:
+        if meta_atingida:
+            kpi_card("Atingimento da Meta", f"{format_brazilian(round(porcentagem_atingimento, 2))} %", "white", "#31333F", "#1e7e34")
+        else:
+            kpi_card("Atingimento da Meta", f"{format_brazilian(round(porcentagem_atingimento, 2))} %", "white", "#31333F", "#c0392b")
+    with col4:
+        kpi_card("Comissão", f"R$ {format_brazilian(calculo_comissao(meta_atingida, valor_total_vendido, id_casa))}", "white", "#31333F", "#31333F")
+
+    
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import streamlit as st
 import io
 from utils.functions.date_functions import *
 from utils.queries import *
+from streamlit_card import card
 
 
 def input_selecao_casas(lista_casas_retirar, key):
@@ -102,12 +103,12 @@ def button_download(df):
 def seletor_vendedor(label, df_vendedores, key):
     
     lista_vendedores = df_vendedores['ID - Responsavel'].tolist()
-    lista_vendedores.insert(0, "Todos")
+    lista_vendedores.insert(0, "Todos os vendedores")
 
     vendedor = st.selectbox(label, lista_vendedores, key=key)
-    if vendedor == "Todos":
+    if vendedor == "Todos os vendedores":
         id_vendedor = -1  # Valor padrão para "Todos"
-        nome_vendedor = "Todos"
+        nome_vendedor = "Todos os vendedores"
     else:
         # Extrai o ID do vendedor selecionado
         id_vendedor = int(vendedor.split(" - ")[0])
@@ -115,4 +116,43 @@ def seletor_vendedor(label, df_vendedores, key):
     return id_vendedor, nome_vendedor
 
 
+def kpi_card(title, value, background_color, title_color, value_color):
+    card(
+            title=f"{title}",
+            text=f"{value}",
+            styles={
+                "card": {
+                    "background-color": f"{background_color}",
+                    "border-radius": "7px",
+                    "margin": "0px",
+                    "box-shadow": "0px rgba(0, 0, 0, 0)",
+                    "box-shadow": "none !important",
+                    "border": "1px solid rgba(49, 51, 63, 0.2)",
+                    "cursor": "default !important",
+                    "transform": "none !important",
+                    "transition": "none !important",
+                    "height": "120px"
+                },
+                "title": {
+                    "font-size": "14px",
+                    "color": f"{title_color}",
+                    "font-weight": "normal"
+                },
+                "text": {
+                    "font-size": "32px",
+                    "color": f"{value_color}",
+                    "font-weight": "normal"
+                },
+                "filter": {
+                    "background-color": "rgba(0, 0, 0, 0)"  # <- make the image not dimmed anymore
+                },
+                "div": {
+                    "display": "flex",
+                    "align-items": "center",
+                    "justify-content": "center",
+                    "flex-direction": "column",
+                    "margin": "0px"
+                },
+            }
+        )
 

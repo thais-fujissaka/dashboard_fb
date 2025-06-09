@@ -1,1 +1,5 @@
 /* Botões de KPI */
+.st-div.porcentagem-atingimento div[data-testid="stMetric"] > div:nth-child(2) {
+        color: green;
+        font-weight: bold;
+    }
