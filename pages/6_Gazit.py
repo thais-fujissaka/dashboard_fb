@@ -93,7 +93,7 @@ def main():
 	st.divider()
 
 	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
-	
+
 	df_parcelas_vencimento = df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
 	df_parcelas_recebimento = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
 
@@ -127,10 +127,14 @@ def main():
 			df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
 			df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Liquido Repasse Gazit'])
 
+			df_eventos_vencimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_vencimento['ID Evento'])]
+			df_eventos_vencimento = df_eventos_vencimento[df_eventos_vencimento['Status Evento'] != 'Declinado']
+
+			df_parcelas_vencimento = df_parcelas_vencimento[df_parcelas_vencimento['ID Evento'].isin(df_eventos_vencimento['ID Evento'])]
+
 			st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
 
 			st.markdown("#### Eventos")
-			df_eventos_vencimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_vencimento['ID Evento'])]
 			st.dataframe(df_eventos_vencimento, use_container_width=True, hide_index=True)
 		
 		else:
