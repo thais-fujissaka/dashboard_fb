@@ -114,6 +114,8 @@ def main():
     df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
     df_eventos_data_lead = format_columns_brazilian(df_eventos_data_lead, ['Valor Total', 'Valor AB', 'Valor Locação otal', 'Valor Imposto'])
     df_eventos_data_lead = df_formata_datas_sem_horario(df_eventos_data_lead, ['Data Envio Proposta', 'Data de Contratação', 'Data Recebimento Lead', 'Data do Evento'])
+    df_eventos = df_eventos.drop(columns=['ID Responsavel Comercial'])
+    df_eventos_data_lead = df_eventos_data_lead.drop(columns=['ID Responsavel Comercial'])
     if selection == "Leads Recebidos":
         st.dataframe(df_eventos_data_lead, use_container_width=True, hide_index=True)
     elif selection == "Com Propostas Enviadas":

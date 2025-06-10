@@ -135,6 +135,7 @@ def main():
 			st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
 
 			st.markdown("#### Eventos")
+			df_eventos_vencimento = df_eventos_vencimento.drop(columns=['Evento'])
 			st.dataframe(df_eventos_vencimento, use_container_width=True, hide_index=True)
 		
 		else:
@@ -166,6 +167,7 @@ def main():
 
 			st.markdown("#### Eventos")
 			df_eventos_recebimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_recebimento['ID Evento'])]
+			df_eventos_recebimento = df_eventos_recebimento.drop(columns=['Evento'])
 			st.dataframe(df_eventos_recebimento, use_container_width=True, hide_index=True)
 		
 		else:
