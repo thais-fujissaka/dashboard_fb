@@ -6,6 +6,7 @@ from utils.functions.general_functions import *
 from utils.functions.parcelas import *
 
 def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
+    print(filtro_data)
     if filtro_data == 'Competência':
 
         df = df_parcelas.merge(
@@ -18,6 +19,9 @@ def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
     elif filtro_data == 'Recebimento (Caixa)':
         df = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
         return df
+    elif filtro_data == 'Vencimento':
+        df = df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
+        return df
 
 def montar_tabs_geral(df_parcelas, casa, tipo_data):
 
@@ -25,6 +29,8 @@ def montar_tabs_geral(df_parcelas, casa, tipo_data):
         tipo_data = 'Data_Evento'
     elif tipo_data == 'Recebimento (Caixa)':
         tipo_data = 'Data_Recebimento'
+    elif tipo_data == 'Vencimento':
+        tipo_data = 'Data_Vencimento'
 
     tab_names = ['Total de Eventos', 'Alimentos e Bebidas', 'Couvert', 'Locação', 'Serviço']
     tabs = st.tabs(tab_names)
@@ -48,25 +54,24 @@ def montar_tabs_priceless(df_parcelas_casa, df_eventos, tipo_data):
         tipo_data = 'Data_Evento'
     elif tipo_data == 'Recebimento (Caixa)':
         tipo_data = 'Data_Recebimento'
+    elif tipo_data == 'Vencimento':
+        tipo_data = 'Data_Vencimento'
     
     df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas_casa, df_eventos)
     tab_names = ['Total de Eventos - Priceless', 'Locação Aroo', 'Locação Anexo', 'Locação Notiê', 'Locação Mirante', 'Alimentos e Bebidas']
     tabs = st.tabs(tab_names)
 
     with tabs[0]:
-        st.markdown("### Faturamento Total de Eventos - Priceless")
+        st.markdown("### Total de Eventos - Priceless")
         grafico_barras_total_eventos(df_parcelas, tipo_data)
     with tabs[1]:
         st.markdown("### Locação Aroo")
-        #grafico_barras_locacao_aroo(df_parcelas, df_eventos)
         grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Aroo", f"Aroo-{tipo_data}")
     with tabs[2]:
         st.markdown("### Locação Anexo")
-        #grafico_barras_locacao_anexo(df_parcelas, df_eventos)
         grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Anexo", f"Anexo-{tipo_data}")
     with tabs[3]:
         st.markdown("### Locação Notiê")
-        #grafico_barras_locacao_notie(df_parcelas, df_eventos)
         grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, "Notiê", f"Notie-{tipo_data}")
     with tabs[4]:
         st.markdown("### Locação Mirante")

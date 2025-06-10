@@ -83,7 +83,7 @@ def main():
 	with col1:
 		filtro_data = st.segmented_control(
 			label="Filtrar por Data de:",
-			options=["Competência", "Recebimento (Caixa)"],
+			options=["Competência", "Recebimento (Caixa)", "Vencimento"],
 			selection_mode="single",
 			default="Competência",
 		)
@@ -99,20 +99,22 @@ def main():
 	df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano)
 	
 	if casa == "Todas as Casas":
-		st.markdown("## Por Categoria")
+		st.markdown("## Faturamento Por Categoria")
 		montar_tabs_geral(df_parcelas_filtradas_por_data, casa, filtro_data)
 				
 	else:
 		df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
 		if casa == "Priceless":
-			st.markdown("## Por Categoria")
+			st.markdown("## Faturamento Por Categoria")
 			montar_tabs_priceless(df_parcelas_casa, df_eventos, filtro_data)
 			
 		else:
+			st.markdown("## Faturamento Por Categoria")
 			montar_tabs_geral(df_parcelas_casa, casa, filtro_data)
 
-	# st.markdown("### Por Tipo de Evento", help="Social, Corporativo, Turismo, Filmagem ou Sessão de Fotos")
-	# st.markdown("### Por Modelo de Evento", help="Pacote Exclusivo, Consumação Mínima, Comanda Aberta / Couvert Antecipado ou Locação de Espaço")
+	# Recebido X Vencimento
+	st.markdown("## Recebido X Vencimento")
+
 
 
 if __name__ == '__main__':
