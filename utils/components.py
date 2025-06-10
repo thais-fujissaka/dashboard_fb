@@ -141,7 +141,7 @@ def kpi_card(title, value, background_color, title_color, value_color):
                 "text": {
                     "font-size": "32px",
                     "color": f"{value_color}",
-                    "font-weight": "normal"
+                    "font-weight": "bold"
                 },
                 "filter": {
                     "background-color": "rgba(0, 0, 0, 0)"  # <- make the image not dimmed anymore
