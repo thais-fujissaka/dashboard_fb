@@ -35,12 +35,14 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
 
     elif row['ID Casa'] == 105: # Jacaré
         #2,5% de locação + 3,5% de A&B + 5% 'de Repasse artístico e Fornecedores     
-        if row['Categoria Parcela'] == 'Locação de Espaço':
+        if row['Categoria Parcela'] == 'Locação':
             comissao = round(row['Valor Total Parcelas'] * 0.025, 2)
         elif row['Categoria Parcela'] == 'A&B':
             comissao = round(row['Valor Total Parcelas'] * 0.035, 2)
-        elif row['Categoria Parcela'] == 'Repassse Artistico':
-            comissao = round(row['Valor Total Parcelas'] * 0.05, 2)
+        # elif row['Categoria Parcela'] == 'Repasse Artistico':
+        #     comissao = round(row['Valor Total Parcelas'] * 0.05, 2)
+        else:
+            comissao = 0.0
 
     return comissao
 
