@@ -4,23 +4,6 @@ from utils.components import *
 from streamlit_echarts import st_echarts
 from utils.functions.general_functions import *
 from utils.functions.parcelas import *
-
-def kpi_card(title, value, icon, color):
-    """
-    Cria um card de KPI com título, valor, ícone e cor.
-    """
-    st.markdown(
-        f"""
-        <div style="background-color: {color}; padding: 20px; border-radius: 10px; display: flex; align-items: center;">
-            <i class="{icon}" style="font-size: 24px; color: white; margin-right: 10px;"></i>
-            <div style="color: white;">
-                <h3 style="margin: 0;">{title}</h3>
-                <p style="font-size: 24px;">{value}</p>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 	
 
 def kpi_card_propostas(valor, rgb_tupla, label, icon):

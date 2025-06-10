@@ -10,7 +10,7 @@ import pathlib
 
 st.set_page_config(
     page_icon="📈",
-    page_title="KPI's de Vendas Priceless - Conversão de Eventos",
+    page_title="KPI's de Vendas Priceless",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -44,6 +44,15 @@ def main():
             logout()
     st.divider()
 
+    col1, col2 = st.columns([6, 3])
+    with col1:
+        st.markdown("## Conversão de Eventos *")
+    with col2:
+        st.markdown("")
+        st.markdown("")
+        st.markdown("*Com base nos eventos lançados no mês selecionado.")
+    st.divider()
+
     # Adiciona selecao de mes e ano
     col1, col2, col3, col4= st.columns([1,1,1,1])
     with col1:
@@ -56,15 +65,6 @@ def main():
     with col3:
         id_vendedor, nome_vendedor = seletor_vendedor("Comercial Responsável:", df_vendedores, "seletor_vendedor_kpi_conversao_eventos")
 
-    st.divider()
-
-    col1, col2 = st.columns([6, 3])
-    with col1:
-        st.markdown("## Conversão de Eventos *")
-    with col2:
-        st.markdown("")
-        st.markdown("")
-        st.markdown("*Com base nas propostas lançadas no mês selecionado.")
     st.divider()
 
     # Filtra por data de envio de proposta
