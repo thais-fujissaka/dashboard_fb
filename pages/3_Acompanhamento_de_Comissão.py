@@ -81,6 +81,8 @@ def main():
         st.stop()
     
     # Filtra por ano e mês
+    df_recebimentos_ano = df_recebimentos[df_recebimentos['Ano Recebimento'] == ano] # Para utilizar no grafico de barras
+
     df_recebimentos = df_recebimentos[(df_recebimentos['Ano Recebimento'] == ano) & (df_recebimentos['Mês Recebimento'] == int(mes))]
     df_orcamentos = df_orcamentos[(df_orcamentos['Ano'] == ano) & (df_orcamentos['Mês'] == int(mes))]
 
@@ -112,23 +114,31 @@ def main():
     meta_atingida = False
     if total_recebido_mes >= orcamento_mes:
         meta_atingida = True
-    #st.dataframe(df_recebimentos, use_container_width=True, hide_index=True)
 
-    
+    # Calcula a comissão total para o mês, casa e vendedor selecionados
     comissao = calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida)
+
+    # Exibe os KPIs
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        kpi_card("Orçamento do Mês", f"R$ {format_brazilian(orcamento_mes)}", "white", "#31333F", "#31333F")
+        kpi_card("Orçamento do Mês", f"R$ {format_brazilian(orcamento_mes)}", "rgb(30, 58, 138)", "white", "white")
     with col2:
-        kpi_card("Total Vendido/Recebido", f"R$ {format_brazilian(valor_total_vendido)}", "white", "#31333F", "#31333F")
+        kpi_card("Total Vendido/Recebido", f"R$ {format_brazilian(valor_total_vendido)}", "rgb(30, 58, 138)", "white", "white")
     with col3:
         if meta_atingida:
-            kpi_card("Atingimento da Meta", f"{format_brazilian(round(porcentagem_atingimento, 2))} %", "white", "#31333F", "#2ecc71")
+            kpi_card("Atingimento da Meta", f"{format_brazilian(round(porcentagem_atingimento, 2))} %", "rgb(30, 58, 138)", "white", "rgb(0, 255, 100)")
         else:
-            kpi_card("Atingimento da Meta", f"{format_brazilian(round(porcentagem_atingimento, 2))} %", "white", "#31333F", "#e74c3c")
+            kpi_card("Atingimento da Meta", f"{format_brazilian(round(porcentagem_atingimento, 2))} %", "rgb(30, 58, 138)", "white", "rgb(255, 30, 30)")
     with col4:
-        kpi_card("Comissão", f"R$ {format_brazilian(comissao)}", "white", "#31333F", "#31333F")
+        kpi_card("Comissão", f"R$ {format_brazilian(comissao)}", "rgb(30, 58, 138)", "white", "white")
 
-
+    # Visualização das parcelas
+    st.markdown("#### Recebimentos e Comissões")
+    if df_recebimentos.empty:
+        st.warning("Não há recebimentos e comissões para os filtros selecionados.")
+        st.stop()
+    else:
+        df_recebimentos = format_columns_brazilian(df_recebimentos, ['Valor Total Parcelas', 'Comissão'])
+        st.dataframe(df_recebimentos[['ID - Responsavel', 'Casa', 'Valor Total Parcelas', 'Categoria Parcela', 'Comissão']], use_container_width=True, hide_index=True)
 if __name__ == "__main__":
     main()

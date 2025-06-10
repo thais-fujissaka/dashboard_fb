@@ -222,6 +222,7 @@ def GET_RECEBIMENTOS_EVENTOS():
 			tee.ID AS 'ID Responsavel',
 			tee.CARGO AS 'Cargo',
 			te.ID AS 'ID Casa',
+			te.NOME_FANTASIA AS 'Casa',
 			YEAR(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Ano Recebimento',
 			MONTH(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Mês Recebimento',
 			SUM(tpep.VALOR_PARCELA) AS 'Valor Total Parcelas',

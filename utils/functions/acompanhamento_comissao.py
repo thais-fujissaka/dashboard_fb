@@ -19,14 +19,14 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
             comissao = round(row['Valor Total Parcelas'] * 0.01, 2)
     elif row['ID Casa'] == 149: # Priceless
         # if meta_atingida:
-        #     if cargo_vendedor == 'Analista de Eventos':
+        #     if row['Cargo'] == 'Analista de Eventos':
         #         comissao = round(valor_recebido * 0.01, 2)
-        #     elif cargo_vendedor == 'Analista Sênior de Eventos':
+        #     elif row['Cargo'] == 'Analista Sênior de Eventos':
         #         comissao = round(valor_recebido * 0.015, 2)
         # else:
-        #     if cargo_vendedor == 'Analista de Eventos':
+        #     if row['Cargo'] == 'Analista de Eventos':
         #         comissao = round(valor_recebido * 0.005, 2)
-        #     elif cargo_vendedor == 'Analista Sênior de Eventos':
+        #     elif row['Cargo'] == 'Analista Sênior de Eventos':
         #         comissao = round(valor_recebido * 0.01, 2)
         if meta_atingida:
             comissao = round(row['Valor Total Parcelas'] * 0.01, 2)
