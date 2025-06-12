@@ -746,7 +746,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
         st.markdown("""
             <div style="display: flex; align-items: center;">
                 <div style="width: 20px; height: 20px; background-color: #fff9c4; border: 1px solid #ccc; margin-right: 10px;"></div>
-                <span>Parcelas recebidas em atraso</span>
+                <span>Parcelas recebidas em atraso (podem ter a data de vencimento em outros meses)</span>
             </div>
         """, unsafe_allow_html=True)
 
@@ -766,7 +766,4 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
         """, unsafe_allow_html=True)
         st.write("")
     else:
-        st.markdown(f"### Parcelas Recebidas")
-        st.markdown("Selecione um mês no gráfico para visualizar as parcelas recebidas no mês selecionado.")
-        st.markdown(f"### Parcelas com Vencimento")
-        st.markdown("Selecione um mês no gráfico para visualizar as parcelas com vencimento no mês selecionado.")
+        st.markdown("Selecione um mês no gráfico para visualizar as parcelas recebidas e com vencimento no mês selecionado.")
