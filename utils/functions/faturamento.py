@@ -22,6 +22,7 @@ def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
         df = df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
         return df
 
+
 def montar_tabs_geral(df_parcelas, casa, id_casa, tipo_data, df_orcamentos):
 
     if tipo_data == 'Competência':
@@ -87,6 +88,7 @@ def montar_tabs_priceless(df_parcelas_casa, id_casa, df_eventos, tipo_data, df_o
     with tabs[7]:
         st.markdown("### Serviço")
         grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Serviço', df_orcamentos, id_casa)
+
 
 def valores_labels_formatados(lista_valores):
     # Labels formatados
@@ -253,6 +255,7 @@ def df_fracao_locacao_espacos(df_eventos):
 
     return df_eventos
 
+
 def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
 
     df_eventos = df_fracao_locacao_espacos(df_eventos)
@@ -399,9 +402,7 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
         st.markdown("### Parcelas")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
 
-
-# Alimentos e Bebidas
-
+# Gráfico de Faturamento por Categoria de Evento
 def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categoria_evento, df_orcamentos, id_casa):
     
     df_parcelas = df_parcelas.copy()
@@ -542,4 +543,210 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
         st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
     else:
         st.markdown("### Parcelas")
+        st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
+
+def colorir_parcelas_recebidas(row):
+    # Converta as datas se ainda não estiverem em datetime
+    venc = pd.to_datetime(row['Data Vencimento'], format='%d-%m-%Y', errors='coerce')
+    receb = pd.to_datetime(row['Data Recebimento'], format='%d-%m-%Y', errors='coerce')
+
+    if pd.isna(venc) or pd.isna(receb):
+        return [''] * len(row)
+
+    if receb > venc:
+        return ['background-color: #ffcccc'] * len(row)  # Atrasado
+    else:
+        return [''] * len(row)  # Em dia
+
+
+def colorir_parcelas_vencidas(row):
+    # Converta as datas se ainda não estiverem em datetime
+    venc = pd.to_datetime(row['Data Vencimento'], format='%d-%m-%Y', errors='coerce')
+    receb = pd.to_datetime(row['Data Recebimento'], format='%d-%m-%Y', errors='coerce')
+
+    if pd.isna(receb) and venc < pd.Timestamp.now():
+        return ['background-color: #ffcccc'] * len(row)  # Atrasado
+    else:
+        return [''] * len(row)  # Em dia
+    
+
+def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento):
+    # Extrai mês e ano da coluna 'Data_Vencimento'
+    df_parcelas_vencimento['Mes'] = df_parcelas_vencimento['Data_Vencimento'].dt.month
+    df_parcelas_recebimento['Mes'] = df_parcelas_recebimento['Data_Recebimento'].dt.month
+
+    # Agrupa os valores por mês
+    df_vencimento_agrupado = df_parcelas_vencimento.groupby('Mes')['Valor_Parcela'].sum().reset_index()
+    df_recebimento_agrupado = df_parcelas_recebimento.groupby('Mes')['Valor_Parcela'].sum().reset_index()
+
+    # Cria lista de meses
+    nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    df_meses = pd.DataFrame({'Mes': list(range(1, 13)), 'Nome_Mes': nomes_meses})
+    
+    df_vencimento_agrupado = df_meses.merge(df_vencimento_agrupado, how='left', on='Mes')
+    df_recebimento_agrupado = df_meses.merge(df_recebimento_agrupado, how='left', on='Mes')
+    
+    df_vencimento_agrupado.fillna(0, inplace=True)
+    df_recebimento_agrupado.fillna(0, inplace=True)
+
+    # Cria lista de valores
+    total_vencimento = df_vencimento_agrupado['Valor_Parcela'].round(2).tolist()
+    total_recebimento = df_recebimento_agrupado['Valor_Parcela'].round(2).tolist()
+
+    # Labels formatados
+    labels_vencimento = [format_brazilian(v) for v in total_vencimento]
+    labels_recebimento = [format_brazilian(v) for v in total_recebimento]
+
+    # Dados com labels
+    dados_vencimentos_com_labels = [{"value": v, "label": {"show": False, "position": "top", "color": "#000", "rotate": 70, "formatter": lbl}} for v, lbl in zip(total_vencimento, labels_vencimento)]
+    dados_recebimentos_com_labels = [{"value": v, "label": {"show": False, "position": "top", "color": "#000","rotate": 70, "formatter": lbl}} for v, lbl in zip(total_recebimento, labels_recebimento)]
+
+    # Options do grafico
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "shadow"
+            }
+        },
+        "legend": {
+            "show": True,
+            "data": ["Vencimento", "Recebimento"],
+            "top": "top",
+            "textStyle": {"color": "#000"}
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "0%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "data": nomes_meses
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value"
+            }
+        ],
+        "series": [
+            {
+                "name": "Vencimento",
+                "type": "bar",
+                "barWidth": "40%",
+                "barGap": "5%",
+                "data": dados_vencimentos_com_labels,
+                "itemStyle": {
+                    "color": "#5470C6"
+                }
+            },
+            {
+                "name": "Recebimento",
+                "type": "bar",
+                "barWidth": "40%",
+                "barGap": "5%",
+                "data": dados_recebimentos_com_labels,
+                "itemStyle": {
+                    "color": "#FAC858"
+                }
+            }
+        ]
+    }
+
+    # Evento de clique
+    events = {
+        "click": "function(params) { return params.name; }"
+    }
+
+    # Exibir gráfico com captura de clique
+    mes_selecionado = st_echarts(option, events=events, height="300px", width="100%", key="chart_vencimento_recebimento")
+
+    # Dicionário para mapear os meses
+    meses = {
+        "Jan": "01",
+        "Fev": "02",
+        "Mar": "03",
+        "Abr": "04",
+        "Mai": "05",
+        "Jun": "06",
+        "Jul": "07",
+        "Ago": "08",
+        "Set": "09",
+        "Out": "10",
+        "Nov": "11",
+        "Dez": "12"
+    }
+    
+    # Obter o mês correspondente ao mês selecionado
+    if mes_selecionado != None:
+        mes_selecionado = meses[mes_selecionado]
+        
+        col1, col2, col3 = st.columns([1, 12, 1])
+        with col2:
+            df_parcelas_recebimento = df_filtrar_mes(df_parcelas_recebimento, 'Data_Recebimento', mes_selecionado)
+            df_parcelas_recebimento.drop(columns=['Mes'], inplace=True)
+            if 'Total_Gazit' in df_parcelas_recebimento.columns:
+                df_parcelas_recebimento.drop(columns=['Total_Gazit'], inplace=True)
+            if 'Repasse_Gazit_Bruto' in df_parcelas_recebimento.columns:
+                df_parcelas_recebimento.drop(columns=['Repasse_Gazit_Bruto'], inplace=True)
+            if 'Repasse_Gazit_Liquido' in df_parcelas_recebimento.columns:
+                df_parcelas_recebimento.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
+            if 'Valor_Locacao_Total' in df_parcelas_recebimento.columns:
+                df_parcelas_recebimento.drop(columns=['Valor_Locacao_Total'], inplace=True)
+
+            df_parcelas_recebimento = df_formata_datas_sem_horario(df_parcelas_recebimento, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
+            df_parcelas_recebimento = rename_colunas_parcelas(df_parcelas_recebimento)
+            df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela'])
+
+            df_parcelas_vencimento = df_filtrar_mes(df_parcelas_vencimento, 'Data_Vencimento', mes_selecionado)
+            df_parcelas_vencimento.drop(columns=['Mes'], inplace=True)
+            if 'Total_Gazit' in df_parcelas_vencimento.columns:
+                df_parcelas_vencimento.drop(columns=['Total_Gazit'], inplace=True)
+            if 'Repasse_Gazit_Bruto' in df_parcelas_vencimento.columns:
+                df_parcelas_vencimento.drop(columns=['Repasse_Gazit_Bruto'], inplace=True)
+            if 'Repasse_Gazit_Liquido' in df_parcelas_vencimento.columns:
+                df_parcelas_vencimento.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
+            if 'Valor_Locacao_Total' in df_parcelas_vencimento.columns:
+                df_parcelas_vencimento.drop(columns=['Valor_Locacao_Total'], inplace=True)
+            
+            df_parcelas_vencimento = df_formata_datas_sem_horario(df_parcelas_vencimento, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
+            df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
+            df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela'])
+
+            # Inverter o dicionário
+            meses_invertido = meses_invertido = {
+                "01": "Janeiro",
+                "02": "Fevereiro",
+                "03": "Março",
+                "04": "Abril",
+                "05": "Maio",
+                "06": "Junho",
+                "07": "Julho",
+                "08": "Agosto",
+                "09": "Setembro",
+                "10": "Outubro",
+                "11": "Novembro",
+                "12": "Dezembro"
+            }
+            nome_mes = meses_invertido[f'{mes_selecionado}'] 
+
+        df_parcelas_recebimento['ID Evento'] = df_parcelas_recebimento['ID Evento'].astype(int)
+        df_parcelas_vencimento['ID Evento'] = df_parcelas_vencimento['ID Evento'].astype(int)
+
+        df_parcelas_recebimento = df_parcelas_recebimento.style.apply(colorir_parcelas_recebidas, axis=1)
+        df_parcelas_vencimento = df_parcelas_vencimento.style.apply(colorir_parcelas_vencidas, axis=1)
+
+        st.markdown(f"### Parcelas recebidas em {nome_mes}")
+        st.markdown("As parcelas **recebidas em atraso** são destacadas em vermelho.")
+        st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
+        st.markdown(f"### Parcelas com vencimento em {nome_mes}")
+        st.markdown("As parcelas **atrasadas sem pagamento** são destacadas em vermelho.")
+        st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
+    else:
+        st.markdown(f"### Parcelas recebidas em {nome_mes}")
+        st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
+        st.markdown(f"### Parcelas com vencimento em {nome_mes}")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
