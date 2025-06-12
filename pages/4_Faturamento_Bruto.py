@@ -10,6 +10,7 @@ from utils.queries import *
 from utils.functions.parcelas import *
 from utils.functions.faturamento import *
 from utils.user import *
+import pathlib
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -26,8 +27,11 @@ def main():
 
 	st.markdown(" <style>iframe{ height: 300px !important } ", unsafe_allow_html=True)
 
+	css_path = pathlib.Path("assets/styles.css")
+	load_css(css_path)
 	config_sidebar()
 
+	# Header
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
 		st.title(":moneybag: Faturamento Bruto")
@@ -41,6 +45,7 @@ def main():
 	# Recupera dados dos eventos e parcelas
 	df_eventos = GET_EVENTOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
+	df_orcamentos = GET_ORCAMENTOS_EVENTOS()
 
 	# Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
@@ -68,6 +73,12 @@ def main():
 	df_parcelas['Data_Vencimento'] = pd.to_datetime(df_parcelas['Data_Vencimento'], errors='coerce')
 	df_parcelas['Data_Recebimento'] = pd.to_datetime(df_parcelas['Data_Recebimento'], errors='coerce')
 
+	# Formata tipos de dados do dataframe de orcamentos
+	tipos_de_dados_orcamentos = {
+		'Valor': float
+	}
+	df_orcamentos = df_orcamentos.astype(tipos_de_dados_orcamentos, errors='ignore')
+
 	# Adiciona coluna de concatenação de ID e Nome do Evento
 	df_eventos['ID_Nome_Evento'] = df_eventos['ID_Evento'].astype(str) + " - " + df_eventos['Nome_do_Evento']
 
@@ -75,42 +86,58 @@ def main():
 	df_eventos = calcular_repasses_gazit(df_eventos)
 	filtro_data = "Competência"
 
-	# Seletor de ano
-	col0, col1, col2 = st.columns(3, gap="large", vertical_alignment="center")
-	with col0:
-		lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
-		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
+	# Seletores
+	lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+	id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
+	
+	st.divider()
+
+	st.markdown("## Faturamento Por Categoria")
+	st.divider()
+	col0, col1, col2, col3, col4 = st.columns([0.1, 1, 0.6, 1, 0.1], gap="large", vertical_alignment="center")
 	with col1:
 		filtro_data = st.segmented_control(
-			label="Filtrar por Data de:",
+			label="Por Data de:",
 			options=["Competência", "Recebimento (Caixa)", "Vencimento"],
 			selection_mode="single",
 			default="Competência",
 		)
 	with col2:
-		ano = seletor_ano(2024, 2025, key='ano_faturamento')
-	
-	st.divider()
+		ano_faturamento = seletor_ano(2024, 2025, key='ano_faturamento')
+	with col3:
+		options_status_evento = ['Confirmado', 'Em negociação', 'Declinado']
+		filtros_status_evento_faturamento = st.segmented_control('Status dos Eventos:', options_status_evento, selection_mode='multi', default=['Confirmado', 'Em negociação'], key='filtros_status_eventos')
+	st.write("")
 
 	if filtro_data is None:
-			st.warning("Por favor, selecione um filtro de data.")
-			st.stop()
-
-	df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano)
+		st.warning("Por favor, selecione um filtro de data.")
+		st.stop()
+	if len(filtros_status_evento_faturamento) == 0:
+		st.warning("Por favor, selecione pelo menos um status de evento.")
+		st.stop()
 	
-	if casa == "Todas as Casas":
-		st.markdown("## Faturamento Por Categoria")
-		montar_tabs_geral(df_parcelas_filtradas_por_data, casa, filtro_data)
-				
-	else:
-		df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
-		if casa == "Priceless":
-			st.markdown("## Faturamento Por Categoria")
-			montar_tabs_priceless(df_parcelas_casa, df_eventos, filtro_data)
-			
-		else:
-			st.markdown("## Faturamento Por Categoria")
-			montar_tabs_geral(df_parcelas_casa, casa, filtro_data)
+	# Filtros parcelas
+	df_parcelas_filtradas_por_status = filtrar_por_classe_selecionada(df_parcelas, 'Status Evento', filtros_status_evento_faturamento)
+	df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, filtro_data, ano_faturamento)
+
+	# Filtros orcamentos
+	df_orcamentos = filtrar_por_classe_selecionada(df_orcamentos, 'Ano', [ano_faturamento])
+	if casa != "Todas as Casas":
+		df_orcamentos = filtrar_por_classe_selecionada(df_orcamentos, 'ID Casa', [id_casa])
+
+	with st.container(border=True):
+		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
+		with col2:
+			if casa == "Todas as Casas":
+				montar_tabs_geral(df_parcelas_filtradas_por_data, casa, id_casa, filtro_data, df_orcamentos)
+						
+			else:
+				df_parcelas_casa = df_filtrar_casa(df_parcelas_filtradas_por_data, casa)
+				if casa == "Priceless":
+					montar_tabs_priceless(df_parcelas_casa, id_casa, df_eventos, filtro_data, df_orcamentos)
+					
+				else:
+					montar_tabs_geral(df_parcelas_casa, casa, id_casa, filtro_data, df_orcamentos)
 
 	# Recebido X Vencimento
 	st.markdown("## Recebido X Vencimento")
