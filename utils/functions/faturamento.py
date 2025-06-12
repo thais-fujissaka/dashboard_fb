@@ -554,7 +554,7 @@ def colorir_parcelas_recebidas(row):
         return [''] * len(row)
 
     if receb > venc:
-        return ['background-color: #ffcccc'] * len(row)  # Atrasado
+        return ['background-color: #fff9c4'] * len(row)  # Atrasado
     else:
         return [''] * len(row)  # Em dia
 
@@ -566,6 +566,8 @@ def colorir_parcelas_vencidas(row):
 
     if pd.isna(receb) and venc < pd.Timestamp.now():
         return ['background-color: #ffcccc'] * len(row)  # Atrasado
+    elif venc < receb:
+        return ['background-color: #fff9c4'] * len(row)
     else:
         return [''] * len(row)  # Em dia
     
@@ -739,14 +741,32 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
         df_parcelas_recebimento = df_parcelas_recebimento.style.apply(colorir_parcelas_recebidas, axis=1)
         df_parcelas_vencimento = df_parcelas_vencimento.style.apply(colorir_parcelas_vencidas, axis=1)
 
-        st.markdown(f"### Parcelas recebidas em {nome_mes}")
-        st.markdown("As parcelas **recebidas em atraso** são destacadas em vermelho.")
+        st.markdown(f"### Parcelas Recebidas em {nome_mes}")
         st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
-        st.markdown(f"### Parcelas com vencimento em {nome_mes}")
-        st.markdown("As parcelas **atrasadas sem pagamento** são destacadas em vermelho.")
+        st.markdown("""
+            <div style="display: flex; align-items: center;">
+                <div style="width: 20px; height: 20px; background-color: #fff9c4; border: 1px solid #ccc; margin-right: 10px;"></div>
+                <span>Parcelas recebidas em atraso</span>
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.write("")
+
+        st.markdown(f"### Parcelas com Vencimento em {nome_mes}")
         st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
+        st.markdown("""
+            <div style="display: flex; align-items: center;">
+                <div style="width: 20px; height: 20px; background-color: #fff9c4; border: 1px solid #ccc; margin-right: 10px;"></div>
+                <span>Parcelas recebidas em atraso</span>
+                </div>
+                <div style="display: flex; align-items: center;">
+                <div style="width: 20px; height: 20px; background-color: #ffcccc; border: 1px solid #ccc; margin-right: 10px;"></div>
+                <span>Parcelas vencidas e não recebidas</span>
+            </div>
+        """, unsafe_allow_html=True)
+        st.write("")
     else:
-        st.markdown(f"### Parcelas recebidas em {nome_mes}")
-        st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
-        st.markdown(f"### Parcelas com vencimento em {nome_mes}")
-        st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
+        st.markdown(f"### Parcelas Recebidas")
+        st.markdown("Selecione um mês no gráfico para visualizar as parcelas recebidas no mês selecionado.")
+        st.markdown(f"### Parcelas com Vencimento")
+        st.markdown("Selecione um mês no gráfico para visualizar as parcelas com vencimento no mês selecionado.")
