@@ -145,20 +145,22 @@ def GET_EVENTOS_PRICELESS():
 def GET_PARCELAS_EVENTOS_PRICELESS():
    	return dataframe_query(f'''
 		SELECT
-			tpep.ID as 'ID_Parcela',
-			tpep.FK_EVENTO_PRICELESS as 'ID_Evento',
+			tpep.ID AS 'ID_Parcela',
+			tpep.FK_EVENTO_PRICELESS AS 'ID_Evento',
 			te.NOME_FANTASIA AS 'Casa',
-			tep.NOME_EVENTO as 'Nome_do_Evento',
-			tcep.DESCRICAO as 'Categoria_Parcela',
+			tep.NOME_EVENTO AS 'Nome_do_Evento',
+			tsep.DESCRICAO AS 'Status Evento',
+			tcep.DESCRICAO AS 'Categoria_Parcela',
 			tpep.VALOR_PARCELA as 'Valor_Parcela',
-			tpep.DATA_VENCIMENTO_PARCELA as 'Data_Vencimento',
-			tsp.DESCRICAO as 'Status_Pagamento',
-			tpep.DATA_RECEBIMENTO_PARCELA as 'Data_Recebimento' 
+			tpep.DATA_VENCIMENTO_PARCELA AS 'Data_Vencimento',
+			tsp.DESCRICAO AS 'Status_Pagamento',
+			tpep.DATA_RECEBIMENTO_PARCELA AS 'Data_Recebimento' 
 		FROM T_PARCELAS_EVENTOS_PRICELESS tpep 
 			LEFT JOIN T_EVENTOS_PRICELESS tep ON (tpep.FK_EVENTO_PRICELESS = tep.ID)
 			LEFT JOIN T_STATUS_PAGAMENTO tsp ON (tpep.FK_STATUS_PAGAMENTO = tsp.ID)
 			LEFT JOIN T_CATEGORIA_EVENTO_PRICELESS tcep ON (tpep.FK_CATEGORIA_PARCELA = tcep.ID)
 			LEFT JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
 		ORDER BY tep.ID DESC, tpep.ID DESC
 	''')
 
@@ -202,15 +204,21 @@ def GET_ORCAMENTOS_EVENTOS():
 		SELECT 
 			te.ID AS 'ID Casa',
 			te.NOME_FANTASIA AS 'Casa',
-			to2.MES AS 'Mês',
 			to2.ANO AS 'Ano',
-			SUM(to2.VALOR) AS 'Valor'
+			to2.MES AS 'Mês',
+			CASE
+				WHEN tccg2.DESCRICAO = 'Eventos A&B' THEN 'A&B'
+				WHEN tccg2.DESCRICAO = 'Eventos Couvert' THEN 'Couvert'
+				WHEN tccg2.DESCRICAO = 'Eventos Locações' THEN 'Locação'
+				WHEN tccg2.DESCRICAO = 'Eventos Rebate Fornecedores' THEN 'Repasse Fornecedores'
+			END AS 'Categoria Orcamento',
+			to2.VALOR AS 'Valor'
 		FROM T_ORCAMENTOS to2
 			INNER JOIN T_EMPRESAS te ON to2.FK_EMPRESA = te.ID
 			INNER JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg ON to2.FK_CLASSIFICACAO_1 = tccg.ID
 			INNER JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON to2.FK_CLASSIFICACAO_2 = tccg2.ID
 		WHERE tccg.DESCRICAO = 'Faturamento Bruto' AND tccg2.ID IN (939, 940, 942, 943)
-		GROUP BY te.NOME_FANTASIA, to2.ANO, to2.MES
+		GROUP BY te.NOME_FANTASIA, to2.ANO, to2.MES, to2.FK_CLASSIFICACAO_2
 	''')
 
 
