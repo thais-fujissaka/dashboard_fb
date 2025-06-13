@@ -188,7 +188,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
         "click": "function(params) { return params.name; }"
     }
 
-    mes_selecionado = st_echarts(option, events=events, height="300px", width="100%", key=f"chart_total_eventos_{tipo_data}")
+    mes_selecionado = st_echarts(option, events=events, height="320px", width="100%", key=f"chart_total_eventos_{tipo_data}")
     
     
     # Dicionário para mapear os meses
@@ -502,7 +502,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
     }
 
     # Exibir gráfico com captura de clique
-    mes_selecionado = st_echarts(option, events=events, height="300px", width="100%", key=f"chart_faturamento_{categoria_evento}")
+    mes_selecionado = st_echarts(option, events=events, height="320px", width="100%", key=f"chart_faturamento_{categoria_evento}")
     
     # Dicionário para mapear os meses
     meses = {
@@ -673,7 +673,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
     }
 
     # Exibir gráfico com captura de clique
-    mes_selecionado = st_echarts(option, events=events, height="300px", width="100%", key="chart_vencimento_recebimento")
+    mes_selecionado = st_echarts(option, events=events, height="320px", width="100%", key="chart_vencimento_recebimento")
 
     # Dicionário para mapear os meses
     meses = {
