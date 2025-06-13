@@ -33,7 +33,6 @@ def rename_colunas_eventos(df):
 		'Comercial_Responsavel': 'Comercial Responsável',
 		'Data_Contratacao': 'Data Contratação',
 		'Data_Evento': 'Data Evento',
-		'Tipo_Evento': 'Tipo Evento',
 		'Modelo_Evento': 'Modelo Evento',
 		'Num_Pessoas': 'Num Pessoas',
 		'Valor_AB': 'Valor A&B',
