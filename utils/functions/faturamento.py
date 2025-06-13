@@ -770,10 +770,13 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
 
 
 def grafico_linhas_faturamento_tipo_evento(df_eventos_tipo_evento, id_casa):
-    
+
     if id_casa != -1:
         df_eventos_tipo_evento = df_eventos_tipo_evento[df_eventos_tipo_evento['ID Casa'] == id_casa].copy()
 
+    if df_eventos_tipo_evento.empty:
+        st.error("Não há dados de eventos disponíveis para o gráfico.")
+        return
     
     df_eventos_tipo_evento['Mês'] = df_eventos_tipo_evento['Data_Evento'].dt.month
     df_eventos_tipo_evento = df_eventos_tipo_evento.groupby(['Mês', 'Tipo Evento'])['Valor_Total'].sum().reset_index()
