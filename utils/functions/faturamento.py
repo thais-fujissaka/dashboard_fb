@@ -7,7 +7,6 @@ from utils.functions.parcelas import *
 
 def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
     if filtro_data == 'Competência':
-
         df = df_parcelas.merge(
             df_eventos[['Data_Evento', 'ID_Evento']],
             how='left',
@@ -31,6 +30,7 @@ def montar_tabs_geral(df_parcelas, casa, id_casa, tipo_data, df_orcamentos):
         tipo_data = 'Data_Recebimento'
     elif tipo_data == 'Vencimento':
         tipo_data = 'Data_Vencimento'
+    else: return
 
     tab_names = ['**Total de Eventos**', '**Alimentos e Bebidas**', '**Couvert**', '**Locação**', '**Serviço**']
     tabs = st.tabs(tab_names)
@@ -572,7 +572,16 @@ def colorir_parcelas_vencidas(row):
         return [''] * len(row)  # Em dia
     
 
-def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento):
+def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento, id_casa):
+
+    if id_casa != -1:
+        df_parcelas_vencimento = df_parcelas_vencimento[df_parcelas_vencimento['ID Casa'] == id_casa].copy()
+        df_parcelas_recebimento = df_parcelas_recebimento[df_parcelas_recebimento['ID Casa'] == id_casa].copy()
+
+    if df_parcelas_recebimento.empty or df_parcelas_vencimento.empty:
+        st.error("Não há dados de eventos disponíveis para o gráfico.")
+        return
+    
     # Extrai mês e ano da coluna 'Data_Vencimento'
     df_parcelas_vencimento['Mes'] = df_parcelas_vencimento['Data_Vencimento'].dt.month
     df_parcelas_recebimento['Mes'] = df_parcelas_recebimento['Data_Recebimento'].dt.month

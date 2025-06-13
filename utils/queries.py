@@ -149,6 +149,7 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
 			tpep.ID AS 'ID_Parcela',
 			tpep.FK_EVENTO_PRICELESS AS 'ID_Evento',
 			te.NOME_FANTASIA AS 'Casa',
+			te.ID AS 'ID Casa',
 			tep.NOME_EVENTO AS 'Nome_do_Evento',
 			tsep.DESCRICAO AS 'Status Evento',
 			tcep.DESCRICAO AS 'Categoria_Parcela',

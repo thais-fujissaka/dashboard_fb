@@ -84,7 +84,7 @@ def main():
 
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
-	filtro_data_categoria = "Competência"
+	
 
 	# Seletores
 	col1, col2, col3 = st.columns([1, 1, 1], gap="large")
@@ -96,10 +96,12 @@ def main():
 	with col3:
 		options_status_evento = ['Confirmado', 'Em negociação', 'Declinado']
 		filtros_status_evento_faturamento = st.segmented_control('Status dos Eventos:', options_status_evento, selection_mode='multi', default=['Confirmado', 'Em negociação'], key='filtros_status_eventos')
-
+		
 	st.divider()
 
-	
+	if not filtros_status_evento_faturamento:
+			st.warning("Por favor, selecione pelo menos um status de evento.")
+			st.stop()
 
 	with st.container(border=True):
 		col1, col2, col3, col4 = st.columns([0.1, 1.2, 1.4, 0.1], gap="large", vertical_alignment="center")
@@ -107,6 +109,7 @@ def main():
 			st.markdown("## Faturamento Por Categoria")
 			st.write("")
 		with col3:
+			filtro_data_categoria = "Competência"
 			filtro_data_categoria = st.segmented_control(
 				label="Por Data de:",
 				options=["Competência", "Recebimento (Caixa)", "Vencimento"],
@@ -115,13 +118,6 @@ def main():
 			)
 		st.write("")
 
-		if filtro_data_categoria is None:
-			st.warning("Por favor, selecione um filtro de data.")
-			st.stop()
-		if len(filtros_status_evento_faturamento) == 0:
-			st.warning("Por favor, selecione pelo menos um status de evento.")
-			st.stop()
-		
 		# Filtros parcelas
 		df_parcelas_filtradas_por_status = filtrar_por_classe_selecionada(df_parcelas, 'Status Evento', filtros_status_evento_faturamento)
 		df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, filtro_data_categoria, ano)
@@ -132,6 +128,9 @@ def main():
 			df_orcamentos = filtrar_por_classe_selecionada(df_orcamentos, 'ID Casa', [id_casa])
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		with col2:
+			if filtro_data_categoria is None:
+				st.warning("Por favor, selecione um filtro de data.")
+			
 			if casa == "Todas as Casas":
 				montar_tabs_geral(df_parcelas_filtradas_por_data, casa, id_casa, filtro_data_categoria, df_orcamentos)
 						
@@ -168,7 +167,7 @@ def main():
 			st.write("")
 			df_parcelas_recebimento = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, "Recebimento (Caixa)", ano)
 			df_parcelas_vencimento = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, "Vencimento", ano)
-			grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento)
+			grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento, id_casa)
 
 
 if __name__ == '__main__':
