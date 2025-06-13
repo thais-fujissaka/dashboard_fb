@@ -767,3 +767,118 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
         st.write("")
     else:
         st.markdown("Selecione um mês no gráfico para visualizar as parcelas recebidas e com vencimento no mês selecionado.")
+
+
+def grafico_linhas_faturamento_tipo_evento(df_eventos_tipo_evento, id_casa):
+    
+    if id_casa != -1:
+        df_eventos_tipo_evento = df_eventos_tipo_evento[df_eventos_tipo_evento['ID Casa'] == id_casa].copy()
+
+    
+    df_eventos_tipo_evento['Mês'] = df_eventos_tipo_evento['Data_Evento'].dt.month
+    df_eventos_tipo_evento = df_eventos_tipo_evento.groupby(['Mês', 'Tipo Evento'])['Valor_Total'].sum().reset_index()
+    meses = {
+        "01": "Janeiro",
+        "02": "Fevereiro",
+        "03": "Março",
+        "04": "Abril",
+        "05": "Maio",
+        "06": "Junho",
+        "07": "Julho",
+        "08": "Agosto",
+        "09": "Setembro",
+        "10": "Outubro",
+        "11": "Novembro",
+        "12": "Dezembro"
+    }
+    nomes_meses = list(meses.values())
+
+    # Dataframe com meses
+    df_meses = pd.DataFrame({'Mês': list(range(1, 13)), 'Nome_Mes': list(meses.values())})
+    # Dataframe com os tipos de eventos
+    tipos_evento = df_eventos_tipo_evento['Tipo Evento'].unique().tolist()
+    df_tipos_evento = pd.DataFrame({'Tipo Evento': tipos_evento})
+    # Dataframe com a combinação de meses e tipos de eventos
+    df_tipos_evento_meses = pd.merge(df_meses.assign(key=1), df_tipos_evento.assign(key=1), on='key').drop('key', axis=1)
+    df_eventos_tipo_evento = df_tipos_evento_meses.merge(df_eventos_tipo_evento, how='left', on=['Mês', 'Tipo Evento'])
+    df_eventos_tipo_evento['Valor_Total'].fillna(0, inplace=True)
+    
+    # Cria lista de valores e labels por mês de cada tipo de evento
+    valores_tipo_evento = {}
+    for tipo in tipos_evento:
+        # Cria lista de valores por mês de cada tipo de evento
+        valores = df_eventos_tipo_evento[df_eventos_tipo_evento['Tipo Evento'] == tipo]['Valor_Total'].round(2).tolist()
+        labels = [format_brazilian(v) for v in valores]
+    
+        valores_tipo_evento[tipo] = [
+            {
+                "value": v,
+                "label": {
+                    "show": False
+                }
+            }
+            for v, lbl in zip(valores, labels)
+        ]
+
+    legenda = list(valores_tipo_evento.keys())
+
+    series = []
+    for tipo, valores in valores_tipo_evento.items():
+        series.append(
+            {
+                "name": f"{tipo}",
+                "type": "line",
+                "stack": "Total",
+                "label": {
+                    "show": True,
+                    "position": "top"
+                },
+                "areaStyle": {},
+                "emphasis": {
+                    "focus": "series"
+                },
+                "data": valores
+            }
+        )
+    # Cria grafico de linhas
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross",
+                "label": {
+                    "backgroundColor": "#6a7985"
+                }
+            }
+        },
+        "legend": {
+            "data": legenda
+        },
+        "toolbox": {
+            "feature": {
+                "saveAsImage": {}
+            }
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "3%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "boundaryGap": False,
+                "data": nomes_meses
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value"
+            }
+        ],
+        "series": series
+    }
+
+    # Exibe o gráfico no Streamlit
+    st_echarts(options=option, height="320px")

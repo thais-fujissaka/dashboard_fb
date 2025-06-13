@@ -33,7 +33,7 @@ def dataframe_to_json_calendar(df_eventos):
             "color": cor,
             "cliente": row['Cliente'],
             "event_date": row['Data_Evento'],
-            "tipo_evento": row['Tipo_Evento'],
+            "tipo_evento": row['Tipo Evento'],
             "num_pessoas": row['Num_Pessoas'],
             "status": row['Status_Evento'],
             "motivo_declinio": row['Motivo_Declinio'],
@@ -146,7 +146,7 @@ def infos_evento(id_evento, df_eventos):
         st.markdown(f"<b>Cliente:</b> {evento['Cliente'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Data do Evento:</b> {evento['Data_Evento'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Data de Contratação:</b> {evento['Data_Contratacao'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Tipo de Evento:</b> {evento['Tipo_Evento'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Tipo de Evento:</b> {evento['Tipo Evento'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Número de Pessoas:</b> {evento['Num_Pessoas'].values[0]}", unsafe_allow_html=True)
     with col2:
         st.markdown(f"<b>Status:</b> {evento['Status_Evento'].values[0]}", unsafe_allow_html=True)
