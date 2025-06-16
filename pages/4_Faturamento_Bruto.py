@@ -184,7 +184,19 @@ def main():
 			df_parcelas_recebimento = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, "Recebimento (Caixa)", ano)
 			df_parcelas_vencimento = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, "Vencimento", ano)
 			grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento, id_casa)
+	
+	with st.container(border=True):
 
+		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
+		with col2:
+			st.markdown(f"## Farol de Parcelas Atrasadas")
+			df_farol = filtra_parcelas_atrasadas(df_parcelas_filtradas_por_status)
+			df_farol = format_columns_brazilian(df_farol, ['Valor_Parcela'])
+			df_farol = df_format_date_columns_brazilian(df_farol, ['Data_Vencimento', 'Data_Recebimento'])
+			df_farol = df_farol.drop(columns=['ID Casa'], errors='ignore')
+			st.dataframe(df_farol, use_container_width=True, hide_index=True)
+			st.markdown("Todas as parcelas ainda sem pagamento com Data de Vencimento passada.")
 
+	
 if __name__ == '__main__':
   main()
