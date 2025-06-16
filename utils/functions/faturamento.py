@@ -894,3 +894,122 @@ def grafico_linhas_faturamento_tipo_evento(df_eventos_tipo_evento, id_casa):
 
     # Exibe o gráfico no Streamlit
     st_echarts(options=option, height="320px")
+
+
+
+def grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa):
+
+    if id_casa != -1:
+        df_eventos_modelo_evento = df_eventos_modelo_evento[df_eventos_modelo_evento['ID Casa'] == id_casa].copy()
+
+    if df_eventos_modelo_evento.empty:
+        st.error("Não há dados de eventos disponíveis para o gráfico.")
+        return
+    
+    df_eventos_modelo_evento['Mês'] = df_eventos_modelo_evento['Data_Evento'].dt.month
+    df_eventos_modelo_evento = df_eventos_modelo_evento.groupby(['Mês', 'Modelo Evento'])['Valor_Total'].sum().reset_index()
+    meses = {
+        "01": "Janeiro",
+        "02": "Fevereiro",
+        "03": "Março",
+        "04": "Abril",
+        "05": "Maio",
+        "06": "Junho",
+        "07": "Julho",
+        "08": "Agosto",
+        "09": "Setembro",
+        "10": "Outubro",
+        "11": "Novembro",
+        "12": "Dezembro"
+    }
+    nomes_meses = list(meses.values())
+
+    # Dataframe com meses
+    df_meses = pd.DataFrame({'Mês': list(range(1, 13)), 'Nome_Mes': list(meses.values())})
+    # Dataframe com os tipos de eventos
+    modelos_evento = df_eventos_modelo_evento['Modelo Evento'].unique().tolist()
+    df_modelos_evento = pd.DataFrame({'Modelo Evento': modelos_evento})
+    # Dataframe com a combinação de meses e tipos de eventos
+    df_modelos_evento_meses = pd.merge(df_meses.assign(key=1), df_modelos_evento.assign(key=1), on='key').drop('key', axis=1)
+    df_eventos_modelo_evento = df_modelos_evento_meses.merge(df_eventos_modelo_evento, how='left', on=['Mês', 'Modelo Evento'])
+    df_eventos_modelo_evento['Valor_Total'].fillna(0, inplace=True)
+    
+    # Cria lista de valores e labels por mês de cada tipo de evento
+    valores_modelo_evento = {}
+    for modelo in modelos_evento:
+        # Cria lista de valores por mês de cada tipo de evento
+        valores = df_eventos_modelo_evento[df_eventos_modelo_evento['Modelo Evento'] == modelo]['Valor_Total'].round(2).tolist()
+        labels = [format_brazilian(v) for v in valores]
+    
+        valores_modelo_evento[modelo] = [
+            {
+                "value": v,
+                "label": {
+                    "show": False
+                }
+            }
+            for v, lbl in zip(valores, labels)
+        ]
+
+    legenda = list(valores_modelo_evento.keys())
+
+    series = []
+    for modelo, valores in valores_modelo_evento.items():
+        series.append(
+            {
+                "name": f"{modelo}",
+                "type": "line",
+                "stack": "Total",
+                "label": {
+                    "show": True,
+                    "position": "top"
+                },
+                "areaStyle": {},
+                "emphasis": {
+                    "focus": "series"
+                },
+                "data": valores
+            }
+        )
+    # Cria grafico de linhas
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross",
+                "label": {
+                    "backgroundColor": "#6a7985"
+                }
+            }
+        },
+        "legend": {
+            "data": legenda
+        },
+        "toolbox": {
+            "feature": {
+                "saveAsImage": {}
+            }
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "3%",
+            "containLabel": True
+        },
+        "xAxis": [
+            {
+                "type": "category",
+                "boundaryGap": False,
+                "data": nomes_meses
+            }
+        ],
+        "yAxis": [
+            {
+                "type": "value"
+            }
+        ],
+        "series": series
+    }
+
+    # Exibe o gráfico no Streamlit
+    st_echarts(options=option, height="320px")

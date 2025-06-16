@@ -159,6 +159,21 @@ def main():
 	
 	st.write("")
 
+	# Faturamento por tipo de evento
+	with st.container(border=True):
+
+		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
+		with col2:
+			st.markdown("## Faturamento Por Modelo de Evento*")
+			st.write("")
+			
+			df_eventos_modelo_evento = filtrar_por_classe_selecionada(df_eventos, 'Status_Evento', filtros_status_evento_faturamento)
+			df_eventos_modelo_evento = df_filtrar_ano(df_eventos_modelo_evento, 'Data_Evento', ano)
+			grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa)
+			st.markdown("*Por mês de competência do evento.")
+	
+	st.write("")
+
 	# Recebido X Vencimento
 	with st.container(border=True):
 		

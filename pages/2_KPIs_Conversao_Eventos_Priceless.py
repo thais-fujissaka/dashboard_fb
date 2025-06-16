@@ -50,7 +50,7 @@ def main():
     with col2:
         st.markdown("")
         st.markdown("")
-        st.markdown("*Com base nos eventos lançados no mês selecionado.")
+        st.markdown("*Com base nas propostas enviadas no mês selecionado.")
     st.divider()
 
     # Adiciona selecao de mes e ano
