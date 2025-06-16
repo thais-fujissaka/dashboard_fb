@@ -746,6 +746,8 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
 
         df_parcelas_recebimento['ID Evento'] = df_parcelas_recebimento['ID Evento'].astype(int)
         df_parcelas_vencimento['ID Evento'] = df_parcelas_vencimento['ID Evento'].astype(int)
+        df_parcelas_recebimento['ID Casa'] = df_parcelas_recebimento['ID Casa'].astype(int)
+        df_parcelas_vencimento['ID Casa'] = df_parcelas_vencimento['ID Casa'].astype(int)
 
         df_parcelas_recebimento = df_parcelas_recebimento.style.apply(colorir_parcelas_recebidas, axis=1)
         df_parcelas_vencimento = df_parcelas_vencimento.style.apply(colorir_parcelas_vencidas, axis=1)
