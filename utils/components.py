@@ -82,7 +82,8 @@ def seletor_mes(label, key):
 
 def seletor_ano(ano_inicio, ano_fim, key):
    anos = list(range(ano_inicio, ano_fim + 1))
-   ano = st.selectbox("Selecionar ano:", anos, key=key)
+   anos_ordenados = sorted(anos, reverse=True)  # Ordena os anos do mais recente para o mais antigo
+   ano = st.selectbox("Selecionar ano:", anos_ordenados, key=key)
    return ano
 
 
