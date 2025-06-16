@@ -1015,3 +1015,9 @@ def grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa):
 
     # Exibe o gráfico no Streamlit
     st_echarts(options=option, height="320px")
+
+
+def filtra_parcelas_atrasadas(df_parcelas):
+    df_parcelas = df_parcelas.copy()
+    df_parcelas = df_parcelas[df_parcelas['Data_Recebimento'].isna() & (df_parcelas['Data_Vencimento'] < pd.Timestamp.now().normalize())]
+    return df_parcelas
