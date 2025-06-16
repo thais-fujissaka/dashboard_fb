@@ -193,9 +193,10 @@ def main():
 			df_farol = filtra_parcelas_atrasadas(df_parcelas_filtradas_por_status)
 			df_farol = format_columns_brazilian(df_farol, ['Valor_Parcela'])
 			df_farol = df_format_date_columns_brazilian(df_farol, ['Data_Vencimento', 'Data_Recebimento'])
+			df_farol = rename_colunas_parcelas(df_farol)
 			df_farol = df_farol.drop(columns=['ID Casa'], errors='ignore')
 			st.dataframe(df_farol, use_container_width=True, hide_index=True)
-			st.markdown("Todas as parcelas ainda sem pagamento com Data de Vencimento passada.")
+			st.markdown("Todas as parcelas ainda sem pagamento após a Data de Vencimento.")
 
 	
 if __name__ == '__main__':
