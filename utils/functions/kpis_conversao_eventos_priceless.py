@@ -84,7 +84,7 @@ def cards_numero_propostas(num_leads_recebidos, num_lancadas, num_confirmadas, n
     amarelo = (234, 179, 8) 
     vermelho = (239, 68, 68)
     kpi_card_propostas(num_leads_recebidos, azul, "Nº de leads recebidos:", "leads")
-    kpi_card_propostas(num_lancadas, azul, "Nº de propostas lançadas:", "enviado")
+    kpi_card_propostas(num_lancadas, azul, "Nº de propostas enviadas:", "enviado")
     kpi_card_propostas(num_confirmadas, verde, "Nº de propostas confirmadas:", "confirmado")
     kpi_card_propostas(num_declinadas, vermelho, "Nº de propostas declinadas:", "cancelado")
     kpi_card_propostas(num_em_negociacao, amarelo, "Nº de propostas em negociação:", "negociacao")
@@ -94,8 +94,8 @@ def cards_valor_propostas(valor_leads_recebidos, valor_lancadas, valor_confirmad
     verde = (34, 197, 94)
     amarelo = (234, 179, 8)
     vermelho = (239, 68, 68)
-    kpi_card_propostas_valores(valor_leads_recebidos, azul, "Valor de leads recebidos:")
-    kpi_card_propostas_valores(valor_lancadas, azul, "Valor de propostas lançadas:")
+    kpi_card_propostas_valores(valor_leads_recebidos, azul, "Valor das propostas dos leads recebidos:")
+    kpi_card_propostas_valores(valor_lancadas, azul, "Valor de propostas enviadas:")
     kpi_card_propostas_valores(valor_confirmadas, verde, "Valor de propostas confirmadas:")
     kpi_card_propostas_valores(valor_declinadas, vermelho, "Valor de propostas declinadas:")
     kpi_card_propostas_valores(valor_em_negociacao, amarelo, "Valor de propostas em negociação:")
@@ -277,7 +277,7 @@ def grafico_barras_num_propostas(df_eventos_ano):
                 "color": "#EAB308"
             },
             {
-                "name": "Lançadas",
+                "name": "Enviadas",
                 "type": "line",
                 "data": serie_propostas_lancadas,
                 "yAxisIndex": 0,
