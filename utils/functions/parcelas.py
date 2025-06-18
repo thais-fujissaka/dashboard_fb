@@ -4,6 +4,8 @@ from utils.components import *
 
 def calcular_repasses_gazit(df):
     # Dataframe com valores de repasse para Gazit
+	df['Total Gazit Aroos'] = df['Valor_Locacao_Aroo_1'] * 0.7 + df['Valor_Locacao_Aroo_2'] * 0.7 + df['Valor_Locacao_Aroo_3'] * 0.7
+	df['Total Gazit Anexo'] = df['Valor_Locacao_Anexo'] * 0.3
 	df['Total_Gazit'] = df['Valor_Locacao_Aroo_1'] * 0.7 + df['Valor_Locacao_Aroo_2'] * 0.7 + df['Valor_Locacao_Aroo_3'] * 0.7 + df['Valor_Locacao_Anexo'] * 0.3
 	return df
 
@@ -63,28 +65,38 @@ def rename_colunas_parcelas(df):
 		'Data_Vencimento': 'Data Vencimento',
 		'Status_Pagamento': 'Status Pagamento',
 		'Data_Recebimento': 'Data Recebimento',
-		'Repasse_Gazit_Bruto': 'Valor Bruto Repasse Gazit',
-		'Repasse_Gazit_Liquido': 'Valor Liquido Repasse Gazit',
+		'Repasse_Gazit_Bruto': 'Valor Total Bruto Gazit',
+		'Repasse_Gazit_Liquido': 'Valor Total Líquido Gazit',
 		'Valor_Locacao_Total': 'Total Locação',
 		'Valor_Parcela_Aroos': 'Valor Parcela Aroos',
 		'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
 		'Valor_Parcela_Notie': 'Valor Parcela Notiê',
-		'Valor_Parcela_Mirante': 'Valor Parcela Mirante'
+		'Valor_Parcela_Mirante': 'Valor Parcela Mirante',
+		'Repasse Gazit Bruto Aroos': 'AROO Valor Bruto Gazit',
+		'Repasse Gazit Liquido Aroos': 'AROO Valor Líquido Gazit',
+		'Repasse Gazit Bruto Anexo': 'ANEXO Valor Bruto Gazit',
+		'Repasse Gazit Liquido Anexo': 'ANEXO Valor Líquido Gazit'
 	}, inplace=True)
     return df
 
 
 def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
-	df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Total_Gazit', 'Valor_Locacao_Total']], how='inner', on='ID_Evento')
+	df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Total_Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Valor_Locacao_Total']], how='inner', on='ID_Evento')
 
 	if not 'Repasse_Gazit_Bruto' in df_parcelas.columns:
 		df_parcelas['Repasse_Gazit_Bruto'] = 0
-	# Zero se a categoria for "A&B"
-	#df_parcelas['Repasse_Gazit_Bruto'] = df_parcelas.apply(lambda x: 0 if x['Categoria_Parcela'] == 'A&B' else None, axis=1)
-
 	if not 'Repasse_Gazit_Liquido' in df_parcelas.columns:
 		df_parcelas['Repasse_Gazit_Liquido'] = 0
-	# df_parcelas['Repasse_Gazit_Liquido'] = df_parcelas.apply(lambda x: 0 if x['Categoria_Parcela'] == 'A&B' else None, axis=1)
+
+	if not 'Repasse Gazit Bruto Aroos' in df_parcelas.columns:
+		df_parcelas['Repasse Gazit Bruto Aroos'] = 0
+	if not 'Repasse Gazit Liquido Aroos' in df_parcelas.columns:
+		df_parcelas['Repasse Gazit Liquido Aroos'] = 0
+	
+	if not 'Repasse Gazit Bruto Anexo' in df_parcelas.columns:
+		df_parcelas['Repasse Gazit Bruto Anexo'] = 0
+	if not 'Repasse Gazit Liquido Anexo' in df_parcelas.columns:
+		df_parcelas['Repasse Gazit Liquido Anexo'] = 0
 
 	# Calcula Valor Bruto de Repasse para categoria "Locação"
 	for idx, row in df_parcelas.iterrows():
@@ -92,14 +104,24 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 			# Se o valor da locação é zero, repasse é igual a zero
 			if row['Valor_Locacao_Total'] != 0:
 				porcentagem = df_parcelas.loc[idx, 'Valor_Parcela'] / df_parcelas.loc[idx, 'Valor_Locacao_Total']
+				# Calcula o valor de repasse bruto total
 				df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = round(row['Total_Gazit'] * porcentagem, 2)
+				# Calcula os valores de repasse para cada tipo de locação
+				df_parcelas.at[idx, 'Repasse Gazit Bruto Aroos'] = round(row['Total Gazit Aroos'] * porcentagem, 2)
+				df_parcelas.at[idx, 'Repasse Gazit Bruto Anexo'] = round(row['Total Gazit Anexo'] * porcentagem, 2)
 			else:
 				df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = 0.00
+				df_parcelas.at[idx, 'Repasse Gazit Bruto Aroos'] = 0.00
+				df_parcelas.at[idx, 'Repasse Gazit Bruto Anexo'] = 0.00
+			
+			
 
 	# Calcula Valor Liquido de Repasse para categoria "Locação"
 	for idx, row in df_parcelas.iterrows():
 		if row['Categoria_Parcela'] == 'Locação':
 			df_parcelas.at[idx, 'Repasse_Gazit_Liquido'] = round(row['Repasse_Gazit_Bruto'] * 0.8547, 2)
+			df_parcelas.at[idx, 'Repasse Gazit Liquido Aroos'] = round(row['Repasse Gazit Bruto Aroos'] * 0.8547, 2)
+			df_parcelas.at[idx, 'Repasse Gazit Liquido Anexo'] = round(row['Repasse Gazit Bruto Anexo'] * 0.8547, 2)
 
 	return df_parcelas
    
