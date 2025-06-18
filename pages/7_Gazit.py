@@ -125,8 +125,8 @@ def main():
 
 			# Formatacao de colunas
 			df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
-			df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
-			df_eventos_vencimento = format_columns_brazilian(df_eventos, ['Total Gazit Aroos', 'Total Gazit Anexo'])
+			df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
+			df_eventos_vencimento = format_columns_brazilian(df_eventos, ['Total Gazit Aroos', 'Total Gazit Anexo', 'Valor Locacao Total Aroos'])
 
 			df_eventos_vencimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_vencimento['ID Evento'])]
 			df_eventos_vencimento = df_eventos_vencimento[df_eventos_vencimento['Status Evento'] != 'Declinado']
@@ -134,11 +134,12 @@ def main():
 			df_parcelas_vencimento = df_parcelas_vencimento[df_parcelas_vencimento['ID Evento'].isin(df_eventos_vencimento['ID Evento'])]
 
 			# Ordem das colunas
-			df_parcelas_vencimento = df_parcelas_vencimento[['ID Evento', 'Nome do Evento', 'ID Parcela', 'Categoria Parcela', 'Valor Parcela', 'Data Vencimento', 'Data Recebimento', 'Status Pagamento', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit']]  # nova ordem
+			df_parcelas_vencimento = df_parcelas_vencimento[['ID Evento', 'Nome do Evento', 'ID Parcela', 'Categoria Parcela', 'Valor Parcela', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'Data Vencimento', 'Data Recebimento', 'Status Pagamento', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit']]  # nova ordem
 			st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
 
 			st.markdown("#### Eventos")
 			df_eventos_vencimento = df_eventos_vencimento.drop(columns=['Evento', 'Motivo Declínio', 'Observações', 'Status Evento'])
+			df_eventos_vencimento = df_eventos_vencimento[['ID Evento', 'Nome do Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total', 'Valor A&B', 'Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Valor Locação Mirante', 'Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
 			st.dataframe(df_eventos_vencimento, use_container_width=True, hide_index=True)
 		
 		else:
@@ -163,14 +164,15 @@ def main():
 
 			# Formatacao de colunas
 			df_parcelas_recebimento = rename_colunas_parcelas(df_parcelas_recebimento)
-			df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
+			df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
 
-			df_parcelas_recebimento = df_parcelas_recebimento[['ID Evento', 'Nome do Evento', 'ID Parcela', 'Categoria Parcela', 'Valor Parcela', 'Data Vencimento', 'Data Recebimento', 'Status Pagamento', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit']]  # nova ordem
+			df_parcelas_recebimento = df_parcelas_recebimento[['ID Evento', 'Nome do Evento', 'ID Parcela', 'Categoria Parcela', 'Valor Parcela', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'Data Vencimento', 'Data Recebimento', 'Status Pagamento', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit']]  # nova ordem
 			st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
 
 			st.markdown("#### Eventos")
 			df_eventos_recebimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_recebimento['ID Evento'])]
 			df_eventos_recebimento = df_eventos_recebimento.drop(columns=['Evento', 'Motivo Declínio', 'Observações', 'Status Evento'])
+			df_eventos_recebimento = df_eventos_recebimento[['ID Evento', 'Nome do Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total', 'Valor A&B', 'Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Valor Locação Mirante', 'Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
 			st.dataframe(df_eventos_recebimento, use_container_width=True, hide_index=True)
 		
 		else:
