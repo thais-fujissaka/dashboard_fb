@@ -54,7 +54,7 @@ def main():
         if "Admin Dash Eventos" in permissao:
             st.switch_page("pages/1_Calendário_de_Eventos.py")
         elif "Gazit" in permissao:
-            st.switch_page("pages/6_Gazit.py")
+            st.switch_page("pages/7_Gazit.py")
 
 if __name__ == "__main__":
     main()
