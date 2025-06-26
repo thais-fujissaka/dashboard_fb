@@ -11,6 +11,7 @@ from utils.functions.parcelas import *
 from utils.functions.faturamento import *
 from utils.functions.gazit import *
 from utils.user import *
+import math
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -164,6 +165,10 @@ def main():
 
 			# Formatacao de colunas
 			df_parcelas_recebimento = rename_colunas_parcelas(df_parcelas_recebimento)
+
+			total_recebimento_aroo = df_parcelas_recebimento['Valor Parcela AROO'].sum()
+			total_recebimento_anexo = df_parcelas_recebimento['Valor Parcela ANEXO'].sum()
+
 			df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
 
 			df_parcelas_recebimento = df_parcelas_recebimento[['ID Evento', 'Nome do Evento', 'ID Parcela', 'Categoria Parcela', 'Valor Parcela', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'Data Vencimento', 'Data Recebimento', 'Status Pagamento', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit']]  # nova ordem
@@ -174,6 +179,16 @@ def main():
 			df_eventos_recebimento = df_eventos_recebimento.drop(columns=['Evento', 'Motivo Declínio', 'Observações', 'Status Evento'])
 			df_eventos_recebimento = df_eventos_recebimento[['ID Evento', 'Nome do Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total', 'Valor A&B', 'Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Valor Locação Mirante', 'Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
 			st.dataframe(df_eventos_recebimento, use_container_width=True, hide_index=True)
+
+			# Tabela Gazit
+			st.markdown("#### Resumo de Vendas - Gazit")
+
+			total_de_vendas = total_recebimento_anexo * 0.3 + total_recebimento_aroo * 0.7
+			retencao_impostos = math.floor(total_de_vendas * 0.1453 * 100) / 100
+			# retencao_impostos = total_de_vendas * 0.1453
+			valor_liquido_a_pagar = total_de_vendas - retencao_impostos
+
+			resumo_vendas_gazit(total_de_vendas, retencao_impostos, valor_liquido_a_pagar, total_recebimento_anexo, total_recebimento_aroo)
 		
 		else:
 			st.markdown("#### Parcelas")

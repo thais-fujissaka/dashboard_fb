@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from utils.components import *
+import math
 
 def calcular_repasses_gazit(df):
     # Dataframe com valores de repasse para Gazit

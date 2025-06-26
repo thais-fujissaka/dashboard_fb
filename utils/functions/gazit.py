@@ -111,8 +111,8 @@ def grafico_barras_repasse_mensal_recebimento(df_parcelas):
         'Repasse_Gazit_Liquido': 'sum'
     }).reset_index()
 
-    df_parcelas_agrupado['Repasse_Gazit_Bruto'] = df_parcelas_agrupado['Repasse_Gazit_Bruto'].round(2)
-    df_parcelas_agrupado['Repasse_Gazit_Liquido'] = df_parcelas_agrupado['Repasse_Gazit_Liquido'].round(2)
+    df_parcelas_agrupado['Repasse_Gazit_Bruto'] = df_parcelas_agrupado['Repasse_Gazit_Bruto']
+    df_parcelas_agrupado['Repasse_Gazit_Liquido'] = df_parcelas_agrupado['Repasse_Gazit_Liquido']
 
     # Cria lista de meses
     meses = df_parcelas_agrupado['Mes'].unique().tolist()
@@ -200,3 +200,78 @@ def grafico_barras_repasse_mensal_recebimento(df_parcelas):
     return mes_selecionado
 
 
+def resumo_vendas_gazit(total_de_vendas, retencao_impostos, valor_liquido_a_pagar, total_recebimento_anexo, total_recebimento_aroo):
+
+    valor_a_pagar_anexo = format_brazilian(round(total_recebimento_anexo * 0.3, 2))
+    valor_a_pagar_aroo = format_brazilian(round(total_recebimento_aroo * 0.7, 2))
+    total_de_vendas = format_brazilian(total_de_vendas)
+    retencao_impostos = format_brazilian(retencao_impostos)
+    valor_liquido_a_pagar = format_brazilian(valor_liquido_a_pagar)
+    total_recebimento_anexo = format_brazilian(total_recebimento_anexo)
+    total_recebimento_aroo = format_brazilian(total_recebimento_aroo)
+    
+    st.markdown(f"""
+        <style>
+        .custom-table {{
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }}
+        .custom-table th, .custom-table td {{
+            padding: 10px;
+            border: 1px solid #ddd;
+        }}
+        .custom-table thead tr {{
+            background-color: #FAC858;
+            color: #31333F;
+        }}
+        .custom-table tbody tr:last-child {{
+            background-color: #f0f2f6;
+            font-weight: bold;
+        }}
+        .custom-table td[colspan="3"] {{
+            text-align: left;
+        }}
+        </style>
+
+        <table class="custom-table">
+        <thead>
+            <tr>
+            <th>Espaço</th>
+            <th>% Contrato</th>
+            <th>Vendas Brutas</th>
+            <th>Valor a pagar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>PRICELESS (ANEXO)</td>
+            <td>30%</td>
+            <td>{total_recebimento_anexo}</td>
+            <td>{valor_a_pagar_anexo}</td>
+            </tr>
+            <tr>
+            <td>AROO</td>
+            <td>70%</td>
+            <td>{total_recebimento_aroo}</td>
+            <td>{valor_a_pagar_aroo}</td>
+            </tr>
+            <tr><td colspan="4" style="height: 10px; border: none;"></td></tr>
+            <tr>
+            <td colspan="3">Total de Vendas</td>
+            <td>{total_de_vendas}</td>
+            </tr>
+            <tr>
+            <td colspan="3">Retenção de Impostos 14,53%</td>
+            <td>{retencao_impostos}</td>
+            </tr>
+            <tr>
+            <td colspan="3">Valor Líquido a Pagar</td>
+            <td>{valor_liquido_a_pagar}</td>
+            </tr>
+        </tbody>
+        </table>
+        """, unsafe_allow_html=True)
