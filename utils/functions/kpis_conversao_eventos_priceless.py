@@ -107,13 +107,12 @@ def calculo_numero_propostas(df_eventos, ano, mes):
     para o ano e mês especificados.
     """
     df_eventos['Data do Evento'] = pd.to_datetime(df_eventos['Data do Evento'])
-    df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
     
     num_leads_recebidos = len(df_eventos)
-    num_enviadas = len(df_eventos_com_proposta_enviada)
-    num_confirmadas = len(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Confirmado'])
-    num_declinadas = len(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Declinado'])
-    num_em_negociacao = len(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Em negociação'])
+    num_enviadas = len(df_eventos)
+    num_confirmadas = len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])
+    num_declinadas = len(df_eventos[df_eventos['Status do Evento'] == 'Declinado'])
+    num_em_negociacao = len(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'])
     
     return num_leads_recebidos, num_enviadas, num_confirmadas, num_declinadas, num_em_negociacao
 
