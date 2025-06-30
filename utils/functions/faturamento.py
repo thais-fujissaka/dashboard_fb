@@ -61,7 +61,7 @@ def montar_tabs_priceless(df_parcelas_casa, id_casa, df_eventos, tipo_data, df_o
         tipo_data = 'Data_Vencimento'
     
     df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas_casa, df_eventos)
-    tab_names = ['**Total de Eventos - Priceless**', '**Locação Aroo**', '**Locação Anexo**', '**Locação Notiê**', '**Locação Mirante**', '**Alimentos e Bebidas**', '**Couvert**', '**Serviço**']
+    tab_names = ['**Total de Eventos - Priceless**', '**Locação Aroo**', '**Locação Anexo**', '**Locação Notiê**', '**Locação Mirante**', '**Alimentos e Bebidas**']
     tabs = st.tabs(tab_names)
 
     with tabs[0]:
@@ -82,12 +82,6 @@ def montar_tabs_priceless(df_parcelas_casa, id_casa, df_eventos, tipo_data, df_o
     with tabs[5]:
         st.markdown("### Alimentos e Bebidas")
         grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'A&B', df_orcamentos, id_casa)
-    with tabs[6]:
-        st.markdown("### Couvert")
-        grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Couvert', df_orcamentos, id_casa)
-    with tabs[7]:
-        st.markdown("### Serviço")
-        grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Serviço', df_orcamentos, id_casa)
 
 
 def valores_labels_formatados(lista_valores):
@@ -450,7 +444,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
         },
         "legend": {
             "show": True,
-            "data": ["Orçamento de Eventos", "Faturamento de Eventos"],
+            "data": ["Orçamento", "Faturamento"],
             "top": "top",
             "textStyle": {"color": "#000"}
         },
@@ -474,7 +468,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
         ],
         "series": [
             {
-                "name": "Orçamento de Eventos",
+                "name": "Orçamento",
                 "type": "bar",
                 "barWidth": "40%",
                 "barGap": "5%",
@@ -484,7 +478,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
                 }
             },
             {
-                "name": "Faturamento de Eventos",
+                "name": "Faturamento",
                 "type": "bar",
                 "barWidth": "40%",
                 "barGap": "5%",
