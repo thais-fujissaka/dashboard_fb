@@ -174,8 +174,11 @@ def main():
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		with col2:
 			st.markdown(f"## Farol de Parcelas Atrasadas")
-			df_farol = df_filtrar_casa(df_parcelas_filtradas_por_status, id_casa)
-			df_farol = filtra_parcelas_atrasadas(df_farol)
+			if not id_casa == -1:
+				df_farol = df_filtrar_casa(df_parcelas_filtradas_por_status, id_casa)
+				df_farol = filtra_parcelas_atrasadas(df_farol)
+			else:
+				df_farol = filtra_parcelas_atrasadas(df_parcelas_filtradas_por_status)
 			df_farol = format_columns_brazilian(df_farol, ['Valor_Parcela'])
 			df_farol = df_format_date_columns_brazilian(df_farol, ['Data_Vencimento', 'Data_Recebimento'])
 			df_farol = rename_colunas_parcelas(df_farol)
