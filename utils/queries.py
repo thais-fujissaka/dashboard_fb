@@ -233,9 +233,11 @@ def GET_RECEBIMENTOS_EVENTOS():
 			tee.CARGO AS 'Cargo',
 			te.ID AS 'ID Casa',
 			te.NOME_FANTASIA AS 'Casa',
+			tep.ID AS 'ID Evento',
+			tep.NOME_EVENTO AS 'Nome Evento',
 			YEAR(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Ano Recebimento',
 			MONTH(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Mês Recebimento',
-			SUM(tpep.VALOR_PARCELA) AS 'Valor Total Parcelas',
+			tpep.VALOR_PARCELA AS 'Valor da Parcela',
 			tcep.DESCRICAO AS 'Categoria Parcela'
 		FROM T_EVENTOS_PRICELESS tep 
 			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
@@ -244,4 +246,32 @@ def GET_RECEBIMENTOS_EVENTOS():
 			INNER JOIN T_CATEGORIA_EVENTO_PRICELESS tcep ON (tpep.FK_CATEGORIA_PARCELA = tcep.ID)
 		GROUP BY CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO), te.ID, DATE_FORMAT(tpep.DATA_RECEBIMENTO_PARCELA, '%Y'), DATE_FORMAT(tpep.DATA_RECEBIMENTO_PARCELA, '%m'), tcep.DESCRICAO
 		ORDER BY YEAR(tpep.DATA_RECEBIMENTO_PARCELA), MONTH(tpep.DATA_RECEBIMENTO_PARCELA)
-	''')
+''')
+
+
+@st.cache_data
+def GET_EVENTOS_COMISSOES():
+	return dataframe_query(f'''
+		SELECT 
+			tep.ID as 'ID Evento',
+			te.NOME_FANTASIA as 'Casa',
+			te.ID as 'ID Casa',	
+			tee.NOME_COMPLETO as 'Comercial Responsável',
+			tep.NOME_EVENTO as 'Nome Evento',
+			trec.NOME as 'Cliente',
+			DATE_FORMAT(tep.DATA_CONTRATACAO, '%Y-%m-%d') AS 'Data Contratacao',
+			DATE_FORMAT(tep.DATA_EVENTO, '%Y-%m-%d') as 'Data Evento',
+			tep.VALOR_TOTAL_EVENTO as 'Valor Total',
+			tep.VALOR_AB as 'Valor AB',
+			tep.VALOR_IMPOSTO as 'Valor Imposto',
+			tsep.DESCRICAO as 'Status Evento',
+			temd.DESCRICAO as 'Motivo Declínio'
+		FROM T_EVENTOS_PRICELESS tep
+			LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
+			LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
+			LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
+			LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+''')

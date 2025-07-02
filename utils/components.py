@@ -3,8 +3,6 @@ import streamlit as st
 import io
 from utils.functions.date_functions import *
 from utils.queries import *
-from streamlit_card import card
-
 
 def input_selecao_casas(lista_casas_retirar, key):
     
@@ -119,43 +117,31 @@ def seletor_vendedor(label, df_vendedores, key):
     return id_vendedor, nome_vendedor
 
 
-def kpi_card(title, value, background_color, title_color, value_color):
-    card(
-            title=f"{title}",
-            text=f"{value}",
-            styles={
-                "card": {
-                    "background-color": f"{background_color}",
-                    "border-radius": "7px",
-                    "margin": "0px",
-                    "box-shadow": "0px rgba(0, 0, 0, 0)",
-                    "box-shadow": "none !important",
-                    "border": "1px solid rgba(49, 51, 63, 0.2)",
-                    "cursor": "default !important",
-                    "transform": "none !important",
-                    "transition": "none !important",
-                    "height": "120px"
-                },
-                "title": {
-                    "font-size": "14px",
-                    "color": f"{title_color}",
-                    "font-weight": "normal"
-                },
-                "text": {
-                    "font-size": "32px",
-                    "color": f"{value_color}",
-                    "font-weight": "bold"
-                },
-                "filter": {
-                    "background-color": "rgba(0, 0, 0, 0)"  # <- make the image not dimmed anymore
-                },
-                "div": {
-                    "display": "flex",
-                    "align-items": "center",
-                    "justify-content": "center",
-                    "flex-direction": "column",
-                    "margin": "0px"
-                },
-            }
-        )
+import streamlit as st
 
+def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value_color="#000"):
+    html = f"""
+    <div style="
+        background-color: {background_color};
+        border: 1px solid rgba(49, 51, 63, 0.2);
+        border-radius: 10px;
+        padding: 16px;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: none;
+        margin: 0px;
+        cursor: default;
+        transition: none;
+    ">
+        <div style="font-size: 14px; color: {title_color}; font-weight: normal; margin-bottom: 6px;">
+            {title}
+        </div>
+        <div style="font-size: 32px; color: {value_color}; font-weight: bold;">
+            {value}
+        </div>
+    </div>
+    """
+    st.markdown(html, unsafe_allow_html=True)
