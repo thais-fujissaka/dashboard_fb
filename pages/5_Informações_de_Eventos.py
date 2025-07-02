@@ -28,7 +28,6 @@ def main():
 	# Recupera dados dos eventos e parcelas
 	df_eventos = GET_EVENTOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
-
 	# Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
 		'Valor_Locacao_Aroo_1': float,
@@ -36,6 +35,7 @@ def main():
 		'Valor_Locacao_Aroo_3': float,
 		'Valor_Locacao_Anexo': float,
 		'Valor_Locacao_Notie': float,
+		'Valor_Locacao_Mirante': float,
 		'Valor_Imposto': float,
 		'Valor_AB': float,
 		'Valor_Total': float,
@@ -118,15 +118,8 @@ def main():
 		)
 		# Parcelas
 		st.markdown("## Parcelas")
-		st.dataframe(df_parcelas[['ID Parcela', 'ID Evento', 'Nome do Evento', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit']], 
-			use_container_width=True, 
-			hide_index=True,
-			column_config={
-				'Nome do Evento': st.column_config.Column(
-					width="large"
-				)
-			}
-		)
+		st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+		
 		
 
 	else:

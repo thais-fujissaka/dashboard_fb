@@ -129,7 +129,6 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 				df_parcelas.at[idx, 'Valor Parcela ANEXO'] = round(row['Valor_Parcela'] * porcentagem_anexo, 2)
 				df_parcelas.at[idx, 'Valor Parcela Notie'] = round(row['Valor_Parcela'] * porcentagem_notie, 2)
 				df_parcelas.at[idx, 'Valor Parcela Mirante'] = round(row['Valor_Parcela'] * porcentagem_mirante, 2)
-
 				# Calcula o valor de repasse bruto total
 				df_parcelas.at[idx, 'Repasse_Gazit_Bruto'] = round(row['Total_Gazit'] * porcentagem, 2)
 				# Calcula os valores de repasse para cada tipo de locação
