@@ -6,7 +6,6 @@ from utils.queries import *
 from utils.functions.parcelas import *
 from utils.user import *
 from utils.functions.kpis_conversao_eventos_priceless import *
-import pathlib
 
 st.set_page_config(
     page_icon="📈",
@@ -17,9 +16,6 @@ st.set_page_config(
 
 if "loggedIn" not in st.session_state or not st.session_state["loggedIn"]:
     st.switch_page("Login.py")
-
-css_path = pathlib.Path("assets/styles.css")
-load_css(css_path)
 
 def main():
 
@@ -128,14 +124,14 @@ def main():
         st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Data Envio Proposta'].notnull()], use_container_width=True, hide_index=True)
         st.markdown(f"Número de Propostas Enviadas: {len(df_eventos_com_proposta_enviada)}")
     elif selection == "Confirmados":
-        st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Eventos Confirmados: {len(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Confirmado'])}")
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
+        st.markdown(f"Número de Eventos Confirmados: {len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])}")
     elif selection == "Declinados":
-        st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Eventos Declinados: {len(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Declinado'])}")
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
+        st.markdown(f"Número de Eventos Declinados: {len(df_eventos[df_eventos['Status do Evento'] == 'Declinado'])}")
     elif selection == "Em Negociação":
-        st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Eventos em Negociação: {len(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Em negociação'])}")
+        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
+        st.markdown(f"Número de Eventos em Negociação: {len(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'])}")
     
 
 if __name__ == "__main__":
