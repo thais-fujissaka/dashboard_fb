@@ -7,7 +7,6 @@ from utils.functions.parcelas import *
 from utils.user import *
 from utils.functions.kpis_conversao_eventos_priceless import *
 from utils.functions.acompanhamento_comissao import *
-from streamlit_card import card
 
 
 st.set_page_config(
