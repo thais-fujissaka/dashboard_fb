@@ -155,8 +155,3 @@ def df_filtrar_ano(df, coluna_data, ano):
 
 def escape_dolar(texto):
     return texto.replace('$', r'\$')
-
-
-def load_css(file_path):
-    with open(file_path) as file:
-        st.html(f"<style>{file.read()}</style>")
