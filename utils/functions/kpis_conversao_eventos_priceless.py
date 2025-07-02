@@ -107,9 +107,9 @@ def calculo_numero_propostas(df_eventos, ano, mes):
     para o ano e mês especificados.
     """
     df_eventos['Data do Evento'] = pd.to_datetime(df_eventos['Data do Evento'])
-
-    df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
     
+    df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
+
     num_leads_recebidos = len(df_eventos)
     num_enviadas = len(df_eventos_com_proposta_enviada)
     num_confirmadas = len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])
@@ -129,9 +129,9 @@ def calculo_valores_propostas(df_eventos, ano, mes):
     
     valor_leads_recebidos = df_eventos['Valor Total'].sum() if not df_eventos.empty else 0
     valor_enviadas = df_eventos_com_proposta_enviada['Valor Total'].sum()
-    valor_confirmadas = df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Confirmado']['Valor Total'].sum()
-    valor_declinadas = df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Declinado']['Valor Total'].sum()
-    valor_em_negociacao = df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Status do Evento'] == 'Em negociação']['Valor Total'].sum()
+    valor_confirmadas = df_eventos[df_eventos['Status do Evento'] == 'Confirmado']['Valor Total'].sum()
+    valor_declinadas = df_eventos[df_eventos['Status do Evento'] == 'Declinado']['Valor Total'].sum()
+    valor_em_negociacao = df_eventos[df_eventos['Status do Evento'] == 'Em negociação']['Valor Total'].sum()
     
     return valor_leads_recebidos,valor_enviadas, valor_confirmadas, valor_declinadas, valor_em_negociacao
 

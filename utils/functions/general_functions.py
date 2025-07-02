@@ -87,7 +87,7 @@ def format_brazilian(num):
 
 
 def format_columns_brazilian(df, numeric_columns):
-    df = df
+    df = df.copy()
     for col in numeric_columns:
         if col in df.columns:
             df[col] = df[col].apply(format_brazilian)
