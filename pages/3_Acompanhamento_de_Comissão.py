@@ -20,7 +20,6 @@ st.set_page_config(
 if "loggedIn" not in st.session_state or not st.session_state["loggedIn"]:
     st.switch_page("Login.py")
 
-
 def main():
 
     config_sidebar()
@@ -28,26 +27,24 @@ def main():
     # Recupera dados dos eventos
     df_recebimentos = GET_RECEBIMENTOS_EVENTOS()
     df_orcamentos = GET_ORCAMENTOS_EVENTOS()
+    df_eventos = GET_EVENTOS_COMISSOES()
 
     # Vendedores
     df_vendedores = df_recebimentos[['ID - Responsavel', 'ID Responsavel', 'Cargo']].drop_duplicates()
 
     # Formata valores monetários
-    df_recebimentos['Valor Total Parcelas'] = df_recebimentos['Valor Total Parcelas'].astype(float)
+    df_recebimentos['Valor da Parcela'] = df_recebimentos['Valor da Parcela'].astype(float)
     df_orcamentos['Valor'] = df_orcamentos['Valor'].astype(float)
 
     # Header
     col1, col2, col3 = st.columns([6, 1, 1])
     with col1:
-        st.title("📈 KPI's de Vendas")
+        st.title("📊 Acompanhamento de Comissão")
     with col2:
         st.button(label='Atualizar', key='atualizar_kpis_vendas', on_click=st.cache_data.clear)
     with col3:
         if st.button('Logout', key='logout_kpis_vendas'):
             logout()
-    st.divider()
-
-    st.markdown("## Acompanhamento de Comissão")
     st.divider()
 
     # Seletores
@@ -87,7 +84,7 @@ def main():
     df_orcamentos = df_orcamentos[(df_orcamentos['Ano'] == ano) & (df_orcamentos['Mês'] == int(mes))]
 
     # Calcula o recebimento total do mês
-    total_recebido_mes = df_recebimentos['Valor Total Parcelas'].sum()
+    total_recebido_mes = df_recebimentos['Valor da Parcela'].sum()
 
     # Calcula o orcamento do mês
     orcamento_mes = df_orcamentos['Valor'].sum()
@@ -97,12 +94,12 @@ def main():
         cargo_vendedor = df_vendedores[df_vendedores['ID Responsavel'] == id_vendedor]['Cargo'].values[0]
         df_recebimentos = df_recebimentos[df_recebimentos['ID Responsavel'] == id_vendedor]
         if not df_recebimentos.empty:
-            valor_total_vendido = df_recebimentos['Valor Total Parcelas'].values[0]
+            valor_total_vendido = df_recebimentos['Valor da Parcela'].sum()
         else:
             valor_total_vendido = 0
     else:
         cargo_vendedor = "Todos os vendedores"
-        valor_total_vendido = total_recebido_mes
+        valor_total_vendido = df_recebimentos['Valor da Parcela'].sum()
 
     # Calcula o percentual de atingimento da meta
     if orcamento_mes > 0:
@@ -132,13 +129,38 @@ def main():
     with col4:
         kpi_card("Comissão", f"R$ {format_brazilian(comissao)}", "rgb(30, 58, 138)", "white", "white")
 
+    st.divider()
     # Visualização das parcelas
-    st.markdown("#### Recebimentos e Comissões")
+    st.markdown("### Recebimentos e Comissões")
     if df_recebimentos.empty:
         st.warning("Não há recebimentos e comissões para os filtros selecionados.")
         st.stop()
     else:
-        df_recebimentos = format_columns_brazilian(df_recebimentos, ['Valor Total Parcelas', 'Comissão'])
-        st.dataframe(df_recebimentos[['ID - Responsavel', 'Casa', 'Valor Total Parcelas', 'Categoria Parcela', 'Comissão']], use_container_width=True, hide_index=True)
+        vendedores = df_recebimentos['ID - Responsavel'].unique().tolist()
+        
+        # Cria uma aba para cada vendedor
+        tab_names = [f"**{v}**" for v in vendedores]  # Isso pode NÃO funcionar dependendo do conteúdo
+        tabs = st.tabs(tab_names)
+
+        for vendedor, tab in zip(vendedores, tabs):
+            with tab:
+                df_vendedor = df_recebimentos[df_recebimentos['ID - Responsavel'] == vendedor].copy()
+                
+                # Define os tipos das colunas
+                df_vendedor['Ano Recebimento'] = df_vendedor['Ano Recebimento'].astype(int).astype(str)
+                df_vendedor['Mês Recebimento'] = df_vendedor['Mês Recebimento'].astype(int).astype(str)
+                if not df_vendedor.empty:
+                    st.markdown(f"#### {vendedor}")
+                    df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Valor da Parcela', 'Ano Recebimento', 'Mês Recebimento', 'Categoria Parcela', 'Comissão']]
+                    df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', 'Comissão'])
+                    df_vendedor_styled = df_vendedor.style.apply(highlight_total_row, axis=1)
+                    st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
+
+                    with st.expander(f"Ver eventos correspondentes"):
+                        df_eventos_vendedor = df_eventos[df_eventos['ID Evento'].isin(df_vendedor['ID Evento'].unique().tolist())]
+                        df_eventos_vendedor = format_columns_brazilian(df_eventos_vendedor, ['Valor Total', 'Valor AB', 'Valor Imposto'])
+                        st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], use_container_width=True, hide_index=True)
+
+
 if __name__ == "__main__":
     main()
