@@ -147,7 +147,7 @@ def main():
 			st.markdown("*Por mês de competência do evento.")
 	st.write("")
 
-	# Faturamento por tipo de evento
+	# Faturamento por modelo de evento
 	with st.container(border=True):
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		with col2:

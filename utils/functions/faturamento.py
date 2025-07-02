@@ -137,7 +137,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
             "textStyle": {"color": "#000"}
         },
         "grid": {
-            "left": "3%",
+            "left": "0",
             "right": "4%",
             "bottom": "0%",
             "containLabel": True
@@ -150,7 +150,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
         ],
         "yAxis": [
             {
-                "type": "value"
+                "show": False
             }
         ],
         "series": [
@@ -449,7 +449,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
             "textStyle": {"color": "#000"}
         },
         "grid": {
-            "left": "3%",
+            "left": "0",
             "right": "4%",
             "bottom": "0%",
             "containLabel": True
@@ -462,8 +462,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
         ],
         "yAxis": [
             {
-                "type": "value",
-                "max": "dataMax"
+                "show": False
             }
         ],
         "series": [
