@@ -93,7 +93,7 @@ def main():
 	
 	# Faturamento por Categoria
 	with st.container(border=True):
-		col1, col2, col3, col4 = st.columns([0.1, 1.4, 1.2, 0.1], gap="large", vertical_alignment="center")
+		col1, col2, col3, col4 = st.columns([0.1, 2, 0.8, 0.1], gap="large", vertical_alignment="center")
 		with col2:
 			st.markdown("## Faturamento Por Categoria – Eventos Confirmados")
 			st.write("")
@@ -101,7 +101,7 @@ def main():
 			filtro_data_categoria = "Competência"
 			filtro_data_categoria = st.segmented_control(
 				label="Por Data de:",
-				options=["Competência", "Recebimento (Caixa)", "Vencimento"],
+				options=["Competência", "Recebimento (Caixa)"],
 				selection_mode="single",
 				default="Competência",
 			)
