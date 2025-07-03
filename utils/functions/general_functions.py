@@ -34,8 +34,9 @@ def config_sidebar():
             st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
             st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
             st.sidebar.page_link("pages/3_Acompanhamento_de_Comissão.py", label="📊 Acompanhamento de Comissão")
-            st.sidebar.page_link("pages/4_Faturamento_Bruto.py", label=":moneybag: Faturamento Bruto")
-            st.sidebar.page_link("pages/5_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
+            st.sidebar.page_link("pages/4_Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
+            st.sidebar.page_link("pages/5_Conciliação_de_Eventos_–_Vencimento_x_Recebimento.py", label=":left_right_arrow: Conciliação de Eventos - Vencimento x Recebimento")
+            st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
             # st.sidebar.page_link("pages/6_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
             st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
 
@@ -82,6 +83,14 @@ def format_brazilian(num):
     try:
         num = float(num)
         return f"{num:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except (ValueError, TypeError):
+        return num
+    
+
+def format_brazilian_without_decimal(num):
+    try:
+        num = float(num)
+        return f"{num:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except (ValueError, TypeError):
         return num
 
