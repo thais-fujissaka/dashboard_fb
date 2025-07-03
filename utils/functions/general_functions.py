@@ -85,6 +85,14 @@ def format_brazilian(num):
         return f"{num:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except (ValueError, TypeError):
         return num
+    
+
+def format_brazilian_without_decimal(num):
+    try:
+        num = float(num)
+        return f"{num:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except (ValueError, TypeError):
+        return num
 
 
 def format_columns_brazilian(df, numeric_columns):

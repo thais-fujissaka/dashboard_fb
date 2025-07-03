@@ -41,12 +41,12 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
     total_recebimento = df_recebimento_agrupado['Valor_Parcela'].round(2).tolist()
 
     # Labels formatados
-    labels_vencimento = [format_brazilian(v) for v in total_vencimento]
-    labels_recebimento = [format_brazilian(v) for v in total_recebimento]
+    labels_vencimento = [format_brazilian_without_decimal(v) for v in total_vencimento]
+    labels_recebimento = [format_brazilian_without_decimal(v) for v in total_recebimento]
 
     # Dados com labels
-    dados_vencimentos_com_labels = [{"value": v, "label": {"show": False, "position": "top", "color": "#000", "rotate": 70, "formatter": lbl}} for v, lbl in zip(total_vencimento, labels_vencimento)]
-    dados_recebimentos_com_labels = [{"value": v, "label": {"show": False, "position": "top", "color": "#000","rotate": 70, "formatter": lbl}} for v, lbl in zip(total_recebimento, labels_recebimento)]
+    dados_vencimentos_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000", "formatter": lbl}} for v, lbl in zip(total_vencimento, labels_vencimento)]
+    dados_recebimentos_com_labels = [{"value": v, "label": {"show": True, "position": "top", "color": "#000","formatter": lbl}} for v, lbl in zip(total_recebimento, labels_recebimento)]
 
     # Options do grafico
     option = {
@@ -63,7 +63,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
             "textStyle": {"color": "#000"}
         },
         "grid": {
-            "left": "3%",
+            "left": "0%",
             "right": "4%",
             "bottom": "0%",
             "containLabel": True
