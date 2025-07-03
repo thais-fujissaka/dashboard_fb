@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
 	page_icon=":left_right_arrow:",
-	page_title="Conciliação de Eventos - Vencimento x Recebimento",
+	page_title="Conciliação de Parcelas de Eventos",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -29,9 +29,9 @@ def main():
 	config_sidebar()
 
 	# Header
-	col1, col2, col2, col3 = st.columns([9.5, 0.3, 1, 1])
+	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
-		st.title(":left_right_arrow: Conciliação de Eventos - Vencimento x Recebimento")
+		st.title(":left_right_arrow: Conciliação de Parcelas de Eventos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_conciliacao_vencimento_recebimento_eventos', on_click=st.cache_data.clear)
 	with col3:
