@@ -83,26 +83,19 @@ def main():
 	df_eventos = calcular_repasses_gazit(df_eventos)
 	
 	# Seletores
-	col1, col2, col3 = st.columns([1, 1, 1], gap="large")
+	col1, col2= st.columns([1, 1], gap="large")
 	with col1:
 		lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')
-	with col3:
-		options_status_evento = ['Confirmado', 'Em negociação', 'Declinado']
-		filtros_status_evento_faturamento = st.segmented_control('Status dos Eventos:', options_status_evento, selection_mode='multi', default=['Confirmado', 'Em negociação'], key='filtros_status_eventos')		
 	st.divider()
-
-	if not filtros_status_evento_faturamento:
-			st.warning("Por favor, selecione pelo menos um status de evento.")
-			st.stop()
-
+	
 	# Faturamento por Categoria
 	with st.container(border=True):
-		col1, col2, col3, col4 = st.columns([0.1, 1.2, 1.4, 0.1], gap="large", vertical_alignment="center")
+		col1, col2, col3, col4 = st.columns([0.1, 1.4, 1.2, 0.1], gap="large", vertical_alignment="center")
 		with col2:
-			st.markdown("## Faturamento Por Categoria")
+			st.markdown("## Faturamento Por Categoria – Eventos Confirmados")
 			st.write("")
 		with col3:
 			filtro_data_categoria = "Competência"
@@ -115,7 +108,7 @@ def main():
 		st.write("")
 
 		# Filtros parcelas
-		df_parcelas_filtradas_por_status = filtrar_por_classe_selecionada(df_parcelas, 'Status Evento', filtros_status_evento_faturamento)
+		df_parcelas_filtradas_por_status = filtrar_por_classe_selecionada(df_parcelas, 'Status Evento', ['Confirmado'])
 		df_parcelas_filtradas_por_data = get_parcelas_por_tipo_data(df_parcelas_filtradas_por_status, df_eventos, filtro_data_categoria, ano)
 
 		# Filtros orcamentos
@@ -136,15 +129,16 @@ def main():
 					montar_tabs_geral(df_parcelas_casa, casa, id_casa, filtro_data_categoria, df_orcamentos)
 	st.write("")
 
+	df_eventos_filtrados_por_status = filtrar_por_classe_selecionada(df_eventos, 'Status_Evento', ['Confirmado'])
+	df_eventos_filtrados_por_status_e_ano = df_filtrar_ano(df_eventos_filtrados_por_status, 'Data_Evento', ano)
+
 	# Faturamento por tipo de evento
 	with st.container(border=True):
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		with col2:
 			st.markdown("## Faturamento Por Tipo de Evento*")
 			st.write("")
-			df_eventos_tipo_evento = filtrar_por_classe_selecionada(df_eventos, 'Status_Evento', filtros_status_evento_faturamento)
-			df_eventos_tipo_evento = df_filtrar_ano(df_eventos_tipo_evento, 'Data_Evento', ano)
-			grafico_linhas_faturamento_tipo_evento(df_eventos_tipo_evento, id_casa)
+			grafico_linhas_faturamento_tipo_evento(df_eventos_filtrados_por_status_e_ano, id_casa)
 			st.markdown("*Por mês de competência do evento.")
 	st.write("")
 
@@ -154,9 +148,7 @@ def main():
 		with col2:
 			st.markdown("## Faturamento Por Modelo de Evento*")
 			st.write("")
-			df_eventos_modelo_evento = filtrar_por_classe_selecionada(df_eventos, 'Status_Evento', filtros_status_evento_faturamento)
-			df_eventos_modelo_evento = df_filtrar_ano(df_eventos_modelo_evento, 'Data_Evento', ano)
-			grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa)
+			grafico_linhas_faturamento_modelo_evento(df_eventos_filtrados_por_status_e_ano, id_casa)
 			st.markdown("*Por mês de competência do evento.")
 	st.write("")
 
