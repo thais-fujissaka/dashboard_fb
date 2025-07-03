@@ -8,12 +8,47 @@ from utils.functions.parcelas import *
 from streamlit_echarts import st_echarts
 from utils.functions.faturamento import *
 
-def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento, id_casa):
+def filtra_parcelas_atrasadas(df_parcelas):
+    df_parcelas = df_parcelas.copy()
+    df_parcelas = df_parcelas[df_parcelas['Data_Recebimento'].isna() & (df_parcelas['Data_Vencimento'] < pd.Timestamp.now().normalize())]
+    return df_parcelas
 
+def colorir_parcelas_recebidas(row):
+    # Converta as datas se ainda não estiverem em datetime
+    venc = pd.to_datetime(row['Data Vencimento'], format='%d-%m-%Y', errors='coerce')
+    receb = pd.to_datetime(row['Data Recebimento'], format='%d-%m-%Y', errors='coerce')
+
+    if row['ID Parcela'] == 'TOTAL':
+        return ['background-color: #f0f2f6; color: black;'] * len(row)
+    else:
+        if pd.isna(venc) or pd.isna(receb):
+            return [''] * len(row)
+        if receb > venc:
+            return ['background-color: #fff9c4'] * len(row)  # Atrasado
+        else:
+            return [''] * len(row)  # Em dia
+
+
+def colorir_parcelas_vencidas(row):
+    # Converta as datas se ainda não estiverem em datetime
+    venc = pd.to_datetime(row['Data Vencimento'], format='%d-%m-%Y', errors='coerce')
+    receb = pd.to_datetime(row['Data Recebimento'], format='%d-%m-%Y', errors='coerce')
+
+    if row['ID Parcela'] == 'TOTAL':
+        return ['background-color: #f0f2f6; color: black;'] * len(row)
+    else:
+        if pd.isna(receb) and venc < pd.Timestamp.now():
+            return ['background-color: #ffcccc'] * len(row)  # Atrasado
+        elif venc < receb:
+            return ['background-color: #fff9c4'] * len(row)
+        else:
+            return [''] * len(row)  # Em dia
+
+
+def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas_vencimento, id_casa):
     if id_casa != -1:
         df_parcelas_vencimento = df_parcelas_vencimento[df_parcelas_vencimento['ID Casa'] == id_casa].copy()
         df_parcelas_recebimento = df_parcelas_recebimento[df_parcelas_recebimento['ID Casa'] == id_casa].copy()
-
     if df_parcelas_recebimento.empty or df_parcelas_vencimento.empty:
         st.error("Não há dados de eventos disponíveis para o gráfico.")
         return
@@ -21,7 +56,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
     # Extrai mês e ano da coluna 'Data_Vencimento'
     df_parcelas_vencimento['Mes'] = df_parcelas_vencimento['Data_Vencimento'].dt.month
     df_parcelas_recebimento['Mes'] = df_parcelas_recebimento['Data_Recebimento'].dt.month
-
+    
     # Agrupa os valores por mês
     df_vencimento_agrupado = df_parcelas_vencimento.groupby('Mes')['Valor_Parcela'].sum().reset_index()
     df_recebimento_agrupado = df_parcelas_recebimento.groupby('Mes')['Valor_Parcela'].sum().reset_index()
@@ -107,7 +142,6 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
     events = {
         "click": "function(params) { return params.name; }"
     }
-
     # Exibir gráfico com captura de clique
     mes_selecionado = st_echarts(option, events=events, height="320px", width="100%", key="chart_vencimento_recebimento")
 
@@ -138,6 +172,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
 
             df_parcelas_recebimento = df_formata_datas_sem_horario(df_parcelas_recebimento, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas_recebimento = rename_colunas_parcelas(df_parcelas_recebimento)
+            total_recebido = format_brazilian(df_parcelas_recebimento['Valor Parcela'].sum())
             df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela'])
 
             df_parcelas_vencimento = df_filtrar_mes(df_parcelas_vencimento, 'Data_Vencimento', mes_selecionado)
@@ -145,6 +180,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
             
             df_parcelas_vencimento = df_formata_datas_sem_horario(df_parcelas_vencimento, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
+            total_vencido = format_brazilian(df_parcelas_vencimento['Valor Parcela'].sum())
             df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela'])
 
             # Inverter o dicionário
@@ -165,15 +201,40 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
             nome_mes = meses_invertido[f'{mes_selecionado}'] 
 
         df_parcelas_recebimento['ID Evento'] = df_parcelas_recebimento['ID Evento'].astype(int)
-        df_parcelas_vencimento['ID Evento'] = df_parcelas_vencimento['ID Evento'].astype(int)
         df_parcelas_recebimento['ID Casa'] = df_parcelas_recebimento['ID Casa'].astype(int)
+        df_parcelas_vencimento['ID Evento'] = df_parcelas_vencimento['ID Evento'].astype(int)
         df_parcelas_vencimento['ID Casa'] = df_parcelas_vencimento['ID Casa'].astype(int)
 
-        df_parcelas_recebimento = df_parcelas_recebimento.style.apply(colorir_parcelas_recebidas, axis=1)
-        df_parcelas_vencimento = df_parcelas_vencimento.style.apply(colorir_parcelas_vencidas, axis=1)
-
         st.markdown(f"### Parcelas Recebidas em {nome_mes}")
-        st.dataframe(df_parcelas_recebimento, use_container_width=True, hide_index=True)
+        # Adiciona linha de total
+        linha_total_recebimento = pd.DataFrame({
+            'ID Parcela': ['TOTAL'],
+            'ID Evento': [''],
+            'ID Casa': [''],
+            'Casa': [''],
+            'Nome do Evento': [''],
+            'Status Evento': [''],
+            'Categoria Parcela': [''],
+            'Valor Parcela': [total_recebido],
+            'Data Vencimento': [''],
+            'Status Pagamento': [''],
+            'Data Recebimento': [''],
+        })
+        # Tipos de dados para string
+        df_parcelas_recebimento = df_parcelas_recebimento.astype({
+            'ID Parcela': str,
+            'ID Evento': str,
+            'Casa': str,
+            'ID Casa': str,
+            'Nome do Evento': str,
+            'Status Evento': str,
+            'Categoria Parcela': str
+        })
+        df_parcelas_recebimento = pd.concat([df_parcelas_recebimento, linha_total_recebimento], ignore_index=True)
+        df_parcelas_recebimento_styled = df_parcelas_recebimento.style.apply(colorir_parcelas_recebidas, axis=1)
+        st.dataframe(df_parcelas_recebimento_styled,
+                     height=35 * len(df_parcelas_recebimento) + 35,
+                     use_container_width=True, hide_index=True)
 
         # Legenda de cores
         st.markdown("""
@@ -186,7 +247,30 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
         st.write("")
 
         st.markdown(f"### Parcelas com Vencimento em {nome_mes}")
-        st.dataframe(df_parcelas_vencimento, use_container_width=True, hide_index=True)
+        linha_total_vencimento = pd.DataFrame({
+            'ID Parcela': ['TOTAL'],
+            'ID Evento': [''],
+            'ID Casa': [''],
+            'Casa': [''],
+            'Nome do Evento': [''],
+            'Status Evento': [''],
+            'Categoria Parcela': [''],
+            'Valor Parcela': [total_vencido],
+            'Data Vencimento': [''],
+            'Status Pagamento': [''],
+            'Data Recebimento': [''],
+        })
+        # Tipos de dados para string
+        df_parcelas_vencimento = df_parcelas_vencimento.astype({
+            'ID Parcela': str,
+            'ID Evento': str,
+            'ID Casa': str
+        })
+        df_parcelas_vencimento = pd.concat([df_parcelas_vencimento, linha_total_vencimento], ignore_index=True)
+        df_parcelas_vencimento_styled = df_parcelas_vencimento.style.apply(colorir_parcelas_vencidas, axis=1)
+        st.dataframe(df_parcelas_vencimento_styled,
+                     height=35 * len(df_parcelas_vencimento) + 35,
+                     use_container_width=True, hide_index=True)
         
         # Legenda de cores
         st.markdown("""

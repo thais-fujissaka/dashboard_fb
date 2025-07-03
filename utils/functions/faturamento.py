@@ -541,32 +541,6 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
         st.markdown("### Parcelas")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
 
-def colorir_parcelas_recebidas(row):
-    # Converta as datas se ainda não estiverem em datetime
-    venc = pd.to_datetime(row['Data Vencimento'], format='%d-%m-%Y', errors='coerce')
-    receb = pd.to_datetime(row['Data Recebimento'], format='%d-%m-%Y', errors='coerce')
-
-    if pd.isna(venc) or pd.isna(receb):
-        return [''] * len(row)
-
-    if receb > venc:
-        return ['background-color: #fff9c4'] * len(row)  # Atrasado
-    else:
-        return [''] * len(row)  # Em dia
-
-
-def colorir_parcelas_vencidas(row):
-    # Converta as datas se ainda não estiverem em datetime
-    venc = pd.to_datetime(row['Data Vencimento'], format='%d-%m-%Y', errors='coerce')
-    receb = pd.to_datetime(row['Data Recebimento'], format='%d-%m-%Y', errors='coerce')
-
-    if pd.isna(receb) and venc < pd.Timestamp.now():
-        return ['background-color: #ffcccc'] * len(row)  # Atrasado
-    elif venc < receb:
-        return ['background-color: #fff9c4'] * len(row)
-    else:
-        return [''] * len(row)  # Em dia
-
 
 def grafico_linhas_faturamento_tipo_evento(df_eventos_tipo_evento, id_casa):
 
@@ -803,9 +777,3 @@ def grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa):
 
     # Exibe o gráfico no Streamlit
     st_echarts(options=option, height="320px")
-
-
-def filtra_parcelas_atrasadas(df_parcelas):
-    df_parcelas = df_parcelas.copy()
-    df_parcelas = df_parcelas[df_parcelas['Data_Recebimento'].isna() & (df_parcelas['Data_Vencimento'] < pd.Timestamp.now().normalize())]
-    return df_parcelas
