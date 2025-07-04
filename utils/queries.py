@@ -275,3 +275,60 @@ def GET_EVENTOS_COMISSOES():
 			LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
 			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
 ''')
+
+
+def GET_EVENTOS_AUDITORIA():
+	return dataframe_query(f'''
+		SELECT DISTINCT 
+			tep.ID AS 'ID Evento',
+			tep.NOME_EVENTO AS 'Nome Evento',
+			te.ID AS 'ID Casa',
+			te.NOME_FANTASIA AS 'Casa',
+			tsep.DESCRICAO AS 'Status',
+			temd.DESCRICAO AS 'Motivo Declínio',
+			tep.VALOR_TOTAL_EVENTO AS 'Valor Total Evento',
+			tep.VALOR_AB AS 'Valor AB',
+			tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
+			tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
+			tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
+			tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
+			tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
+			tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+			tep.VALOR_IMPOSTO AS 'Valor Imposto',
+			tep.OBSERVACOES AS 'Observações',
+			trec.NOME AS 'Cliente',
+			CAST(DATE_FORMAT(CAST(tep.DATA_EVENTO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Evento',
+			CAST(DATE_FORMAT(CAST(tep.DATA_RECEBIMENTO_LEAD AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Recebimento Lead',
+			CAST(DATE_FORMAT(CAST(tep.DATA_ENVIO_PROPOSTA AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Envio Proposta',
+			CAST(DATE_FORMAT(CAST(tep.DATA_CONTRATACAO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Contratação'
+		FROM T_EVENTOS_PRICELESS tep 
+			LEFT JOIN T_PARCELAS_EVENTOS_PRICELESS tpep ON tpep.FK_EVENTO_PRICELESS = tep.ID
+			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
+			INNER JOIN T_EXECUTIVAS_EVENTOS tee ON tee.ID = tep.FK_EXECUTIVA_EVENTOS
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
+			LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON temd.ID = tep.FK_MOTIVO_DECLINIO
+			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+	''')
+
+
+def GET_PARCELAS_EVENTOS_AUDITORIA():
+	return dataframe_query(f'''
+		SELECT
+			tpep.ID AS 'ID Parcela',
+			tpep.FK_EVENTO_PRICELESS AS 'ID Evento',
+			te.NOME_FANTASIA AS 'Casa',
+			te.ID AS 'ID Casa',
+			tep.NOME_EVENTO AS 'Nome do Evento',
+			tsep.DESCRICAO AS 'Status Evento',
+			tcep.DESCRICAO AS 'Categoria Parcela',
+			tpep.VALOR_PARCELA as 'Valor Parcela',
+			tpep.DATA_VENCIMENTO_PARCELA AS 'Data Vencimento',
+			tsp.DESCRICAO AS 'Status Pagamento',
+			tpep.DATA_RECEBIMENTO_PARCELA AS 'Data Recebimento' 
+		FROM T_PARCELAS_EVENTOS_PRICELESS tpep 
+			LEFT JOIN T_EVENTOS_PRICELESS tep ON (tpep.FK_EVENTO_PRICELESS = tep.ID)
+			LEFT JOIN T_STATUS_PAGAMENTO tsp ON (tpep.FK_STATUS_PAGAMENTO = tsp.ID)
+			LEFT JOIN T_CATEGORIA_EVENTO_PRICELESS tcep ON (tpep.FK_CATEGORIA_PARCELA = tcep.ID)
+			LEFT JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
+	''')
