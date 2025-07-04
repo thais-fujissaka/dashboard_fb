@@ -81,6 +81,7 @@ def df_formata_data_sem_horario(df, date_column):
 
 
 def df_formata_datas_sem_horario(df, date_columns):
+    df = df.copy()
     for column in date_columns:
         if column in df.columns:
             df[column] = df[column].apply(
