@@ -39,11 +39,11 @@ def config_sidebar():
             st.sidebar.page_link("pages/8_Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
             st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
             st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
-
-            
+        elif "Coordenador MKT Dash Eventos" in permissao:
+            st.sidebar.title("Menu")
+            st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         elif "Gazit" in permissao:
             st.sidebar.title("Menu")
-            # st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
             st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
         else:
             st.sidebar.title("Menu")

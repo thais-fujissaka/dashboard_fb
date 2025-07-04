@@ -53,6 +53,8 @@ def main():
         st.markdown("Redirecionando...")
         if "Admin Dash Eventos" in permissao:
             st.switch_page("pages/1_Calendário_de_Eventos.py")
+        elif "Coordenador MKT Dash Eventos" in permissao:
+            st.switch_page("pages/1_Calendário_de_Eventos.py")
         elif "Gazit" in permissao:
             st.switch_page("pages/7_Gazit.py")
 
