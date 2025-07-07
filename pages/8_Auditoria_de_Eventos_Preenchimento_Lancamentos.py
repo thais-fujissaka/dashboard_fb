@@ -138,14 +138,6 @@ def main():
 			else:
 				st.dataframe(df_eventos_em_negociacao_com_data_contratacao[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
 			
-			st.markdown("### Farol - Eventos Confirmados sem Data de Contratação")
-			df_eventos_confirmados_sem_data_contratacao = df_eventos_confirmados[df_eventos_confirmados['Data Contratação'].isna()]
-			df_eventos_confirmados_sem_data_contratacao = df_formata_datas_sem_horario(df_eventos_confirmados_sem_data_contratacao, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
-			if df_eventos_confirmados_sem_data_contratacao.empty:
-				st.success("Nenhum evento confirmado sem data de contratação.")
-			else:
-				st.dataframe(df_eventos_confirmados_sem_data_contratacao[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
-			
 			st.markdown("### Farol - Valor Total do Evento x Valor Total das Parcelas")
 			df_valor_total_parcelas = df_parcelas_eventos_confirmados.groupby('ID Evento')['Valor Parcela'].sum().reset_index().rename(columns={'Valor Parcela': 'Valor Total Parcelas'})
 			df_comparacao = df_eventos_confirmados[['ID Evento', 'Nome Evento', 'Observações', 'Valor Total Evento']].merge(df_valor_total_parcelas, on='ID Evento', how='left')
