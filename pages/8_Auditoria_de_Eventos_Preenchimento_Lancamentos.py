@@ -86,6 +86,7 @@ def main():
 			st.markdown("### Farol - Eventos Confirmados sem Parcelas Lançadas")
 			df_eventos_sem_parcelas = df_eventos_confirmados[df_eventos_confirmados['ID Evento'].isin(lista_ids_eventos_sem_parcelas)]
 			df_eventos_sem_parcelas = df_formata_datas_sem_horario(df_eventos_sem_parcelas, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
+			df_eventos_sem_parcelas = format_columns_brazilian(df_eventos_sem_parcelas, ['Valor Total Evento', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Imposto', 'Valor AB'])
 			if df_eventos_sem_parcelas.empty:
 				st.success("Nenhum evento sem parcelas lançadas.")
 			else:
