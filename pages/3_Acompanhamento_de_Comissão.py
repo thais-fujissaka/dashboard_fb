@@ -269,7 +269,7 @@ def main():
                 else:
                     kpi_card("Atingimento da Meta", f"{format_brazilian(porcentagem_atingimento)} %", "rgb(30, 58, 138)", "white", "rgb(255, 30, 30)")
             with col4:
-                kpi_card("Total Vendido", f"R$ {format_brazilian(total_vendido)}", "rgb(30, 58, 138)", "white", "white")
+                kpi_card("Total Vendido/Recebido no Mês", f"R$ {format_brazilian(total_vendido)}", "rgb(30, 58, 138)", "white", "white")
             with col5:
                 kpi_card("Comissão", f"R$ {format_brazilian(comissao)}", "rgb(30, 58, 138)", "white", "white")
             st.html("<br>")
