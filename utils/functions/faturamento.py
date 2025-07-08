@@ -219,12 +219,13 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
             df_parcelas.drop(columns=['Mes'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
-            total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
+            if df_parcelas is not None and not df_parcelas.empty:
+                total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
         st.markdown("#### Parcelas")
         st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
-        
-        st.markdown(f"**Valor Total das Parcelas: R$ {total_parcelas_mes}**")
+        if df_parcelas is not None and not df_parcelas.empty:
+            st.markdown(f"**Valor Total das Parcelas: R$ {total_parcelas_mes}**")
     else:
         st.markdown("### Parcelas")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
@@ -253,19 +254,26 @@ def df_fracao_locacao_espacos(df_eventos):
     return df_eventos
 
 
-def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
+# def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
 
-    df_eventos = df_fracao_locacao_espacos(df_eventos)
+#     df_eventos = df_fracao_locacao_espacos(df_eventos)
 
-    # Merge df_parcelas com fracoes de cada espaço
-    df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante']], how='left', on='ID_Evento')
+#     st.dataframe(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante']])
+#     st.dataframe(df_parcelas)
+
+#     # Merge df_parcelas com fracoes de cada espaço
+#     df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante']], how='left', on='ID_Evento')
     
-    df_parcelas['Valor_Parcela_Aroos'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Aroo']
-    df_parcelas['Valor_Parcela_Anexo'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Anexo']
-    df_parcelas['Valor_Parcela_Notie'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Notie']
-    df_parcelas['Valor_Parcela_Mirante'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Mirante']
+#     df_parcelas['Valor_Parcela_Aroos'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Aroo']
+#     df_parcelas['Valor_Parcela_Anexo'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Anexo']
+#     df_parcelas['Valor_Parcela_Notie'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Notie']
+#     df_parcelas['Valor_Parcela_Mirante'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Mirante']
 
-    return df_parcelas
+#     st.dataframe(df_parcelas)
+#     duplicadas = df_parcelas.columns[df_parcelas.columns.duplicated()].tolist()
+#     if duplicadas:
+#         st.warning(f"Colunas duplicadas detectadas: {duplicadas}")
+#     return df_parcelas
 
 
 # Gráficos de Locação dos espaços Priceless (Aroo, Anexo, Notiê e Mirante)
@@ -282,14 +290,14 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
     .copy()
     )
 
-    df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
+    #df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
 
     # Define o nome da coluna de valor da parcela de acordo com o espaço
     dict_espacos = {
-        'Aroo': 'Valor_Parcela_Aroos',
-        'Anexo': 'Valor_Parcela_Anexo',
-        'Notiê': 'Valor_Parcela_Notie',
-        'Mirante': 'Valor_Parcela_Mirante'
+        'Aroo': 'Valor Parcela AROO',
+        'Anexo': 'Valor Parcela ANEXO',
+        'Notiê': 'Valor Parcela Notie',
+        'Mirante': 'Valor Parcela Mirante'
     }
 
 
@@ -389,7 +397,7 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê', 'Valor Parcela Mirante'])

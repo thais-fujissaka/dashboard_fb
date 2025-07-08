@@ -21,7 +21,7 @@ if "loggedIn" not in st.session_state or not st.session_state["loggedIn"]:
     st.switch_page("Login.py")
 
 def main():
-
+    st.markdown(" <style>iframe{ height: 320px !important } ", unsafe_allow_html=True)
     config_sidebar()
 
     # Header
