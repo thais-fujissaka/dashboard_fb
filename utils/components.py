@@ -139,7 +139,7 @@ def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value
         <div style="font-size: 14px; color: {title_color}; font-weight: normal; margin-bottom: 6px;">
             {title}
         </div>
-        <div style="font-size: 32px; color: {value_color}; font-weight: bold;">
+        <div style="font-size: 24px; color: {value_color}; font-weight: bold;">
             {value}
         </div>
     </div>

@@ -6,6 +6,7 @@ from utils.queries import *
 from utils.functions.parcelas import *
 from utils.user import *
 from utils.functions.kpis_conversao_eventos_priceless import *
+from utils.functions.faturamento import *
 
 st.set_page_config(
     page_icon="📈",
