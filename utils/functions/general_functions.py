@@ -96,11 +96,14 @@ def format_brazilian_without_decimal(num):
 
 
 def format_columns_brazilian(df, numeric_columns):
-    df = df.copy()
-    for col in numeric_columns:
-        if col in df.columns:
-            df[col] = df[col].apply(format_brazilian)
-    return df
+    if df is not None and not df.empty:
+        df = df.copy()
+        for col in numeric_columns:
+            if col in df.columns:
+                df[col] = df[col].apply(format_brazilian)
+        return df
+    else:
+        return df
 
 
 def format_percentage(num):

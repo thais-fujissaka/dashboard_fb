@@ -56,30 +56,33 @@ def rename_colunas_eventos(df):
 	return df
 
 def rename_colunas_parcelas(df):
-    df = df.copy()
-    df.rename(columns={
-		'ID_Parcela': 'ID Parcela',
-		'ID_Evento': 'ID Evento',
-		'Nome_do_Evento': 'Nome do Evento',
-		'Categoria_Parcela': 'Categoria Parcela',
-		'Valor_Parcela': 'Valor Parcela',
-		'Data_Vencimento': 'Data Vencimento',
-		'Status_Pagamento': 'Status Pagamento',
-		'Data_Recebimento': 'Data Recebimento',
-		'Repasse_Gazit_Bruto': 'Valor Total Bruto Gazit',
-		'Repasse_Gazit_Liquido': 'Valor Total Líquido Gazit',
-		'Valor_Locacao_Total': 'Total Locação',
-		'Valor_Parcela_Aroos': 'Valor Parcela Aroos',
-		'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
-		'Valor_Parcela_Notie': 'Valor Parcela Notiê',
-		'Valor_Parcela_Mirante': 'Valor Parcela Mirante',
-		'Repasse Gazit Bruto Aroos': 'AROO Valor Bruto Gazit',
-		'Repasse Gazit Liquido Aroos': 'AROO Valor Líquido Gazit',
-		'Repasse Gazit Bruto Anexo': 'ANEXO Valor Bruto Gazit',
-		'Repasse Gazit Liquido Anexo': 'ANEXO Valor Líquido Gazit'
-	}, inplace=True)
-    return df
-
+	if df is not None and not df.empty:
+		df = df.copy()
+		df.rename(columns={
+			'ID_Parcela': 'ID Parcela',
+			'ID_Evento': 'ID Evento',
+			'Nome_do_Evento': 'Nome do Evento',
+			'Categoria_Parcela': 'Categoria Parcela',
+			'Valor_Parcela': 'Valor Parcela',
+			'Data_Vencimento': 'Data Vencimento',
+			'Status_Pagamento': 'Status Pagamento',
+			'Data_Recebimento': 'Data Recebimento',
+			'Repasse_Gazit_Bruto': 'Valor Total Bruto Gazit',
+			'Repasse_Gazit_Liquido': 'Valor Total Líquido Gazit',
+			'Valor_Locacao_Total': 'Total Locação',
+			'Valor_Parcela_Aroos': 'Valor Parcela Aroos',
+			'Valor_Parcela_Anexo': 'Valor Parcela Anexo',
+			'Valor_Parcela_Notie': 'Valor Parcela Notiê',
+			'Valor_Parcela_Mirante': 'Valor Parcela Mirante',
+			'Repasse Gazit Bruto Aroos': 'AROO Valor Bruto Gazit',
+			'Repasse Gazit Liquido Aroos': 'AROO Valor Líquido Gazit',
+			'Repasse Gazit Bruto Anexo': 'ANEXO Valor Bruto Gazit',
+			'Repasse Gazit Liquido Anexo': 'ANEXO Valor Líquido Gazit'
+		}, inplace=True)
+		return df
+	else:
+		return None
+	
 
 def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 	df_eventos['Valor Locacao Total Aroos'] = df_eventos['Valor_Locacao_Aroo_1'] + df_eventos['Valor_Locacao_Aroo_2'] + df_eventos['Valor_Locacao_Aroo_3']
