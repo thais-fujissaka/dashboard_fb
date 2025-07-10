@@ -236,6 +236,8 @@ def GET_RECEBIMENTOS_EVENTOS():
 			te.NOME_FANTASIA AS 'Casa',
 			tep.ID AS 'ID Evento',
 			tep.NOME_EVENTO AS 'Nome Evento',
+			DATE_FORMAT(tpep.DATA_VENCIMENTO_PARCELA, '%Y-%m-%d')  AS 'Data Vencimento',
+			DATE_FORMAT(tpep.DATA_RECEBIMENTO_PARCELA, '%Y-%m-%d') AS 'Data Recebimento',
 			YEAR(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Ano Recebimento',
 			MONTH(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Mês Recebimento',
 			tpep.VALOR_PARCELA AS 'Valor da Parcela',

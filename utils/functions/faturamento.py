@@ -254,27 +254,6 @@ def df_fracao_locacao_espacos(df_eventos):
     return df_eventos
 
 
-# def calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos):
-
-#     df_eventos = df_fracao_locacao_espacos(df_eventos)
-
-#     st.dataframe(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante']])
-#     st.dataframe(df_parcelas)
-
-#     # Merge df_parcelas com fracoes de cada espaço
-#     df_parcelas = df_parcelas.merge(df_eventos[['ID_Evento', 'Fracao_Aroo', 'Fracao_Anexo', 'Fracao_Notie', 'Fracao_Mirante']], how='left', on='ID_Evento')
-    
-#     df_parcelas['Valor_Parcela_Aroos'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Aroo']
-#     df_parcelas['Valor_Parcela_Anexo'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Anexo']
-#     df_parcelas['Valor_Parcela_Notie'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Notie']
-#     df_parcelas['Valor_Parcela_Mirante'] = df_parcelas['Valor_Parcela'] * df_parcelas['Fracao_Mirante']
-
-#     st.dataframe(df_parcelas)
-#     duplicadas = df_parcelas.columns[df_parcelas.columns.duplicated()].tolist()
-#     if duplicadas:
-#         st.warning(f"Colunas duplicadas detectadas: {duplicadas}")
-#     return df_parcelas
-
 
 # Gráficos de Locação dos espaços Priceless (Aroo, Anexo, Notiê e Mirante)
 def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco, key):
@@ -289,8 +268,6 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
     .loc[df_parcelas['Categoria_Parcela'] == 'Locacão']
     .copy()
     )
-
-    #df_parcelas = calcula_valor_parcela_locacao_espaco(df_parcelas, df_eventos)
 
     # Define o nome da coluna de valor da parcela de acordo com o espaço
     dict_espacos = {
