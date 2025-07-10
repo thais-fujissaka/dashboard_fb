@@ -79,7 +79,7 @@ def main():
     # Calcula o valor de repasse para Gazit
     df_eventos_faturamento = calcular_repasses_gazit(df_eventos_faturamento)
 
-
+    st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
     # Faturamento por Categoria
     with st.container(border=True):
         col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
@@ -117,6 +117,7 @@ def main():
                     montar_tabs_geral(df_parcelas_casa, casa_faturamento, id_casa_faturamento, filtro_data_categoria, df_orcamentos_faturamento)
     st.write("")
 
+    st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
     with st.container(border=True):
         col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
         with col2:
@@ -174,13 +175,6 @@ def main():
             # Filtra por vendedor
             if id_vendedor != -1:
                 df_recebimentos = df_recebimentos[df_recebimentos['ID Responsavel'] == id_vendedor]
-                if not df_recebimentos.empty:
-                    valor_total_vendido = df_recebimentos['Valor da Parcela'].sum()
-                else:
-                    valor_total_vendido = 0
-            else:
-                cargo_vendedor = "Todos os vendedores"
-                valor_total_vendido = df_recebimentos['Valor da Parcela'].sum()
 
             # Calcula o percentual de atingimento da meta
             if orcamento_mes > 0:
@@ -203,25 +197,30 @@ def main():
             else:
                 vendedores = df_recebimentos['ID - Responsavel'].unique().tolist()
                 total_vendido = df_recebimentos['Valor da Parcela'].sum()
+                altura_header = 318
+                altura_maxima_pagina = 1300
+                altura_atual = altura_header
+                altura_nome_vendedor = 52
+                altura_linha = 35
+                altura_expander = 86
                 for vendedor in vendedores:
                     df_vendedor = df_recebimentos[df_recebimentos['ID - Responsavel'] == vendedor].copy()
-                    
                     # Define os tipos das colunas
                     df_vendedor['Ano Recebimento'] = df_vendedor['Ano Recebimento'].astype(int).astype(str)
                     df_vendedor['Mês Recebimento'] = df_vendedor['Mês Recebimento'].astype(int).astype(str)
                     if not df_vendedor.empty:
-                        st.markdown(f"#### {vendedor}")
-                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Ano Recebimento', 'Mês Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão',  'Comissão']]
+                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão',  'Comissão']]
                         total_vendido_vendedor = df_vendedor['Valor da Parcela'].sum()
                         total_comissao = df_vendedor['Comissão'].sum()
                         lista_ids_eventos = df_vendedor['ID Evento'].unique().tolist()
+                        df_vendedor = df_format_date_columns_brazilian(df_vendedor, ['Data Vencimento', 'Data Recebimento'])
                         df_vendedor = df_vendedor.astype({
                             'ID Evento': str,
                             'Valor da Parcela': str,
                             '% Comissão': str,
                             'Comissão': str,
-                            'Ano Recebimento': str,
-                            'Mês Recebimento': str,
+                            'Data Vencimento': str,
+                            'Data Recebimento': str,
                             'Categoria Parcela': str
                         })
                         linha_total = pd.DataFrame({
@@ -229,30 +228,33 @@ def main():
                             'ID Evento': [''],
                             'Nome Evento': [''],
                             'Valor da Parcela': [total_vendido_vendedor],
-                            'Ano Recebimento': [''],
-                            'Mês Recebimento': [''],
+                            'Data Vencimento': [''],
+                            'Data Recebimento': [''],
                             'Categoria Parcela': [''],
                             '% Comissão': [''],
                             'Comissão': [total_comissao]
                         })
                         df_vendedor = pd.concat([df_vendedor, linha_total], ignore_index=True)
+                        altura_dataframe = len(df_vendedor) * altura_linha + altura_linha
+                        altura_vendedor = altura_nome_vendedor + altura_dataframe + altura_expander
+                        altura_atual += altura_vendedor
                         df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', '% Comissão', 'Comissão'])
-                        df_vendedor = df_vendedor.rename(columns={
-                            'Ano Recebimento': 'Ano',
-                            'Mês Recebimento': 'Mês'
-                        })
-                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Categoria Parcela', 'Ano', 'Mês', 'Valor da Parcela', '% Comissão', 'Comissão']]
+                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', '% Comissão', 'Comissão']]
                         df_vendedor_styled = df_vendedor.style.apply(highlight_total_row, axis=1)
-                        # Verifique se há duplicação
-                        
+                        if altura_atual >= altura_maxima_pagina:
+                            st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
+                            altura_atual = altura_vendedor
+                        else:
+                            altura_atual += altura_vendedor
+                        st.markdown(f"#### {vendedor}")
                         st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
                         with st.expander(f"Ver eventos correspondentes"):
                             
                             df_eventos_vendedor = df_eventos[df_eventos['ID Evento'].isin(lista_ids_eventos)]
                             df_eventos_vendedor = format_columns_brazilian(df_eventos_vendedor, ['Valor Total', 'Valor AB', 'Valor Imposto'])
                             st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], use_container_width=True, hide_index=True)
-                st.divider()
 
+    st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
     with st.container(border=True):
         col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
         with col2:
