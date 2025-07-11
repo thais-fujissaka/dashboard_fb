@@ -335,3 +335,42 @@ def GET_PARCELAS_EVENTOS_AUDITORIA():
 			LEFT JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
 			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
 	''')
+
+
+def GET_CLIENTES_EVENTOS():
+	return dataframe_query(f'''
+		SELECT
+			trec.ID AS 'ID Cliente',
+			trec.NOME AS 'Cliente',
+			trec.DOCUMENTO AS 'Documento',
+			trec.EMAIL AS 'Email',
+			trec.TELEFONE AS 'Telefone',
+			trec.PESSOA_DE_CONTATO AS 'Pessoa de Contato',
+			trec.ENDERECO_COMPLETO AS 'Endereço',
+			trec.CEP AS 'CEP',	
+			tep.ID AS 'ID Evento',
+			tep.NOME_EVENTO AS 'Nome Evento',
+			te.ID AS 'ID Casa',
+			te.NOME_FANTASIA AS 'Casa',
+			tsep.DESCRICAO AS 'Status',
+			tep.VALOR_TOTAL_EVENTO AS 'Valor Total Evento',
+			tep.VALOR_AB AS 'Valor AB',
+			tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
+			tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
+			tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
+			tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
+			tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
+			tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+			tep.VALOR_IMPOSTO AS 'Valor Imposto',
+			tep.OBSERVACOES AS 'Observações',
+			CAST(DATE_FORMAT(CAST(tep.DATA_EVENTO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Evento',
+			CAST(DATE_FORMAT(CAST(tep.DATA_RECEBIMENTO_LEAD AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Recebimento Lead',
+			CAST(DATE_FORMAT(CAST(tep.DATA_ENVIO_PROPOSTA AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Envio Proposta',
+			CAST(DATE_FORMAT(CAST(tep.DATA_CONTRATACAO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Contratação'
+		FROM T_EVENTOS_PRICELESS tep
+			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
+			INNER JOIN T_EXECUTIVAS_EVENTOS tee ON tee.ID = tep.FK_EXECUTIVA_EVENTOS
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
+			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+		WHERE tsep.DESCRICAO = 'Confirmado' AND trec.ID IS NOT NULL
+	''')

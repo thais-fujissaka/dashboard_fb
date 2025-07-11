@@ -34,10 +34,12 @@ def config_sidebar():
             st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
             st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
             st.sidebar.page_link("pages/3_Acompanhamento_de_Comissão.py", label="📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
+            st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
             st.sidebar.page_link("pages/4_Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
             st.sidebar.page_link("pages/5_Conciliação_de_Parcelas_Eventos.py", label=":left_right_arrow: Conciliação de Parcelas de Eventos")
             st.sidebar.page_link("pages/8_Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
             st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
+            # st.sidebar.page_link("pages/10_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
             st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
         elif "Coordenador MKT Dash Eventos" in permissao:
             st.sidebar.title("Menu")
