@@ -137,7 +137,8 @@ def main():
 		with col2:
 			st.markdown("## Faturamento Por Tipo de Evento*")
 			st.write("")
-			grafico_linhas_faturamento_tipo_evento(df_eventos_filtrados_por_status_e_ano, id_casa)
+			grafico_linhas_faturamento_classificacoes_evento(df_eventos_filtrados_por_status_e_ano, id_casa, coluna_categoria='Tipo Evento')
+
 			st.markdown("*Por mês de competência do evento.")
 	st.write("")
 
@@ -147,7 +148,17 @@ def main():
 		with col2:
 			st.markdown("## Faturamento Por Modelo de Evento*")
 			st.write("")
-			grafico_linhas_faturamento_modelo_evento(df_eventos_filtrados_por_status_e_ano, id_casa)
+			grafico_linhas_faturamento_classificacoes_evento(df_eventos_filtrados_por_status_e_ano, id_casa, coluna_categoria='Modelo Evento')
+			st.markdown("*Por mês de competência do evento.")
+	st.write("")
+
+	# Faturamento por segmento do evento
+	with st.container(border=True):
+		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
+		with col2:
+			st.markdown("## Faturamento Por Segmento do Evento*")
+			st.write("")
+			grafico_linhas_faturamento_classificacoes_evento(df_eventos_filtrados_por_status_e_ano, id_casa, coluna_categoria='Segmento Evento')
 			st.markdown("*Por mês de competência do evento.")
 	st.write("")
 
