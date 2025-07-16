@@ -93,7 +93,7 @@ def main():
 				st.dataframe(df_eventos_sem_parcelas, use_container_width=True, hide_index=True)
 
 			st.markdown("### Farol - Eventos Confirmados sem Data de Envio da Proposta")
-			df_eventos_sem_data_envio_proposta = df_eventos[df_eventos['Data Envio Proposta'].isna()]
+			df_eventos_sem_data_envio_proposta = df_eventos_confirmados[df_eventos_confirmados['Data Envio Proposta'].isna()]
 			df_eventos_sem_data_envio_proposta = df_formata_datas_sem_horario(df_eventos_sem_data_envio_proposta, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
 			if df_eventos_sem_data_envio_proposta.empty:
 				st.success("Nenhum evento sem data de envio da proposta.")
@@ -101,7 +101,7 @@ def main():
 				st.dataframe(df_eventos_sem_data_envio_proposta[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
 			
 			st.markdown("### Farol - Eventos Confirmados sem Data de Recebimento do Lead")
-			df_eventos_sem_data_recebimento_lead = df_eventos[df_eventos['Data Recebimento Lead'].isna()]
+			df_eventos_sem_data_recebimento_lead = df_eventos_confirmados[df_eventos_confirmados['Data Recebimento Lead'].isna()]
 			df_eventos_sem_data_recebimento_lead = df_formata_datas_sem_horario(df_eventos_sem_data_recebimento_lead, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
 			if df_eventos_sem_data_recebimento_lead.empty:
 				st.success("Nenhum evento sem data de recebimento do lead.")
@@ -109,7 +109,7 @@ def main():
 				st.dataframe(df_eventos_sem_data_recebimento_lead[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
 			
 			st.markdown("### Farol - Eventos Confirmados sem Data de Contratação")
-			df_eventos_sem_data_contratacao = df_eventos[df_eventos['Data Contratação'].isna()]
+			df_eventos_sem_data_contratacao = df_eventos_confirmados[df_eventos_confirmados['Data Contratação'].isna()]
 			df_eventos_sem_data_contratacao = df_formata_datas_sem_horario(df_eventos_sem_data_contratacao, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
 			if df_eventos_sem_data_contratacao.empty:
 				st.success("Nenhum evento sem data de contratação.")
