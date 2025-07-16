@@ -644,83 +644,76 @@ def grafico_linhas_faturamento_tipo_evento(df_eventos_tipo_evento, id_casa):
     # Exibe o gráfico no Streamlit
     st_echarts(options=option, height="320px")
 
-
-
-def grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa):
-
+def grafico_linhas_faturamento_classificacoes_evento(df_eventos, id_casa, coluna_categoria):
+    # Filtro por casa, se aplicável
     if id_casa != -1:
-        df_eventos_modelo_evento = df_eventos_modelo_evento[df_eventos_modelo_evento['ID Casa'] == id_casa].copy()
+        df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa].copy()
 
-    if df_eventos_modelo_evento.empty:
+    if df_eventos.empty:
         st.error("Não há dados de eventos disponíveis para o gráfico.")
         return
-    
-    df_eventos_modelo_evento['Mês'] = df_eventos_modelo_evento['Data_Evento'].dt.month
-    df_eventos_modelo_evento = df_eventos_modelo_evento.groupby(['Mês', 'Modelo Evento'])['Valor_Total'].sum().reset_index()
-    meses = {
-        "01": "Janeiro",
-        "02": "Fevereiro",
-        "03": "Março",
-        "04": "Abril",
-        "05": "Maio",
-        "06": "Junho",
-        "07": "Julho",
-        "08": "Agosto",
-        "09": "Setembro",
-        "10": "Outubro",
-        "11": "Novembro",
-        "12": "Dezembro"
-    }
-    nomes_meses = list(meses.values())
 
-    # Dataframe com meses
-    df_meses = pd.DataFrame({'Mês': list(range(1, 13)), 'Nome_Mes': list(meses.values())})
-    # Dataframe com os tipos de eventos
-    modelos_evento = df_eventos_modelo_evento['Modelo Evento'].unique().tolist()
-    df_modelos_evento = pd.DataFrame({'Modelo Evento': modelos_evento})
-    # Dataframe com a combinação de meses e tipos de eventos
-    df_modelos_evento_meses = pd.merge(df_meses.assign(key=1), df_modelos_evento.assign(key=1), on='key').drop('key', axis=1)
-    df_eventos_modelo_evento = df_modelos_evento_meses.merge(df_eventos_modelo_evento, how='left', on=['Mês', 'Modelo Evento'])
-    df_eventos_modelo_evento['Valor_Total'].fillna(0, inplace=True)
-    
-    # Cria lista de valores e labels por mês de cada tipo de evento
-    valores_modelo_evento = {}
-    for modelo in modelos_evento:
-        # Cria lista de valores por mês de cada tipo de evento
-        valores = df_eventos_modelo_evento[df_eventos_modelo_evento['Modelo Evento'] == modelo]['Valor_Total'].round(2).tolist()
+    # Extrai mês do evento
+    df_eventos['Mês'] = df_eventos['Data_Evento'].dt.month
+    df_eventos = df_eventos.groupby(['Mês', coluna_categoria])['Valor_Total'].sum().reset_index()
+
+    # Dicionário de nomes dos meses
+    meses = {
+        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+    }
+
+    # DataFrame com todos os meses
+    df_meses = pd.DataFrame({'Mês': list(meses.keys()), 'Nome_Mes': list(meses.values())})
+
+    # Todas as categorias únicas
+    categorias = df_eventos[coluna_categoria].unique().tolist()
+    df_categorias = pd.DataFrame({coluna_categoria: categorias})
+
+    # Gera combinações mês × categoria
+    df_completo = pd.merge(
+        df_meses.assign(key=1), 
+        df_categorias.assign(key=1), 
+        on='key'
+    ).drop('key', axis=1)
+
+    # Merge com dados reais
+    df_completo = df_completo.merge(df_eventos, how='left', on=['Mês', coluna_categoria])
+    df_completo['Valor_Total'] = df_completo['Valor_Total'].fillna(0)
+
+    # Lista de valores para cada categoria
+    valores_por_categoria = {}
+    for categoria in categorias:
+        df_filtrado = df_completo[df_completo[coluna_categoria] == categoria].sort_values(by='Mês')
+        valores = df_filtrado['Valor_Total'].round(2).tolist()
         labels = [format_brazilian(v) for v in valores]
-    
-        valores_modelo_evento[modelo] = [
+        valores_por_categoria[categoria] = [
             {
                 "value": v,
-                "label": {
-                    "show": False
-                }
-            }
-            for v, lbl in zip(valores, labels)
+                "label": {"show": False}
+            } for v, lbl in zip(valores, labels)
         ]
 
-    legenda = list(valores_modelo_evento.keys())
-
+    # Monta a série do gráfico
     series = []
-    for modelo, valores in valores_modelo_evento.items():
-        series.append(
-            {
-                "name": f"{modelo}",
-                "type": "line",
-                "stack": "Total",
-                "label": {
-                    "show": True,
-                    "position": "top"
-                },
-                "areaStyle": {},
-                "emphasis": {
-                    "focus": "series"
-                },
-                "data": valores
-            }
-        )
-    # Cria grafico de linhas
+    for categoria, valores in valores_por_categoria.items():
+        series.append({
+            "name": categoria,
+            "type": "line",
+            "stack": "Total",
+            "label": {
+                "show": True,
+                "position": "top"
+            },
+            "areaStyle": {},
+            "emphasis": {
+                "focus": "series"
+            },
+            "data": valores
+        })
+
+    # Configuração do gráfico
     option = {
         "tooltip": {
             "trigger": "axis",
@@ -732,7 +725,7 @@ def grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa):
             }
         },
         "legend": {
-            "data": legenda
+            "data": list(valores_por_categoria.keys())
         },
         "toolbox": {
             "feature": {
@@ -745,20 +738,12 @@ def grafico_linhas_faturamento_modelo_evento(df_eventos_modelo_evento, id_casa):
             "bottom": "3%",
             "containLabel": True
         },
-        "xAxis": [
-            {
-                "type": "category",
-                "boundaryGap": False,
-                "data": nomes_meses
-            }
-        ],
-        "yAxis": [
-            {
-                "type": "value"
-            }
-        ],
+        "xAxis": [{
+            "type": "category",
+            "boundaryGap": False,
+            "data": list(meses.values())
+        }],
+        "yAxis": [{"type": "value"}],
         "series": series
     }
-
-    # Exibe o gráfico no Streamlit
     st_echarts(options=option, height="320px")

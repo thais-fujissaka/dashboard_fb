@@ -107,30 +107,31 @@ def get_casas_validas():
 def GET_EVENTOS_PRICELESS():
    	return dataframe_query(f'''
 		SELECT 
-			tep.ID as 'ID_Evento',
-			te.NOME_FANTASIA as 'Casa',
-			te.ID as 'ID Casa',
-			tee.NOME_COMPLETO as 'Comercial_Responsavel',
-			tep.NOME_EVENTO as 'Nome_do_Evento',
-			trec.NOME as 'Cliente',
-			tep.DATA_CONTRATACAO as 'Data_Contratacao',
-			tep.DATA_EVENTO as 'Data_Evento',
-			tte.DESCRICAO as 'Tipo Evento',
-			tme.DESCRICAO as 'Modelo Evento',
-			tep.VALOR_TOTAL_EVENTO as 'Valor_Total',
-			tep.NUM_CLIENTES as 'Num_Pessoas',
-			tep.VALOR_AB as 'Valor_AB',
-			COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) as 'Valor_Locacao_Total',
-			tep.VALOR_LOCACAO_AROO_1 as 'Valor_Locacao_Aroo_1',
-			tep.VALOR_LOCACAO_AROO_2 as 'Valor_Locacao_Aroo_2',
-			tep.VALOR_LOCACAO_AROO_3 as 'Valor_Locacao_Aroo_3',
-			tep.VALOR_LOCACAO_ANEXO as 'Valor_Locacao_Anexo',
-			tep.VALOR_LOCACAO_NOTIE as 'Valor_Locacao_Notie',
-			tep.VALOR_LOCACAO_MIRANTE as 'Valor_Locacao_Mirante',
-			tep.VALOR_IMPOSTO as 'Valor_Imposto',
-			tsep.DESCRICAO as 'Status_Evento',
-			temd.DESCRICAO as 'Motivo_Declinio',
-			tep.OBSERVACOES as 'Observacoes'
+			tep.ID AS 'ID_Evento',
+			te.NOME_FANTASIA AS 'Casa',
+			te.ID AS 'ID Casa',
+			tee.NOME_COMPLETO AS 'Comercial_Responsavel',
+			tep.NOME_EVENTO AS 'Nome_do_Evento',
+			trec.NOME AS 'Cliente',
+			tep.DATA_CONTRATACAO AS 'Data_Contratacao',
+			tep.DATA_EVENTO AS 'Data_Evento',
+			tte.DESCRICAO AS 'Tipo Evento',
+			tme.DESCRICAO AS 'Modelo Evento',
+			tse.DESCRICAO AS 'Segmento Evento',
+			tep.VALOR_TOTAL_EVENTO AS 'Valor_Total',
+			tep.NUM_CLIENTES AS 'Num_Pessoas',
+			tep.VALOR_AB AS 'Valor_AB',
+			COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) AS 'Valor_Locacao_Total',
+			tep.VALOR_LOCACAO_AROO_1 AS 'Valor_Locacao_Aroo_1',
+			tep.VALOR_LOCACAO_AROO_2 AS 'Valor_Locacao_Aroo_2',
+			tep.VALOR_LOCACAO_AROO_3 AS 'Valor_Locacao_Aroo_3',
+			tep.VALOR_LOCACAO_ANEXO AS 'Valor_Locacao_Anexo',
+			tep.VALOR_LOCACAO_NOTIE AS 'Valor_Locacao_Notie',
+			tep.VALOR_LOCACAO_MIRANTE AS 'Valor_Locacao_Mirante',
+			tep.VALOR_IMPOSTO AS 'Valor_Imposto',
+			tsep.DESCRICAO AS 'Status_Evento',
+			temd.DESCRICAO AS 'Motivo_Declinio',
+			tep.OBSERVACOES AS 'Observacoes'
 		FROM T_EVENTOS_PRICELESS tep
 			LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
 			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
@@ -138,6 +139,7 @@ def GET_EVENTOS_PRICELESS():
 			LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
 			LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
 			LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+			LEFT JOIN T_SEGMENTOS_EVENTOS tse ON (tep.FK_SEGMENTO = tse.ID)
 			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
 	''')
 
@@ -236,8 +238,8 @@ def GET_RECEBIMENTOS_EVENTOS():
 			te.NOME_FANTASIA AS 'Casa',
 			tep.ID AS 'ID Evento',
 			tep.NOME_EVENTO AS 'Nome Evento',
-			DATE_FORMAT(tpep.DATA_VENCIMENTO_PARCELA, '%Y-%m-%d')  AS 'Data Vencimento',
-			DATE_FORMAT(tpep.DATA_RECEBIMENTO_PARCELA, '%Y-%m-%d') AS 'Data Recebimento',
+			DATE(tpep.DATA_VENCIMENTO_PARCELA) AS 'Data Vencimento',
+			DATE(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Data Recebimento',
 			YEAR(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Ano Recebimento',
 			MONTH(tpep.DATA_RECEBIMENTO_PARCELA) AS 'Mês Recebimento',
 			tpep.VALOR_PARCELA AS 'Valor da Parcela',
@@ -262,8 +264,8 @@ def GET_EVENTOS_COMISSOES():
 			tee.NOME_COMPLETO as 'Comercial Responsável',
 			tep.NOME_EVENTO as 'Nome Evento',
 			trec.NOME as 'Cliente',
-			DATE_FORMAT(tep.DATA_CONTRATACAO, '%Y-%m-%d') AS 'Data Contratacao',
-			DATE_FORMAT(tep.DATA_EVENTO, '%Y-%m-%d') as 'Data Evento',
+			DATE(tep.DATA_CONTRATACAO) AS 'Data Contratacao',
+			DATE(tep.DATA_EVENTO) AS 'Data Evento',
 			tep.VALOR_TOTAL_EVENTO as 'Valor Total',
 			tep.VALOR_AB as 'Valor AB',
 			tep.VALOR_IMPOSTO as 'Valor Imposto',
@@ -300,10 +302,10 @@ def GET_EVENTOS_AUDITORIA():
 			tep.VALOR_IMPOSTO AS 'Valor Imposto',
 			tep.OBSERVACOES AS 'Observações',
 			trec.NOME AS 'Cliente',
-			CAST(DATE_FORMAT(CAST(tep.DATA_EVENTO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Evento',
-			CAST(DATE_FORMAT(CAST(tep.DATA_RECEBIMENTO_LEAD AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Recebimento Lead',
-			CAST(DATE_FORMAT(CAST(tep.DATA_ENVIO_PROPOSTA AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Envio Proposta',
-			CAST(DATE_FORMAT(CAST(tep.DATA_CONTRATACAO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Contratação'
+			DATE(tep.DATA_EVENTO) AS 'Data Evento',
+			DATE(tep.DATA_RECEBIMENTO_LEAD) AS 'Data Recebimento Lead',
+			DATE(tep.DATA_ENVIO_PROPOSTA) AS 'Data Envio Proposta',
+			DATE(tep.DATA_CONTRATACAO) AS 'Data Contratação'
 		FROM T_EVENTOS_PRICELESS tep 
 			LEFT JOIN T_PARCELAS_EVENTOS_PRICELESS tpep ON tpep.FK_EVENTO_PRICELESS = tep.ID
 			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
@@ -342,6 +344,8 @@ def GET_CLIENTES_EVENTOS():
 		SELECT
 			trec.ID AS 'ID Cliente',
 			trec.NOME AS 'Cliente',
+			trec.RAZAO_SOCIAL AS 'Razão Social',
+			tsece.DESCRICAO_SETOR AS 'Setor Empresa',
 			trec.DOCUMENTO AS 'Documento',
 			trec.EMAIL AS 'Email',
 			trec.TELEFONE AS 'Telefone',
@@ -363,14 +367,15 @@ def GET_CLIENTES_EVENTOS():
 			tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
 			tep.VALOR_IMPOSTO AS 'Valor Imposto',
 			tep.OBSERVACOES AS 'Observações',
-			CAST(DATE_FORMAT(CAST(tep.DATA_EVENTO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Evento',
-			CAST(DATE_FORMAT(CAST(tep.DATA_RECEBIMENTO_LEAD AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Recebimento Lead',
-			CAST(DATE_FORMAT(CAST(tep.DATA_ENVIO_PROPOSTA AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Envio Proposta',
-			CAST(DATE_FORMAT(CAST(tep.DATA_CONTRATACAO AS DATE), '%Y-%m-%d') AS DATE) AS 'Data Contratação'
+			DATE(tep.DATA_EVENTO) AS 'Data Evento',
+			DATE(tep.DATA_RECEBIMENTO_LEAD) AS 'Data Recebimento Lead',
+			DATE(tep.DATA_ENVIO_PROPOSTA) AS 'Data Envio Proposta',
+			DATE(tep.DATA_CONTRATACAO) AS 'Data Contratação'
 		FROM T_EVENTOS_PRICELESS tep
 			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
 			INNER JOIN T_EXECUTIVAS_EVENTOS tee ON tee.ID = tep.FK_EXECUTIVA_EVENTOS
-			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
 			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+			LEFT JOIN T_SETOR_EMPRESA_CLIENTES_EVENTOS tsece ON tsece.ID = trec.FK_SETOR_CLIENTE 
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
 		WHERE tsep.DESCRICAO = 'Confirmado' AND trec.ID IS NOT NULL
 	''')
