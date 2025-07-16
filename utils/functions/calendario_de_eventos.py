@@ -175,14 +175,12 @@ def infos_evento(id_evento, df_eventos):
 def mostrar_parcelas(id_evento, df_parcelas):
     id_evento = int(id_evento)
     
-    parcelas = df_parcelas[df_parcelas['ID_Evento'] == id_evento]
-    
-    parcelas = df_format_date_columns_brazilian(parcelas, ['Data_Vencimento', 'Data_Recebimento'])
-    parcelas = format_columns_brazilian(parcelas, ['Valor_Parcela'])
-    parcelas = rename_colunas_parcelas(parcelas)
-    
-    st.markdown(f"#### Parcelas")
-    if parcelas.empty:
+    if df_parcelas[df_parcelas['ID_Evento'] == id_evento].empty:
         st.warning("Nenhuma parcela encontrada para este evento.")
     else:
+        parcelas = df_parcelas[df_parcelas['ID_Evento'] == id_evento]
+        parcelas = df_format_date_columns_brazilian(parcelas, ['Data_Vencimento', 'Data_Recebimento'])
+        parcelas = format_columns_brazilian(parcelas, ['Valor_Parcela'])
+        parcelas = rename_colunas_parcelas(parcelas)
+        st.markdown(f"#### Parcelas")
         st.dataframe(parcelas, use_container_width=True, hide_index=True)
