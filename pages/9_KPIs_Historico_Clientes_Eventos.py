@@ -9,7 +9,7 @@ from utils.functions.kpis_clientes_eventos import *
 
 st.set_page_config(
 	page_icon=":busts_in_silhouette:",
-	page_title="KPI's de Ventas - Histórico e Recorrência de Clientes",
+	page_title="KPI's de Vendas - Histórico e Recorrência de Clientes",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -65,7 +65,7 @@ def main():
                 st.markdown(f'### :material/group:  {cliente['Cliente'].values[0]}')
                 st.write('')
 
-                col1, col2, col3 = st.columns([1, 1, 1], gap="large", vertical_alignment="top")
+                col1, col2, col3, col4 = st.columns([1, 1, 1, 1], gap="small", vertical_alignment="top")
                 with col1:
                     st.markdown(f'**Documento:** {cliente['Documento'].values[0]}')
                     st.markdown(f'**E-mail:** {cliente['Email'].values[0]}')
@@ -75,6 +75,10 @@ def main():
                 with col3:
                     st.markdown(f'**Endereço:** {cliente['Endereço'].values[0]}')
                     st.markdown(f'**CEP:** {cliente['CEP'].values[0]}')
+                if cliente['Setor Empresa'].values[0] != 'Não informado' or cliente['Razão Social'].values[0] != 'Não informado':
+                    with col4:
+                        st.markdown(f'**Razão Social:** {cliente["Razão Social"].values[0]}')
+                        st.markdown(f'**Setor Empresa:** {cliente["Setor Empresa"].values[0]}')
 
                 st.markdown("#### Eventos Realizados")
                 df_eventos_realizados_cliente = df_clientes_eventos.copy()
@@ -101,9 +105,6 @@ def main():
             data_fim = periodo[1]
             df_numero_clientes_periodo = df_clientes_eventos.copy()
             df_numero_clientes_periodo = df_numero_clientes_periodo[(df_numero_clientes_periodo['Data Evento'] >= data_inicio) & (df_numero_clientes_periodo['Data Evento'] <= data_fim)]
-            # num_eventos_periodo = len(df_numero_clientes_periodo)
-            # st.markdown(f'N° de eventos realizados no período:{num_eventos_periodo}')
-            # st.dataframe(df_numero_clientes_periodo, use_container_width=True, hide_index=True)
             df_numero_clientes_periodo['N° Eventos'] = df_numero_clientes_periodo.groupby('ID Cliente')['ID Evento'].transform('count')
             df_numero_clientes_periodo = df_numero_clientes_periodo.groupby('ID Cliente').agg({
                 'Cliente': 'first',
