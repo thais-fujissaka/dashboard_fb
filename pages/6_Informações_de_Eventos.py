@@ -44,7 +44,7 @@ def main():
 		'Valor Locação Mobiliário': float,
 		'Valor Locação Utensílios': float,
 		'Valor Mão de Obra Extra': float,
-		'Valor Taxa Adminitrativa': float,
+		'Valor Taxa Administrativa': float,
 		'Valor Comissão BV': float,
 		'Valor Extras Gerais': float,
 		'Valor Taxa Serviço': float,
@@ -124,7 +124,7 @@ def main():
 				)
 			}
 		)
-		
+
 		st.markdown("## Parcelas")
 		if df_parcelas is not None:
 			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Total Locação', 'Total_Gazit', 'Valor Locacao Total Aroos', 'Valor_Locacao_Anexo', 'Valor_Locacao_Notie', 'Valor_Locacao_Mirante'])

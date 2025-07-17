@@ -171,7 +171,7 @@ def infos_evento(id_evento, df_eventos):
             'Valor Locação Mobiliário',
             'Valor Locação Utensílios',
             'Valor Mão de Obra Extra',
-            'Valor Taxa Adminitrativa',
+            'Valor Taxa Administrativa',
             'Valor Comissão BV',
             'Valor Extras Gerais',
             'Valor Taxa Serviço',
