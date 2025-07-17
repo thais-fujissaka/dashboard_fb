@@ -166,7 +166,16 @@ def infos_evento(id_evento, df_eventos):
             'Valor_Locacao_Mirante',
             'Valor_Imposto',
             'Total_Gazit',
-            'Valor_Locacao_Total'
+            'Valor_Locacao_Total',
+            'Valor Locação Gerador',
+            'Valor Locação Mobiliário',
+            'Valor Locação Utensílios',
+            'Valor Mão de Obra Extra',
+            'Valor Taxa Adminitrativa',
+            'Valor Comissão BV',
+            'Valor Extras Gerais',
+            'Valor Taxa Serviço',
+            'Valor Acréscimo Forma de Pagamento'
         ])
         evento = rename_colunas_eventos(evento)
         st.dataframe(evento, use_container_width=True, hide_index=True)    
