@@ -128,10 +128,20 @@ def GET_EVENTOS_PRICELESS():
 			tep.VALOR_LOCACAO_ANEXO AS 'Valor_Locacao_Anexo',
 			tep.VALOR_LOCACAO_NOTIE AS 'Valor_Locacao_Notie',
 			tep.VALOR_LOCACAO_MIRANTE AS 'Valor_Locacao_Mirante',
+			tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
+			tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
+			tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
+			tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
+			tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Adminitrativa',
+			tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
+			tep.VALOR_EXTRAS_GERAIS AS 'Valor Extras Gerais',
+			tep.VALOR_TAXA_SERVICO AS 'Valor Taxa Serviço',
+			tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
 			tep.VALOR_IMPOSTO AS 'Valor_Imposto',
 			tsep.DESCRICAO AS 'Status_Evento',
+			tep.OBSERVACOES AS 'Observacoes',
 			temd.DESCRICAO AS 'Motivo_Declinio',
-			tep.OBSERVACOES AS 'Observacoes'
+			tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio'
 		FROM T_EVENTOS_PRICELESS tep
 			LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
 			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)

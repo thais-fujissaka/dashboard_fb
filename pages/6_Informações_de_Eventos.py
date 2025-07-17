@@ -39,7 +39,16 @@ def main():
 		'Valor_Imposto': float,
 		'Valor_AB': float,
 		'Valor_Total': float,
-		'Valor_Locacao_Total': float
+		'Valor_Locacao_Total': float,
+		'Valor Locação Gerador': float,
+		'Valor Locação Mobiliário': float,
+		'Valor Locação Utensílios': float,
+		'Valor Mão de Obra Extra': float,
+		'Valor Taxa Adminitrativa': float,
+		'Valor Comissão BV': float,
+		'Valor Extras Gerais': float,
+		'Valor Taxa Serviço': float,
+		'Valor Acréscimo Forma de Pagamento': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
 	df_eventos['Data_Contratacao'] = pd.to_datetime(df_eventos['Data_Contratacao'], errors='coerce')
@@ -97,12 +106,11 @@ def main():
 		df_parcelas = rename_colunas_parcelas(df_parcelas)
 		
 		# Formata valores monetários brasileiro
-		df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Gazit', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
-		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit'])
+		df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
+		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
 
-		df_eventos = df_eventos.drop(columns=['Evento'])
+		df_eventos = df_eventos.drop(columns=['Evento', 'Valor Locacao Total Aroos', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Total Gazit'])
 
-		# Eventos
 		st.markdown("## Eventos")
 		st.dataframe(df_eventos, 
 			use_container_width=True,
@@ -116,10 +124,13 @@ def main():
 				)
 			}
 		)
-		# Parcelas
-		st.markdown("## Parcelas")
-		st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
 		
+		st.markdown("## Parcelas")
+		if df_parcelas is not None:
+			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Total Locação', 'Total_Gazit', 'Valor Locacao Total Aroos', 'Valor_Locacao_Anexo', 'Valor_Locacao_Notie', 'Valor_Locacao_Mirante'])
+			st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+		else:
+			st.warning("Nenhuma parcela encontrada.")
 		
 
 	else:
