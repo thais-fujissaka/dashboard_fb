@@ -39,7 +39,16 @@ def main():
 		'Valor Locação Mirante': float,
 		'Valor Imposto': float,
 		'Valor AB': float,
-		'Valor Total Evento': float
+		'Valor Total Evento': float,
+		'Valor Locação Gerador': float,
+		'Valor Locação Mobiliário': float,
+		'Valor Locação Utensílios': float,
+		'Valor Mão de Obra Extra': float,
+		'Valor Taxa Administrativa': float,
+		'Valor Comissão BV': float,
+		'Valor Extras Gerais': float,
+		'Valor Taxa Serviço': float,
+		'Valor Acréscimo Forma de Pagamento': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
 	df_eventos['Data Contratação'] = pd.to_datetime(df_eventos['Data Contratação'], errors='coerce')
@@ -86,7 +95,7 @@ def main():
 			st.markdown("### Farol - Eventos Confirmados sem Parcelas Lançadas")
 			df_eventos_sem_parcelas = df_eventos_confirmados[df_eventos_confirmados['ID Evento'].isin(lista_ids_eventos_sem_parcelas)]
 			df_eventos_sem_parcelas = df_formata_datas_sem_horario(df_eventos_sem_parcelas, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
-			df_eventos_sem_parcelas = format_columns_brazilian(df_eventos_sem_parcelas, ['Valor Total Evento', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Imposto', 'Valor AB'])
+			df_eventos_sem_parcelas = format_columns_brazilian(df_eventos_sem_parcelas, ['Valor Total Evento', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Imposto', 'Valor AB', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento'])
 			if df_eventos_sem_parcelas.empty:
 				st.success("Nenhum evento sem parcelas lançadas.")
 			else:
