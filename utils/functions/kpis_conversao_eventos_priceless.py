@@ -185,13 +185,13 @@ def grafico_pizza_num_propostas(num_confirmadas, num_declinadas, num_em_negociac
         st_echarts(option, height="300px")
 		
 
-def grafico_barras_num_propostas(df_eventos_ano):
+def grafico_barras_num_propostas(df_eventos_ano, filtro_data):
 	
     # Normaliza a coluna 'Status do Evento'
     df_eventos_ano['Status do Evento'] = df_eventos_ano['Status do Evento'].str.replace('ç', 'c')
 	
-    # Extrai o mês da coluna 'Data Envio Proposta'
-    df_eventos_ano['Mes'] = df_eventos_ano['Data Envio Proposta'].dt.month
+    # Extrai o mês da coluna de data
+    df_eventos_ano['Mes'] = df_eventos_ano[filtro_data].dt.month
 	
     # Agrupa os dados por ano e mês, contando o número de eventos
     df_eventos_agrupado = df_eventos_ano.groupby(['Mes', 'Status do Evento']).size().reset_index(name='Número de Eventos')
@@ -288,3 +288,101 @@ def grafico_barras_num_propostas(df_eventos_ano):
     }
     with st.container(border=True):
 	    st_echarts(option, height="420px")
+         
+
+def grafico_linhas_motivo_declinio(df_eventos, filtro_data):
+
+    df_eventos['Mes'] = df_eventos[filtro_data].dt.month
+    df_eventos = df_eventos[df_eventos['Status do Evento'] == 'Declinado']
+    df_eventos = df_eventos.groupby(['Motivo do Declínio', 'Mes']).size().reset_index(name='Quantidade')
+    
+    # Dicionário de nomes dos meses
+    meses = {
+        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+    }
+
+    # DataFrame com todos os meses
+    df_meses = pd.DataFrame({'Mes': list(meses.keys()), 'Nome_Mes': list(meses.values())})
+
+    # Todas as categorias únicas
+    categorias = df_eventos['Motivo do Declínio'].unique().tolist()
+    df_categorias = pd.DataFrame({'Motivo do Declínio': categorias})
+
+    # Gera combinações mês x categoria
+    df_completo = pd.merge(
+        df_meses.assign(key=1), 
+        df_categorias.assign(key=1), 
+        on='key'
+    ).drop('key', axis=1)
+
+    # Merge com dados reais
+    df_completo = df_completo.merge(df_eventos, how='left', on=['Mes', 'Motivo do Declínio'])
+    df_completo['Quantidade'] = df_completo['Quantidade'].fillna(0)
+
+    # Lista de valores para cada categoria
+    valores_por_categoria = {}
+    for categoria in categorias:
+        df_filtrado = df_completo[df_completo['Motivo do Declínio'] == categoria].sort_values(by='Mes')
+        valores = df_filtrado['Quantidade'].tolist()
+        labels = [format_brazilian(v) for v in valores]
+        valores_por_categoria[categoria] = [
+            {
+                "value": v,
+                "label": {"show": False}
+            } for v, lbl in zip(valores, labels)
+        ]
+
+    # Monta a série do gráfico
+    series = []
+    for categoria, valores in valores_por_categoria.items():
+        series.append({
+            "name": categoria,
+            "type": "line",
+            "stack": "Total",
+            "label": {
+                "show": True,
+                "position": "top"
+            },
+            "areaStyle": {},
+            "emphasis": {
+                "focus": "series"
+            },
+            "data": valores
+        })
+
+    # Configuração do gráfico
+    option = {
+        "tooltip": {
+            "trigger": "axis",
+            "axisPointer": {
+                "type": "cross",
+                "label": {
+                    "backgroundColor": "#6a7985"
+                }
+            }
+        },
+        "legend": {
+            "data": list(valores_por_categoria.keys())
+        },
+        "toolbox": {
+            "feature": {
+                "saveAsImage": {}
+            }
+        },
+        "grid": {
+            "left": "3%",
+            "right": "4%",
+            "bottom": "3%",
+            "containLabel": True
+        },
+        "xAxis": [{
+            "type": "category",
+            "boundaryGap": False,
+            "data": list(meses.values())
+        }],
+        "yAxis": [{"type": "value"}],
+        "series": series
+    }
+    st_echarts(options=option, height="320px")
