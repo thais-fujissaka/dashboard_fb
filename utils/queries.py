@@ -210,7 +210,7 @@ def GET_EVENTOS_PRICELESS_KPIS():
 		tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
 		tsep.DESCRICAO AS 'Status_Evento',
 		tep.OBSERVACOES AS 'Observacoes',
-		temd.DESCRICAO AS 'Motivo_Declinio',
+		temd.DESCRICAO AS 'Motivo Declínio',
 		tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio',
 		tsep.DESCRICAO AS 'Status do Evento',
 		temd.DESCRICAO AS 'Motivo do Declínio',

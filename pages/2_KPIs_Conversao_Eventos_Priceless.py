@@ -60,8 +60,6 @@ def main():
             default="Competência do Evento",
         )
 
-    
-
     # Filtra por data
     if filtro_data_categoria:
         dict_filtro_data = {
@@ -77,6 +75,7 @@ def main():
         st.warning("Selecione um filtro de data.")
         st.stop()   
 
+    # Filtra por vendedor
     if id_vendedor != -1:
         df_eventos = df_eventos[df_eventos['ID Responsavel Comercial'] == id_vendedor]
         df_eventos_ano = df_eventos_ano[df_eventos_ano['ID Responsavel Comercial'] == id_vendedor]
@@ -101,39 +100,55 @@ def main():
         grafico_pizza_num_propostas(
             num_confirmadas, num_declinadas, num_em_negociacao
         )
-        grafico_barras_num_propostas(df_eventos_ano)
+        grafico_barras_num_propostas(df_eventos_ano, filtro_tipo_data)
 
-    st.divider()
-    col1, col2 = st.columns([1, 1], vertical_alignment = "bottom")
-    with col1:
-        st.markdown("### Eventos por status")
-    with col2:
-        options_eventos = ["Leads Recebidos", "Com Propostas Enviadas", "Confirmados", "Declinados", "Em Negociação"]
-        selection = st.segmented_control(
-            "Selecione o status do evento", options_eventos, selection_mode="single", key="segmented_control_kpi_conversao", label_visibility="collapsed"
-        )
 
-    # Formata datas
-    df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma Pagamento', 'Valor_Imposto'])
-    df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
-    df_eventos = df_eventos.drop(columns=['ID Responsavel Comercial'])
-    df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
-    if selection == "Leads Recebidos":
-        st.dataframe(df_eventos, use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Leads Recebidos: {len(df_eventos)}")
-    elif selection == "Com Propostas Enviadas":
-        st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Data Envio Proposta'].notnull()], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Propostas Enviadas: {len(df_eventos_com_proposta_enviada)}")
-    elif selection == "Confirmados":
-        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Eventos Confirmados: {len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])}")
-    elif selection == "Declinados":
-        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Eventos Declinados: {len(df_eventos[df_eventos['Status do Evento'] == 'Declinado'])}")
-    elif selection == "Em Negociação":
-        st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
-        st.markdown(f"Número de Eventos em Negociação: {len(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'])}")
-    
+    with st.container(border=True):
+        col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
+        with col2:
+            col1, col2 = st.columns([1, 2], vertical_alignment = "bottom")
+            with col1:
+                st.markdown("### Eventos por status")
+            with col2:
+                options_eventos = ["Leads Recebidos", "Com Propostas Enviadas", "Confirmados", "Declinados", "Em Negociação"]
+                selection = st.segmented_control(
+                    "Selecione o status do evento", options_eventos, selection_mode="single", key="segmented_control_kpi_conversao", label_visibility="collapsed"
+                )
+            st.write('')
+
+            # Formata valores monetários e datas
+            df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma Pagamento', 'Valor_Imposto'])
+            df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
+            df_eventos = df_eventos.drop(columns=['ID Responsavel Comercial'])
+            df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
+            if selection == "Leads Recebidos":
+                st.dataframe(df_eventos, use_container_width=True, hide_index=True)
+                st.markdown(f"Número de Leads Recebidos: {len(df_eventos)}")
+            elif selection == "Com Propostas Enviadas":
+                st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Data Envio Proposta'].notnull()], use_container_width=True, hide_index=True)
+                st.markdown(f"Número de Propostas Enviadas: {len(df_eventos_com_proposta_enviada)}")
+            elif selection == "Confirmados":
+                st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
+                st.markdown(f"Número de Eventos Confirmados: {len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])}")
+            elif selection == "Declinados":
+                st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
+                st.markdown(f"Número de Eventos Declinados: {len(df_eventos[df_eventos['Status do Evento'] == 'Declinado'])}")
+            elif selection == "Em Negociação":
+                st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
+                st.markdown(f"Número de Eventos em Negociação: {len(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'])}")
+            else:
+                st.warning("Selecione um status de evento")
+            st.write('')
+
+
+    with st.container(border=True):
+        col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
+        with col2:
+            st.markdown("### Motivo do Declínio")
+            st.write('')
+            grafico_linhas_motivo_declinio(df_eventos_ano, filtro_tipo_data)
+
+            st.write('')
 
 if __name__ == "__main__":
-        main()
+    main()
