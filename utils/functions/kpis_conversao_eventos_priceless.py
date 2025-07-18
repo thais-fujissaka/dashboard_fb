@@ -288,14 +288,18 @@ def grafico_barras_num_propostas(df_eventos_ano, filtro_data):
     }
     with st.container(border=True):
 	    st_echarts(option, height="420px")
-         
 
-def grafico_linhas_motivo_declinio(df_eventos, filtro_data):
 
+def grafico_barras_motivo_declinio(df_eventos, filtro_data):
+    # Adiciona coluna com número do mês
     df_eventos['Mes'] = df_eventos[filtro_data].dt.month
+    # Filtra eventos declinados
     df_eventos = df_eventos[df_eventos['Status do Evento'] == 'Declinado']
+    df_eventos_informacoes = df_eventos.copy()
+
+    # Agrupa por motivo e mês
     df_eventos = df_eventos.groupby(['Motivo do Declínio', 'Mes']).size().reset_index(name='Quantidade')
-    
+
     # Dicionário de nomes dos meses
     meses = {
         1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
@@ -317,38 +321,27 @@ def grafico_linhas_motivo_declinio(df_eventos, filtro_data):
         on='key'
     ).drop('key', axis=1)
 
-    # Merge com dados reais
+    # Merge com os dados reais
     df_completo = df_completo.merge(df_eventos, how='left', on=['Mes', 'Motivo do Declínio'])
     df_completo['Quantidade'] = df_completo['Quantidade'].fillna(0)
-
-    # Lista de valores para cada categoria
-    valores_por_categoria = {}
-    for categoria in categorias:
-        df_filtrado = df_completo[df_completo['Motivo do Declínio'] == categoria].sort_values(by='Mes')
-        valores = df_filtrado['Quantidade'].tolist()
-        labels = [format_brazilian(v) for v in valores]
-        valores_por_categoria[categoria] = [
-            {
-                "value": v,
-                "label": {"show": False}
-            } for v, lbl in zip(valores, labels)
-        ]
-
-    # Monta a série do gráfico
+    
+    # Ordena por mês
+    df_completo = df_completo.sort_values(by='Mes')
+    
+    # Organiza os dados por categoria (para cada motivo, a série de valores por mês)
     series = []
-    for categoria, valores in valores_por_categoria.items():
+    for categoria in categorias:
+        df_filtrado = df_completo[df_completo['Motivo do Declínio'] == categoria]
+        valores = []
+        for v in df_filtrado['Quantidade'].tolist():
+            if v == 0:
+                valores.append({"value": 0, "label": {"show": False}})
+            else:
+                valores.append({"value": v, "label": {"show": True, "position": "top"}})
+        
         series.append({
             "name": categoria,
-            "type": "line",
-            "stack": "Total",
-            "label": {
-                "show": True,
-                "position": "top"
-            },
-            "areaStyle": {},
-            "emphasis": {
-                "focus": "series"
-            },
+            "type": "bar",
             "data": valores
         })
 
@@ -356,15 +349,10 @@ def grafico_linhas_motivo_declinio(df_eventos, filtro_data):
     option = {
         "tooltip": {
             "trigger": "axis",
-            "axisPointer": {
-                "type": "cross",
-                "label": {
-                    "backgroundColor": "#6a7985"
-                }
-            }
+            "axisPointer": {"type": "shadow"}
         },
         "legend": {
-            "data": list(valores_por_categoria.keys())
+            "data": categorias
         },
         "toolbox": {
             "feature": {
@@ -379,10 +367,43 @@ def grafico_linhas_motivo_declinio(df_eventos, filtro_data):
         },
         "xAxis": [{
             "type": "category",
-            "boundaryGap": False,
             "data": list(meses.values())
         }],
-        "yAxis": [{"type": "value"}],
+        "yAxis": [{
+            "type": "value"
+        }],
         "series": series
     }
-    st_echarts(options=option, height="320px")
+    
+
+    # Evento de clique
+    events = {
+        "click": "function(params) { return params.name; }"
+    }
+
+    # Exibir gráfico com captura de clique
+    mes_selecionado = st_echarts(options=option, events=events, height="420px")
+
+    # Dicionário para mapear os meses
+    meses = {
+        "Janeiro": 1,
+        "Fevereiro": 2,
+        "Março": 3,
+        "Abril": 4,
+        "Maio": 5,
+        "Junho": 6,
+        "Julho": 7,
+        "Agosto": 8,
+        "Setembro": 9,
+        "Outubro": 10,
+        "Novembro": 11,
+        "Dezembro": 12
+    }
+    
+    # Obter o mês correspondente ao mês selecionado
+    if mes_selecionado != None:
+        mes_selecionado = meses[mes_selecionado]
+        df_observacoes_motivo_declinio = df_eventos_informacoes[df_eventos_informacoes['Mes'] == mes_selecionado]
+        st.dataframe(df_observacoes_motivo_declinio[['ID Evento', 'Casa', 'Comercial Responsável', 'Nome do Evento', 'Status do Evento', 'Motivo do Declínio', 'Observações Motivo Declínio', 'Observações']], use_container_width=True)
+    else:
+        st.warning('Selecione um mês no gráfico para exibir as observações do declínio.')

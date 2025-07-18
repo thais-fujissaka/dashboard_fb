@@ -146,8 +146,7 @@ def main():
         with col2:
             st.markdown("### Motivo do Declínio")
             st.write('')
-            grafico_linhas_motivo_declinio(df_eventos_ano, filtro_tipo_data)
-
+            grafico_barras_motivo_declinio(df_eventos_ano, filtro_tipo_data)
             st.write('')
 
 if __name__ == "__main__":
