@@ -164,6 +164,7 @@ def infos_evento(id_evento, df_eventos):
             'Valor_Locacao_Anexo',
             'Valor_Locacao_Notie',
             'Valor_Locacao_Mirante',
+            'Valor_AB',
             'Valor_Imposto',
             'Total_Gazit',
             'Valor_Locacao_Total',
