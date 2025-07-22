@@ -44,7 +44,7 @@ def config_sidebar():
         elif "Coordenador MKT Dash Eventos" in permissao:
             st.sidebar.title("Menu")
             st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
-        elif "Admin Priceless Dash Eventos":
+        elif "Admin Priceless Dash Eventos" in permissao:
             st.sidebar.title("Menu")
             st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
             st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
