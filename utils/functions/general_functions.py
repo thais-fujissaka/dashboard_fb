@@ -55,6 +55,7 @@ def config_sidebar():
         elif "Gazit" in permissao:
             st.sidebar.title("Menu")
             st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
+            st.sidebar.page_link("pages/10_Calendário_Gazit.py", label=":calendar: Calendário Gazit")
         else:
             st.sidebar.title("Menu")
     else:
