@@ -183,6 +183,7 @@ def GET_EVENTOS_PRICELESS_KPIS():
    	return dataframe_query(f'''
 	SELECT 
 		tep.ID AS 'ID Evento',
+		te.ID AS 'ID Casa',
 		te.NOME_FANTASIA AS 'Casa',
 		tee.NOME_COMPLETO AS 'Comercial Responsável',
 		tee.ID AS 'ID Responsavel Comercial',
