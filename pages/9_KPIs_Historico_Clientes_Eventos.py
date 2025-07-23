@@ -33,26 +33,33 @@ def main():
     with col3:
         if st.button('Logout', key='logout_historico_clientes_eventos'):
             logout()
-               
     st.divider()
+
+    # Filtro por Casa
+    lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='historico_clientes_eventos')
+    if id_casa != -1:
+        df_clientes_eventos = df_clientes_eventos[df_clientes_eventos['ID Casa'] == id_casa]
 
     tab1, tab2 = st.tabs(["**Histórico de Clientes**", "**Recorrência de Clientes**"])
 
     with tab1:
-        st.markdown("## Histórico de Clientes", help="Buscar informações de cadastro dos clientes e informações de todos os eventos que já foram feitos por aquele cliente em todas as unidades.")
-        st.divider()
+        col1, col2 = st.columns([2, 3], vertical_alignment="center")
+        with col1:
+            st.markdown("## Histórico de Clientes", help="Buscar informações de cadastro dos clientes e informações de todos os eventos que já foram feitos por aquele cliente em todas as unidades.")
 
         df_clientes = df_clientes_eventos.copy().drop_duplicates(subset=['ID Cliente'])
         df_clientes['ID - Cliente'] = df_clientes['ID Cliente'].astype(str) + ' - ' + df_clientes['Cliente']
         lista_clientes = df_clientes['ID - Cliente'].tolist()
         
-        clientes_selecionados = st.multiselect(
-            label="Buscar Cliente",
-            options=lista_clientes,
-            default=None,
-            key="casas_historico_clientes",
-            placeholder="Nome do Cliente",
-        )
+        with col2:
+            clientes_selecionados = st.multiselect(
+                label="Buscar Cliente",
+                options=lista_clientes,
+                default=None,
+                key="casas_historico_clientes",
+                placeholder="Nome do Cliente",
+            )
         st.divider()
 
         if clientes_selecionados:
@@ -92,13 +99,12 @@ def main():
             st.divider()
 
     with tab2:
-        col1, col2 = st.columns([1, 1], vertical_alignment='center')
+        col1, col2 = st.columns([2, 3], vertical_alignment='center')
         with col1:
             st.markdown("## Recorrência de Clientes")
         with col2:
             periodo = input_periodo_datas(key='data_inicio')
         st.divider()  
-        
         
         if periodo and len(periodo) == 2:
             data_inicio = periodo[0]
@@ -138,14 +144,14 @@ def main():
                 col1, col2, col3 = st.columns([0.1, 3, 0.1], gap="large", vertical_alignment="top")
                 with col2:
                     st.markdown("### Número de Eventos por Cliente")
-                    grafico_ranking_clientes_por_num_eventos(df_numero_clientes_periodo)
+                    grafico_ranking_clientes_por_num_eventos(df_numero_clientes_periodo, key=f'ranking_clientes_num_{casa}')
 
             with st.container(border=True):
                 col1, col2, col3 = st.columns([0.1, 3, 0.1], gap="large", vertical_alignment="top")
                 with col2:
                     st.markdown("### Valor de Eventos por Cliente")
                     df_numero_clientes_periodo = df_numero_clientes_periodo.sort_values(by='Valor Total Eventos', ascending=True).reset_index(drop=True)
-                    grafico_ranking_clientes_por_valor_eventos(df_numero_clientes_periodo)
+                    grafico_ranking_clientes_por_valor_eventos(df_numero_clientes_periodo, key=f'ranking_clientes_valor_{casa}')
 
         elif not periodo or len(periodo) != 2:
             st.warning("Por favor, selecione um período válido.")
