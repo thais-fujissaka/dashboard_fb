@@ -41,15 +41,22 @@ def main():
             logout()
                
     st.divider()
-    
+
+    # Filtro de casa:
+    lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
+
+    if casa != 'Todas as Casas':
+        df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]
+
     json_eventos = dataframe_to_json_calendar(df_eventos)
-    
+
     # Renderiza o calendário
     selected = st_calendar(
         events=json_eventos,
         options=get_calendar_options(),
         custom_css=get_custom_css(),
-        key="calendar",
+        key=f"calendar_{casa}",
     )
 
     # Adiciona a legenda de cores dos eventos
