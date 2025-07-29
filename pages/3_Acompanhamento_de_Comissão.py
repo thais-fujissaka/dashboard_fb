@@ -214,6 +214,7 @@ def main():
                         total_comissao = df_vendedor['Comissão'].sum()
                         lista_ids_eventos = df_vendedor['ID Evento'].unique().tolist()
                         df_vendedor = df_format_date_columns_brazilian(df_vendedor, ['Data Vencimento', 'Data Recebimento'])
+                        df_download_vendedor = df_vendedor.copy()
                         df_vendedor = df_vendedor.astype({
                             'ID Evento': str,
                             'Valor da Parcela': str,
@@ -246,7 +247,11 @@ def main():
                             altura_atual = altura_vendedor
                         else:
                             altura_atual += altura_vendedor
-                        st.markdown(f"#### {vendedor}")
+                        col1, col2 = st.columns([4, 1], vertical_alignment='center')
+                        with col1:
+                            st.markdown(f"#### {vendedor}")
+                        with col2:
+                            button_download(df_download_vendedor, f'comissao_{vendedor}', f'download_comissao_{vendedor}')
                         st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
                         with st.expander(f"Ver eventos correspondentes"):
                             
