@@ -88,6 +88,24 @@ def main():
         filtro_tipo_data = dict_filtro_data[filtro_data_categoria]
         st.divider()
         df_eventos_ano = df_filtrar_ano(df_eventos, filtro_tipo_data, ano)
+        # Formata tipos de dados do dataframe de eventos ano
+        tipos_de_dados_eventos_ano = {
+            'Valor Imposto': float,
+            'Valor AB': float,
+            'Valor Total': float,
+            'Valor Locação Total': float,
+            'Valor Locação Gerador': float,
+            'Valor Locação Mobiliário': float,
+            'Valor Locação Utensílios': float,
+            'Valor Mão de Obra Extra': float,
+            'Valor Taxa Administrativa': float,
+            'Valor Comissão BV': float,
+            'Valor Extras Gerais': float,
+            'Valor Taxa Serviço': float,
+            'Valor Acréscimo Forma de Pagamento': float
+        }
+        df_eventos_ano = df_eventos_ano.astype(tipos_de_dados_eventos_ano, errors='ignore')
+
         df_eventos = df_filtrar_mes(df_eventos_ano, filtro_tipo_data, mes)
     else:
         st.warning("Selecione um filtro de data.")
