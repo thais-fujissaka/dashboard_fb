@@ -172,6 +172,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
 
             df_parcelas_recebimento = df_formata_datas_sem_horario(df_parcelas_recebimento, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas_recebimento = rename_colunas_parcelas(df_parcelas_recebimento)
+            df_parcelas_recebimento_download = df_parcelas_recebimento.copy()
             total_recebido = format_brazilian(df_parcelas_recebimento['Valor Parcela'].sum())
             df_parcelas_recebimento = format_columns_brazilian(df_parcelas_recebimento, ['Valor Parcela'])
 
@@ -180,6 +181,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
             
             df_parcelas_vencimento = df_formata_datas_sem_horario(df_parcelas_vencimento, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas_vencimento = rename_colunas_parcelas(df_parcelas_vencimento)
+            df_parcelas_vencimento_download = df_parcelas_vencimento.copy()
             total_vencido = format_brazilian(df_parcelas_vencimento['Valor Parcela'].sum())
             df_parcelas_vencimento = format_columns_brazilian(df_parcelas_vencimento, ['Valor Parcela'])
 
@@ -205,7 +207,11 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
         df_parcelas_vencimento['ID Evento'] = df_parcelas_vencimento['ID Evento'].astype(int)
         df_parcelas_vencimento['ID Casa'] = df_parcelas_vencimento['ID Casa'].astype(int)
 
-        st.markdown(f"### Parcelas Recebidas em {nome_mes}")
+        col1, col2 = st.columns([4, 1], vertical_alignment='center')
+        with col1:
+            st.markdown(f"### Parcelas Recebidas em {nome_mes}")
+        with col2:
+            button_download(df_parcelas_recebimento_download, f'parcelas_recebidas_{nome_mes}', f'parcelas_recebidas{nome_mes}')
         # Adiciona linha de total
         linha_total_recebimento = pd.DataFrame({
             'ID Parcela': ['TOTAL'],
@@ -246,7 +252,11 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
 
         st.write("")
 
-        st.markdown(f"### Parcelas com Vencimento em {nome_mes}")
+        col1, col2 = st.columns([4, 1], vertical_alignment='center')
+        with col1:
+            st.markdown(f"### Parcelas com Vencimento em {nome_mes}")
+        with col2:
+            button_download(df_parcelas_vencimento_download, f'parcelas_vencidas_{nome_mes}', f'parcelas_vencidas{nome_mes}')
         linha_total_vencimento = pd.DataFrame({
             'ID Parcela': ['TOTAL'],
             'ID Evento': [''],

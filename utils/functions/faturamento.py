@@ -218,6 +218,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
                 df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
             df_parcelas.drop(columns=['Mes'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
+            df_parcelas_download = df_parcelas.copy()
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             if df_parcelas is not None and not df_parcelas.empty:
                 total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
@@ -225,7 +226,11 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
         st.markdown("#### Parcelas")
         st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
         if df_parcelas is not None and not df_parcelas.empty:
-            st.markdown(f"**Valor Total das Parcelas: R$ {total_parcelas_mes}**")
+            col1, col2 = st.columns([4, 1], vertical_alignment="center")
+            with col1:
+                st.markdown(f"**Valor Total das Parcelas: R$ {total_parcelas_mes}**")
+            with col2:
+                button_download(df_parcelas_download, f"Parcelas_{mes_selecionado}", key=f'download_parcelas_{mes_selecionado}')
     else:
         st.markdown("### Parcelas")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
@@ -377,9 +382,18 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
             df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
+            df_parcelas_download = df_parcelas.copy()
+            if df_parcelas is not None and not df_parcelas.empty:
+                total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê', 'Valor Parcela Mirante'])
         st.markdown("#### Parcelas")
         st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+        if df_parcelas is not None and not df_parcelas.empty:
+            col1, col2 = st.columns([4, 1], vertical_alignment="center")
+            with col1:
+                st.markdown(f"**Valor Total das Parcelas: R$ {total_parcelas_mes}**")
+            with col2:
+                button_download(df_parcelas_download, f"Parcelas_{mes_selecionado}", key=f"download_parcelas_{mes_selecionado}")
     else:
         st.markdown("### Parcelas")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")
@@ -519,9 +533,18 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
                 df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
             df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
+            df_parcelas_download = df_parcelas.copy()
+            if df_parcelas is not None and not df_parcelas.empty:
+                total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela'])
         st.markdown("#### Parcelas")
         st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+        if df_parcelas is not None and not df_parcelas.empty:
+            col1, col2 = st.columns([4, 1], vertical_alignment="center")
+            with col1:
+                st.markdown(f"**Valor Total das Parcelas: R$ {total_parcelas_mes}**")
+            with col2:
+                button_download(df_parcelas_download, f"Parcelas_{mes_selecionado}", key=f"button_download_parcelas_{mes_selecionado}")
     else:
         st.markdown("### Parcelas")
         st.markdown("Selecione um mês para visualizar as parcelas correspondentes ao faturamento do mês.")

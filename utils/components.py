@@ -87,17 +87,20 @@ def seletor_ano(ano_inicio, ano_fim, key):
    return ano
 
 
-def button_download(df):
+def button_download(df, file_name, key):
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False, sheet_name="Planilha")
+        df.to_excel(writer, index=False, sheet_name=f"{file_name}")
     excel_data = output.getvalue()
 
     st.download_button(
-        label="📥 Download Excel",
+        label=":material/download: Download Excel",
         data=excel_data,
-        file_name="data.xlsx",
+        file_name=f"{file_name}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        use_container_width=True,
+        type="tertiary",
+        key=f'{key}'
     )
 
 

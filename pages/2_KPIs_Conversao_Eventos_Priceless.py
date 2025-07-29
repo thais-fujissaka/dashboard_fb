@@ -128,23 +128,36 @@ def main():
             df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
             df_eventos = df_eventos.drop(columns=['ID Responsavel Comercial'])
             df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
+            # Filtragem com base na seleção
             if selection == "Leads Recebidos":
-                st.dataframe(df_eventos, use_container_width=True, hide_index=True)
-                st.markdown(f"Número de Leads Recebidos: {len(df_eventos)}")
+                df_filtrado = df_eventos
+                mensagem = f"Número de Leads Recebidos: {len(df_filtrado)}"
             elif selection == "Com Propostas Enviadas":
-                st.dataframe(df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Data Envio Proposta'].notnull()], use_container_width=True, hide_index=True)
-                st.markdown(f"Número de Propostas Enviadas: {len(df_eventos_com_proposta_enviada)}")
+                df_filtrado = df_eventos_com_proposta_enviada[df_eventos_com_proposta_enviada['Data Envio Proposta'].notnull()]
+                mensagem = f"Número de Propostas Enviadas: {len(df_filtrado)}"
             elif selection == "Confirmados":
-                st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'], use_container_width=True, hide_index=True)
-                st.markdown(f"Número de Eventos Confirmados: {len(df_eventos[df_eventos['Status do Evento'] == 'Confirmado'])}")
+                df_filtrado = df_eventos[df_eventos['Status do Evento'] == 'Confirmado']
+                mensagem = f"Número de Eventos Confirmados: {len(df_filtrado)}"
             elif selection == "Declinados":
-                st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Declinado'], use_container_width=True, hide_index=True)
-                st.markdown(f"Número de Eventos Declinados: {len(df_eventos[df_eventos['Status do Evento'] == 'Declinado'])}")
+                df_filtrado = df_eventos[df_eventos['Status do Evento'] == 'Declinado']
+                mensagem = f"Número de Eventos Declinados: {len(df_filtrado)}"
             elif selection == "Em Negociação":
-                st.dataframe(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'], use_container_width=True, hide_index=True)
-                st.markdown(f"Número de Eventos em Negociação: {len(df_eventos[df_eventos['Status do Evento'] == 'Em negociação'])}")
+                df_filtrado = df_eventos[df_eventos['Status do Evento'] == 'Em negociação']
+                mensagem = f"Número de Eventos em Negociação: {len(df_filtrado)}"
             else:
+                df_filtrado = None
+                mensagem = None
                 st.warning("Selecione um status de evento")
+
+            # Exibição
+            if df_filtrado is not None:
+                st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
+                col1, col2 = st.columns([4, 1], vertical_alignment = "center")
+                with col1:
+                    st.markdown(mensagem)
+                with col2:
+                    button_download(df_filtrado, f'eventos{selection}', 'download_eventos')
+                
             st.write('')
 
 
