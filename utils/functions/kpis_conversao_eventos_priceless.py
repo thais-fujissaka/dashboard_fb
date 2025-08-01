@@ -314,6 +314,9 @@ def grafico_barras_motivo_declinio(df_eventos, filtro_data):
     categorias = df_eventos['Motivo do Declínio'].unique().tolist()
     df_categorias = pd.DataFrame({'Motivo do Declínio': categorias})
 
+    if df_categorias.empty:
+        st.success("Nenhum declínio encontrado para o gráfico.")
+        return
     # Gera combinações mês x categoria
     df_completo = pd.merge(
         df_meses.assign(key=1), 

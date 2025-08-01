@@ -5,10 +5,20 @@ from utils.functions.date_functions import *
 from utils.queries import *
 
 def input_selecao_casas(lista_casas_retirar, key):
-    
+    # Dataframe com IDs e nomes das casas
     df_casas = get_casas_validas()
+    # Remove casas da lista_casas_retirar
     df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
+    # Adiciona a opção "Todas as Casas"
     lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
+
+    # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
+    user_email = st.session_state['user_email']
+    lista_ids_casas_acesso = st.secrets["user_access"][user_email]
+    if -1 not in lista_ids_casas_acesso:
+        df_casas = df_casas[df_casas["ID_Casa"].isin(lista_ids_casas_acesso)].sort_values(by="Casa").reset_index(drop=True)
+        lista_casas_validas = df_casas["Casa"].to_list()
+
     df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
     casa = st.selectbox("Casa", lista_casas_validas, key=key)
 

@@ -3,7 +3,7 @@ from streamlit_echarts import st_echarts
 from utils.functions.general_functions import *
 
 
-def grafico_ranking_clientes_por_num_eventos(df):
+def grafico_ranking_clientes_por_num_eventos(df, key):
     clientes_data = df['Cliente'].to_list()
     num_eventos_data = df['N° Eventos'].to_list()
     option = {
@@ -26,9 +26,9 @@ def grafico_ranking_clientes_por_num_eventos(df):
         }]
     }
 
-    st_echarts(options=option, height="500px")
+    st_echarts(options=option, height="500px", key=f'{key}')
 
-def grafico_ranking_clientes_por_valor_eventos(df):
+def grafico_ranking_clientes_por_valor_eventos(df, key):
     # Cria series de dados para o gráfico
     clientes = df['Cliente'].to_list()
     valores = df['Valor Total Eventos'].astype(float).to_list()
@@ -59,4 +59,4 @@ def grafico_ranking_clientes_por_valor_eventos(df):
         }]
     }
 
-    st_echarts(options=option, height="500px")
+    st_echarts(options=option, height="500px", key=key)

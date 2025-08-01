@@ -88,9 +88,10 @@ def GET_USERNAME(email):
 @st.cache_data
 def get_casas_validas():
     result, column_names = execute_query("""
-		SELECT te.ID AS ID_Casa,
-		te.NOME_FANTASIA AS Casa,
-		te.ID_ZIGPAY AS ID_Zigpay
+		SELECT
+			te.ID AS ID_Casa,
+			te.NOME_FANTASIA AS Casa,
+			te.ID_ZIGPAY AS ID_Zigpay
 		FROM T_EMPRESAS te
 		"""
 	)
@@ -128,9 +129,13 @@ def GET_EVENTOS_PRICELESS():
 			tep.VALOR_LOCACAO_ANEXO AS 'Valor_Locacao_Anexo',
 			tep.VALOR_LOCACAO_NOTIE AS 'Valor_Locacao_Notie',
 			tep.VALOR_LOCACAO_MIRANTE AS 'Valor_Locacao_Mirante',
+			tep.VALOR_LOCACAO_ESPACO as 'Valor Locação Espaço',
 			tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
 			tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
 			tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
+			tep.VALOR_CONTRATACAO_ARTISTICO AS 'Valor Contratação Artístico',
+			tep.VALOR_CONTRATACAO_COUVERT_ARTISTICO AS 'Valor Couvert Artístico',
+			tep.VALOR_CONTRATACAO_TECNICO_SOM AS 'Valor Contratação Técnico de Som',
 			tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
 			tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Administrativa',
 			tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
@@ -183,6 +188,7 @@ def GET_EVENTOS_PRICELESS_KPIS():
    	return dataframe_query(f'''
 	SELECT 
 		tep.ID AS 'ID Evento',
+		te.ID AS 'ID Casa',
 		te.NOME_FANTASIA AS 'Casa',
 		tee.NOME_COMPLETO AS 'Comercial Responsável',
 		tee.ID AS 'ID Responsavel Comercial',

@@ -69,10 +69,6 @@ def main():
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
 
-	# Lista de eventos para o filtro
-	eventos_unicos = df_eventos['ID_Nome_Evento'].unique().tolist()
-	eventos_id_options = ['Todos os Eventos'] + sorted(eventos_unicos)
-
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
 		st.title("🔎 Informações de Eventos")
@@ -84,7 +80,22 @@ def main():
 	st.divider()
 
 	# Seletores de eventos
-	eventos = st.multiselect("Eventos", options=eventos_id_options, key='eventos_repasses_gazit', placeholder='Procurar eventos')
+	col1, col2 = st.columns([1, 3])
+	with col1:
+		lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='informacoes_eventos')
+	# Filtro por Casa
+	if id_casa != -1:
+		df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]
+		df_parcelas = df_parcelas[df_parcelas['ID Casa'] == id_casa]
+	
+	# Lista de eventos para o filtro
+	eventos_unicos = df_eventos['ID_Nome_Evento'].unique().tolist()
+	eventos_id_options = ['Todos os Eventos'] + sorted(eventos_unicos)
+	
+	with col2:
+		eventos = st.multiselect("Eventos", options=eventos_id_options, key='eventos_repasses_gazit', placeholder='Procurar eventos')
+	st.divider()	
 
 	# Janela de visualização
 	if eventos:

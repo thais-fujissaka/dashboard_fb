@@ -59,7 +59,10 @@ def main():
     st.divider()
 
     # Adiciona selecao de mes e ano
-    col1, col2, col3, col4= st.columns([0.5,0.5,0.5,1])
+    col0, col1, col2, col3, col4= st.columns([0.5, 0.25, 0.25, 0.4, 1])
+    with col0:
+        lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+        id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
     with col1:
         ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_conversao_eventos_priceless")
     with col2:
@@ -77,6 +80,10 @@ def main():
             selection_mode="single",
             default="Competência do Evento",
         )
+
+    # Filtra por casa
+    if id_casa != -1:
+        df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]
 
     # Filtra por data
     if filtro_data_categoria:
