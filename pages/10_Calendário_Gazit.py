@@ -33,7 +33,7 @@ def main():
     df_eventos = df_eventos[df_eventos['ID Casa'] == 149]
 
     # Filtra eventos com valores de repasse para Gazit (Locação Aroos e Anexo)
-    df_eventos = df_eventos[(df_eventos['Valor_Locacao_Aroo_1'] > 0) | (df_eventos['Valor_Locacao_Aroo_2'] > 0) | (df_eventos['Valor_Locacao_Aroo_3'] > 0) | (df_eventos['Valor_Locacao_Anexo'] > 0)]
+    #df_eventos = df_eventos[(df_eventos['Valor_Locacao_Aroo_1'] > 0) | (df_eventos['Valor_Locacao_Aroo_2'] > 0) | (df_eventos['Valor_Locacao_Aroo_3'] > 0) | (df_eventos['Valor_Locacao_Anexo'] > 0)]
 
     # Força espaçamento e quebra no DOM
     st.markdown("<div style='margin-top: 30px'></div>", unsafe_allow_html=True)

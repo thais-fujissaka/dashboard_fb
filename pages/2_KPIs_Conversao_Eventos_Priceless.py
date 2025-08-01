@@ -25,6 +25,24 @@ def main():
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS_PRICELESS_KPIS()
 
+    # Formata tipos de dados do dataframe de eventos
+    tipos_de_dados_eventos = {
+        'Valor Imposto': float,
+        'Valor AB': float,
+        'Valor Total': float,
+        'Valor Locação Total': float,
+        'Valor Locação Gerador': float,
+        'Valor Locação Mobiliário': float,
+        'Valor Locação Utensílios': float,
+        'Valor Mão de Obra Extra': float,
+        'Valor Taxa Administrativa': float,
+        'Valor Comissão BV': float,
+        'Valor Extras Gerais': float,
+        'Valor Taxa Serviço': float,
+        'Valor Acréscimo Forma de Pagamento': float
+    }
+    df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
+
     # Vendedores
     df_vendedores = df_eventos[['ID Responsavel Comercial', 'Comercial Responsável']].drop_duplicates().dropna()
     df_vendedores["ID Responsavel Comercial"] = df_vendedores["ID Responsavel Comercial"].astype(int)
@@ -77,6 +95,24 @@ def main():
         filtro_tipo_data = dict_filtro_data[filtro_data_categoria]
         st.divider()
         df_eventos_ano = df_filtrar_ano(df_eventos, filtro_tipo_data, ano)
+        # Formata tipos de dados do dataframe de eventos ano
+        tipos_de_dados_eventos_ano = {
+            'Valor Imposto': float,
+            'Valor AB': float,
+            'Valor Total': float,
+            'Valor Locação Total': float,
+            'Valor Locação Gerador': float,
+            'Valor Locação Mobiliário': float,
+            'Valor Locação Utensílios': float,
+            'Valor Mão de Obra Extra': float,
+            'Valor Taxa Administrativa': float,
+            'Valor Comissão BV': float,
+            'Valor Extras Gerais': float,
+            'Valor Taxa Serviço': float,
+            'Valor Acréscimo Forma de Pagamento': float
+        }
+        df_eventos_ano = df_eventos_ano.astype(tipos_de_dados_eventos_ano, errors='ignore')
+
         df_eventos = df_filtrar_mes(df_eventos_ano, filtro_tipo_data, mes)
     else:
         st.warning("Selecione um filtro de data.")
@@ -124,7 +160,6 @@ def main():
             st.write('')
 
             # Formata valores monetários e datas
-            df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor_Imposto'])
             df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
             df_eventos = df_eventos.drop(columns=['ID Responsavel Comercial'])
             df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
@@ -151,12 +186,14 @@ def main():
 
             # Exibição
             if df_filtrado is not None:
+                df_filtrado_download = df_filtrado.copy()
+                df_filtrado = format_columns_brazilian(df_eventos, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor_Imposto'])
                 st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
                 col1, col2 = st.columns([4, 1], vertical_alignment = "center")
                 with col1:
                     st.markdown(mensagem)
                 with col2:
-                    button_download(df_filtrado, f'eventos{selection}', 'download_eventos')
+                    button_download(df_filtrado_download, f'eventos_{selection}', f'download_eventos_{selection}')
                 
             st.write('')
 
