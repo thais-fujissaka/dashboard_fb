@@ -32,7 +32,7 @@ def main():
         st.write("")
 
         with st.container(border=True):
-            userName = st.text_input(
+            user_email = st.text_input(
                 label="Login", value="", placeholder="nome@email.com"
             )
             password = st.text_input(
@@ -43,12 +43,12 @@ def main():
                 st.button(
                     "Login",
                     on_click=handle_login,
-                    args=(userName, password),
+                    args=(user_email, password),
                     type="primary",
                     use_container_width=True,
                 )
     else:
-        permissao, Nomeuser, username = config_permissoes_user()
+        permissao, Nomeuser, email = config_permissoes_user()
         st.write("Você está logado!")
         st.markdown("Redirecionando...")
         if "Admin Dash Eventos" in permissao:
