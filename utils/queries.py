@@ -88,9 +88,10 @@ def GET_USERNAME(email):
 @st.cache_data
 def get_casas_validas():
     result, column_names = execute_query("""
-		SELECT te.ID AS ID_Casa,
-		te.NOME_FANTASIA AS Casa,
-		te.ID_ZIGPAY AS ID_Zigpay
+		SELECT
+			te.ID AS ID_Casa,
+			te.NOME_FANTASIA AS Casa,
+			te.ID_ZIGPAY AS ID_Zigpay
 		FROM T_EMPRESAS te
 		"""
 	)

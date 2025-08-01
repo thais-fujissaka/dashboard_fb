@@ -5,9 +5,9 @@ def login(userName: str, userPassword: str) -> bool:
     if (userName is None or userPassword is None):
         return False
     
-    users = list(st.secrets["gazit_users"].keys())
+    gazit_users = list(st.secrets["gazit_users"].keys())
     # Login via API (usuário não Gazit)
-    if userName not in users:
+    if userName not in gazit_users:
       login_data = {
         "username": userName,
         "password": userPassword,
