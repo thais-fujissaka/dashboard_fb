@@ -3,9 +3,9 @@ from streamlit_echarts import st_echarts
 from utils.functions.general_functions import *
 
 def grafico_barras_repasse_mensal_vencimento(df_parcelas):
-    # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Vencimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Vencimento'].dt.year
+    # Extrai mês e ano da coluna 'Data Vencimento'
+    df_parcelas['Mes'] = df_parcelas['Data Vencimento'].dt.month
+    df_parcelas['Ano'] = df_parcelas['Data Vencimento'].dt.year
 
     # Agrupa os valores por mês e ano
     df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano']).agg({
@@ -101,9 +101,9 @@ def grafico_barras_repasse_mensal_vencimento(df_parcelas):
 
 def grafico_barras_repasse_mensal_recebimento(df_parcelas):
 
-    # Extrai mês e ano da coluna 'Data_Vencimento'
-    df_parcelas['Mes'] = df_parcelas['Data_Recebimento'].dt.month
-    df_parcelas['Ano'] = df_parcelas['Data_Recebimento'].dt.year
+    # Extrai mês e ano da coluna 'Data Vencimento'
+    df_parcelas['Mes'] = df_parcelas['Data Recebimento'].dt.month
+    df_parcelas['Ano'] = df_parcelas['Data Recebimento'].dt.year
 
     # Agrupa os valores por mês e ano
     df_parcelas_agrupado = df_parcelas.groupby(['Mes', 'Ano']).agg({

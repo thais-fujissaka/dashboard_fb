@@ -8,28 +8,28 @@ from utils.functions.parcelas import *
 def get_parcelas_por_tipo_data(df_parcelas, df_eventos, filtro_data, ano):
     if filtro_data == 'Competência':
         df = df_parcelas.merge(
-            df_eventos[['Data_Evento', 'ID_Evento']],
+            df_eventos[['Data Evento', 'ID Evento']],
             how='left',
-            on='ID_Evento'
+            on='ID Evento'
         )
-        df = df_filtrar_ano(df, 'Data_Evento', ano)
+        df = df_filtrar_ano(df, 'Data Evento', ano)
         return df
     elif filtro_data == 'Recebimento (Caixa)':
-        df = df_filtrar_ano(df_parcelas, 'Data_Recebimento', ano)
+        df = df_filtrar_ano(df_parcelas, 'Data Recebimento', ano)
         return df
     elif filtro_data == 'Vencimento':
-        df = df_filtrar_ano(df_parcelas, 'Data_Vencimento', ano)
+        df = df_filtrar_ano(df_parcelas, 'Data Vencimento', ano)
         return df
 
 
 def montar_tabs_geral(df_parcelas, casa, id_casa, tipo_data, df_orcamentos):
 
     if tipo_data == 'Competência':
-        tipo_data = 'Data_Evento'
+        tipo_data = 'Data Evento'
     elif tipo_data == 'Recebimento (Caixa)':
-        tipo_data = 'Data_Recebimento'
+        tipo_data = 'Data Recebimento'
     elif tipo_data == 'Vencimento':
-        tipo_data = 'Data_Vencimento'
+        tipo_data = 'Data Vencimento'
     else: return
 
     tab_names = ['**Total de Eventos**', '**Alimentos e Bebidas**', '**Couvert**', '**Locação**', '**Serviço**']
@@ -54,11 +54,11 @@ def montar_tabs_geral(df_parcelas, casa, id_casa, tipo_data, df_orcamentos):
 def montar_tabs_priceless(df_parcelas_casa, id_casa, df_eventos, tipo_data, df_orcamentos):
 
     if tipo_data == 'Competência':
-        tipo_data = 'Data_Evento'
+        tipo_data = 'Data Evento'
     elif tipo_data == 'Recebimento (Caixa)':
-        tipo_data = 'Data_Recebimento'
+        tipo_data = 'Data Recebimento'
     elif tipo_data == 'Vencimento':
-        tipo_data = 'Data_Vencimento'
+        tipo_data = 'Data Vencimento'
     
     df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas_casa, df_eventos)
     tab_names = ['**Total de Eventos - Priceless**', '**Locação Aroo**', '**Locação Anexo**', '**Locação Notiê**', '**Locação Mirante**', '**Alimentos e Bebidas**']
@@ -96,11 +96,11 @@ def valores_labels_formatados(lista_valores):
 
 # Total de Eventos
 def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa):
-    # Extrai mês e ano da coluna 'Data_Vencimento'
+    # Extrai mês e ano da coluna 'Data Vencimento'
     df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
 
     # Agrupa os valores por mês
-    df_parcelas_agrupado = df_parcelas.groupby('Mes')['Valor_Parcela'].sum().reset_index()
+    df_parcelas_agrupado = df_parcelas.groupby('Mes')['Valor Parcela'].sum().reset_index()
     
     # Cria lista de meses
     nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
@@ -109,7 +109,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
     df_parcelas_agrupado.fillna(0, inplace=True)
 
     # Cria lista de valores
-    total_eventos = df_parcelas_agrupado['Valor_Parcela'].tolist()
+    total_eventos = df_parcelas_agrupado['Valor Parcela'].tolist()
     if id_casa == -1:
         valores_orcamentos = df_orcamentos.copy().groupby(['Mês'])['Valor'].sum().reset_index()
     else:
@@ -208,16 +208,16 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
-            if 'Total_Gazit' in df_parcelas.columns:
-                df_parcelas.drop(columns=['Total_Gazit'], inplace=True)
+            if 'Total Gazit' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Total Gazit'], inplace=True)
             if 'Repasse_Gazit_Bruto' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Repasse_Gazit_Bruto'], inplace=True)
             if 'Repasse_Gazit_Liquido' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
-            if 'Valor_Locacao_Total' in df_parcelas.columns:
-                df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
+            if 'Valor Total Locação' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Valor Total Locação'], inplace=True)
             df_parcelas.drop(columns=['Mes'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data Vencimento', 'Data Recebimento', 'Data Evento'])
             df_parcelas_download = df_parcelas.copy()
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             if df_parcelas is not None and not df_parcelas.empty:
@@ -241,19 +241,19 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
 def df_fracao_locacao_espacos(df_eventos):
     # Adiciona coluna de cálculo de fração de cada espaço em relação ao valor total de locação
     # Aroo
-    df_eventos['Fracao_Aroo'] = (df_eventos['Valor_Locacao_Aroo_1'] + df_eventos['Valor_Locacao_Aroo_2'] + df_eventos['Valor_Locacao_Aroo_3']) / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Aroo'] = (df_eventos['Valor Locação Aroo 1'] + df_eventos['Valor Locação Aroo 2'] + df_eventos['Valor Locação Aroo 3']) / df_eventos['Valor Total Locação']
     df_eventos['Fracao_Aroo'] = df_eventos['Fracao_Aroo'].fillna(0)
 
     # Anexo
-    df_eventos['Fracao_Anexo'] = df_eventos['Valor_Locacao_Anexo'] / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Anexo'] = df_eventos['Valor Locação Anexo'] / df_eventos['Valor Total Locação']
     df_eventos['Fracao_Anexo'] = df_eventos['Fracao_Anexo'].fillna(0)
 
     # Notie
-    df_eventos['Fracao_Notie'] = df_eventos['Valor_Locacao_Notie'] / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Notie'] = df_eventos['Valor Locação Notie'] / df_eventos['Valor Total Locação']
     df_eventos['Fracao_Notie'] = df_eventos['Fracao_Notie'].fillna(0)
 
     # Mirante
-    df_eventos['Fracao_Mirante'] = df_eventos['Valor_Locacao_Mirante'] / df_eventos['Valor_Locacao_Total']
+    df_eventos['Fracao_Mirante'] = df_eventos['Valor Locação Mirante'] / df_eventos['Valor Total Locação']
     df_eventos['Fracao_Mirante'] = df_eventos['Fracao_Mirante'].fillna(0)
 
     return df_eventos
@@ -265,12 +265,12 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
     df_parcelas = df_parcelas.copy()
 
     # Normaliza
-    df_parcelas['Categoria_Parcela'] = df_parcelas['Categoria_Parcela'].str.replace('ç', 'c')
+    df_parcelas['Categoria Parcela'] = df_parcelas['Categoria Parcela'].str.replace('ç', 'c')
 
     # Filtra pela categoria 'Locação'
     df_parcelas = (
     df_parcelas
-    .loc[df_parcelas['Categoria_Parcela'] == 'Locacão']
+    .loc[df_parcelas['Categoria Parcela'] == 'Locacão']
     .copy()
     )
 
@@ -283,7 +283,7 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
     }
 
 
-    # Extrai mês e ano da coluna 'Data_Vencimento'
+    # Extrai mês e ano da coluna 'Data Vencimento'
     df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
     df_parcelas['Ano'] = df_parcelas[tipo_data].dt.year
 
@@ -379,8 +379,8 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
         col1, col2, col3 = st.columns([1, 12, 1])
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
-            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor_Locacao_Total', 'Total_Gazit', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
+            df_parcelas.drop(columns=['Mes', 'Ano', 'Valor Total Locação', 'Total Gazit', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido'], inplace=True)
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data Vencimento', 'Data Recebimento', 'Data Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
             df_parcelas_download = df_parcelas.copy()
             if df_parcelas is not None and not df_parcelas.empty:
@@ -402,18 +402,18 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
 def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categoria_evento, df_orcamentos, id_casa):
     
     df_parcelas = df_parcelas.copy()
-    # Extrai mês e ano da coluna 'Data_Vencimento'
+    # Extrai mês e ano da coluna 'Data Vencimento'
     df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
 
     # Filtra pela categoria
     df_parcelas = (
     df_parcelas
-    .loc[df_parcelas['Categoria_Parcela'] == categoria_evento]
+    .loc[df_parcelas['Categoria Parcela'] == categoria_evento]
     .copy()
     )
 
     # Agrupa os valores por mês e ano
-    df_parcelas_agrupado = df_parcelas.groupby(['Mes'])['Valor_Parcela'].sum().reset_index()
+    df_parcelas_agrupado = df_parcelas.groupby(['Mes'])['Valor Parcela'].sum().reset_index()
 
     # Cria lista de meses
     nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
@@ -422,7 +422,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
     df_parcelas_agrupado.fillna(0, inplace=True)
     
     # Cria lista de valores
-    total_categoria = df_parcelas_agrupado['Valor_Parcela'].tolist()
+    total_categoria = df_parcelas_agrupado['Valor Parcela'].tolist()
     if id_casa == -1:
         df_valores_orcamentos = df_orcamentos[df_orcamentos['Categoria Orcamento'] == categoria_evento].copy().groupby(['Mês', 'Categoria Orcamento'])['Valor'].sum().reset_index()
     else:
@@ -523,17 +523,17 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
         with col2:
             df_parcelas = df_filtrar_mes(df_parcelas, tipo_data, mes_selecionado)
             df_parcelas.drop(columns=['Mes'], inplace=True)
-            if 'Total_Gazit' in df_parcelas.columns:
-                df_parcelas.drop(columns=['Total_Gazit'], inplace=True)
+            if 'Total Gazit' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Total Gazit'], inplace=True)
             if 'Repasse_Gazit_Bruto' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Repasse_Gazit_Bruto'], inplace=True)
             if 'Repasse_Gazit_Liquido' in df_parcelas.columns:
                 df_parcelas.drop(columns=['Repasse_Gazit_Liquido'], inplace=True)
-            if 'Valor_Locacao_Total' in df_parcelas.columns:
-                df_parcelas.drop(columns=['Valor_Locacao_Total'], inplace=True)
-            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data_Vencimento', 'Data_Recebimento', 'Data_Evento'])
+            if 'Valor Total Locação' in df_parcelas.columns:
+                df_parcelas.drop(columns=['Valor Total Locação'], inplace=True)
+            df_parcelas = df_formata_datas_sem_horario(df_parcelas, ['Data Vencimento', 'Data Recebimento', 'Data Evento'])
             df_parcelas = rename_colunas_parcelas(df_parcelas)
-            df_parcelas_download = df_parcelas.copy()
+            if df_parcelas is not None and not df_parcelas.empty: df_parcelas_download = df_parcelas.copy()
             if df_parcelas is not None and not df_parcelas.empty:
                 total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela'])
@@ -561,8 +561,8 @@ def grafico_linhas_faturamento_classificacoes_evento(df_eventos, id_casa, coluna
         return
 
     # Extrai mês do evento
-    df_eventos['Mês'] = df_eventos['Data_Evento'].dt.month
-    df_eventos = df_eventos.groupby(['Mês', coluna_categoria])['Valor_Total'].sum().reset_index()
+    df_eventos['Mês'] = df_eventos['Data Evento'].dt.month
+    df_eventos = df_eventos.groupby(['Mês', coluna_categoria])['Valor Total Evento'].sum().reset_index()
 
     # Dicionário de nomes dos meses
     meses = {
@@ -587,13 +587,13 @@ def grafico_linhas_faturamento_classificacoes_evento(df_eventos, id_casa, coluna
 
     # Merge com dados reais
     df_completo = df_completo.merge(df_eventos, how='left', on=['Mês', coluna_categoria])
-    df_completo['Valor_Total'] = df_completo['Valor_Total'].fillna(0)
+    df_completo['Valor Total Evento'] = df_completo['Valor Total Evento'].fillna(0)
 
     # Lista de valores para cada categoria
     valores_por_categoria = {}
     for categoria in categorias:
         df_filtrado = df_completo[df_completo[coluna_categoria] == categoria].sort_values(by='Mês')
-        valores = df_filtrado['Valor_Total'].round(2).tolist()
+        valores = df_filtrado['Valor Total Evento'].round(2).tolist()
         labels = [format_brazilian(v) for v in valores]
         valores_por_categoria[categoria] = [
             {

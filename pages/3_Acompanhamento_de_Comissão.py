@@ -47,35 +47,35 @@ def main():
 
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
-        'Valor_Locacao_Aroo_1': float,
-        'Valor_Locacao_Aroo_2': float,
-        'Valor_Locacao_Aroo_3': float,
-        'Valor_Locacao_Anexo': float,
-        'Valor_Locacao_Notie': float,
-        'Valor_Locacao_Mirante': float,
-        'Valor_Imposto': float,
-        'Valor_AB': float,
-        'Valor_Total': float,
-        'Valor_Locacao_Total': float
+        'Valor Locação Aroo 1': float,
+        'Valor Locação Aroo 2': float,
+        'Valor Locação Aroo 3': float,
+        'Valor Locação Anexo': float,
+        'Valor Locação Notie': float,
+        'Valor Locação Mirante': float,
+        'Valor Imposto': float,
+        'Valor AB': float,
+        'Valor Total Evento': float,
+        'Valor Total Locação': float
     }
     df_eventos_faturamento = df_eventos_faturamento.astype(tipos_de_dados_eventos, errors='ignore')
-    df_eventos_faturamento['Data_Contratacao'] = pd.to_datetime(df_eventos_faturamento['Data_Contratacao'], errors='coerce')
-    df_eventos_faturamento['Data_Evento'] = pd.to_datetime(df_eventos_faturamento['Data_Evento'], errors='coerce')
+    df_eventos_faturamento['Data Contratação'] = pd.to_datetime(df_eventos_faturamento['Data Contratação'], errors='coerce')
+    df_eventos_faturamento['Data Evento'] = pd.to_datetime(df_eventos_faturamento['Data Evento'], errors='coerce')
     # Formata tipos de dados do dataframe de parcelas
     tipos_de_dados_parcelas = {
-        'Valor_Parcela': float,
-        'Categoria_Parcela': str
+        'Valor Parcela': float,
+        'Categoria Parcela': str
     }
     df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
-    df_parcelas['Data_Vencimento'] = pd.to_datetime(df_parcelas['Data_Vencimento'], errors='coerce')
-    df_parcelas['Data_Recebimento'] = pd.to_datetime(df_parcelas['Data_Recebimento'], errors='coerce')
+    df_parcelas['Data Vencimento'] = pd.to_datetime(df_parcelas['Data Vencimento'], errors='coerce')
+    df_parcelas['Data Recebimento'] = pd.to_datetime(df_parcelas['Data Recebimento'], errors='coerce')
     # Formata tipos de dados do dataframe de orcamentos
     tipos_de_dados_orcamentos = {
         'Valor': float
     }
     df_orcamentos_faturamento = df_orcamentos_faturamento.astype(tipos_de_dados_orcamentos, errors='ignore')
-    # Adiciona coluna de concatenação de ID e Nome do Evento
-    df_eventos_faturamento['ID_Nome_Evento'] = df_eventos_faturamento['ID_Evento'].astype(str) + " - " + df_eventos_faturamento['Nome_do_Evento']
+    # Adiciona coluna de concatenação de ID e Nome Evento
+    df_eventos_faturamento['ID_Nome_Evento'] = df_eventos_faturamento['ID Evento'].astype(str) + " - " + df_eventos_faturamento['Nome Evento']
     # Calcula o valor de repasse para Gazit
     df_eventos_faturamento = calcular_repasses_gazit(df_eventos_faturamento)
 
@@ -288,24 +288,10 @@ def main():
             st.markdown("## Farol - Eventos sem Comercial Responsável")
             st.divider()
 
-            df_eventos_sem_comercial = df_eventos_faturamento[df_eventos_faturamento['Comercial_Responsavel'].isnull()]
-            df_eventos_sem_comercial = df_eventos_sem_comercial.rename(columns={
-                'ID_Evento': 'ID Evento',
-                'Nome_do_Evento': 'Nome Evento',
-                'Comercial_Responsavel': 'Comercial Responsável',
-                'Cliente': 'Cliente',
-                'Data_Contratacao': 'Data Contratação',
-                'Data_Evento': 'Data Evento',
-                'Valor_Total': 'Valor Total',
-                'Valor_AB': 'Valor AB',
-                'Valor_Imposto': 'Valor Imposto',
-                'Status_Evento': 'Status Evento',
-                'Motivo_Declinio': 'Motivo Declínio',
-                'Observacoes': 'Observações'
-            })
+            df_eventos_sem_comercial = df_eventos_faturamento[df_eventos_faturamento['Comercial Responsável'].isnull()]
             df_eventos_sem_comercial = df_formata_datas_sem_horario(df_eventos_sem_comercial, ['Data Evento', 'Data Contratação'])
-            df_eventos_sem_comercial = format_columns_brazilian(df_eventos_sem_comercial, ['Valor Total', 'Valor AB', 'Valor Imposto'])
-            st.dataframe(df_eventos_sem_comercial[['Casa','ID Evento', 'Nome Evento', 'Comercial Responsável', 'Cliente', 'Data Contratação', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento', 'Motivo Declínio', 'Observações']], use_container_width=True, hide_index=True)
+            df_eventos_sem_comercial = format_columns_brazilian(df_eventos_sem_comercial, ['Valor Total Evento', 'Valor AB', 'Valor Imposto'])
+            st.dataframe(df_eventos_sem_comercial[['Casa','ID Evento', 'Nome Evento', 'Comercial Responsável', 'Cliente', 'Data Contratação', 'Data Evento', 'Valor Total Evento', 'Valor AB', 'Valor Imposto', 'Status Evento', 'Motivo Declínio', 'Observações']], use_container_width=True, hide_index=True)
 
 if __name__ == "__main__":
     main()

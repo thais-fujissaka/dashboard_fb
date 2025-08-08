@@ -30,16 +30,16 @@ def main():
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 	# Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
-		'Valor_Locacao_Aroo_1': float,
-		'Valor_Locacao_Aroo_2': float,
-		'Valor_Locacao_Aroo_3': float,
-		'Valor_Locacao_Anexo': float,
-		'Valor_Locacao_Notie': float,
-		'Valor_Locacao_Mirante': float,
-		'Valor_Imposto': float,
-		'Valor_AB': float,
-		'Valor_Total': float,
-		'Valor_Locacao_Total': float,
+		'Valor Locação Aroo 1': float,
+		'Valor Locação Aroo 2': float,
+		'Valor Locação Aroo 3': float,
+		'Valor Locação Anexo': float,
+		'Valor Locação Notie': float,
+		'Valor Locação Mirante': float,
+		'Valor Imposto': float,
+		'Valor AB': float,
+		'Valor Total Evento': float,
+		'Valor Total Locação': float,
 		'Valor Locação Gerador': float,
 		'Valor Locação Mobiliário': float,
 		'Valor Locação Utensílios': float,
@@ -51,20 +51,20 @@ def main():
 		'Valor Acréscimo Forma de Pagamento': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
-	df_eventos['Data_Contratacao'] = pd.to_datetime(df_eventos['Data_Contratacao'], errors='coerce')
-	df_eventos['Data_Evento'] = pd.to_datetime(df_eventos['Data_Evento'], errors='coerce')
+	df_eventos['Data Contratação'] = pd.to_datetime(df_eventos['Data Contratação'], errors='coerce')
+	df_eventos['Data Evento'] = pd.to_datetime(df_eventos['Data Evento'], errors='coerce')
 
 	# Formata tipos de dados do dataframe de parcelas
 	tipos_de_dados_parcelas = {
-		'Valor_Parcela': float,
-		'Categoria_Parcela': str
+		'Valor Parcela': float,
+		'Categoria Parcela': str
 	}
 	df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
-	df_parcelas['Data_Vencimento'] = pd.to_datetime(df_parcelas['Data_Vencimento'], errors='coerce')
-	df_parcelas['Data_Recebimento'] = pd.to_datetime(df_parcelas['Data_Recebimento'], errors='coerce')
+	df_parcelas['Data Vencimento'] = pd.to_datetime(df_parcelas['Data Vencimento'], errors='coerce')
+	df_parcelas['Data Recebimento'] = pd.to_datetime(df_parcelas['Data Recebimento'], errors='coerce')
  
-	# Adiciona coluna de concatenação de ID e Nome do Evento
-	df_eventos['ID_Nome_Evento'] = df_eventos['ID_Evento'].astype(str) + " - " + df_eventos['Nome_do_Evento']
+	# Adiciona coluna de concatenação de ID e Nome Evento
+	df_eventos['ID_Nome_Evento'] = df_eventos['ID Evento'].astype(str) + " - " + df_eventos['Nome Evento']
 
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
@@ -102,25 +102,21 @@ def main():
 		if 'Todos os Eventos' not in eventos:
 			# Filtra os eventos e parcelas dos eventos selecionados
 			df_eventos = df_eventos[df_eventos['ID_Nome_Evento'].isin(eventos)]
-			df_parcelas = df_parcelas[df_parcelas['ID_Evento'].isin(df_eventos['ID_Evento'])]
+			df_parcelas = df_parcelas[df_parcelas['ID Evento'].isin(df_eventos['ID Evento'])]
 
 		# Formata datas: datetime[ns] -> str
-		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Contratacao')
-		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data_Evento')
-		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Vencimento')
-		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data_Recebimento')
+		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data Contratação')
+		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data Evento')
+		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data Vencimento')
+		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data Recebimento')
 		# Calcula o valor de repasse para Gazit das parcelas
 		df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
-
-		# Renomeia colunas
-		df_eventos = rename_colunas_eventos(df_eventos)
-		df_parcelas = rename_colunas_parcelas(df_parcelas)
 		
 		# Formata valores monetários brasileiro
-		df_eventos = format_columns_brazilian(df_eventos, ['Valor Total', 'Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notiê', 'Imposto'])
+		df_eventos = format_columns_brazilian(df_eventos, ['Valor Total Evento', 'Valor Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Imposto'])
 		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
 
-		df_eventos = df_eventos.drop(columns=['Evento', 'Valor Locacao Total Aroos', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Total Gazit'])
+		df_eventos = df_eventos.drop(columns=['ID_Nome_Evento', 'Valor Locacao Total Aroos', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Total Gazit'])
 
 		st.markdown("## Eventos")
 		st.dataframe(df_eventos, 
@@ -138,7 +134,7 @@ def main():
 
 		st.markdown("## Parcelas")
 		if df_parcelas is not None:
-			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Total Locação', 'Total_Gazit', 'Valor Locacao Total Aroos', 'Valor_Locacao_Anexo', 'Valor_Locacao_Notie', 'Valor_Locacao_Mirante'])
+			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Valor Total Locação', 'Total Gazit', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante'])
 			st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
 		else:
 			st.warning("Nenhuma parcela encontrada.")
