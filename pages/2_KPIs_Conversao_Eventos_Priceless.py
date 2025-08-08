@@ -10,7 +10,7 @@ from utils.functions.faturamento import *
 
 st.set_page_config(
     page_icon="📈",
-    page_title="KPI's de Vendas Priceless",
+    page_title="KPI's de Vendas - Conversão de Eventos",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -24,13 +24,17 @@ def main():
 
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS_PRICELESS_KPIS()
-
+    
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
         'Valor Imposto': float,
         'Valor AB': float,
+        'Valor Taxa Serviço': float,
         'Valor Total': float,
         'Valor Locação Total': float,
+        'Valor Contratação Artístico': float,
+        'Valor Contratação Técnico de Som': float,
+        'Valor Contratação Bilheteria/Couvert Artístico': float,
         'Valor Locação Gerador': float,
         'Valor Locação Mobiliário': float,
         'Valor Locação Utensílios': float,
@@ -39,7 +43,8 @@ def main():
         'Valor Comissão BV': float,
         'Valor Extras Gerais': float,
         'Valor Taxa Serviço': float,
-        'Valor Acréscimo Forma de Pagamento': float
+        'Valor Acréscimo Forma de Pagamento': float,
+        'Valor Imposto': float,
     }
     df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
 
@@ -50,7 +55,7 @@ def main():
 
     col1, col2, col3 = st.columns([6, 1, 1])
     with col1:
-        st.title("📈 KPI's de Vendas")
+        st.title("📈 KPI's de Vendas - Conversão de Eventos")
     with col2:
         st.button(label='Atualizar', key='atualizar_kpis_vendas', on_click=st.cache_data.clear)
     with col3:
@@ -163,6 +168,7 @@ def main():
             df_eventos = df_formata_datas_sem_horario(df_eventos, ['Data Envio Proposta', 'Data de Contratação', 'Data do Evento', 'Data Recebimento Lead', 'Data Confirmação', 'Data Declínio', 'Data Em Negociação'])
             df_eventos = df_eventos.drop(columns=['ID Responsavel Comercial'])
             df_eventos_com_proposta_enviada = df_eventos[df_eventos['Data Envio Proposta'].notnull()]
+
             # Filtragem com base na seleção
             if selection == "Leads Recebidos":
                 df_filtrado = df_eventos
@@ -187,7 +193,7 @@ def main():
             # Exibição
             if df_filtrado is not None:
                 df_filtrado_download = df_filtrado.copy()
-                df_filtrado = format_columns_brazilian(df_eventos, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor_Imposto'])
+                df_filtrado = format_columns_brazilian(df_filtrado, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto'])
                 st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
                 col1, col2 = st.columns([4, 1], vertical_alignment = "center")
                 with col1:

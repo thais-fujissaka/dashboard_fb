@@ -30,7 +30,7 @@ def main():
 	config_sidebar()
 
 	# Recupera dados dos eventos e parcelas
-	df_eventos = GET_EVENTOS_PRICELESS()
+	df_eventos = GET_EVENTOS_E_ADITIVOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
 	df_eventos = df_eventos[

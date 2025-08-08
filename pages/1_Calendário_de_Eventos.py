@@ -23,7 +23,8 @@ def main():
     config_sidebar()
 
     # Recupera dados dos eventos
-    df_eventos = GET_EVENTOS_PRICELESS()
+    df_eventos = GET_EVENTOS()
+    df_aditivos = GET_ADITIVOS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
     
     # Substitui NaT ou datas nulas por uma data padrão ou remove linhas
@@ -48,6 +49,19 @@ def main():
 
     if casa != 'Todas as Casas':
         df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]
+
+        if id_casa == 149: # Priceless - Locação dividida por espaços
+            df_eventos = df_eventos.drop(columns=['Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
+            df_aditivos = df_aditivos.drop(columns=['Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
+
+        else:
+            df_eventos = df_eventos.drop(columns=['Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante'])
+            df_aditivos = df_aditivos.drop(columns=['Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante'])
+
+            if id_casa in [104, 115, 116, 156, 122]: # Orfeu, Riviera, Bar Leo Centro, Girondino, Arcos - Com locação de um số espaço, SEM Couvert/Bilheteria
+                df_eventos = df_eventos.drop(columns=['Valor Contratação Bilheteria/Couvert Artístico'])
+                df_aditivos = df_aditivos.drop(columns=['Valor Contratação Bilheteria/Couvert Artístico'])
+
 
     json_eventos = dataframe_to_json_calendar(df_eventos)
 
@@ -92,8 +106,9 @@ def main():
                 with col2:
                     infos_evento(id_evento_seleciondo, df_eventos)
                     st.write("")
-                    mostrar_parcelas(id_evento_seleciondo, df_parcelas)
+                    mostrar_aditivos(id_evento_seleciondo, df_aditivos)
                     st.write("")
+                    mostrar_parcelas(id_evento_seleciondo, df_parcelas)
                     st.write("")
         else:
             st.info("Selecione um evento no calendário para ver os detalhes.")

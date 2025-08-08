@@ -105,7 +105,7 @@ def get_casas_validas():
 # Dados de Eventos
 
 @st.cache_data
-def GET_EVENTOS_PRICELESS():
+def GET_EVENTOS_E_ADITIVOS_PRICELESS():
    	return dataframe_query(f'''
 	SELECT 
 		tep.ID AS 'ID Evento',
@@ -155,6 +155,117 @@ def GET_EVENTOS_PRICELESS():
 	''')
 
 
+def GET_EVENTOS():
+   	return dataframe_query(f'''
+	SELECT 
+		tep.ID AS 'ID Evento',
+		te.NOME_FANTASIA AS 'Casa',
+		te.ID AS 'ID Casa',
+		tee.NOME_COMPLETO AS 'Comercial Responsável',
+		tep.NOME_EVENTO AS 'Nome Evento',
+		trec.NOME AS 'Cliente',
+		tep.DATA_CONTRATACAO AS 'Data Contratação',
+		tep.DATA_EVENTO AS 'Data Evento',
+		tte.DESCRICAO AS 'Tipo Evento',
+		tme.DESCRICAO AS 'Modelo Evento',
+		tse.DESCRICAO AS 'Segmento Evento',
+		tep.VALOR_TOTAL_EVENTO AS 'Valor Total Evento',
+		tep.NUM_CLIENTES AS 'Num Pessoas',
+		tep.VALOR_AB AS 'Valor AB',
+		tep.VALOR_TAXA_SERVICO AS 'Valor Taxa Serviço',
+		COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) AS 'Valor Total Locação',
+		tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
+		tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
+		tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
+		tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
+		tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
+		tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+		tep.VALOR_LOCACAO_ESPACO AS 'Valor Locação Espaço',
+		tep.VALOR_CONTRATACAO_ARTISTICO AS 'Valor Contratação Artístico',
+		tep.VALOR_CONTRATACAO_TECNICO_SOM AS 'Valor Contratação Técnico de Som',
+		tep.VALOR_CONTRATACAO_COUVERT_ARTISTICO AS 'Valor Contratação Bilheteria/Couvert Artístico',
+		tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
+		tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
+		tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
+		tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
+		tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Administrativa',
+		tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
+		tep.VALOR_EXTRAS_GERAIS AS 'Valor Extras Gerais',
+		tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
+		tep.VALOR_IMPOSTO AS 'Valor Imposto',
+		tsep.DESCRICAO AS 'Status Evento',
+		tep.OBSERVACOES AS 'Observações',
+		temd.DESCRICAO AS 'Motivo Declínio',
+		tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio'
+	FROM T_EVENTOS_PRICELESS tep
+		LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+		LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+		LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
+		LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
+		LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
+		LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+		LEFT JOIN T_SEGMENTOS_EVENTOS tse ON (tep.FK_SEGMENTO = tse.ID)
+		LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+	WHERE tep.IS_ADITIVO = 0
+	''')
+
+@st.cache_data
+def GET_ADITIVOS():
+   	return dataframe_query(f'''
+	SELECT 
+		tep.ID AS 'ID Aditivo',
+		tep.FK_EVENTO_DO_ADITIVO AS 'ID Evento do Aditivo',
+		te.NOME_FANTASIA AS 'Casa',
+		te.ID AS 'ID Casa',
+		tee.NOME_COMPLETO AS 'Comercial Responsável',
+		tep.NOME_EVENTO AS 'Nome Evento',
+		trec.NOME AS 'Cliente',
+		tep.DATA_CONTRATACAO AS 'Data Contratação',
+		tep.DATA_EVENTO AS 'Data Evento',
+		tte.DESCRICAO AS 'Tipo Evento',
+		tme.DESCRICAO AS 'Modelo Evento',
+		tse.DESCRICAO AS 'Segmento Evento',
+		tep.VALOR_TOTAL_EVENTO AS 'Valor Total Aditivo',
+		tep.NUM_CLIENTES AS 'Num Pessoas',
+		tep.VALOR_AB AS 'Valor AB',
+		tep.VALOR_TAXA_SERVICO AS 'Valor Taxa Serviço',
+		COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) AS 'Valor Total Locação',
+		tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
+		tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
+		tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
+		tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
+		tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
+		tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+		tep.VALOR_LOCACAO_ESPACO AS 'Valor Locação Espaço',
+		tep.VALOR_CONTRATACAO_ARTISTICO AS 'Valor Contratação Artístico',
+		tep.VALOR_CONTRATACAO_TECNICO_SOM AS 'Valor Contratação Técnico de Som',
+		tep.VALOR_CONTRATACAO_COUVERT_ARTISTICO AS 'Valor Contratação Bilheteria/Couvert Artístico',
+		tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
+		tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
+		tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
+		tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
+		tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Administrativa',
+		tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
+		tep.VALOR_EXTRAS_GERAIS AS 'Valor Extras Gerais',
+		tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
+		tep.VALOR_IMPOSTO AS 'Valor Imposto',
+		tsep.DESCRICAO AS 'Status Evento',
+		tep.OBSERVACOES AS 'Observações',
+		temd.DESCRICAO AS 'Motivo Declínio',
+		tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio'
+	FROM T_EVENTOS_PRICELESS tep
+		LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+		LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+		LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
+		LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
+		LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
+		LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+		LEFT JOIN T_SEGMENTOS_EVENTOS tse ON (tep.FK_SEGMENTO = tse.ID)
+		LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+	WHERE tep.IS_ADITIVO = 1
+	''')	
+
+
 @st.cache_data
 def GET_PARCELAS_EVENTOS_PRICELESS():
    	return dataframe_query(f'''
@@ -182,41 +293,42 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
 @st.cache_data
 def GET_EVENTOS_PRICELESS_KPIS():
    	return dataframe_query(f'''
-	SELECT 
-		tep.ID AS 'ID Evento',
+	SELECT
+		COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID) AS 'ID Evento',
 		te.ID AS 'ID Casa',
 		te.NOME_FANTASIA AS 'Casa',
 		tee.NOME_COMPLETO AS 'Comercial Responsável',
 		tee.ID AS 'ID Responsavel Comercial',
-		tep.NOME_EVENTO AS 'Nome Evento',
+		tep2.NOME_EVENTO AS 'Nome Evento',
 		trec.NOME AS 'Cliente',
-		tep.DATA_ENVIO_PROPOSTA AS 'Data Envio Proposta',
-		tep.DATA_CONTRATACAO AS 'Data de Contratação',
-		tep.DATA_RECEBIMENTO_LEAD AS 'Data Recebimento Lead',
-		tep.DATA_EVENTO AS 'Data do Evento',
+		tep2.DATA_ENVIO_PROPOSTA AS 'Data Envio Proposta',
+		tep2.DATA_CONTRATACAO AS 'Data de Contratação',
+		tep2.DATA_RECEBIMENTO_LEAD AS 'Data Recebimento Lead',
+		tep2.DATA_EVENTO AS 'Data do Evento',
 		tte.DESCRICAO AS 'Tipo do Evento',
 		tme.DESCRICAO AS 'Modelo do Evento',
-		tep.VALOR_TOTAL_EVENTO AS 'Valor Total',
-		tep.NUM_CLIENTES AS 'Número de Pessoas',
-		tep.VALOR_AB AS 'Valor AB',
-		COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) as 'Valor Locação Total',
-		tep.VALOR_IMPOSTO AS 'Valor Imposto',
-		tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
-		tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
-		tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
-		tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
-		tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Administrativa',
-		tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
-		tep.VALOR_EXTRAS_GERAIS AS 'Valor Extras Gerais',
-		tep.VALOR_TAXA_SERVICO AS 'Valor Taxa Serviço',
-		tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
-		tsep.DESCRICAO AS 'Status_Evento',
-		tep.OBSERVACOES AS 'Observacoes',
-		temd.DESCRICAO AS 'Motivo Declínio',
-		tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio',
+		SUM(tep.VALOR_TOTAL_EVENTO) AS 'Valor Total',
+		SUM(tep.NUM_CLIENTES) AS 'Número de Pessoas',
+		SUM(tep.VALOR_AB) AS 'Valor AB',
+		SUM(COALESCE(tep.VALOR_LOCACAO_AROO_1, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_2, 0) + COALESCE(tep.VALOR_LOCACAO_AROO_3, 0) + COALESCE(tep.VALOR_LOCACAO_ANEXO, 0) + COALESCE(tep.VALOR_LOCACAO_NOTIE, 0) + COALESCE(tep.VALOR_LOCACAO_MIRANTE, 0) + COALESCE(tep.VALOR_LOCACAO_ESPACO)) AS 'Valor Locação Total',
+		SUM(tep.VALOR_CONTRATACAO_ARTISTICO) AS 'Valor Contratação Artístico',
+		SUM(tep.VALOR_CONTRATACAO_TECNICO_SOM) AS 'Valor Contratação Técnico de Som',
+		SUM(tep.VALOR_CONTRATACAO_COUVERT_ARTISTICO) AS 'Valor Contratação Bilheteria/Couvert Artístico',
+		SUM(tep.VALOR_IMPOSTO) AS 'Valor Imposto',
+		SUM(tep.VALOR_LOCACAO_GERADOR) AS 'Valor Locação Gerador',
+		SUM(tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO) AS 'Valor Locação Mobiliário',
+		SUM(tep.VALOR_LOCACAO_UTENSILIOS) AS 'Valor Locação Utensílios',
+		SUM(tep.VALOR_MAO_DE_OBRA_EXTRA) AS 'Valor Mão de Obra Extra',
+		SUM(tep.VALOR_TAXA_ADMINISTRATIVA) AS 'Valor Taxa Administrativa',
+		SUM(tep.VALOR_COMISSAO_BV) AS 'Valor Comissão BV',
+		SUM(tep.VALOR_EXTRAS_GERAIS) AS 'Valor Extras Gerais',
+		SUM(tep.VALOR_TAXA_SERVICO) AS 'Valor Taxa Serviço',
+		SUM(tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO) AS 'Valor Acréscimo Forma de Pagamento',
 		tsep.DESCRICAO AS 'Status do Evento',
+		tep2.OBSERVACOES AS 'Observações',
 		temd.DESCRICAO AS 'Motivo do Declínio',
-		tep.OBSERVACOES AS 'Observações'
+		tep2.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio',
+		tep2.IS_ADITIVO AS 'Is Aditivo'
 	FROM T_EVENTOS_PRICELESS tep
 		LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
 		LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
@@ -225,6 +337,8 @@ def GET_EVENTOS_PRICELESS_KPIS():
 		LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
 		LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
 		LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+		LEFT JOIN T_EVENTOS_PRICELESS tep2 ON COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID) = tep2.ID # tep2 = evento pai
+	GROUP BY COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID)
 	''')
 
 @st.cache_data

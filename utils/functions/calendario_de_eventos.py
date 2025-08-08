@@ -181,6 +181,17 @@ def infos_evento(id_evento, df_eventos):
         st.dataframe(evento, use_container_width=True, hide_index=True)    
 
 
+def mostrar_aditivos(id_evento, df_aditivos):
+    id_evento = int(id_evento)
+    if df_aditivos[df_aditivos['ID Evento do Aditivo'] == id_evento].empty:
+        st.warning("Nenhum aditivo encontrado para este evento.")
+    else:
+        aditivos = df_aditivos[df_aditivos['ID Evento do Aditivo'] == id_evento]
+        aditivos = df_format_date_columns_brazilian(aditivos, ['Data Evento', 'Data Contratação'])
+        aditivos = format_columns_brazilian(aditivos, ['Valor Total Aditivo', 'Valor AB', 'Valor Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto'])
+        st.markdown(f"#### Aditivos")
+        st.dataframe(aditivos, use_container_width=True, hide_index=True)
+
 def mostrar_parcelas(id_evento, df_parcelas):
     id_evento = int(id_evento)
     
