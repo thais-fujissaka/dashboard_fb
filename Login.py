@@ -51,14 +51,26 @@ def main():
         permissao, Nomeuser, email = config_permissoes_user()
         st.write("Você está logado!")
         st.markdown("Redirecionando...")
-        if "Admin Dash Eventos" in permissao:
-            st.switch_page("pages/1_Calendário_de_Eventos.py")
-        elif "Coordenador MKT Dash Eventos" in permissao:
-            st.switch_page("pages/1_Calendário_de_Eventos.py")
-        elif "Admin Priceless Dash Eventos" in permissao:
-            st.switch_page("pages/1_Calendário_de_Eventos.py")
-        elif "Gazit" in permissao:
-            st.switch_page("pages/7_Gazit.py")
+
+        # Mapeamento de permissões para página inicial
+        permissoes_pagina_inicial = {
+            "Dev Dash Eventos": "pages/1_Calendário_de_Eventos.py",
+            "Admin Dash Eventos": "pages/1_Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 1": "pages/1_Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 2": "pages/1_Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 3": "pages/1_Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 4": "pages/1_Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 5": "pages/1_Calendário_de_Eventos.py",
+            "Liderança Comercial Dash Eventos": "pages/1_Calendário_de_Eventos.py",
+            "Admin Priceless Dash Eventos": "pages/1_Calendário_de_Eventos.py",
+            "Gazit": "pages/7_Gazit.py"
+        }
+
+        # Verifica a primeira permissão que existe no mapeamento
+        for p, pagina in permissoes_pagina_inicial.items():
+            if p in permissao:
+                st.switch_page(pagina)
+                break
 
 if __name__ == "__main__":
     main()

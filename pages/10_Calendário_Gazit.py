@@ -51,7 +51,7 @@ def main():
                
     st.divider()
     
-    json_eventos = dataframe_to_json_calendar(df_eventos)
+    json_eventos = dataframe_to_json_calendar(df_eventos, event_color_type='status')
     
     # Renderiza o calendário
     selected = st_calendar(

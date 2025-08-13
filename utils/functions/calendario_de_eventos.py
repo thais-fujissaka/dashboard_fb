@@ -5,9 +5,12 @@ from streamlit_echarts import st_echarts
 from utils.functions.general_functions import *
 from utils.functions.parcelas import *
 
-def dataframe_to_json_calendar(df_eventos):
+
+def dataframe_to_json_calendar(df_eventos, event_color_type=None):
     """
     Converte um DataFrame de eventos em um formato JSON adequado para o calendário.
+    event_color_type = 'status'  -> Define a cor de acordo com o valor de 'Status Evento'
+    event_color_type = 'casa'    -> Define a cor de acordo com o valor de 'Casa'
     """
 
     # Formata Data Evento para o formato YYYY-MM-DD (preparar para inserir no JSON)
@@ -16,13 +19,44 @@ def dataframe_to_json_calendar(df_eventos):
 
     eventos_json = []
     for _, row in df_eventos.iterrows():
-        # Define a cor baseada no status
-        if row['Status Evento'] == 'Confirmado':
-            cor = '#22C55E'  # Verde
-        elif row['Status Evento'] == 'Em negociação':
-            cor = '#EAB308'  # Amarelo
+        # Define a cor baseada no event_color_type
+        if event_color_type == 'status':
+            if row['Status Evento'] == 'Confirmado':
+                cor = '#22C55E'  # Verde
+            elif row['Status Evento'] == 'Em negociação':
+                cor = '#EAB308'  # Amarelo
+            else:
+                cor = '#EF4444'  # Vermelho
+        elif event_color_type == 'casa':
+            if row['ID Casa'] == 149: # Priceless
+                cor = '#000000'
+            elif row['ID Casa'] == 122: # Arcos
+                cor = "#582310"
+            elif row['ID Casa'] == 114: # Bar Brahma - Centro
+                cor = '#DF2526'
+            elif row['ID Casa'] == 148: # Bar Brahma - Granja
+                cor = '#84161f'
+            elif row['ID Casa'] == 116: # Bar Leo Centro
+                cor = "#E9A700"
+            elif row['ID Casa'] == 110: # Blue Note São Paulo
+                cor = '#081F5C'
+            elif row['ID Casa'] == 156: # Girondino
+                cor = '#4A5129'
+            elif row['ID Casa'] == 160: # Girondino CCBB
+                cor = "#8CA706"
+            elif row['ID Casa'] == 105: # Jacaré
+                cor = '#0CA22E'
+            elif row['ID Casa'] == 104: # Love Cabaret
+                cor = '#E799BB'
+            elif row['ID Casa'] == 104: # Orfeu
+                cor = '#006E77'
+            elif row['ID Casa'] == 115: # Riviera
+                cor = "#C2185B"
+            elif row['ID Casa'] == 145: # Ultra Evil (Rolim)
+                cor = "#2C3E50"
         else:
-            cor = '#EF4444'  # Vermelho
+            cor = '#4150F7'  # Azul
+
 
         evento = {
             "id": row['ID Evento'],
@@ -135,9 +169,8 @@ def infos_evento(id_evento, df_eventos_aditivos_agrupados, df_eventos):
 
     id_evento = int(id_evento)
 
-    evento_inicial = df_eventos[df_eventos['ID Evento'] == id_evento]
-
-    evento = df_eventos_aditivos_agrupados[df_eventos_aditivos_agrupados['ID Evento'] == id_evento]
+    evento_inicial = df_eventos.loc[df_eventos['ID Evento'] == id_evento]
+    evento = df_eventos_aditivos_agrupados.loc[df_eventos_aditivos_agrupados['ID Evento'] == id_evento].copy()
     evento['Data do Evento'] = evento['Data do Evento'].fillna('Data não informada')
     evento['Data de Contratação'] = evento['Data de Contratação'].fillna('Data não informada')
     evento['Observações'] = evento['Observações'].fillna('Nenhuma observação informada')
@@ -192,7 +225,7 @@ def infos_evento(id_evento, df_eventos_aditivos_agrupados, df_eventos):
             'Valor Contratação Técnico de Som',
             'Valor Contratação Bilheteria/Couvert Artístico'
         ])
-        evento_inicial = df_format_date_columns_brazilian(evento_inicial, ['Data do Evento', 'Data de Contratação', 'Data Envio Proposta', 'Data Recebimento Lead'])
+        evento_inicial = df_format_date_columns_brazilian(evento_inicial, ['Data Evento', 'Data Contratação'])
         st.dataframe(evento_inicial, use_container_width=True, hide_index=True)    
 
 
