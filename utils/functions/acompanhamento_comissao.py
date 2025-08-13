@@ -12,7 +12,7 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
     """
 
     
-    if row['ID Casa'] in [156, 115, 104, 114, 148]: # Girondino, Riviera, Orfeu, Bar Brahma - Centro, Bar Brahma - Granja
+    if row['ID Casa'] in [122, 156, 115, 104, 114, 148, 105, 116, 110, 160, 128, 145]: # Arcos, Girondino, Riviera, Orfeu, Bar Brahma - Centro, Bar Brahma - Granja, Jacaré, Bar Leo Centro, 
         if meta_atingida:
             percentual_comissao = 1.5
             comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
@@ -26,19 +26,19 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
         else:
             percentual_comissao = row['Comissão Sem Meta Atingida']
             comissao = round(row['Valor da Parcela'] * row['Comissão Sem Meta Atingida'] / 100, 2)
-    elif row['ID Casa'] == 105: # Jacaré
-        #2,5% de locação + 3,5% de A&B + 5% 'de Repasse artístico e Fornecedores     
-        if row['Categoria Parcela'] == 'Locação':
-            percentual_comissao = 2.5
-            comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
-        elif row['Categoria Parcela'] == 'A&B':
-            percentual_comissao = 3.5
-            comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
+    # elif row['ID Casa'] == 105: # Jacaré
+        # 2,5% de locação + 3,5% de A&B + 5% 'de Repasse artístico e Fornecedores
+        # if row['Categoria Parcela'] == 'Locação':
+        #     percentual_comissao = 2.5
+        #     comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
+        # elif row['Categoria Parcela'] == 'A&B':
+        #     percentual_comissao = 3.5
+        #     comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
         # elif row['Categoria Parcela'] == 'Repasse Artistico':
         #     comissao = round(row['Valor Total Parcelas'] * 0.05, 2)
-        else:
-            percentual_comissao = 0.0
-            comissao = 0.0
+        # else:
+        #     percentual_comissao = 0.0
+        #     comissao = 0.0
 
     return comissao, percentual_comissao
 

@@ -40,42 +40,42 @@ def main():
 	st.divider()
 
 	# Recupera dados dos eventos e parcelas
-	df_eventos = GET_EVENTOS_PRICELESS()
+	df_eventos = GET_EVENTOS_E_ADITIVOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 	
     # Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
-		'Valor_Locacao_Aroo_1': float,
-		'Valor_Locacao_Aroo_2': float,
-		'Valor_Locacao_Aroo_3': float,
-		'Valor_Locacao_Anexo': float,
-		'Valor_Locacao_Notie': float,
-		'Valor_Locacao_Mirante': float,
-		'Valor_Imposto': float,
-		'Valor_AB': float,
-		'Valor_Total': float,
-		'Valor_Locacao_Total': float
+		'Valor Locação Aroo 1': float,
+		'Valor Locação Aroo 2': float,
+		'Valor Locação Aroo 3': float,
+		'Valor Locação Anexo': float,
+		'Valor Locação Notie': float,
+		'Valor Locação Mirante': float,
+		'Valor Imposto': float,
+		'Valor AB': float,
+		'Valor Total Evento': float,
+		'Valor Total Locação': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
-	df_eventos['Data_Contratacao'] = pd.to_datetime(df_eventos['Data_Contratacao'], errors='coerce')
-	df_eventos['Data_Evento'] = pd.to_datetime(df_eventos['Data_Evento'], errors='coerce')
+	df_eventos['Data Contratação'] = pd.to_datetime(df_eventos['Data Contratação'], errors='coerce')
+	df_eventos['Data Evento'] = pd.to_datetime(df_eventos['Data Evento'], errors='coerce')
 
 	# Formata tipos de dados do dataframe de parcelas
 	tipos_de_dados_parcelas = {
-		'Valor_Parcela': float,
-		'Categoria_Parcela': str
+		'Valor Parcela': float,
+		'Categoria Parcela': str
 	}
 	df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
-	df_parcelas['Data_Vencimento'] = pd.to_datetime(df_parcelas['Data_Vencimento'], errors='coerce')
-	df_parcelas['Data_Recebimento'] = pd.to_datetime(df_parcelas['Data_Recebimento'], errors='coerce')
+	df_parcelas['Data Vencimento'] = pd.to_datetime(df_parcelas['Data Vencimento'], errors='coerce')
+	df_parcelas['Data Recebimento'] = pd.to_datetime(df_parcelas['Data Recebimento'], errors='coerce')
 	
-	# Adiciona coluna de concatenação de ID e Nome do Evento
-	df_eventos['ID_Nome_Evento'] = df_eventos['ID_Evento'].astype(str) + " - " + df_eventos['Nome_do_Evento']
+	# Adiciona coluna de concatenação de ID e Nome Evento
+	df_eventos['ID_Nome_Evento'] = df_eventos['ID Evento'].astype(str) + " - " + df_eventos['Nome Evento']
 	
 	# Seletores
 	col1, col2= st.columns([1, 1], gap="large")
 	with col1:
-		lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')
@@ -99,9 +99,9 @@ def main():
 	with st.container(border=True):
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		df_farol = filtra_parcelas_atrasadas(df_parcelas_filtradas_por_status)
-		df_farol = df_format_date_columns_brazilian(df_farol, ['Data_Vencimento', 'Data_Recebimento'])
+		df_farol = df_format_date_columns_brazilian(df_farol, ['Data Vencimento', 'Data Recebimento'])
 		df_farol_download = df_farol.copy()
-		df_farol = format_columns_brazilian(df_farol, ['Valor_Parcela'])
+		df_farol = format_columns_brazilian(df_farol, ['Valor Parcela'])
 		df_farol = rename_colunas_parcelas(df_farol)
 		df_farol = df_farol.drop(columns=['ID Casa'], errors='ignore')
 		with col2:

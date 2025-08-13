@@ -407,7 +407,7 @@ def grafico_barras_motivo_declinio(df_eventos, filtro_data):
     if mes_selecionado != None:
         mes_selecionado = meses[mes_selecionado]
         df_observacoes_motivo_declinio = df_eventos_informacoes[df_eventos_informacoes['Mes'] == mes_selecionado]
-        st.dataframe(df_observacoes_motivo_declinio[['ID Evento', 'Casa', 'Comercial Responsável', 'Nome do Evento', 'Status do Evento', 'Motivo do Declínio', 'Observações Motivo Declínio', 'Observações']], use_container_width=True)
+        st.dataframe(df_observacoes_motivo_declinio[['ID Evento', 'Casa', 'Comercial Responsável', 'Nome Evento', 'Status do Evento', 'Motivo do Declínio', 'Observações Motivo Declínio', 'Observações']], use_container_width=True)
         button_download(df_observacoes_motivo_declinio, f'Motivo Declínio - {mes_selecionado}', f'observacoes_motivo_declinio_{mes_selecionado}')
     else:
         st.warning('Selecione um mês no gráfico para exibir as observações do declínio.')
