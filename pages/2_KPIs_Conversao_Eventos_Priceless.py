@@ -23,7 +23,7 @@ def main():
     config_sidebar()
 
     # Recupera dados dos eventos
-    df_eventos = GET_EVENTOS_PRICELESS_KPIS()
+    df_eventos = GET_EVENTOS_ADITIVOS_AGRUPADOS()
     
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {

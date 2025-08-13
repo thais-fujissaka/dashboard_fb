@@ -131,32 +131,36 @@ def get_calendar_options():
     }
 
 
-def infos_evento(id_evento, df_eventos):
+def infos_evento(id_evento, df_eventos_aditivos_agrupados, df_eventos):
 
     id_evento = int(id_evento)
-    evento = df_eventos[df_eventos['ID Evento'] == id_evento]
-    evento = df_format_date_columns_brazilian(evento, ['Data Evento', 'Data Contratação'])
-    evento['Data Evento'] = evento['Data Evento'].fillna('Data não informada')
-    evento['Data Contratação'] = evento['Data Contratação'].fillna('Data não informada')
+
+    evento_inicial = df_eventos[df_eventos['ID Evento'] == id_evento]
+
+    evento = df_eventos_aditivos_agrupados[df_eventos_aditivos_agrupados['ID Evento'] == id_evento]
+    evento['Data do Evento'] = evento['Data do Evento'].fillna('Data não informada')
+    evento['Data de Contratação'] = evento['Data de Contratação'].fillna('Data não informada')
     evento['Observações'] = evento['Observações'].fillna('Nenhuma observação informada')
+
     st.markdown(f"### Evento - {evento['Nome Evento'].values[0]}")
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"<b>Comercial Responsável:</b> {evento['Comercial Responsável'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Cliente:</b> {evento['Cliente'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Data do Evento:</b> {evento['Data Evento'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Data de Contratação:</b> {evento['Data Contratação'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Tipo de Evento:</b> {evento['Tipo Evento'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Número de Pessoas:</b> {evento['Num Pessoas'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Data do Evento:</b> {evento['Data do Evento'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Data de Contratação:</b> {evento['Data de Contratação'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Tipo de Evento:</b> {evento['Tipo do Evento'].values[0]}", unsafe_allow_html=True)
     with col2:
-        st.markdown(f"<b>Status:</b> {evento['Status Evento'].values[0]}", unsafe_allow_html=True)
-        if evento['Status Evento'].values[0] == 'Declinado':
+        st.markdown(f"<b>Número de Pessoas:</b> {evento['Número de Pessoas'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Valor Total do Evento:</b> R$ {format_brazilian(evento['Valor Total'].values[0])}", unsafe_allow_html=True)
+        st.markdown(f"<b>Status:</b> {evento['Status do Evento'].values[0]}", unsafe_allow_html=True)
+        if evento['Status do Evento'].values[0] == 'Declinado':
             st.markdown(f"<b>Motivo do Declinio:</b> {evento['Motivo Declínio'].values[0]}", unsafe_allow_html=True)
         
         texto_observacoes = escape_dolar(evento['Observações'].values[0])
         st.markdown(f"<b>Observações:</b> {texto_observacoes}", unsafe_allow_html=True)
     with st.expander("Ver detalhes"):
-        evento = format_columns_brazilian(evento, [
+        evento_inicial = format_columns_brazilian(evento_inicial, [
             'Valor Total Evento',
             'Valor Locação Aroo 1',
             'Valor Locação Aroo 2',
@@ -167,7 +171,14 @@ def infos_evento(id_evento, df_eventos):
             'Valor AB',
             'Valor Imposto',
             'Total Gazit',
-            'Valor Locação Total',
+            'Valor Total Locação',
+            'Valor Locação Aroo 1',
+            'Valor Locação Aroo 2',
+            'Valor Locação Aroo 3',
+            'Valor Locação Anexo',
+            'Valor Locação Notie',
+            'Valor Locação Mirante',
+            'Valor Locação Espaço',
             'Valor Locação Gerador',
             'Valor Locação Mobiliário',
             'Valor Locação Utensílios',
@@ -176,14 +187,19 @@ def infos_evento(id_evento, df_eventos):
             'Valor Comissão BV',
             'Valor Extras Gerais',
             'Valor Taxa Serviço',
-            'Valor Acréscimo Forma de Pagamento'
+            'Valor Acréscimo Forma de Pagamento',
+            'Valor Contratação Artístico',
+            'Valor Contratação Técnico de Som',
+            'Valor Contratação Bilheteria/Couvert Artístico'
         ])
-        st.dataframe(evento, use_container_width=True, hide_index=True)    
+        evento_inicial = df_format_date_columns_brazilian(evento_inicial, ['Data do Evento', 'Data de Contratação', 'Data Envio Proposta', 'Data Recebimento Lead'])
+        st.dataframe(evento_inicial, use_container_width=True, hide_index=True)    
 
 
 def mostrar_aditivos(id_evento, df_aditivos):
     id_evento = int(id_evento)
-    if df_aditivos[df_aditivos['ID Evento do Aditivo'] == id_evento].empty:
+    lista_aditivos = df_aditivos[df_aditivos['ID Evento do Aditivo'] == id_evento]['ID Aditivo'].tolist()
+    if len(lista_aditivos) == 0:
         st.warning("Nenhum aditivo encontrado para este evento.")
     else:
         aditivos = df_aditivos[df_aditivos['ID Evento do Aditivo'] == id_evento]
@@ -191,14 +207,15 @@ def mostrar_aditivos(id_evento, df_aditivos):
         aditivos = format_columns_brazilian(aditivos, ['Valor Total Aditivo', 'Valor AB', 'Valor Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto'])
         st.markdown(f"#### Aditivos")
         st.dataframe(aditivos, use_container_width=True, hide_index=True)
+    return lista_aditivos
 
-def mostrar_parcelas(id_evento, df_parcelas):
+def mostrar_parcelas(id_evento, df_parcelas, lista_aditivos):
     id_evento = int(id_evento)
     
-    if df_parcelas[df_parcelas['ID Evento'] == id_evento].empty:
+    if df_parcelas[(df_parcelas['ID Evento'] == id_evento) | (df_parcelas['ID Evento'].isin(lista_aditivos))].empty:
         st.warning("Nenhuma parcela encontrada para este evento.")
     else:
-        parcelas = df_parcelas[df_parcelas['ID Evento'] == id_evento]
+        parcelas = df_parcelas[(df_parcelas['ID Evento'] == id_evento) | (df_parcelas['ID Evento'].isin(lista_aditivos))]
         parcelas = df_format_date_columns_brazilian(parcelas, ['Data Vencimento', 'Data Recebimento'])
         parcelas = format_columns_brazilian(parcelas, ['Valor Parcela'])
         parcelas = rename_colunas_parcelas(parcelas)

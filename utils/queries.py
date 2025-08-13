@@ -295,7 +295,7 @@ def GET_PARCELAS_EVENTOS_PRICELESS():
 	''')
 
 @st.cache_data
-def GET_EVENTOS_PRICELESS_KPIS():
+def GET_EVENTOS_ADITIVOS_AGRUPADOS():
    	return dataframe_query(f'''
 		SELECT
 			COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID) AS 'ID Evento',
