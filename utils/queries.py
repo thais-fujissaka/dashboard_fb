@@ -504,30 +504,34 @@ def GET_CLIENTES_EVENTOS():
 			trec.PESSOA_DE_CONTATO AS 'Pessoa de Contato',
 			trec.ENDERECO_COMPLETO AS 'Endereço',
 			trec.CEP AS 'CEP',	
-			tep.ID AS 'ID Evento',
-			tep.NOME_EVENTO AS 'Nome Evento',
+			COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID) AS 'ID Evento',
+			tep2.NOME_EVENTO AS 'Nome Evento',
 			te.ID AS 'ID Casa',
 			te.NOME_FANTASIA AS 'Casa',
 			tsep.DESCRICAO AS 'Status',
-			tep.VALOR_TOTAL_EVENTO AS 'Valor Total Evento',
-			tep.VALOR_AB AS 'Valor AB',
-			tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
-			tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
-			tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
-			tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
-			tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
-			tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
-			tep.VALOR_IMPOSTO AS 'Valor Imposto',
-			tep.OBSERVACOES AS 'Observações',
+			SUM(tep.VALOR_TOTAL_EVENTO) AS 'Valor Total Evento',
+			SUM(tep.VALOR_AB) AS 'Valor AB',
+			SUM(tep.VALOR_LOCACAO_AROO_1) AS 'Valor Locação Aroo 1',
+			SUM(tep.VALOR_LOCACAO_AROO_2) AS 'Valor Locação Aroo 2',
+			SUM(tep.VALOR_LOCACAO_AROO_3) AS 'Valor Locação Aroo 3',
+			SUM(tep.VALOR_LOCACAO_ANEXO) AS 'Valor Locação Anexo',
+			SUM(tep.VALOR_LOCACAO_NOTIE) AS 'Valor Locação Notie',
+			SUM(tep.VALOR_LOCACAO_MIRANTE) AS 'Valor Locação Mirante',
+			SUM(tep.VALOR_LOCACAO_ESPACO) AS 'Valor Locação Espaço',
+			SUM(tep.VALOR_IMPOSTO) AS 'Valor Imposto',
+			tep2.OBSERVACOES AS 'Observações',
 			DATE(tep.DATA_EVENTO) AS 'Data Evento',
 			DATE(tep.DATA_RECEBIMENTO_LEAD) AS 'Data Recebimento Lead',
 			DATE(tep.DATA_ENVIO_PROPOSTA) AS 'Data Envio Proposta',
-			DATE(tep.DATA_CONTRATACAO) AS 'Data Contratação'
+			DATE(tep.DATA_CONTRATACAO) AS 'Data Contratação',
+			tep.IS_ADITIVO AS 'Is Aditivo'
 		FROM T_EVENTOS_PRICELESS tep
-			INNER JOIN T_EMPRESAS te ON te.ID = tep.FK_EMPRESA
-			INNER JOIN T_EXECUTIVAS_EVENTOS tee ON tee.ID = tep.FK_EXECUTIVA_EVENTOS
-			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+			LEFT JOIN T_EVENTOS_PRICELESS tep2 ON COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID) = tep2.ID
+			INNER JOIN T_EMPRESAS te ON te.ID = tep2.FK_EMPRESA
+			INNER JOIN T_EXECUTIVAS_EVENTOS tee ON tee.ID = tep2.FK_EXECUTIVA_EVENTOS
+			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep2.FK_CLIENTE = trec.ID)
 			LEFT JOIN T_SETOR_EMPRESA_CLIENTES_EVENTOS tsece ON tsece.ID = trec.FK_SETOR_CLIENTE 
-			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep.FK_STATUS_EVENTO
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON tsep.ID = tep2.FK_STATUS_EVENTO
 		WHERE tsep.DESCRICAO = 'Confirmado' AND trec.ID IS NOT NULL
+		GROUP BY COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID)
 	''')
