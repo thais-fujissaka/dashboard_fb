@@ -47,6 +47,10 @@ def main():
         'Valor Imposto': float,
     }
     df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
+    # Seleciona apenas colunas do tipo float
+    float_cols = df_eventos.select_dtypes(include=['float'])
+    # Preenche NaN com 0 nessas colunas
+    df_eventos[float_cols.columns] = float_cols.fillna(0)
 
     # Vendedores
     df_vendedores = df_eventos[['ID Responsavel Comercial', 'Comercial Responsável']].drop_duplicates().dropna()
@@ -66,7 +70,7 @@ def main():
     # Adiciona selecao de mes e ano
     col0, col1, col2, col3, col4= st.columns([0.5, 0.25, 0.25, 0.4, 1])
     with col0:
-        lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
         id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
     with col1:
         ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_conversao_eventos_priceless")
@@ -109,16 +113,22 @@ def main():
             'Valor Locação Gerador': float,
             'Valor Locação Mobiliário': float,
             'Valor Locação Utensílios': float,
+            'Valor Locação Gerador': float,
             'Valor Mão de Obra Extra': float,
             'Valor Taxa Administrativa': float,
             'Valor Comissão BV': float,
             'Valor Extras Gerais': float,
             'Valor Taxa Serviço': float,
-            'Valor Acréscimo Forma de Pagamento': float
+            'Valor Acréscimo Forma de Pagamento': float,
+            'Valor Contratação Artístico': float,
+            'Valor Contratação Técnico de Som': float,
+            'Valor Contratação Bilheteria/Couvert Artístico': float,
+            'Valor Imposto': float
         }
         df_eventos_ano = df_eventos_ano.astype(tipos_de_dados_eventos_ano, errors='ignore')
 
         df_eventos = df_filtrar_mes(df_eventos_ano, filtro_tipo_data, mes)
+        
     else:
         st.warning("Selecione um filtro de data.")
         st.stop()   
@@ -193,7 +203,8 @@ def main():
             # Exibição
             if df_filtrado is not None:
                 df_filtrado_download = df_filtrado.copy()
-                df_filtrado = format_columns_brazilian(df_filtrado, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto'])
+                df_filtrado = format_columns_brazilian(df_filtrado, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
+                df_filtrado = df_filtrado.drop(columns=['Is Aditivo'])
                 st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
                 col1, col2 = st.columns([4, 1], vertical_alignment = "center")
                 with col1:

@@ -23,7 +23,7 @@ def main():
     config_sidebar()
 
     # Recupera dados dos eventos
-    df_eventos = GET_EVENTOS_PRICELESS()
+    df_eventos = GET_EVENTOS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
     
     # Remove eventos com NaT ou datas nulas

@@ -42,7 +42,7 @@ def main():
 
     # Recupera dados dos eventos e parcelas para seção de faturamento
     df_orcamentos_faturamento = df_orcamentos.copy()
-    df_eventos_faturamento = GET_EVENTOS_PRICELESS()
+    df_eventos_faturamento = GET_EVENTOS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
     # Formata tipos de dados do dataframe de eventos
@@ -89,7 +89,7 @@ def main():
             st.divider()
             col1, col2 = st.columns([1, 1], gap="large")
             with col1:
-                lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+                lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
                 id_casa_faturamento, casa_faturamento, id_zigpay_faturamento = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto_comissao')
             with col2:
                 ano = seletor_ano(2024, 2025, key='ano_faturamento')
@@ -136,7 +136,7 @@ def main():
             # Seletores
             col0, col1, col2, col3= st.columns([1,1,1,1])
             with col0:
-                lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret', 'Ultra Evil Premium Ltda ']
+                lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
                 id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='acompanhamento_comissao_casas')
                 # Filtra por casa se não for "Todas as Casas"
                 if id_casa != -1:

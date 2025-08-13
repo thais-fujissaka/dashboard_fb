@@ -44,7 +44,7 @@ def main():
     st.divider()
 
     # Filtro de casa:
-    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB']
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
     id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
 
     if casa != 'Todas as Casas':

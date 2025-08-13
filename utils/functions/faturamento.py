@@ -32,23 +32,23 @@ def montar_tabs_geral(df_parcelas, casa, id_casa, tipo_data, df_orcamentos):
         tipo_data = 'Data Vencimento'
     else: return
 
-    tab_names = ['**Total de Eventos**', '**Alimentos e Bebidas**', '**Couvert**', '**Locação**', '**Serviço**']
+    tab_names = ['**Total de Eventos**']
     tabs = st.tabs(tab_names)
     with tabs[0]:
         st.markdown(f"#### Faturamento Total de Eventos - {casa}")
         grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
-    with tabs[1]:
-        st.markdown("#### Alimentos e Bebidas")
-        grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'A&B', df_orcamentos, id_casa)
-    with tabs[2]:
-        st.markdown("#### Couvert")
-        grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Couvert', df_orcamentos, id_casa)
-    with tabs[3]:
-        st.markdown("#### Locação")
-        grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Locação', df_orcamentos, id_casa)
-    with tabs[4]:
-        st.markdown("#### Serviço")
-        grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Serviço', df_orcamentos, id_casa)
+    # with tabs[1]:
+    #     st.markdown("#### Alimentos e Bebidas")
+    #     grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'A&B', df_orcamentos, id_casa)
+    # with tabs[2]:
+    #     st.markdown("#### Couvert")
+    #     grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Couvert', df_orcamentos, id_casa)
+    # with tabs[3]:
+    #     st.markdown("#### Locação")
+    #     grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Locação', df_orcamentos, id_casa)
+    # with tabs[4]:
+    #     st.markdown("#### Serviço")
+    #     grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, 'Serviço', df_orcamentos, id_casa)
 
 
 def montar_tabs_priceless(df_parcelas_casa, id_casa, df_eventos, tipo_data, df_orcamentos):

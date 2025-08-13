@@ -40,7 +40,7 @@ def main():
 	st.divider()
 
 	# Recupera dados dos eventos e parcelas
-	df_eventos = GET_EVENTOS_PRICELESS()
+	df_eventos = GET_EVENTOS_E_ADITIVOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 	
     # Formata tipos de dados do dataframe de eventos
@@ -75,7 +75,7 @@ def main():
 	# Seletores
 	col1, col2= st.columns([1, 1], gap="large")
 	with col1:
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')

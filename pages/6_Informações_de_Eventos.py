@@ -26,7 +26,7 @@ def main():
 	config_sidebar()
 
 	# Recupera dados dos eventos e parcelas
-	df_eventos = GET_EVENTOS_PRICELESS()
+	df_eventos = GET_EVENTOS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 	# Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
@@ -82,7 +82,7 @@ def main():
 	# Seletores de eventos
 	col1, col2 = st.columns([1, 3])
 	with col1:
-		lista_retirar_casas = ['Arcos', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB', 'Love Cabaret']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='informacoes_eventos')
 	# Filtro por Casa
 	if id_casa != -1:

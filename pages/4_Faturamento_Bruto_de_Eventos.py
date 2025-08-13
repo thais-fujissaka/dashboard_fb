@@ -39,7 +39,7 @@ def main():
 	st.divider()
 
 	# Recupera dados dos eventos e parcelas
-	df_eventos = GET_EVENTOS_PRICELESS()
+	df_eventos = GET_EVENTOS_E_ADITIVOS_PRICELESS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 	df_orcamentos = GET_ORCAMENTOS_EVENTOS()
 
@@ -54,7 +54,20 @@ def main():
 		'Valor Imposto': float,
 		'Valor AB': float,
 		'Valor Total Evento': float,
-		'Valor Total Locação': float
+		'Valor Total Locação': float,
+		'Valor Locação Gerador': float,
+		'Valor Locação Mobiliário': float,
+		'Valor Locação Utensílios': float,
+		'Valor Taxa Serviço': float,
+		'Valor Locação Espaço': float,
+		'Valor Contratação Artístico': float,
+		'Valor Contratação Técnico de Som': float,
+		'Valor Contratação Bilheteria/Couvert Artístico': float,
+		'Valor Mão de Obra Extra': float,
+		'Valor Taxa Administrativa': float,
+		'Valor Comissão BV': float,
+		'Valor Extras Gerais': float,
+		'Valor Acréscimo Forma de Pagamento': float
 	}
 	df_eventos = df_eventos.astype(tipos_de_dados_eventos, errors='ignore')
 	df_eventos['Data Contratação'] = pd.to_datetime(df_eventos['Data Contratação'], errors='coerce')
@@ -75,16 +88,13 @@ def main():
 	}
 	df_orcamentos = df_orcamentos.astype(tipos_de_dados_orcamentos, errors='ignore')
 
-	# Adiciona coluna de concatenação de ID e Nome Evento
-	df_eventos['ID_Nome_Evento'] = df_eventos['ID Evento'].astype(str) + " - " + df_eventos['Nome Evento']
-
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
 	
 	# Seletores
 	col1, col2= st.columns([1, 1], gap="large")
 	with col1:
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Girondino - CCBB']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')
@@ -94,8 +104,7 @@ def main():
 	with st.container(border=True):
 		col1, col2, col3, col4 = st.columns([0.1, 2, 0.8, 0.1], gap="large", vertical_alignment="center")
 		with col2:
-			st.markdown("## Faturamento Por Categoria – Eventos Confirmados")
-			st.write("")
+			st.markdown("## Faturamento – Eventos Confirmados")
 		with col3:
 			filtro_data_categoria = "Competência"
 			filtro_data_categoria = st.segmented_control(
@@ -114,6 +123,8 @@ def main():
 		df_orcamentos = filtrar_por_classe_selecionada(df_orcamentos, 'Ano', [ano])
 		if casa != "Todas as Casas":
 			df_orcamentos = filtrar_por_classe_selecionada(df_orcamentos, 'ID Casa', [id_casa])
+
+		# Visualização do faturamento
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		with col2:
 			if filtro_data_categoria is None:
