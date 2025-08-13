@@ -24,7 +24,10 @@ def main():
 
     # Recupera dados dos eventos
     df_eventos = GET_EVENTOS()
+    df_aditivos = GET_ADITIVOS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
+
+    df_eventos_aditivos_agrupado = GET_EVENTOS_ADITIVOS_AGRUPADOS()
     
     # Remove eventos com NaT ou datas nulas
     df_eventos = df_eventos.dropna(subset=["Data Evento"])
@@ -48,7 +51,7 @@ def main():
                
     st.divider()
     
-    json_eventos = dataframe_to_json_calendar(df_eventos)
+    json_eventos = dataframe_to_json_calendar(df_eventos, event_color_type='status')
     
     # Renderiza o calendário
     selected = st_calendar(
@@ -84,15 +87,16 @@ def main():
     if selected:
         
         if selected.get("callback") == "eventClick":
-            id_evento_seleciondo = selected["eventClick"]["event"]["id"]
+            id_evento_selecionado = selected["eventClick"]["event"]["id"]
             with st.container(border=True):
                 st.write("")
                 col1, col2, col3 = st.columns([1, 15, 1])
                 with col2:
-                    infos_evento(id_evento_seleciondo, df_eventos)
+                    infos_evento(id_evento_selecionado, df_eventos_aditivos_agrupado, df_eventos)
                     st.write("")
-                    mostrar_parcelas(id_evento_seleciondo, df_parcelas)
+                    lista_aditivos = mostrar_aditivos(id_evento_selecionado, df_aditivos)
                     st.write("")
+                    mostrar_parcelas(id_evento_selecionado, df_parcelas, lista_aditivos)
                     st.write("")
         else:
             st.info("Selecione um evento no calendário para ver os detalhes.")

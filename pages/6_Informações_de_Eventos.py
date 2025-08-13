@@ -27,7 +27,11 @@ def main():
 
 	# Recupera dados dos eventos e parcelas
 	df_eventos = GET_EVENTOS()
+	df_aditivos = GET_ADITIVOS()
 	df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
+	
+	df_eventos_aditivos_agrupado = GET_EVENTOS_E_ADITIVOS_PRICELESS()
+	
 	# Formata tipos de dados do dataframe de eventos
 	tipos_de_dados_eventos = {
 		'Valor Locação Aroo 1': float,
@@ -69,6 +73,12 @@ def main():
 	# Calcula o valor de repasse para Gazit
 	df_eventos = calcular_repasses_gazit(df_eventos)
 
+	# Seleciona apenas colunas do tipo float
+	float_cols = df_eventos.select_dtypes(include=['float'])
+    # Preenche NaN com 0 nessas colunas
+	df_eventos[float_cols.columns] = float_cols.fillna(0)
+
+	# Cabeçalho
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
 		st.title("🔎 Informações de Eventos")
@@ -83,10 +93,12 @@ def main():
 	col1, col2 = st.columns([1, 3])
 	with col1:
 		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
-		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='informacoes_eventos')
+		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='casas_informacoes_eventos')
+
 	# Filtro por Casa
 	if id_casa != -1:
 		df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]
+		df_aditivos = df_aditivos[df_aditivos['ID Casa'] == id_casa]
 		df_parcelas = df_parcelas[df_parcelas['ID Casa'] == id_casa]
 	
 	# Lista de eventos para o filtro
@@ -94,26 +106,31 @@ def main():
 	eventos_id_options = ['Todos os Eventos'] + sorted(eventos_unicos)
 	
 	with col2:
-		eventos = st.multiselect("Eventos", options=eventos_id_options, key='eventos_repasses_gazit', placeholder='Procurar eventos')
+		eventos = st.multiselect("Eventos", options=eventos_id_options, key='informacoes_eventos', placeholder='Procurar eventos')
 	st.divider()	
 
 	# Janela de visualização
 	if eventos:
 		if 'Todos os Eventos' not in eventos:
-			# Filtra os eventos e parcelas dos eventos selecionados
+			# Filtra os eventos, aditivos e parcelas dos eventos selecionados
 			df_eventos = df_eventos[df_eventos['ID_Nome_Evento'].isin(eventos)]
-			df_parcelas = df_parcelas[df_parcelas['ID Evento'].isin(df_eventos['ID Evento'])]
+			df_aditivos = df_aditivos[df_aditivos['ID Evento do Aditivo'].isin(df_eventos['ID Evento'])]
+			df_parcelas = df_parcelas[(df_parcelas['ID Evento'].isin(df_eventos['ID Evento']) | df_parcelas['ID Evento'].isin(df_aditivos['ID Evento do Aditivo']))]
 
 		# Formata datas: datetime[ns] -> str
 		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data Contratação')
 		df_eventos = df_formata_data_sem_horario(df_eventos, 'Data Evento')
+		df_aditivos = df_formata_data_sem_horario(df_aditivos, 'Data Contratação')
+		df_aditivos = df_formata_data_sem_horario(df_aditivos, 'Data Evento')
 		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data Vencimento')
 		df_parcelas = df_formata_data_sem_horario(df_parcelas, 'Data Recebimento')
+
 		# Calcula o valor de repasse para Gazit das parcelas
 		df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)
 		
 		# Formata valores monetários brasileiro
 		df_eventos = format_columns_brazilian(df_eventos, ['Valor Total Evento', 'Valor Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Imposto'])
+		df_aditivos = format_columns_brazilian(df_aditivos, ['Valor Total Aditivo', 'Valor Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Espaço', 'Valor Locação Mirante', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto', 'Valor AB', 'Valor Taxa Serviço'])
 		df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Valor Liquido Repasse Gazit', 'Valor Total Bruto Gazit', 'Valor Total Líquido Gazit', 'Valor Parcela AROO', 'Valor Parcela ANEXO', 'Valor Parcela Notie', 'Valor Parcela Mirante', 'AROO Valor Bruto Gazit', 'AROO Valor Líquido Gazit', 'ANEXO Valor Bruto Gazit', 'ANEXO Valor Líquido Gazit'])
 
 		df_eventos = df_eventos.drop(columns=['ID_Nome_Evento', 'Valor Locacao Total Aroos', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Total Gazit'])
@@ -132,9 +149,15 @@ def main():
 			}
 		)
 
+		st.markdown("## Aditivos")
+		if not df_aditivos.empty and df_aditivos is not None:
+			st.dataframe(df_aditivos, use_container_width=True, hide_index=True)
+		else:
+			st.warning("Nenhum aditivo encontrado.")
+
 		st.markdown("## Parcelas")
 		if df_parcelas is not None:
-			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Valor Total Locação', 'Total Gazit', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante'])
+			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Valor Total Locação', 'Total Gazit', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido', 'Repasse Gazit Bruto Aroos', 'Repasse Gazit Liquido Aroos', 'Repasse Gazit Bruto Anexo', 'Repasse Gazit Liquido Anexo'])
 			st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
 		else:
 			st.warning("Nenhuma parcela encontrada.")
