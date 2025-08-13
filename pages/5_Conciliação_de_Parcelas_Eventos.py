@@ -85,7 +85,7 @@ def main():
 	df_parcelas_casa = filtrar_por_classe_selecionada(df_parcelas, 'ID Casa', [id_casa]) if id_casa != -1 else df_parcelas
 	df_parcelas_filtradas_por_status = filtrar_por_classe_selecionada(df_parcelas_casa, 'Status Evento', ['Confirmado'])
 
-	# Recebido X Vencimento
+	# Vencimento x Recebimento
 	with st.container(border=True):
 		col1, col2, col3 = st.columns([0.1, 2.6, 0.1], gap="large", vertical_alignment="center")
 		with col2:
@@ -103,16 +103,25 @@ def main():
 		df_farol_download = df_farol.copy()
 		df_farol = format_columns_brazilian(df_farol, ['Valor Parcela'])
 		df_farol = rename_colunas_parcelas(df_farol)
-		df_farol = df_farol.drop(columns=['ID Casa'], errors='ignore')
-		with col2:
-			col1, col2 = st.columns([4, 1], gap="large", vertical_alignment="center")
-			with col1:
-				st.markdown(f"## Farol de Parcelas Atrasadas")
+		if df_farol is not None:
+			df_farol = df_farol.drop(columns=['ID Casa'], errors='ignore')
+		
 			with col2:
-				button_download(df_farol_download, 'Parcelas_Atrasadas', 'parcelas_atrasadas')
-			
-			st.dataframe(df_farol, use_container_width=True, hide_index=True)
-			st.markdown("Todas as parcelas ainda sem pagamento após a Data de Vencimento.")
+				col1, col2 = st.columns([4, 1], gap="large", vertical_alignment="center")
+				with col1:
+					st.markdown(f"## Farol de Parcelas Atrasadas")
+				with col2:
+					button_download(df_farol_download, 'Parcelas_Atrasadas', 'parcelas_atrasadas')
+				
+				st.dataframe(df_farol, use_container_width=True, hide_index=True)
+				st.markdown("Todas as parcelas ainda sem pagamento após a Data de Vencimento.")
+		else:
+			with col2:
+				col1, col2 = st.columns([4, 1], gap="large", vertical_alignment="center")
+				with col1:
+					st.markdown(f"## Farol de Parcelas Atrasadas")
+					st.warning("Nenhuma parcela atrasada encontrada.")
+					st.stop()
 
 
 if __name__ == '__main__':
