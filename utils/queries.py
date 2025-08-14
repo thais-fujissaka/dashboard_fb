@@ -184,6 +184,7 @@ def GET_EVENTOS():
 		tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
 		tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
 		tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+		tep.VALOR_LOCACAO_BAR AS 'Valor Locação Bar',
 		tep.VALOR_LOCACAO_ESPACO AS 'Valor Locação Espaço',
 		tep.VALOR_CONTRATACAO_ARTISTICO AS 'Valor Contratação Artístico',
 		tep.VALOR_CONTRATACAO_TECNICO_SOM AS 'Valor Contratação Técnico de Som',
