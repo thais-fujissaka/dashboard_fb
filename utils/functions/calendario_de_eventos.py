@@ -180,7 +180,7 @@ def infos_evento(id_evento, df_eventos_aditivos_agrupados, df_eventos):
         st.markdown(f"<b>Comercial Responsável:</b> {evento['Comercial Responsável'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Cliente:</b> {evento['Cliente'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Data do Evento:</b> {formata_data_sem_horario(evento['Data do Evento'].values[0])}", unsafe_allow_html=True)
-        st.markdown(f"<b>Data de Contratação:</b> {evento['Data de Contratação'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Data de Contratação:</b> {formata_data_sem_horario(evento['Data de Contratação'].values[0])}", unsafe_allow_html=True)
         st.markdown(f"<b>Tipo de Evento:</b> {evento['Tipo do Evento'].values[0]}", unsafe_allow_html=True)
     with col2:
         st.markdown(f"<b>Número de Pessoas:</b> {evento['Número de Pessoas'].values[0]}", unsafe_allow_html=True)
