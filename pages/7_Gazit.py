@@ -46,6 +46,7 @@ def main():
 		'Valor Locação Aroo 3': float,
 		'Valor Locação Anexo': float,
 		'Valor Locação Notie': float,
+		'Valor Locação Bar': float,
 		'Valor Locação Mirante': float,
 		'Valor Imposto': float,
 		'Valor AB': float,
@@ -61,6 +62,7 @@ def main():
     'Valor Locação Aroo 3': 0,
     'Valor Locação Anexo': 0,
     'Valor Locação Notie': 0,
+	'Valor Locação Bar': 0,
     'Valor Locação Mirante': 0,
     'Valor Imposto': 0,
     'Valor AB': 0,
@@ -142,7 +144,8 @@ def main():
 
 			st.markdown("#### Eventos")
 			df_eventos_vencimento = df_eventos_vencimento.drop(columns=['ID_Nome_Evento', 'Motivo Declínio', 'Observações', 'Status Evento'])
-			df_eventos_vencimento = df_eventos_vencimento[['ID Evento', 'Nome Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total Evento', 'Valor AB', 'Valor Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
+			df_eventos_vencimento = df_eventos_vencimento[['ID Evento', 'Nome Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total Evento', 'Valor AB', 'Valor Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Bar', 'Valor Locação Mirante', 'Valor Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
+			df_eventos_vencimento = format_columns_brazilian(df_eventos_vencimento, ['Valor Total Evento', 'Valor AB', 'Valor Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Bar', 'Valor Locação Mirante', 'Valor Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo'])
 			st.dataframe(df_eventos_vencimento, use_container_width=True, hide_index=True)
 		
 		else:
@@ -179,7 +182,8 @@ def main():
 			st.markdown("#### Eventos")
 			df_eventos_recebimento = df_eventos[df_eventos['ID Evento'].isin(df_parcelas_recebimento['ID Evento'])]
 			df_eventos_recebimento = df_eventos_recebimento.drop(columns=['ID_Nome_Evento', 'Motivo Declínio', 'Observações', 'Status Evento'])
-			df_eventos_recebimento = df_eventos_recebimento[['ID Evento', 'Nome Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total Evento', 'Valor AB', 'Valor Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
+			df_eventos_recebimento = df_eventos_recebimento[['ID Evento', 'Nome Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total Evento', 'Valor AB', 'Valor Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Bar', 'Valor Locação Mirante', 'Valor Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo']]
+			df_eventos_recebimento = format_columns_brazilian(df_eventos_recebimento, ['ID Evento', 'Nome Evento', 'Cliente', 'Data Contratação', 'Data Evento', 'Tipo Evento', 'Valor Total Evento', 'Valor AB', 'Valor Total Locação', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Bar', 'Valor Locação Mirante', 'Valor Imposto', 'Total Gazit', 'Total Gazit Aroos', 'Total Gazit Anexo'])
 			st.dataframe(df_eventos_recebimento, use_container_width=True, hide_index=True)
 
 			# Tabela Gazit

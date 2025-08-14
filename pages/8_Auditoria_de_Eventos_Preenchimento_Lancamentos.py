@@ -78,6 +78,14 @@ def main():
 			logout()
 	st.divider()
 
+	# Filtro de casa:
+	lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+	id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='seletor_casas_auditoria')
+	if id_casa != -1:
+		df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]
+		df_parcelas = df_parcelas[df_parcelas['ID Casa'] == id_casa]
+
+	# Filtro Confirmados, Em Negociação e Declinados
 	df_eventos_confirmados = df_eventos[df_eventos['Status'] == 'Confirmado']
 	df_parcelas_eventos_confirmados = df_parcelas[df_parcelas['Status Evento'] == 'Confirmado']
 

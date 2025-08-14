@@ -174,21 +174,20 @@ def infos_evento(id_evento, df_eventos_aditivos_agrupados, df_eventos):
     evento['Data do Evento'] = evento['Data do Evento'].fillna('Data não informada')
     evento['Data de Contratação'] = evento['Data de Contratação'].fillna('Data não informada')
     evento['Observações'] = evento['Observações'].fillna('Nenhuma observação informada')
-
     st.markdown(f"### Evento - {evento['Nome Evento'].values[0]}")
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"<b>Comercial Responsável:</b> {evento['Comercial Responsável'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Cliente:</b> {evento['Cliente'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Data do Evento:</b> {evento['Data do Evento'].values[0]}", unsafe_allow_html=True)
-        st.markdown(f"<b>Data de Contratação:</b> {evento['Data de Contratação'].values[0]}", unsafe_allow_html=True)
+        st.markdown(f"<b>Data do Evento:</b> {formata_data_sem_horario(evento['Data do Evento'].values[0])}", unsafe_allow_html=True)
+        st.markdown(f"<b>Data de Contratação:</b> {formata_data_sem_horario(evento['Data de Contratação'].values[0])}", unsafe_allow_html=True)
         st.markdown(f"<b>Tipo de Evento:</b> {evento['Tipo do Evento'].values[0]}", unsafe_allow_html=True)
     with col2:
         st.markdown(f"<b>Número de Pessoas:</b> {evento['Número de Pessoas'].values[0]}", unsafe_allow_html=True)
         st.markdown(f"<b>Valor Total do Evento:</b> R$ {format_brazilian(evento['Valor Total'].values[0])}", unsafe_allow_html=True)
         st.markdown(f"<b>Status:</b> {evento['Status do Evento'].values[0]}", unsafe_allow_html=True)
         if evento['Status do Evento'].values[0] == 'Declinado':
-            st.markdown(f"<b>Motivo do Declinio:</b> {evento['Motivo Declínio'].values[0]}", unsafe_allow_html=True)
+            st.markdown(f"<b>Motivo do Declinio:</b> {evento['Motivo do Declínio'].values[0]}", unsafe_allow_html=True)
         
         texto_observacoes = escape_dolar(evento['Observações'].values[0])
         st.markdown(f"<b>Observações:</b> {texto_observacoes}", unsafe_allow_html=True)

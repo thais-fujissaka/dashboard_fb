@@ -1,6 +1,7 @@
 import datetime
 import calendar
 import pandas as pd
+import numpy as np
 
 def get_today():
     return datetime.datetime.now()
@@ -67,12 +68,18 @@ def df_formata_data_horario_zero_str(df, date_column):
 def formata_data_sem_horario(data):
     if pd.isnull(data):
         return None
+    
+    # Converte qualquer tipo reconhecível para Timestamp
+    if isinstance(data, (np.datetime64, pd.Timestamp, datetime.date, datetime.datetime)):
+        return pd.to_datetime(data).strftime("%d-%m-%Y")
+    
     if isinstance(data, str):
         try:
-            data = datetime.datetime.strptime(data, "%d-%m-%Y")
+            return pd.to_datetime(data).strftime("%d-%m-%Y")
         except ValueError:
             return ""  # string inválida para conversão
-    return data.strftime("%d-%m-%Y")
+    
+    return ""  # tipo não reconhecido
 
 
 def df_formata_data_sem_horario(df, date_column):

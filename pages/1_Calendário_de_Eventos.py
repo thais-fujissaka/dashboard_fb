@@ -55,14 +55,16 @@ def main():
         if id_casa == 149: # Priceless - Locação dividida por espaços
             df_eventos = df_eventos.drop(columns=['Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
             df_aditivos = df_aditivos.drop(columns=['Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
+            df_eventos_aditivos_agrupado = df_eventos_aditivos_agrupado.drop(columns=['Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
 
         else:
-            df_eventos = df_eventos.drop(columns=['Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante'])
-            df_aditivos = df_aditivos.drop(columns=['Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante'])
+            df_eventos = df_eventos.drop(columns=['Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Locação Bar'])
+            df_aditivos = df_aditivos.drop(columns=['Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Locação Bar'])
 
             if id_casa in [104, 115, 116, 156, 122]: # Orfeu, Riviera, Bar Leo Centro, Girondino, Arcos - Com locação de um số espaço, SEM Couvert/Bilheteria
                 df_eventos = df_eventos.drop(columns=['Valor Contratação Bilheteria/Couvert Artístico'])
                 df_aditivos = df_aditivos.drop(columns=['Valor Contratação Bilheteria/Couvert Artístico'])
+                df_eventos_aditivos_agrupado = df_eventos_aditivos_agrupado.drop(columns=['Valor Contratação Bilheteria/Couvert Artístico'])
 
 
     json_eventos = dataframe_to_json_calendar(df_eventos, event_color_type='status')
