@@ -428,6 +428,19 @@ def GET_EVENTOS_COMISSOES():
 ''')
 
 
+def GET_ACESSOS_COMISSOES():
+	return dataframe_query(f'''
+		SELECT
+			CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO) AS 'ID - Responsavel',
+			au.EMAIL AS 'E-mail',
+			te.NOME_FANTASIA AS 'Casa'
+		FROM T_ASSOCIATIVA_CASAS_EXECUTIVAS_EVENTOS tacee
+			JOIN T_EXECUTIVAS_EVENTOS tee ON (tee.ID = tacee.FK_EXECUTIVAS_EVENTOS)
+			JOIN T_EMPRESAS te ON (te.ID = tacee.CASA)
+			JOIN ADMIN_USERS au ON (au.ID= tacee.EMAIL)				
+	''')	
+
+
 def GET_EVENTOS_AUDITORIA():
 	return dataframe_query(f'''
 		SELECT DISTINCT 

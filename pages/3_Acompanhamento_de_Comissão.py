@@ -45,6 +45,13 @@ def main():
     df_eventos_faturamento = GET_EVENTOS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
+    # Acessos das comissões dos vendedores por logins de vendedores (email)
+    df_acessos_comissoes = GET_ACESSOS_COMISSOES()
+    user = st.session_state["user_email"]
+    if user not in st.secrets["comissions_total_access"]["users"]:
+        df_acessos_comissoes = df_acessos_comissoes[df_acessos_comissoes['E-mail'] == user]
+    lista_vendedores_logado = df_acessos_comissoes['ID - Responsavel'].unique().tolist()
+
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
         'Valor Locação Aroo 1': float,
@@ -149,7 +156,7 @@ def main():
                     "Selecionar mês:", key="seletor_mes_kpi_comissao"
                 )
             with col3:
-                id_vendedor, nome_vendedor = seletor_vendedor("Comercial Responsável:", df_vendedores, "seletor_vendedor_kpi_comissao")
+                id_vendedor, nome_vendedor = seletor_vendedor_logado("Comercial Responsável:", df_vendedores, lista_vendedores_logado, "seletor_vendedor_kpi_comissao")
             st.divider()
 
             # Verifica se há dados disponíveis para o mês e casa selecionados

@@ -130,7 +130,34 @@ def seletor_vendedor(label, df_vendedores, key):
     return id_vendedor, nome_vendedor
 
 
-import streamlit as st
+def seletor_vendedor_logado(label, df_vendedores, lista_vendedores_logado, key):
+
+    # Recupera o email do usuário
+    user_email = st.session_state["user_email"]
+
+    # Verifica se o usuário tem acesso a todos os vendedores
+    if user_email in st.secrets["comissions_total_access"]["users"]:
+        lista_vendedores = df_vendedores['ID - Responsavel'].tolist()
+        lista_vendedores.insert(0, "Todos os vendedores")
+    else:
+        # Filtra somente o vendedor logado
+        lista_vendedores = lista_vendedores_logado
+
+    # Seletor de vendedor
+    vendedor = st.selectbox(label, lista_vendedores, key=key)
+    if vendedor == "Todos os vendedores":
+        id_vendedor = -1  # Valor padrão para "Todos"
+        nome_vendedor = "Todos os vendedores"
+    else:
+        # Extrai o ID do vendedor selecionado
+        if vendedor:
+            id_vendedor = int(vendedor.split(" - ")[0])
+            nome_vendedor = vendedor.split(" - ")[1]
+        else:
+            id_vendedor = int(lista_vendedores[0].split(" - ")[0])
+            nome_vendedor = lista_vendedores[0].split(" - ")[1]
+
+    return id_vendedor, nome_vendedor
 
 def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value_color="#000"):
     html = f"""
