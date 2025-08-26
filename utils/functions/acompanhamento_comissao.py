@@ -60,6 +60,23 @@ def calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida):
     return total_comissao
 
 
+def calcular_comissao_gerente_priceless(df_recebimentos_total_mes, id_responsavel, id_casa):
+    if id_casa in [149, -1]:
+        df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 149]
+
+        # Adiciona coluna de porcentagem da comissão de gerente
+        df_recebimentos_total_mes['% Comissão'] = 0.5
+        
+        # Calcula a comissão para cada recebimento
+        df_recebimentos_total_mes['Comissão'] = (df_recebimentos_total_mes['Valor da Parcela'] * 0.005)
+        df_recebimentos_total_mes.drop(columns=['ID - Responsavel', 'Cargo', 'Comissão Com Meta Atingida', 'Comissão Sem Meta Atingida', 'Ano Recebimento', 'Mês Recebimento'], inplace=True)
+
+        # Ordem das colunas
+        df_recebimentos_total_mes = df_recebimentos_total_mes[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela','Comissão', '% Comissão']]
+
+    return df_recebimentos_total_mes
+
+
 def highlight_total_row(row):
     if row['Casa'] == 'Total':
         return ['background-color: #f0f2f6; color: black;'] * len(row)

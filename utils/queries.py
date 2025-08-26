@@ -378,6 +378,7 @@ def GET_RECEBIMENTOS_EVENTOS():
 		SELECT 
 			CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO) AS 'ID - Responsavel',
 			tee.ID AS 'ID Responsavel',
+			tee.CARGO AS 'Cargo',
 			tee.COMISSAO_COM_META_ATINGIDA AS 'Comissão Com Meta Atingida',
 			tee.COMISSAO_SEM_META_ATINGIDA AS 'Comissão Sem Meta Atingida',
 			te.ID AS 'ID Casa',
@@ -433,6 +434,7 @@ def GET_ACESSOS_COMISSOES():
 		SELECT
 			CONCAT(tee.ID, ' - ', tee.NOME_COMPLETO) AS 'ID - Responsavel',
 			au.EMAIL AS 'E-mail',
+			tee.CARGO AS 'Cargo',
 			te.NOME_FANTASIA AS 'Casa'
 		FROM T_ASSOCIATIVA_CASAS_EXECUTIVAS_EVENTOS tacee
 			JOIN T_EXECUTIVAS_EVENTOS tee ON (tee.ID = tacee.FK_EXECUTIVAS_EVENTOS)

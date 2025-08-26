@@ -50,7 +50,15 @@ def main():
     user = st.session_state["user_email"]
     if user not in st.secrets["comissions_total_access"]["users"]:
         df_acessos_comissoes = df_acessos_comissoes[df_acessos_comissoes['E-mail'] == user]
+
+    # Lista dos vendedores cujas comissões serão exibidas
     lista_vendedores_logado = df_acessos_comissoes['ID - Responsavel'].unique().tolist()
+    # print(lista_vendedores_logado)
+
+    # Recupera o cargo do usuário
+    # df_cargo_logado = df_acessos_comissoes[df_acessos_comissoes['E-mail'] == user]
+    # cargo_logado = df_cargo_logado['Cargo'].unique().tolist()[0]
+    # print(cargo_logado)
 
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
@@ -173,6 +181,9 @@ def main():
             df_recebimentos = df_recebimentos[(df_recebimentos['Ano Recebimento'] == ano) & (df_recebimentos['Mês Recebimento'] == int(mes))]
             df_orcamentos = df_orcamentos[(df_orcamentos['Ano'] == ano) & (df_orcamentos['Mês'] == int(mes))]
 
+            # Cópia de recebimentos sem o filtro de ID Responsavel
+            df_recebimentos_total_mes = df_recebimentos.copy()
+
             # Calcula o recebimento total do mês
             total_recebido_mes = df_recebimentos['Valor da Parcela'].sum()
 
@@ -197,6 +208,9 @@ def main():
             # Calcula a comissão total para o mês, casa e vendedor(es) selecionados
             comissao = calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida)
 
+            # Map de vendedores e cargos
+            vendedores_cargos = df_acessos_comissoes[['ID - Responsavel', 'Cargo']].drop_duplicates()
+
             # Visualização das parcelas
             if df_recebimentos.empty:
                 st.warning("Não há recebimentos e comissões para os filtros selecionados.")
@@ -212,11 +226,21 @@ def main():
                 altura_expander = 86
                 for vendedor in vendedores:
                     df_vendedor = df_recebimentos[df_recebimentos['ID - Responsavel'] == vendedor].copy()
+                    cargo_vendedor = vendedores_cargos[vendedores_cargos['ID - Responsavel'] == vendedor]['Cargo'].values[0]
+
                     # Define os tipos das colunas
                     df_vendedor['Ano Recebimento'] = df_vendedor['Ano Recebimento'].astype(int).astype(str)
                     df_vendedor['Mês Recebimento'] = df_vendedor['Mês Recebimento'].astype(int).astype(str)
+                    
                     if not df_vendedor.empty:
-                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão',  'Comissão']]
+                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão',  'Comissão']]
+
+                        if cargo_vendedor == 'Gerente de Eventos' and id_casa in [149, -1]:
+                            df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID - Responsavel'] != vendedor]
+                            df_recebimentos_gerente_priceless = calcular_comissao_gerente_priceless(df_recebimentos_total_mes, vendedor, id_casa)
+                            df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_priceless], ignore_index=True)
+                        
+                        # Calcula valores totais para a linha de total
                         total_vendido_vendedor = df_vendedor['Valor da Parcela'].sum()
                         total_comissao = df_vendedor['Comissão'].sum()
                         lista_ids_eventos = df_vendedor['ID Evento'].unique().tolist()
@@ -243,25 +267,34 @@ def main():
                             'Comissão': [total_comissao]
                         })
                         df_vendedor = pd.concat([df_vendedor, linha_total], ignore_index=True)
+
+                        # Calcula a altura do dataframe com a linha total e linha de cabeçalho
                         altura_dataframe = len(df_vendedor) * altura_linha + altura_linha
                         altura_vendedor = altura_nome_vendedor + altura_dataframe + altura_expander
                         altura_atual += altura_vendedor
+
+                        # Formata as colunas
                         df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', '% Comissão', 'Comissão'])
                         df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', '% Comissão', 'Comissão']]
                         df_vendedor_styled = df_vendedor.style.apply(highlight_total_row, axis=1)
+
+                        # Formata a página para impressao
                         if altura_atual >= altura_maxima_pagina:
                             st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
                             altura_atual = altura_vendedor
                         else:
                             altura_atual += altura_vendedor
+
+                        # Exibe a comissão do vendedor
                         col1, col2 = st.columns([4, 1], vertical_alignment='center')
                         with col1:
                             st.markdown(f"#### {vendedor}")
                         with col2:
                             button_download(df_download_vendedor, f'comissao_{vendedor}', f'download_comissao_{vendedor}')
+
                         st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
+
                         with st.expander(f"Ver eventos correspondentes"):
-                            
                             df_eventos_vendedor = df_eventos[df_eventos['ID Evento'].isin(lista_ids_eventos)]
                             df_eventos_vendedor = format_columns_brazilian(df_eventos_vendedor, ['Valor Total', 'Valor AB', 'Valor Imposto'])
                             st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], use_container_width=True, hide_index=True)
