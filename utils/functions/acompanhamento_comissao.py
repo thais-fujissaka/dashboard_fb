@@ -12,7 +12,7 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
     """
 
     
-    if row['ID Casa'] in [122, 156, 115, 104, 114, 148, 105, 116, 110, 160, 128, 145]: # Arcos, Girondino, Riviera, Orfeu, Bar Brahma - Centro, Bar Brahma - Granja, Jacaré, Bar Leo Centro, 
+    if row['ID Casa'] in [122, 156, 115, 104, 114, 148, 105, 116, 160, 128, 145]: # Arcos, Girondino, Riviera, Orfeu, Bar Brahma - Centro, Bar Brahma - Granja, Jacaré, Bar Leo Centro, 
         if meta_atingida:
             percentual_comissao = 1.5
             comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
@@ -36,46 +36,70 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
         #     comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
         # elif row['Categoria Parcela'] == 'Repasse Artistico':
         #     comissao = round(row['Valor Total Parcelas'] * 0.05, 2)
-        # else:
-        #     percentual_comissao = 0.0
-        #     comissao = 0.0
+    else:
+        percentual_comissao = 0.0
+        comissao = 0.0
 
     return comissao, percentual_comissao
 
 
 def calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida):
     """
-    Calcula a comissão total com base nos recebimentos e orçamentos.
+    Calcula a comissão total com base nos recebimentos e orçamentos (atingimento de meta). Não serve para a comissão do Blue Note
     """
+    df_comissoes = df_recebimentos.copy()
     # Calcula a comissão para cada recebimento
-    if not df_recebimentos.empty:
-        resultado = df_recebimentos.apply(calcular_comissao_casa, axis=1, args=(orcamento_mes, meta_atingida))
-        df_recebimentos['Comissão'] = resultado.apply(lambda x: x[0])
-        df_recebimentos['% Comissão'] = resultado.apply(lambda x: x[1])
-        # Soma as comissões
-        total_comissao = df_recebimentos['Comissão'].sum()
-    else:
-        total_comissao = 0
+    if not df_comissoes.empty:
+        # Calcula a comissão para cada casa em relação ao atingimento de meta
+        resultado = df_comissoes.apply(calcular_comissao_casa, axis=1, args=(orcamento_mes, meta_atingida))
+        df_comissoes['Comissão'] = resultado.apply(lambda x: x[0])
+        df_comissoes['% Comissão'] = resultado.apply(lambda x: x[1])
 
-    return total_comissao
-
+    return df_comissoes
 
 def calcular_comissao_gerente_priceless(df_recebimentos_total_mes, id_responsavel, id_casa):
     if id_casa in [149, -1]:
-        df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 149]
+        df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 149].copy()
 
-        # Adiciona coluna de porcentagem da comissão de gerente
-        df_recebimentos_total_mes['% Comissão'] = 0.5
-        
-        # Calcula a comissão para cada recebimento
-        df_recebimentos_total_mes['Comissão'] = (df_recebimentos_total_mes['Valor da Parcela'] * 0.005)
-        df_recebimentos_total_mes.drop(columns=['ID - Responsavel', 'Cargo', 'Comissão Com Meta Atingida', 'Comissão Sem Meta Atingida', 'Ano Recebimento', 'Mês Recebimento'], inplace=True)
+        if not df_recebimentos_total_mes.empty:
+            # Adiciona coluna de porcentagem da comissão de gerente
+            df_recebimentos_total_mes['% Comissão'] = 0.5
+            
+            # Calcula a comissão para cada recebimento
+            df_recebimentos_total_mes['Comissão'] = (df_recebimentos_total_mes['Valor da Parcela'] * 0.005)
+            df_recebimentos_total_mes.drop(columns=['ID - Responsavel', 'Cargo', 'Comissão Com Meta Atingida', 'Comissão Sem Meta Atingida', 'Ano Recebimento', 'Mês Recebimento'], inplace=True)
 
-        # Ordem das colunas
-        df_recebimentos_total_mes = df_recebimentos_total_mes[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela','Comissão', '% Comissão']]
+            # Ordem das colunas
+            df_recebimentos_total_mes = df_recebimentos_total_mes[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'ID Parcela', 'Categoria Parcela', 'Valor da Parcela', 'Comissão', '% Comissão']]
 
     return df_recebimentos_total_mes
 
+
+def calcular_comissao_gerente_blue_note(df_recebimentos_total_mes, vendedor, id_casa):
+    if id_casa in [110, -1]:
+        df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 110].copy()
+
+        if not df_recebimentos_total_mes.empty:
+            total_recebido = df_recebimentos_total_mes['Valor da Parcela'].sum()
+
+            # Adiciona coluna de porcentagem da comissão de gerente
+            if total_recebido <= 100000:
+                df_recebimentos_total_mes['% Comissão'] = 1.5
+            elif total_recebido <= 250000:
+                df_recebimentos_total_mes['% Comissão'] = 1.75
+            elif total_recebido <= 500000:
+                df_recebimentos_total_mes['% Comissão'] = 2.0
+            else:
+                df_recebimentos_total_mes['% Comissão'] = 3.0
+            
+            # Calcula a comissão para cada recebimento
+            df_recebimentos_total_mes['Comissão'] = (df_recebimentos_total_mes['Valor da Parcela'] * df_recebimentos_total_mes['% Comissão'] / 100)
+            df_recebimentos_total_mes.drop(columns=['ID - Responsavel', 'Cargo', 'Comissão Com Meta Atingida', 'Comissão Sem Meta Atingida', 'Ano Recebimento', 'Mês Recebimento'], inplace=True)
+
+            # Ordem das colunas
+            df_recebimentos_total_mes = df_recebimentos_total_mes[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'ID Parcela', 'Categoria Parcela', 'Valor da Parcela', 'Comissão', '% Comissão']]
+
+    return df_recebimentos_total_mes
 
 def highlight_total_row(row):
     if row['Casa'] == 'Total':

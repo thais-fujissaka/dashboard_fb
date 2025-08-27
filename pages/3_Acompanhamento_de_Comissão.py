@@ -20,7 +20,9 @@ st.set_page_config(
 if "loggedIn" not in st.session_state or not st.session_state["loggedIn"]:
     st.switch_page("Login.py")
 
+
 def main():
+    
     st.markdown(" <style>iframe{ height: 320px !important } ", unsafe_allow_html=True)
     config_sidebar()
 
@@ -205,8 +207,9 @@ def main():
             if total_recebido_mes >= orcamento_mes:
                 meta_atingida = True
 
-            # Calcula a comissão total para o mês, casa e vendedor(es) selecionados
-            comissao = calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida)
+            # Calcula a comissão total para o mês, casa e vendedor(es) selecionados (menos para o Blue Note, pois possui o cálculo de comissão diferente) - considera apenas comissões por atingimento de meta/orçamento
+            df_comissoes_por_meta = calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida)
+            comissao = 0
 
             # Map de vendedores e cargos
             vendedores_cargos = df_acessos_comissoes[['ID - Responsavel', 'Cargo']].drop_duplicates()
@@ -225,29 +228,46 @@ def main():
                 altura_linha = 35
                 altura_expander = 86
                 for vendedor in vendedores:
-                    df_vendedor = df_recebimentos[df_recebimentos['ID - Responsavel'] == vendedor].copy()
+                    df_vendedor = df_comissoes_por_meta[df_comissoes_por_meta['ID - Responsavel'] == vendedor].copy()
                     cargo_vendedor = vendedores_cargos[vendedores_cargos['ID - Responsavel'] == vendedor]['Cargo'].values[0]
-
+                    ids_casas_vendedor = df_acessos_comissoes[df_acessos_comissoes['ID - Responsavel'] == vendedor]['ID Casa'].unique().tolist()
+                    
                     # Define os tipos das colunas
                     df_vendedor['Ano Recebimento'] = df_vendedor['Ano Recebimento'].astype(int).astype(str)
                     df_vendedor['Mês Recebimento'] = df_vendedor['Mês Recebimento'].astype(int).astype(str)
                     
                     if not df_vendedor.empty:
-                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão',  'Comissão']]
+                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão', 'Comissão']]
 
-                        if cargo_vendedor == 'Gerente de Eventos' and id_casa in [149, -1]:
-                            df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID - Responsavel'] != vendedor]
-                            df_recebimentos_gerente_priceless = calcular_comissao_gerente_priceless(df_recebimentos_total_mes, vendedor, id_casa)
+                        if 149 in ids_casas_vendedor and cargo_vendedor == 'Gerente de Eventos':
+                            df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[(df_recebimentos_total_mes['ID - Responsavel'] != vendedor) & (df_recebimentos_total_mes['ID Casa'] == 149)].copy()
+                            df_recebimentos_gerente_priceless = calcular_comissao_gerente_priceless(df_recebimentos_total_mes_outros_vendedores, vendedor, id_casa)
                             df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_priceless], ignore_index=True)
+
+                        if 110 in ids_casas_vendedor and cargo_vendedor == 'Gerente de Eventos':
+                            df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 110].copy()
+                            df_recebimentos_gerente_blue_note = calcular_comissao_gerente_blue_note(df_recebimentos_total_mes, vendedor, id_casa)
+                            df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_blue_note], ignore_index=True)
                         
+                        # Drop comissoes iguais a zero
+                        df_vendedor = df_vendedor[df_vendedor['Comissão'] != 0]
+
                         # Calcula valores totais para a linha de total
                         total_vendido_vendedor = df_vendedor['Valor da Parcela'].sum()
                         total_comissao = df_vendedor['Comissão'].sum()
+                        comissao += total_comissao
+
                         lista_ids_eventos = df_vendedor['ID Evento'].unique().tolist()
                         df_vendedor = df_format_date_columns_brazilian(df_vendedor, ['Data Vencimento', 'Data Recebimento'])
                         df_download_vendedor = df_vendedor.copy()
+                        df_vendedor['ID Parcela'] = (
+                            df_vendedor['ID Parcela']
+                            .round(0)
+                            .astype('Int64')  # aceita NaN
+                        )
                         df_vendedor = df_vendedor.astype({
                             'ID Evento': str,
+                            'ID Parcela': str,
                             'Valor da Parcela': str,
                             '% Comissão': str,
                             'Comissão': str,
@@ -259,6 +279,7 @@ def main():
                             'Casa': ['Total'],
                             'ID Evento': [''],
                             'Nome Evento': [''],
+                            'ID Parcela': [''],
                             'Valor da Parcela': [total_vendido_vendedor],
                             'Data Vencimento': [''],
                             'Data Recebimento': [''],
@@ -275,7 +296,7 @@ def main():
 
                         # Formata as colunas
                         df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', '% Comissão', 'Comissão'])
-                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', '% Comissão', 'Comissão']]
+                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', '% Comissão', 'Comissão']]
                         df_vendedor_styled = df_vendedor.style.apply(highlight_total_row, axis=1)
 
                         # Formata a página para impressao
