@@ -6,7 +6,7 @@ import warnings
 from utils.components import *
 from utils.functions.date_functions import *
 from utils.functions.general_functions import *
-from utils.queries import *
+from utils.queries_eventos import *
 from utils.functions.parcelas import *
 from utils.user import *
 
