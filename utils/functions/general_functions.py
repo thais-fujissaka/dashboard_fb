@@ -126,6 +126,7 @@ def mostrar_menu_permissoes_cmv(permissoes):
     if "Dev Dash Eventos" in permissoes:
         st.sidebar.markdown("## CMV")
         st.sidebar.page_link("pages/CMV_Teórico_-_Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
+        st.sidebar.page_link("pages/CMV_Teórico_-_Análises.py", label=":material/shelves: CMV - Análises")
 
 def config_sidebar():
 

@@ -5,6 +5,7 @@ from utils.functions.date_functions import *
 from utils.queries import *
 from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
+from streamlit_echarts import st_echarts
 
 def input_selecao_casas(lista_casas_retirar, key):
     # Dataframe com IDs e nomes das casas
@@ -412,3 +413,91 @@ def dataframe_aggrid(df, name, num_columns=[], percent_columns=[], df_details=No
     filtered_df = grid_response['data']
     filtered_df = filtered_df.drop(columns=[col for col in filtered_df.columns if col.endswith('_NUM')], errors='ignore')
     return filtered_df, len(filtered_df)
+
+
+def component_plotPizzaChart(labels, sizes, name, max_columns=8):
+    chart_key = f"{labels}_{sizes}_{name}_"
+    
+    # Organize os dados para mostrar apenas um número limitado de categorias
+    if len(labels) > max_columns:
+        # Ordenar os dados e pegar os "max_columns" maiores
+        sorted_data = sorted(zip(sizes, labels), reverse=True)[:max_columns]
+        
+        # Dados dos "Outros"
+        others_value = sum(size for size, label in zip(sizes, labels) if (size, label) not in sorted_data)
+        sorted_data.append((others_value, "Outros"))
+        
+        # Desempacotar os dados para labels e sizes
+        sizes, labels = zip(*sorted_data)
+    else:
+        # Caso contrário, use todos os dados
+        sizes, labels = sizes, labels
+
+    # Preparar os dados para o gráfico
+    data = [{"value": size, "name": label} for size, label in zip(sizes, labels)]
+    
+    options = {
+        "tooltip": {
+            "trigger": "item",
+            "formatter": "{b}: {c} ({d}%)"
+        },
+        "legend": {
+        "orient": "vertical",
+        "right": 55,
+        "top": "middle",
+        "type": "scroll",  # Adiciona rolagem se muitos itens
+        "height": 200,
+        "textStyle": {
+            "fontWeight": "normal",
+            "fontSize": 10,
+            "color": "#444"
+        }
+    },
+        "grid": {  
+            "left": "50%", 
+            "right": "50%", 
+            "containLabel": True
+        },
+    # "color": [
+    #     "#8b0000", "#910d0d", "#971a1a", "#9d2828", "#a33535",
+    #     "#a94343", "#af5050", "#b65e5e", "#bc6b6b", "#c27979",
+    #     "#c88686", "#ce9494", "#d4a1a1", "#dbafaf", "#e1bcbc",
+    #     "#e7caca", "#edd7d7", "#f3e5e5", "#f9f2f2", "#ffffff"
+    #     ],
+        "series": [
+        {
+            "name": "Quantidade",
+            "type": "pie",
+            "radius": ["40%", "75%"],
+            "center": ["30%", "50%"],  # Gráfico mais à esquerda 
+                "data": data,
+                "label": {
+                    "show": False  # Garante que os rótulos não apareçam nas fatias
+                },
+                "labelLine": {
+                    "show": False  # Remove as linhas que puxam os rótulos
+                },
+                "minAngle": 5,  
+                "itemStyle": {
+                    "borderRadius": 8,
+                    "borderColor": "#fff",
+                    "borderWidth": 2  
+                },
+                "selectedMode": "single",
+                "selectedOffset": 8,  
+                "emphasis": {
+                    "label": {
+                        "show": False  # Impede que o rótulo apareça ao passar o mouse
+                    },
+                    "itemStyle": {
+                        "shadowBlur": 10,
+                        "shadowOffsetX": 0,
+                        "shadowColor": "rgba(0, 0, 0, 0.5)"
+                    }
+                }
+            }
+        ]
+    }
+    
+    st_echarts(options=options, height="350px", key=chart_key)
+
