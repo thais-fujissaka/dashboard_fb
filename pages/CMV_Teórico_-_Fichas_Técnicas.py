@@ -4,6 +4,7 @@ from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.user import *
 from utils.functions.cmv_teorico_fichas_tecnicas import *
+from utils.queries_cmv import *
 
 st.set_page_config(
 	page_icon=":material/rubric:",

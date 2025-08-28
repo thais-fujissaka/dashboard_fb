@@ -4,12 +4,12 @@ from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.user import *
 from utils.functions.cmv_teorico_fichas_tecnicas import *
-from utils.queries import *
+from utils.queries_compras import *
 from datetime import date, datetime, timedelta
 
 st.set_page_config(
 	page_icon=":material/shelves:",
-	page_title="CMV Teórico - Análises",
+	page_title="Compras - Análises",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -23,7 +23,7 @@ def main():
 	config_sidebar()
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
-		st.title(":material/shelves: CMV Teórico - Análises")
+		st.title(":material/shelves: Compras - Análises")
 	with col2:
 		st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
 	with col3:

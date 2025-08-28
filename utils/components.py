@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import io
 from utils.functions.date_functions import *
-from utils.queries import *
+from utils.queries_eventos import *
 from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from streamlit_echarts import st_echarts

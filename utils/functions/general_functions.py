@@ -6,8 +6,76 @@ import openpyxl
 import os
 from utils.functions.date_functions import *
 from utils.user import *
-from utils.queries import GET_PERMISSIONS, GET_USERNAME, get_casas_validas
+import mysql.connector
+from streamlit.logger import get_logger
 
+
+LOGGER = get_logger(__name__)
+
+def mysql_connection_fb():
+	mysql_config = st.secrets["mysql_fb"]
+
+	conn_fb = mysql.connector.connect(
+			host=mysql_config['host'],
+			port=mysql_config['port'],
+			database=mysql_config['database'],
+			user=mysql_config['username'],
+			password=mysql_config['password']
+		)    
+	return conn_fb
+
+
+def execute_query(query):
+    try:
+        conn = mysql_connection_fb()
+        cursor = conn.cursor()
+        cursor.execute(query)
+
+        # Obter nomes das colunas
+        column_names = [col[0] for col in cursor.description]
+  
+        # Obter resultados
+        result = cursor.fetchall()
+  
+        cursor.close()
+        conn.close()  # Fechar a conexão
+        return result, column_names
+    except mysql.connector.Error as err:
+        LOGGER.error(f"Erro ao executar query: {err}")
+        return None, None
+
+
+def dataframe_query(query):
+	resultado, nomeColunas = execute_query(query)
+	dataframe = pd.DataFrame(resultado, columns=nomeColunas)
+	return dataframe
+
+
+# Permissões de usuário
+@st.cache_data
+def GET_PERMISSIONS(email):
+	emailStr = f"'{email}'"
+	return dataframe_query(f''' 
+		SELECT 
+			tg.POSICAO AS 'Permissao'
+		FROM
+			ADMIN_USERS au 
+			LEFT JOIN T_GRUPO_USUARIO tgu ON au.ID = tgu.FK_USUARIO 
+			LEFT JOIN T_GRUPO tg ON tgu.FK_GRUPO = tg.id
+		WHERE au.LOGIN = {emailStr}
+  	''')
+
+
+@st.cache_data
+def GET_USERNAME(email):
+	emailStr = f"'{email}'"
+	return dataframe_query(f'''
+		SELECT 
+			au.FULL_NAME AS 'Nome'
+		FROM
+			ADMIN_USERS au 
+		WHERE au.LOGIN = {emailStr}
+  ''')
 
 
 def config_permissoes_user():
@@ -21,6 +89,21 @@ def config_permissoes_user():
         nomeUser = GET_USERNAME(email)
         nomeUser = " ".join(nomeUser["Nome"].tolist())
     return permissao, nomeUser, email
+
+
+@st.cache_data
+def GET_LOJAS_USER(email):
+	emailStr = f"'{email}'"
+	return dataframe_query(f'''
+		SELECT 
+			te.NOME_FANTASIA AS 'Loja'
+		FROM
+			ADMIN_USERS au 
+			LEFT JOIN T_USUARIOS_EMPRESAS tue ON au.ID = tue.FK_USUARIO 
+			LEFT JOIN T_EMPRESAS te ON tue.FK_EMPRESA = te.ID
+			LEFT JOIN T_LOJAS tl ON te.ID = tl.ID
+		WHERE au.LOGIN = {emailStr}
+  	''')
 
 
 def mostrar_menu_permissoes_eventos(permissoes):
@@ -126,7 +209,13 @@ def mostrar_menu_permissoes_cmv(permissoes):
     if "Dev Dash Eventos" in permissoes:
         st.sidebar.markdown("## CMV")
         st.sidebar.page_link("pages/CMV_Teórico_-_Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
-        st.sidebar.page_link("pages/CMV_Teórico_-_Análises.py", label=":material/shelves: CMV - Análises")
+
+
+def mostrar_menu_permissoes_compras(permissoes):
+    if "Dev Dash Eventos" in permissoes:
+        st.sidebar.markdown("## Compras")
+        st.sidebar.page_link("pages/Compras_-_Análises.py", label=":material/shelves: Compras - Análises")
+        st.sidebar.page_link("pages/Compras_-_Processos.py", label=":material/cycle: Compras - Processos")
 
 def config_sidebar():
 
@@ -135,6 +224,7 @@ def config_sidebar():
     if st.session_state["loggedIn"]:
         mostrar_menu_permissoes_eventos(permissoes)
         mostrar_menu_permissoes_cmv(permissoes)
+        mostrar_menu_permissoes_compras(permissoes)
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 
