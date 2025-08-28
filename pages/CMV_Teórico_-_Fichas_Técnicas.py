@@ -34,12 +34,13 @@ def main():
 	periodo = input_periodo_datas(key='data_inicio')
 	data_inicio = periodo[0]
 	data_fim = periodo[1]
+	st.divider()
 	
 	# Validação de data
 	if data_inicio > data_fim:
 		st.warning('📅 Data Inicio deve ser menor que Data Final')
 	else:
-		averageInputN5Price = average_inputN5_price(data_inicio.strftime('%Y-%m-%d'), data_fim.strftime('%Y-%m-%d'))
+		averageInputN5Price = GET_AVG_PRICE_INPUT_N5(data_inicio.strftime('%Y-%m-%d'), data_fim.strftime('%Y-%m-%d'))
 		averageInputN5Price_n5_not_associated = averageInputN5Price.copy()
 		averageInputN5Price_itemsold = averageInputN5Price.copy()
 		averageInputN5Price_itemsold['QUANTIDADE DRI'] = averageInputN5Price_itemsold['QUANTIDADE DRI'].replace(['None', None, '', 'nan', 'NaN'], '0').astype(str).str.replace(',', '.', regex=False).astype(float)
@@ -70,6 +71,7 @@ def main():
 
 		averageInputN5Price = averageInputN5Price.drop(columns=['VALOR DRI', 'QUANTIDADE DRI', 'PROPORÇÃO ACE'])
 		function_format_number_columns(averageInputN5Price, columns_money=['Média Preço (Insumo de Compra)', 'Média Preço (Insumo Estoque)'])
+		st.markdown('### Preço Médio de Insumo N5')
 		dataframe_aggrid(averageInputN5Price, 'Preço Médio de Insumo N5')
 
 		st.write('---')
@@ -145,6 +147,7 @@ def main():
 			item_valuer = item_valuer[item_valuer['EMPRESA'].isin(enterprise_selected)]
 
 		function_format_number_columns(item_valuer, columns_money=['Custo do Item', 'Valor Vendido', 'Lucro do Item'], columns_percent=['CMV'])
+		st.markdown('### Valor dos Itens Vendidos')
 		dataframe_aggrid(item_valuer, 'Valor dos Itens Vendidos')
 		function_copy_dataframe_as_tsv(item_valuer)
 
@@ -167,6 +170,7 @@ def main():
 			inputProduced_merged = inputProduced_merged[['Insumo de Estoque', 'RENDIMENTO', 'Insumos para Produção', 'QUANTIDADE INSUMO', 'MÉDIA PREÇO NO ITEM KG', 'VALOR PRODUÇÃO']]
 			function_format_number_columns(itemSold_merged, columns_money=['Média Preço (Insumo Estoque)', 'Valor na Ficha'], columns_number=['RENDIMENTO', 'QUANTIDADE INSUMO'])
 			function_format_number_columns(inputProduced_merged, columns_money=['MÉDIA PREÇO NO ITEM KG', 'VALOR PRODUÇÃO'])
+			st.markdown('### Itens Vendidos Detalhado')
 			dataframe_aggrid(itemSold_merged, 'Itens Vendidos Detalhado', df_details=inputProduced_merged, coluns_merge_details='Insumo de Estoque', coluns_name_details='EMPRESA')
 
 		st.write('---')
@@ -176,20 +180,20 @@ def main():
 		itemSold_merged_debug['Unidade de Medida Produção'] = itemSold_merged_debug.apply(function_format_amount, axis=1)
 		itemSold_merged_debug['Valor para Produção'] = itemSold_merged_debug['Media Preço do Insumo'] / itemSold_merged_debug['Quantidade para Produção']
 		function_format_number_columns(itemSold_merged_debug, columns_money=['Media Preço do Insumo', 'Valor Vendido', 'Valor para Produção'], columns_number=['Quantidade para Produção'])
+		
+		st.markdown('### Itens Vendidos Completo')
 		itemSold_merged_full, len_df = dataframe_aggrid(itemSold_merged_debug, 'Itens Vendidos Completo')
 		function_copy_dataframe_as_tsv(itemSold_merged_full)
 		
 		averageInputN5Price_n5_not_associated = averageInputN5Price_n5_not_associated[averageInputN5Price_n5_not_associated['Insumo de Estoque'].isna()]
 		function_format_number_columns(averageInputN5Price_n5_not_associated, columns_money=['Média Preço (Insumo de Compra)', 'Média Preço (Insumo Estoque)', 'VALOR DRI'], columns_number=['QUANTIDADE DRI'])
+		st.markdown('### Insumos Sem Associação')
 		averageInputN5Price_null, len_df = dataframe_aggrid(averageInputN5Price_n5_not_associated, 'Insumos Sem Associação')
 		row_averageInputN5Price_filters = st.columns([1.8,1,1])
 		with row_averageInputN5Price_filters[0]:
 			function_copy_dataframe_as_tsv(averageInputN5Price_null)
 		with row_averageInputN5Price_filters[1]:
 			function_box_lenDf(len_df, averageInputN5Price_n5_not_associated, item='itens')
-
-	# Layout
-	col1, col2, col3 = st.columns([1, 1, 1])
 
 if __name__ == '__main__':
 	main()

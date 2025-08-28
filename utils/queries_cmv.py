@@ -109,7 +109,7 @@ def input_produced(day, day2):
 
 
 @st.cache_data
-def average_inputN5_price(day, day2):
+def GET_AVG_PRICE_INPUT_N5(day, day2):
   return dataframe_query(f"""
 SELECT 
     E.ID AS 'CASA ID',
