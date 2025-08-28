@@ -122,7 +122,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/10_Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
         st.sidebar.page_link("pages/11_Calendário_de_Eventos_Confirmados.py", label=":calendar: Calendário de Eventos Confirmados")
     elif "Liderança Comercial Dash Eventos" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/3_Acompanhamento_de_Comissão.py", label="📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
@@ -136,7 +136,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/10_Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
         st.sidebar.page_link("pages/11_Calendário_de_Eventos_Confirmados.py", label=":calendar: Calendário de Eventos Confirmados")
     elif "Admin Dash Eventos" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/3_Acompanhamento_de_Comissão.py", label="📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
@@ -149,7 +149,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/10_Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
     elif "Dash Eventos Acesso 1" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/3_Acompanhamento_de_Comissão.py", label="📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
@@ -159,7 +159,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/8_Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
         st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Dash Eventos Acesso 2" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
@@ -170,7 +170,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/10_Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
     elif "Dash Eventos Acesso 3" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
@@ -179,20 +179,20 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/8_Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
         st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Dash Eventos Acesso 4" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/4_Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
         st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Dash Eventos Acesso 5" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/4_Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
         st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Gazit" in permissoes:
-        st.sidebar.title("## Eventos")
+        st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/2_KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
