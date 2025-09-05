@@ -70,9 +70,10 @@ def main():
 	with col3:
 		# Filtro de Data dos Logs
 		periodo = input_periodo_datas(key='data_inicio_eventos_confirmados')
-		data_inicio = pd.to_datetime(periodo[0])
-		data_fim = pd.to_datetime(periodo[1])
-		df_logs_eventos_selecionados = df_logs_eventos_selecionados[(df_logs_eventos_selecionados['Data/Hora Log'] >= data_inicio) & (df_logs_eventos_selecionados['Data/Hora Log'] <= data_fim)]
+		if len(periodo) == 2:
+			data_inicio = pd.to_datetime(periodo[0])
+			data_fim = pd.to_datetime(periodo[1])
+			df_logs_eventos_selecionados = df_logs_eventos_selecionados[(df_logs_eventos_selecionados['Data/Hora Log'] >= data_inicio) & (df_logs_eventos_selecionados['Data/Hora Log'] <= data_fim)]
 
 	# Adiciona coluna bit de confirmação
 	df_logs_eventos_confirmados = df_logs_eventos_selecionados.copy()
@@ -127,7 +128,8 @@ def main():
 		df_logs_parcelas_confirmados = df_logs_parcelas[df_logs_parcelas['ID Evento'].isin(id_evento_selecionado)].copy()
 
 	# Filtro de datas
-	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados[(df_logs_parcelas_confirmados['Data/Hora Log'] >= data_inicio) & (df_logs_parcelas_confirmados['Data/Hora Log'] <= data_fim)]
+	if len(periodo) == 2:
+		df_logs_parcelas_confirmados = df_logs_parcelas_confirmados[(df_logs_parcelas_confirmados['Data/Hora Log'] >= data_inicio) & (df_logs_parcelas_confirmados['Data/Hora Log'] <= data_fim)]
 
 	# Associa com o momento de confirmação do evento
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados.merge(df_datetime_confirmacao_eventos, how='left', on='ID Evento')
