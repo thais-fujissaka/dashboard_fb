@@ -555,3 +555,168 @@ def GET_CLIENTES_EVENTOS():
 		WHERE tsep.DESCRICAO = 'Confirmado' AND trec.ID IS NOT NULL
 		GROUP BY COALESCE(tep.FK_EVENTO_DO_ADITIVO, tep.ID)
 	''')
+
+
+# Auditora de Eventos - Alteração de Confirmados
+
+def GET_LOGS_EVENTOS():
+	return dataframe_query('''
+		SELECT
+			tep.ID AS 'ID Evento',
+			tep.LOG_DATE as 'Data/Hora Log',
+			DATE(tep.LOG_DATE) AS 'Data Log',
+			te.ID AS 'ID Casa',
+			te.NOME_FANTASIA AS 'Casa',
+			au.FULL_NAME as 'Nome Usuário',
+			au.EMAIL as 'Email Usuário',
+			tee.NOME_COMPLETO AS 'Comercial Responsável',
+			tep.NOME_EVENTO AS 'Nome Evento',
+			trec.NOME AS 'Cliente',
+			tep.DATA_CONTRATACAO AS 'Data Contratação',
+			tep.DATA_EVENTO AS 'Data Evento',
+			tte.DESCRICAO AS 'Tipo Evento',
+			tme.DESCRICAO AS 'Modelo Evento',
+			tse.DESCRICAO AS 'Segmento Evento',
+			tep.VALOR_TOTAL_EVENTO AS 'Valor Total Evento',
+			tep.NUM_CLIENTES AS 'Num Pessoas',
+			tep.VALOR_AB AS 'Valor AB',
+			tep.VALOR_TAXA_SERVICO AS 'Valor Taxa Serviço',
+			tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
+			tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
+			tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
+			tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
+			tep.VALOR_LOCACAO_BAR AS 'Valor Locação Bar',
+			tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
+			tep.VALOR_LOCACAO_ESPACO AS 'Valor Locação Espaço',
+			tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+			tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
+			tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
+			tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
+			tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
+			tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Administrativa',
+			tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
+			tep.VALOR_EXTRAS_GERAIS AS 'Valor Extras Gerais',
+			tep.VALOR_CONTRATACAO_ARTISTICO AS 'Valor Contratação Artístico',
+			tep.VALOR_CONTRATACAO_TECNICO_SOM AS 'Valor Contratação Técnico de Som',
+			tep.VALOR_CONTRATACAO_COUVERT_ARTISTICO AS 'Valor Contratação Bilheteria/Couvert Artístico',
+			tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
+			tep.VALOR_IMPOSTO AS 'Valor Imposto',
+			tsep.DESCRICAO AS 'Status Evento',
+			tep.OBSERVACOES AS 'Observações',
+			temd.DESCRICAO AS 'Motivo Declínio',
+			tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio'
+		FROM ZLOG_T_EVENTOS_PRICELESS tep 
+			INNER JOIN ADMIN_USERS au ON (tep.LOG_USER = au.ID)
+			LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
+			LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
+			LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
+			LEFT JOIN T_SEGMENTOS_EVENTOS tse ON (tep.FK_SEGMENTO = tse.ID)
+			LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+	''')
+
+
+def GET_EVENTOS_CONFIRMADOS():
+	return dataframe_query('''
+		SELECT
+			tep.ID AS 'ID Evento',
+			te.NOME_FANTASIA AS 'Casa',
+			te.ID AS 'ID Casa',
+			tee.NOME_COMPLETO AS 'Comercial Responsável',
+			tep.NOME_EVENTO AS 'Nome Evento',
+			trec.NOME AS 'Cliente',
+			tep.DATA_CONTRATACAO AS 'Data Contratação',
+			tep.DATA_EVENTO AS 'Data Evento',
+			tte.DESCRICAO AS 'Tipo Evento',
+			tme.DESCRICAO AS 'Modelo Evento',
+			tse.DESCRICAO AS 'Segmento Evento',
+			tep.VALOR_TOTAL_EVENTO AS 'Valor Total Evento',
+			tep.NUM_CLIENTES AS 'Num Pessoas',
+			tep.VALOR_AB AS 'Valor AB',
+			tep.VALOR_TAXA_SERVICO AS 'Valor Taxa Serviço',
+			tep.VALOR_LOCACAO_AROO_1 AS 'Valor Locação Aroo 1',
+			tep.VALOR_LOCACAO_AROO_2 AS 'Valor Locação Aroo 2',
+			tep.VALOR_LOCACAO_AROO_3 AS 'Valor Locação Aroo 3',
+			tep.VALOR_LOCACAO_ANEXO AS 'Valor Locação Anexo',
+			tep.VALOR_LOCACAO_BAR AS 'Valor Locação Bar',
+			tep.VALOR_LOCACAO_NOTIE AS 'Valor Locação Notie',
+			tep.VALOR_LOCACAO_ESPACO AS 'Valor Locação Espaço',
+			tep.VALOR_LOCACAO_MIRANTE AS 'Valor Locação Mirante',
+			tep.VALOR_LOCACAO_GERADOR AS 'Valor Locação Gerador',
+			tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'Valor Locação Mobiliário',
+			tep.VALOR_LOCACAO_UTENSILIOS AS 'Valor Locação Utensílios',
+			tep.VALOR_MAO_DE_OBRA_EXTRA AS 'Valor Mão de Obra Extra',
+			tep.VALOR_TAXA_ADMINISTRATIVA AS 'Valor Taxa Administrativa',
+			tep.VALOR_COMISSAO_BV AS 'Valor Comissão BV',
+			tep.VALOR_EXTRAS_GERAIS AS 'Valor Extras Gerais',
+			tep.VALOR_CONTRATACAO_ARTISTICO AS 'Valor Contratação Artístico',
+			tep.VALOR_CONTRATACAO_TECNICO_SOM AS 'Valor Contratação Técnico de Som',
+			tep.VALOR_CONTRATACAO_COUVERT_ARTISTICO AS 'Valor Contratação Bilheteria/Couvert Artístico',
+			tep.VALOR_ACRESCIMO_FORMA_PAGAMENTO AS 'Valor Acréscimo Forma de Pagamento',
+			tep.VALOR_IMPOSTO AS 'Valor Imposto',
+			tsep.DESCRICAO AS 'Status Evento',
+			tep.OBSERVACOES AS 'Observações',
+			temd.DESCRICAO AS 'Motivo Declínio',
+			tep.OBSERVACAO_MOTIVO_DECLINIO AS 'Observações Motivo Declínio'
+		FROM T_EVENTOS_PRICELESS tep
+			LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+			LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec ON (tep.FK_CLIENTE = trec.ID)
+			LEFT JOIN T_STATUS_EVENTO_PRE tsep ON (tep.FK_STATUS_EVENTO = tsep.ID)
+			LEFT JOIN T_EVENTOS_MOTIVOS_DECLINIO temd ON (tep.FK_MOTIVO_DECLINIO = temd.ID)
+			LEFT JOIN T_TIPO_EVENTO tte ON (tep.FK_TIPO_EVENTO = tte.ID)
+			LEFT JOIN T_SEGMENTOS_EVENTOS tse ON (tep.FK_SEGMENTO = tse.ID)
+			LEFT JOIN T_MODELO_EVENTO tme ON (tep.FK_MODELO_EVENTO = tme.ID)
+			LEFT JOIN T_EXECUTIVAS_EVENTOS tee ON (tep.FK_EXECUTIVA_EVENTOS = tee.ID)
+		WHERE tsep.DESCRICAO = 'Confirmado'
+	''')
+
+
+def GET_LOGS_PARCELAS_EVENTOS():
+	return dataframe_query('''
+		SELECT
+			tep.ID as 'ID Evento',
+			ztpep.ID as 'ID Parcela',
+			ztpep.LOG_DATE as 'Data/Hora Log',
+			DATE(ztpep.LOG_DATE) as 'Data Log',
+			au.FULL_NAME as 'Nome Usuário',
+			au.EMAIL as 'Email Usuário',
+			tep.NOME_EVENTO as 'Nome do Evento',
+			tcep.DESCRICAO as 'Categoria Parcela',
+			ztpep.VALOR_PARCELA as 'Valor Parcela',
+			ztpep.DATA_VENCIMENTO_PARCELA as 'Data Vencimento',
+			tsp.DESCRICAO as 'Status Pagamento',
+			ztpep.DATA_RECEBIMENTO_PARCELA as 'Data Recebimento',
+			tcb.NOME_DA_CONTA as 'Conta Bancária',
+			tfdp.DESCRICAO AS 'Forma de Pagamento'
+		FROM ZLOG_T_PARCELAS_EVENTOS_PRICELESS ztpep
+			INNER JOIN ADMIN_USERS au ON (ztpep.LOG_USER = au.ID)
+			LEFT JOIN T_EVENTOS_PRICELESS tep ON (ztpep.FK_EVENTO_PRICELESS = tep.ID)
+			LEFT JOIN T_STATUS_PAGAMENTO tsp ON (ztpep.FK_STATUS_PAGAMENTO = tsp.ID)
+			LEFT JOIN T_CATEGORIA_EVENTO_PRICELESS tcep ON (ztpep.FK_CATEGORIA_PARCELA = tcep.ID)
+			LEFT JOIN T_CONTAS_BANCARIAS tcb ON tcb.ID = ztpep.FK_CONTA_BANCARIA	
+			LEFT JOIN T_FORMAS_DE_PAGAMENTO tfdp ON tfdp.ID = ztpep.FK_FORMA_PAGAMENTO 
+	''')
+
+
+def GET_DATETIME_CONFIRMACAO_EVENTOS():
+	return dataframe_query('''
+		SELECT
+			t.ID_Evento AS 'ID Evento',
+			t.LOG_DATE AS 'Data Confirmação'
+		FROM (
+			SELECT
+				tep.ID AS ID_Evento,
+				tep.LOG_DATE,
+				tep.FK_STATUS_EVENTO,
+				LAG(tep.FK_STATUS_EVENTO) OVER (
+					PARTITION BY tep.ID 
+					ORDER BY tep.LOG_DATE
+				) AS Status_Anterior
+			FROM ZLOG_T_EVENTOS_PRICELESS tep
+		) t
+		WHERE t.FK_STATUS_EVENTO = 101
+		AND (t.Status_Anterior IS NULL OR t.Status_Anterior <> 101)
+		ORDER BY t.ID_Evento, t.LOG_DATE
+	''')

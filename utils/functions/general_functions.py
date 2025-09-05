@@ -38,6 +38,7 @@ def config_sidebar():
             st.sidebar.page_link("pages/4_Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
             st.sidebar.page_link("pages/5_Conciliação_de_Parcelas_Eventos.py", label=":left_right_arrow: Conciliação de Parcelas de Eventos")
             st.sidebar.page_link("pages/8_Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
+            st.sidebar.page_link("pages/12_Eventos_Auditoria_de_Eventos_Confirmados.py", label=":no_entry_sign: Auditoria de Eventos - Alteração de Confirmados")
             st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
             # st.sidebar.page_link("pages/10_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
             st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
