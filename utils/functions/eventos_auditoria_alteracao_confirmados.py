@@ -1,5 +1,18 @@
 import pandas as pd
 
+
+# Remove logs de eventos com apenas o primeiro log (de confirmação)
+def remove_logs_eventos_sem_alteração(df):
+	df = df.copy()
+	df_contador = df[['ID Evento', 'Data/Hora Log']].groupby('ID Evento').count()
+	df_contador.rename(columns={'Data/Hora Log': 'Quantidade de Logs'}, inplace=True)
+
+	df = df.merge(df_contador, how='left', on='ID Evento')
+	df = df[df['Quantidade de Logs'] > 1]
+
+	return df
+
+
 def remove_logs_parcelas_sem_alteração(df):
     df = df.copy()
     df_contador = df[['ID Parcela', 'Data/Hora Log']].groupby('ID Parcela').count()

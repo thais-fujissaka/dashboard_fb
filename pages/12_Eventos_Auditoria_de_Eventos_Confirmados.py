@@ -7,7 +7,7 @@ from utils.components import *
 from utils.functions.date_functions import *
 from utils.functions.general_functions import *
 from utils.functions.eventos_auditoria_alteracao_confirmados import *
-from utils.queries import *
+from utils.queries_eventos import *
 from utils.functions.parcelas import *
 from utils.user import *
 
@@ -24,16 +24,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 	st.switch_page('Login.py')
 
 
-# Remove logs de eventos com apenas o primeiro log (de confirmação)
-def remove_logs_eventos_sem_alteração(df):
-	df = df.copy()
-	df_contador = df[['ID Evento', 'Data/Hora Log']].groupby('ID Evento').count()
-	df_contador.rename(columns={'Data/Hora Log': 'Quantidade de Logs'}, inplace=True)
 
-	df = df.merge(df_contador, how='left', on='ID Evento')
-	df = df[df['Quantidade de Logs'] > 1]
-
-	return df
 
  
 def main():

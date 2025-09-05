@@ -1,6 +1,6 @@
 import streamlit as st
 from utils.user import *
-from utils.queries import *
+from utils.queries_eventos import *
 from utils.functions.general_functions import config_permissoes_user
 
 st.set_page_config(
