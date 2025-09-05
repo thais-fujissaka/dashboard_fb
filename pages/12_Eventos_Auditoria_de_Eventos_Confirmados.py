@@ -62,7 +62,10 @@ def main():
 		# Filtro Eventos
 		lista_eventos_confirmados = df_eventos_confirmados['ID Evento'].tolist()
 		id_evento_selecionado = st.multiselect('ID do Evento', lista_eventos_confirmados, key='seletor_id_eventos_confirmados')
-		df_logs_eventos_selecionados = df_logs_eventos[df_logs_eventos['ID Evento'].isin(id_evento_selecionado)]	
+		if id_evento_selecionado == []:
+			df_logs_eventos_selecionados = df_logs_eventos.copy()
+		else:	
+			df_logs_eventos_selecionados = df_logs_eventos[df_logs_eventos['ID Evento'].isin(id_evento_selecionado)]
 	
 	# Adiciona coluna bit de confirmação
 	df_logs_eventos_confirmados = df_logs_eventos_selecionados.copy()
@@ -111,7 +114,10 @@ def main():
 
 
 	# Filtra parcelas de eventos confirmados
-	df_logs_parcelas_confirmados = df_logs_parcelas[df_logs_parcelas['ID Evento'].isin(id_evento_selecionado)].copy()
+	if id_evento_selecionado == []:
+		df_logs_parcelas_confirmados = df_logs_parcelas.copy()
+	else:	
+		df_logs_parcelas_confirmados = df_logs_parcelas[df_logs_parcelas['ID Evento'].isin(id_evento_selecionado)].copy()
 
 	# Associa com o momento de confirmação do evento
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados.merge(df_datetime_confirmacao_eventos, how='left', on='ID Evento')
