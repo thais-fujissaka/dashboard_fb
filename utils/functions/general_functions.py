@@ -118,6 +118,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/8_Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
         st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
         # st.sidebar.page_link("pages/10_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
+        st.sidebar.page_link("pages/12_Eventos_Auditoria_de_Eventos_Confirmados.py", label=":no_entry_sign: Auditoria de Eventos - Confirmados")
         st.sidebar.page_link("pages/7_Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/10_Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
         st.sidebar.page_link("pages/11_Calendário_de_Eventos_Confirmados.py", label=":calendar: Calendário de Eventos Confirmados")
