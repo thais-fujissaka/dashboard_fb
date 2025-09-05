@@ -50,7 +50,7 @@ def main():
 	df_datetime_confirmacao_eventos = GET_DATETIME_CONFIRMACAO_EVENTOS()
 
 	# Seletores
-	col1, col2 = st.columns(2)
+	col1, col2, col3 = st.columns(3)
 	with col1:
 		# Filtro de casa:
 		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
@@ -66,7 +66,13 @@ def main():
 			df_logs_eventos_selecionados = df_logs_eventos.copy()
 		else:	
 			df_logs_eventos_selecionados = df_logs_eventos[df_logs_eventos['ID Evento'].isin(id_evento_selecionado)]
-	
+	with col3:
+		# Filtro de Data dos Logs
+		periodo = input_periodo_datas(key='data_inicio_eventos_confirmados')
+		data_inicio = pd.to_datetime(periodo[0])
+		data_fim = pd.to_datetime(periodo[1])
+		df_logs_eventos_selecionados = df_logs_eventos_selecionados[(df_logs_eventos_selecionados['Data/Hora Log'] >= data_inicio) & (df_logs_eventos_selecionados['Data/Hora Log'] <= data_fim)]
+
 	# Adiciona coluna bit de confirmação
 	df_logs_eventos_confirmados = df_logs_eventos_selecionados.copy()
 	df_logs_eventos_confirmados.loc[:, "Confirmação"] = 0
@@ -118,6 +124,9 @@ def main():
 		df_logs_parcelas_confirmados = df_logs_parcelas.copy()
 	else:	
 		df_logs_parcelas_confirmados = df_logs_parcelas[df_logs_parcelas['ID Evento'].isin(id_evento_selecionado)].copy()
+
+	# Filtro de datas
+	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados[(df_logs_parcelas_confirmados['Data/Hora Log'] >= data_inicio) & (df_logs_parcelas_confirmados['Data/Hora Log'] <= data_fim)]
 
 	# Associa com o momento de confirmação do evento
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados.merge(df_datetime_confirmacao_eventos, how='left', on='ID Evento')
