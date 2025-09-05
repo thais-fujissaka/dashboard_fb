@@ -41,6 +41,7 @@ def main():
 	st.divider()
 
 	st.warning(':warning: Eventos e parcelas de eventos não devem ser alterados após a confirmação do evento.')
+	st.info(':information_source: Para obter o histórico de alterações, certifique-se que o Período selecionado está vazio.')
 
 	# Recupera logs de eventos, logs de parcelas e eventos confirmados
 	df_logs_eventos = GET_LOGS_EVENTOS()
@@ -75,6 +76,8 @@ def main():
 			data_fim = pd.to_datetime(periodo[1])
 			df_logs_eventos_selecionados = df_logs_eventos_selecionados[(df_logs_eventos_selecionados['Data/Hora Log'] >= data_inicio) & (df_logs_eventos_selecionados['Data/Hora Log'] <= data_fim)]
 
+	st.divider()
+	
 	# Adiciona coluna bit de confirmação
 	df_logs_eventos_confirmados = df_logs_eventos_selecionados.copy()
 	df_logs_eventos_confirmados.loc[:, "Confirmação"] = 0
@@ -119,7 +122,22 @@ def main():
 
 	st.markdown('### Alterações de Eventos Confirmados')
 	st.dataframe(df_logs_eventos_confirmados_styled, use_container_width=True, hide_index=True)
-
+	st.write('')
+	st.markdown("""
+	<div style="margin-top: -24px; padding: 10px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; align-items: center;">
+        <h6 style="padding: 0">Legenda:</h6>
+        <div style="display: flex; gap: 16px;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: rgba(33, 195, 84, 0.1); border-radius: 4px; margin-right: 8px;"></div>
+                <span>Logs de Confirmação de Evento</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: rgba(255, 43, 43, 0.09); border-radius: 4px; margin-right: 8px;"></div>
+                <span>Alterações em relação ao último log</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 	# Filtra parcelas de eventos confirmados
 	if id_evento_selecionado == []:
@@ -134,7 +152,6 @@ def main():
 	# Associa com o momento de confirmação do evento
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados.merge(df_datetime_confirmacao_eventos, how='left', on='ID Evento')
 
-	
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados[(df_logs_parcelas_confirmados['Data Log'] >= df_logs_parcelas_confirmados['Data Confirmação'])]
 	
 	df_logs_parcelas_confirmados.sort_values(by=['ID Evento', 'ID Parcela', 'Data/Hora Log'], inplace=True)
@@ -144,11 +161,26 @@ def main():
 			]
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados.drop_duplicates(subset=colunas_verificar_parcelas, keep='first')
 	df_logs_parcelas_confirmados = remove_logs_parcelas_sem_alteração(df_logs_parcelas_confirmados)
-
 	df_logs_parcelas_confirmados_styled = highlight_parcelas_log_changes(df_logs_parcelas_confirmados)
+	st.write('')
 
 	st.markdown('### Alterações de Parcelas de Eventos Confirmados')
 	st.dataframe(df_logs_parcelas_confirmados_styled, use_container_width=True, hide_index=True)
+	st.markdown("""
+	<div style="margin-top: -24px; padding: 10px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; align-items: center;">
+        <h6 style="padding: 0">Legenda:</h6>
+        <div style="display: flex; gap: 16px;">
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: rgba(33, 195, 84, 0.1); border-radius: 4px; margin-right: 8px;"></div>
+                <span>Primeiro log da Parcela após a Confirmação do Evento</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <div style="width: 16px; height: 16px; background-color: rgba(255, 43, 43, 0.09); border-radius: 4px; margin-right: 8px;"></div>
+                <span>Alterações em relação ao último log</span>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 if __name__ == '__main__':
