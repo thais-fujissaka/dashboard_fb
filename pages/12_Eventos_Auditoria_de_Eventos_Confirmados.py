@@ -61,6 +61,7 @@ def main():
 	with col2:
 		# Filtro Eventos
 		lista_eventos_confirmados = df_eventos_confirmados['ID Evento'].tolist()
+		df_logs_eventos = df_logs_eventos[df_logs_eventos['ID Evento'].isin(lista_eventos_confirmados)]
 		id_evento_selecionado = st.multiselect('ID do Evento', lista_eventos_confirmados, key='seletor_id_eventos_confirmados')
 		if id_evento_selecionado == []:
 			df_logs_eventos_selecionados = df_logs_eventos.copy()
