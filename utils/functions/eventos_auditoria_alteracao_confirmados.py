@@ -69,6 +69,9 @@ def highlight_parcelas_log_changes(df):
 	if 'ID Evento' in df.columns:
 		df['ID Evento'] = pd.to_numeric(df['ID Evento'], errors="coerce").astype("Int64")
 
+	if 'ID Casa' in df.columns:
+		df['ID Casa'] = pd.to_numeric(df['ID Casa'], errors="coerce").astype("Int64")
+
 	styles = pd.DataFrame('', index=df.index, columns=df.columns)
 
 	for i in range(len(df)):

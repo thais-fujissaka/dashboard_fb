@@ -595,6 +595,8 @@ def GET_LOGS_PARCELAS_EVENTOS():
 	return dataframe_query('''
 		SELECT
 			tep.ID as 'ID Evento',
+			te.ID AS 'ID Casa',
+			te.NOME_FANTASIA AS 'Casa',
 			ztpep.ID as 'ID Parcela',
 			ztpep.LOG_DATE as 'Data/Hora Log',
 			DATE(ztpep.LOG_DATE) as 'Data Log',
@@ -611,6 +613,7 @@ def GET_LOGS_PARCELAS_EVENTOS():
 		FROM ZLOG_T_PARCELAS_EVENTOS_PRICELESS ztpep
 			INNER JOIN ADMIN_USERS au ON (ztpep.LOG_USER = au.ID)
 			LEFT JOIN T_EVENTOS_PRICELESS tep ON (ztpep.FK_EVENTO_PRICELESS = tep.ID)
+			LEFT JOIN T_EMPRESAS te ON tep.FK_EMPRESA = te.ID
 			LEFT JOIN T_STATUS_PAGAMENTO tsp ON (ztpep.FK_STATUS_PAGAMENTO = tsp.ID)
 			LEFT JOIN T_CATEGORIA_EVENTO_PRICELESS tcep ON (ztpep.FK_CATEGORIA_PARCELA = tcep.ID)
 			LEFT JOIN T_CONTAS_BANCARIAS tcb ON tcb.ID = ztpep.FK_CONTA_BANCARIA	
