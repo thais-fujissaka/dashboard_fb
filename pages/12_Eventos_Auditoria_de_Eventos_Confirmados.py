@@ -81,7 +81,11 @@ def main():
 	
 	# Adiciona coluna bit de confirmação
 	df_logs_eventos_confirmados = df_logs_eventos_selecionados.copy()
-	df_logs_eventos_confirmados.loc[:, "Confirmação"] = 0
+
+	try:
+		df_logs_eventos_confirmados.loc[:, "Confirmação"] = 0
+	except:
+		st.error('Nenhum log de eventos confirmados foi encontrado no período selecionado.')
 	if df_logs_eventos_confirmados is not None:
 		# Cria set de confirmações
 		confirmacoes = set(
