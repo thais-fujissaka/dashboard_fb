@@ -58,6 +58,7 @@ def main():
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='seletor_casas_eventos_confirmados')
 		if id_casa != -1:
 			df_logs_eventos = df_logs_eventos[df_logs_eventos['ID Casa'] == id_casa]
+			df_logs_parcelas = df_logs_parcelas[df_logs_parcelas['ID Casa'] == id_casa]
 			df_eventos_confirmados = df_eventos_confirmados[df_eventos_confirmados['ID Casa'] == id_casa]
 	with col2:
 		# Filtro Eventos
@@ -161,11 +162,14 @@ def main():
 			]
 	df_logs_parcelas_confirmados = df_logs_parcelas_confirmados.drop_duplicates(subset=colunas_verificar_parcelas, keep='first')
 	df_logs_parcelas_confirmados = remove_logs_parcelas_sem_alteração(df_logs_parcelas_confirmados)
+	df_logs_parcelas_confirmados = format_columns_brazilian(df_logs_parcelas_confirmados, ['Valor Parcela'])
+	df_logs_parcelas_confirmados = df_format_date_columns_brazilian(df_logs_parcelas_confirmados, ['Data Recebimento', 'Data Vencimento'])
 	df_logs_parcelas_confirmados_styled = highlight_parcelas_log_changes(df_logs_parcelas_confirmados)
 	st.write('')
 
 	st.markdown('### Alterações de Parcelas de Eventos Confirmados')
 	st.dataframe(df_logs_parcelas_confirmados_styled, use_container_width=True, hide_index=True)
+	st.write('')
 	st.markdown("""
 	<div style="margin-top: -24px; padding: 10px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; align-items: center;">
         <h6 style="padding: 0">Legenda:</h6>
