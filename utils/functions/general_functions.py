@@ -186,6 +186,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/9_KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/4_Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
         st.sidebar.page_link("pages/6_Informações_de_Eventos.py", label="🔎 Informações de Eventos")
+        st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/solo_dining: Análise de Consumo")
     elif "Dash Eventos Acesso 5" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/1_Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
@@ -218,6 +219,15 @@ def mostrar_menu_permissoes_compras(permissoes):
         st.sidebar.page_link("pages/Compras_-_Análises.py", label=":material/shelves: Compras - Análises")
         st.sidebar.page_link("pages/Compras_-_Processos.py", label=":material/cycle: Compras - Processos")
 
+
+def mostrar_menu_permissoes_produto(permissoes):
+    if "Dev Dash Eventos" in permissoes:
+        st.sidebar.markdown("## Produtos")
+        st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
+    if "Dash Eventos Acesso 4" in permissoes:
+        st.sidebar.markdown("## Produtos")
+        st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
+    
 def config_sidebar():
 
     permissoes, user_name, email = config_permissoes_user()
@@ -226,6 +236,7 @@ def config_sidebar():
         mostrar_menu_permissoes_eventos(permissoes)
         mostrar_menu_permissoes_cmv(permissoes)
         mostrar_menu_permissoes_compras(permissoes)
+        mostrar_menu_permissoes_produto(permissoes)
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 

@@ -3,6 +3,7 @@ import streamlit as st
 import io
 from utils.functions.date_functions import *
 from utils.queries_eventos import *
+from utils.queries_produto import *
 from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from streamlit_echarts import st_echarts
@@ -14,6 +15,42 @@ def input_selecao_casas(lista_casas_retirar, key):
     df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
     # Adiciona a opção "Todas as Casas"
     lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
+
+    # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
+    user_email = st.session_state['user_email']
+    lista_ids_casas_acesso = st.secrets["user_access"][user_email]
+    if -1 not in lista_ids_casas_acesso:
+        df_casas = df_casas[df_casas["ID_Casa"].isin(lista_ids_casas_acesso)].sort_values(by="Casa").reset_index(drop=True)
+        lista_casas_validas = df_casas["Casa"].to_list()
+
+    df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
+    casa = st.selectbox("Casa", lista_casas_validas, key=key)
+
+    if casa == "Todas as Casas":
+        id_casa = -1  # Valor padrão para "Todas as Casas"
+        casa = "Todas as Casas"
+        id_zigpay = -1
+    else:
+        df = df_casas.merge(df_validas, on="Casa", how="inner")
+        # Definindo um dicionário para mapear nomes de casas a IDs de casas
+        mapeamento_ids = dict(zip(df["Casa"], df["ID_Casa"]))
+        # Definindo um dicionário para mapear IDs de casas a IDs da Zigpay
+        mapeamento_zigpay = dict(zip(df["Casa"], df["ID_Zigpay"]))
+
+        # Obtendo o ID da casa selecionada
+        id_casa = mapeamento_ids[casa]
+        # Obtendo o ID da Zigpay correspondente ao ID da casa
+        id_zigpay = mapeamento_zigpay[casa]
+
+    return id_casa, casa, id_zigpay
+
+
+def input_selecao_casas_analise_produtos(lista_casas_retirar, key):
+    # Dataframe com IDs e nomes das casas
+    df_casas = GET_CASAS_VALIDAS_ANALISE_PRODUTOS()
+    # Remove casas da lista_casas_retirar
+    df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
+    lista_casas_validas = df_casas["Casa"].to_list()
 
     # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
     user_email = st.session_state['user_email']
@@ -89,6 +126,39 @@ def seletor_mes(label, key):
   mes_selecionado = meses[mes]
 
   return mes_selecionado
+
+
+def seletor_mes_produtos(key):
+    # Dicionário para mapear os meses
+    meses = {
+        "Janeiro": 1,
+        "Fevereiro": 2,
+        "Março": 3,
+        "Abril": 4,
+        "Maio": 5,
+        "Junho": 6,
+        "Julho": 7,
+        "Agosto": 8,
+        "Setembro": 9,
+        "Outubro": 10,
+        "Novembro": 11,
+        "Dezembro": 12,
+    }
+
+    # Obter o mês atual para defini-lo como padrão
+    mes_atual_num = get_today().month
+    nomes_meses = list(meses.keys())
+    mes_atual_nome = nomes_meses[mes_atual_num - 1]
+
+    # Seletor de mês
+    nome_mes_selecionado = st.selectbox(
+        "Mês", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key
+    )
+
+    # Obter o mês correspondente ao mês selecionado
+    num_mes_selecionado = meses[nome_mes_selecionado]
+
+    return nome_mes_selecionado, num_mes_selecionado
 
 
 def seletor_ano(ano_inicio, ano_fim, key):
