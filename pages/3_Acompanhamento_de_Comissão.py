@@ -351,9 +351,12 @@ def main():
             st.divider()
 
             df_eventos_sem_comercial = df_eventos_faturamento[df_eventos_faturamento['Comercial Responsável'].isnull()]
-            df_eventos_sem_comercial = df_eventos_sem_comercial[df_eventos_sem_comercial['Casa'] == casa]
             df_eventos_sem_comercial = df_formata_datas_sem_horario(df_eventos_sem_comercial, ['Data Evento', 'Data Contratação'])
             df_eventos_sem_comercial = format_columns_brazilian(df_eventos_sem_comercial, ['Valor Total Evento', 'Valor AB', 'Valor Imposto'])
+            
+            if id_casa != -1:
+                df_eventos_sem_comercial = df_eventos_sem_comercial[df_eventos_sem_comercial['Casa'] == casa]
+
             st.dataframe(df_eventos_sem_comercial[['Casa','ID Evento', 'Nome Evento', 'Comercial Responsável', 'Cliente', 'Data Contratação', 'Data Evento', 'Valor Total Evento', 'Valor AB', 'Valor Imposto', 'Status Evento', 'Motivo Declínio', 'Observações']], use_container_width=True, hide_index=True)
 
 if __name__ == "__main__":
