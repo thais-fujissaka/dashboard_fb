@@ -247,6 +247,14 @@ def filtrar_por_classe_selecionada(dataframe, classe, valores_selecionados):
     return dataframe
 
 
+def safe_sheet_name(name):
+    # Remove caracteres inválidos e limita a 31 chars
+    invalid_chars = ['\\', '/', '*', '[', ']', ':', '?']
+    for char in invalid_chars:
+        name = name.replace(char, '')
+    return name[:31]
+
+
 def export_to_excel(df, sheet_name, excel_filename):
     if os.path.exists(excel_filename):
         wb = openpyxl.load_workbook(excel_filename)

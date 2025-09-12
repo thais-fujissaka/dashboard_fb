@@ -311,7 +311,8 @@ def main():
                         with col1:
                             st.markdown(f"#### {vendedor}")
                         with col2:
-                            button_download(df_download_vendedor, f'comissao_{vendedor}', f'download_comissao_{vendedor}')
+                            nome_arquivo = safe_sheet_name(f'comissao_{vendedor}')
+                            button_download(df_download_vendedor, nome_arquivo, f'download_comissao_{vendedor}')
 
                         st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
 
