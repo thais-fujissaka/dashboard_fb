@@ -44,7 +44,7 @@ def main():
 
     # Recupera dados dos eventos e parcelas para seção de faturamento
     df_orcamentos_faturamento = df_orcamentos.copy()
-    df_eventos_faturamento = GET_EVENTOS()
+    df_eventos_faturamento = GET_EVENTOS_E_ADITIVOS_PRICELESS()
     df_parcelas = GET_PARCELAS_EVENTOS_PRICELESS()
 
     # Acessos das comissões dos vendedores por logins de vendedores (email)
@@ -64,17 +64,30 @@ def main():
 
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
-        'Valor Locação Aroo 1': float,
-        'Valor Locação Aroo 2': float,
-        'Valor Locação Aroo 3': float,
-        'Valor Locação Anexo': float,
-        'Valor Locação Notie': float,
-        'Valor Locação Mirante': float,
-        'Valor Imposto': float,
-        'Valor AB': float,
-        'Valor Total Evento': float,
-        'Valor Total Locação': float
-    }
+		'Valor Locação Aroo 1': float,
+		'Valor Locação Aroo 2': float,
+		'Valor Locação Aroo 3': float,
+		'Valor Locação Anexo': float,
+		'Valor Locação Notie': float,
+		'Valor Locação Mirante': float,
+		'Valor Imposto': float,
+		'Valor AB': float,
+		'Valor Total Evento': float,
+		'Valor Total Locação': float,
+		'Valor Locação Gerador': float,
+		'Valor Locação Mobiliário': float,
+		'Valor Locação Utensílios': float,
+		'Valor Taxa Serviço': float,
+		'Valor Locação Espaço': float,
+		'Valor Contratação Artístico': float,
+		'Valor Contratação Técnico de Som': float,
+		'Valor Contratação Bilheteria/Couvert Artístico': float,
+		'Valor Mão de Obra Extra': float,
+		'Valor Taxa Administrativa': float,
+		'Valor Comissão BV': float,
+		'Valor Extras Gerais': float,
+		'Valor Acréscimo Forma de Pagamento': float
+	}
     df_eventos_faturamento = df_eventos_faturamento.astype(tipos_de_dados_eventos, errors='ignore')
     df_eventos_faturamento['Data Contratação'] = pd.to_datetime(df_eventos_faturamento['Data Contratação'], errors='coerce')
     df_eventos_faturamento['Data Evento'] = pd.to_datetime(df_eventos_faturamento['Data Evento'], errors='coerce')
