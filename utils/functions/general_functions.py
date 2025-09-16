@@ -227,7 +227,12 @@ def mostrar_menu_permissoes_produto(permissoes):
     if "Dash Eventos Acesso 4" in permissoes:
         st.sidebar.markdown("## Produtos")
         st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
-    
+
+
+def mostrar_menu_permissoes_conciliacao(permissoes):
+    if "Acesso Conciliação" in permissoes:
+        st.sidebar.markdown("## Conciliação")
+
 def config_sidebar():
 
     permissoes, user_name, email = config_permissoes_user()
@@ -237,6 +242,7 @@ def config_sidebar():
         mostrar_menu_permissoes_cmv(permissoes)
         mostrar_menu_permissoes_compras(permissoes)
         mostrar_menu_permissoes_produto(permissoes)
+        mostrar_menu_permissoes_conciliacao(permissoes)
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 

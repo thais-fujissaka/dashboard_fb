@@ -63,7 +63,8 @@ def main():
             "Dash Eventos Acesso 5": "pages/1_Calendário_de_Eventos.py",
             "Liderança Comercial Dash Eventos": "pages/1_Calendário_de_Eventos.py",
             "Admin Priceless Dash Eventos": "pages/1_Calendário_de_Eventos.py",
-            "Gazit": "pages/7_Gazit.py"
+            "Gazit": "pages/7_Gazit.py",
+            "Acesso Conciliação": ""
         }
 
         # Verifica a primeira permissão que existe no mapeamento
