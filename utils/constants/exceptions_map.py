@@ -1,0 +1,30 @@
+# Mapeamentos manuais: fornecedor da despesa:descrição do extrato
+exceptions={
+    "emporio mel": ["cia do whisky", "PAGAMENTO DE BOLETO - CIA DO WHISKY"], 
+    "ministerio da fazenda": "receita federal",
+    "abrasel sao paulo": "Associacao Brasileira de Bares",
+    "PSS - CENTRAL DA LIMPEZA LTDA": "Psss Ltda",
+    "PSS – CENTRAL DA LIMPEZA LTDA": "Psss Ltda",
+    "HORTIFRUTI DO CHEF LTDA": ["Ng27 Consultoria e Gestao Empr", "PAGAMENTO DE BOLETO - NG27 CONSULTORIA E GESTAO EMPR"],
+    "AROMIZY LOCACAO E DISTRIBUICAO LTDA.": "Purifikar Sp Locacao",
+    "CAROLINA AMANCIO": "Nu Pagamentos Sa",
+    "CASANDRA DEVOTTO": "Pagseguro Internet I.P. S.A.",
+    "ICE4": "Ice4pros Fabrica de Gelo Ltda",
+    "MEXBRA ALIMENTOS LTDA": "Pagcerto Instituicao de Pagamento L",
+    "DE LA CROIX VINHOS": "Geoffroy Alain Marie de La Cro",
+    "FAMIGERADA COMERCIO E EXPORTACAO DE BEBIDAS LTDA": "Pagcerto Instituicao de Pagamento L",
+    "FACUNDO GUERRA RIVERO": "PIX - ENVIADO - 25/08 11:10 ARCOS B RESTAURANTE LTDA",
+    "ANDREIA SANTOS FREITAS DUARTE": "Distribuicoes e Representacoes Dede",
+    "PIS": ["Receita Federal", "Ministerio da Fazenda"],
+    "INSS": ["Receita Federal", "Ministerio da Fazenda", "IMPOSTOS - RFB-DARF CODIGO DE BARRAS"],
+    "ISS": ["Receita Federal", "Municipio de Sao Paulo", "IMPOSTOS - PREF MUN SAO PAULO 02"],
+    "ICMS": ["Receita Federal", "Ministerio da Fazenda", "Municipio de Sao Paulo", "Estado de Sao Paulo", "IMPOSTOS - SEFAZ/SP-AMBIENTEPAG"],
+    "IRRF": ["Receita Federal", "Ministerio da Fazenda", "IMPOSTOS - RFB-DARF CODIGO DE BARRAS"],
+    "FGTS": "CAIXA ECONOMICA FEDERAL",
+    "MUTUO ELAINE": ["TRANSF CC PARA CC PJ TEMPUS FUGIT PARTICIPACOES E. LT", "Tempus"],
+    "MINISTERIO DA FAZENDA": ["Receita Federal", "Ministerio da Fazenda", "IMPOSTOS - RFB-DARF CODIGO DE BARRAS"],
+    "BATALHA FABRICA DE PAES LTDA": "PAGAMENTO DE BOLETO - ZOOP BRASIL",
+    "VILA OLIMPIA MASSAS": "Pagseguro Internet I.P. S.A.",
+    "BATARD PADARIA ARTESANAL LTDA": "PAGAMENTO DE BOLETO - CELCOIN INSTITUICAO DE PAGAMEN"
+
+}  

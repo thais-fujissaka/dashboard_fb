@@ -64,7 +64,7 @@ def main():
             "Liderança Comercial Dash Eventos": "pages/1_Calendário_de_Eventos.py",
             "Admin Priceless Dash Eventos": "pages/1_Calendário_de_Eventos.py",
             "Gazit": "pages/7_Gazit.py",
-            "Acesso Conciliação": ""
+            "Acesso Conciliação": "pages/Conciliação - Conciliações.py"
         }
 
         # Verifica a primeira permissão que existe no mapeamento
