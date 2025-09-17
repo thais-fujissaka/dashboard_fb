@@ -235,7 +235,6 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.page_link("pages/Conciliação - Conciliações.py", label=":material/money_bag: Conciliações")
         st.sidebar.page_link("pages/Conciliação - Farol_de_Conciliação.py", label="  ↳ :material/finance: Farol de Conciliação")
         st.sidebar.page_link("pages/Conciliação - Ajustes.py", label="  ↳ :material/instant_mix: Ajustes")
-        st.sidebar.write("")
         st.sidebar.page_link("pages/Conciliação - Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
 
 def config_sidebar():
