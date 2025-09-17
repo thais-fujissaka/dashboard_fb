@@ -3,7 +3,7 @@ import pandas as pd
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.conciliacoes_conta import cria_tabs_contas
 from utils.functions.conciliacoes_conta import *
-# from utils.queries import *
+from utils.queries_conciliacao import *
 
 # Função auxiliar para somar valores agrupados por data
 def somar_por_data(df, col_data, col_valor, datas):
@@ -26,31 +26,31 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
     ## Definindo Bases - Filtra por casa e data ##
     
     ## Extratos Zig
-    df_extrato_zig = st.session_state["df_extrato_zig"]
+    df_extrato_zig = GET_EXTRATO_ZIG()
     df_extrato_zig_filtrada, df_extrato_zig_formatada = filtra_formata_df(df_extrato_zig, "Data_Liquidacao", id_casa, start_date, end_date)
     
     ## Zig_Faturamento
-    df_zig_faturam = st.session_state["df_zig_faturam"]
+    df_zig_faturam = GET_ZIG_FATURAMENTO()
     df_zig_faturam_filtrada, df_zig_faturam_formatada= filtra_formata_df(df_zig_faturam, "Data_Venda", id_casa, start_date, end_date)
 
     ## Parcelas Receitas Extraordinarias
-    df_parc_receit_extr = st.session_state["df_parc_receit_extr"]
+    df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
     df_parc_receit_extr_filtrada, df_parc_receit_extr_formatada = filtra_formata_df(df_parc_receit_extr, "Recebimento_Parcela", id_casa, start_date, end_date)
 
     ## Custos BlueMe Sem Parcelamento
-    df_custos_blueme_sem_parcelam = st.session_state["df_custos_blueme_sem_parcelam"]
+    df_custos_blueme_sem_parcelam = GET_CUSTOS_BLUEME_SEM_PARC()
     df_custos_blueme_sem_parcelam_filtrada, df_custos_blueme_sem_parcelam_formatada = filtra_formata_df(df_custos_blueme_sem_parcelam, "Realizacao_Pgto", id_casa, start_date, end_date)
 
     ## Custos BlueMe Com Parcelamento
-    df_custos_blueme_com_parcelam = st.session_state["df_custos_blueme_com_parcelam"]
+    df_custos_blueme_com_parcelam = GET_CUSTOS_BLUEME_COM_PARC()
     df_custos_blueme_com_parcelam_filtrada, df_custos_blueme_com_parcelam_formatada = filtra_formata_df(df_custos_blueme_com_parcelam, "Realiz_Parcela", id_casa, start_date, end_date)
     
     ## Extratos Bancarios
-    df_extratos_bancarios = st.session_state["df_extratos_bancarios"]
+    df_extratos_bancarios = GET_EXTRATOS_BANCARIOS()
     df_extratos_bancarios_filtrada, df_extratos_bancarios_formatada = filtra_formata_df(df_extratos_bancarios, "Data_Transacao", id_casa, start_date, end_date)
     
     ## Mutuos
-    df_mutuos = st.session_state["df_mutuos"]
+    df_mutuos = GET_MUTUOS()
     df_mutuos_filtrada = df_mutuos[(df_mutuos['ID_Casa_Saida'] == id_casa) | (df_mutuos['ID_Casa_Entrada'] == id_casa)] 
     df_mutuos_filtrada = df_mutuos_filtrada[(df_mutuos["Data_Mutuo"] >= start_date) & (df_mutuos_filtrada["Data_Mutuo"] <= end_date)] 
 
@@ -67,23 +67,23 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         df_mutuos_formatada[col] = pd.to_datetime(df_mutuos_formatada[col]).dt.strftime('%d-%m-%Y %H:%M') 
     
     ## Tesouraria
-    df_tesouraria = st.session_state["df_tesouraria"]
+    df_tesouraria = GET_TESOURARIA()
     df_tesouraria_filtrada, df_tesouraria_formatada = filtra_formata_df(df_tesouraria, "Data_Transacao", id_casa, start_date, end_date)
 
     ## Ajustes Conciliação
-    df_ajustes_conciliacao = st.session_state["df_ajustes_conciliacao"]
+    df_ajustes_conciliacao = GET_AJUSTES()
     df_ajustes_conciliacao_filtrada, df_ajustes_conciliacao_formatada = filtra_formata_df(df_ajustes_conciliacao, "Data_Ajuste", id_casa, start_date, end_date)
 
     ## Bloqueios Judiciais
-    df_bloqueios_judiciais = st.session_state["df_bloqueios_judiciais"]
+    df_bloqueios_judiciais = GET_BLOQUEIOS_JUDICIAIS()
     df_bloqueios_judiciais_filtrada, df_bloqueios_judiciais_formatada = filtra_formata_df(df_bloqueios_judiciais, "Data_Transacao", id_casa, start_date, end_date)
 
     ## Eventos
-    df_eventos = st.session_state["df_eventos"]
+    df_eventos = GET_EVENTOS()
     df_eventos_filtrada, df_eventos_formatada = filtra_formata_df(df_eventos, "Recebimento_Parcela", id_casa, start_date, end_date)
 
     ## Contas Bancárias
-    df_contas = st.session_state["df_contas_bancarias"]
+    df_contas = GET_CONTAS_BANCARIAS()
 
 
     if tab == 'Geral': # Exibe todos os dfs

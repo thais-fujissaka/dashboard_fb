@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-# from utils.queries import *
+from utils.queries_conciliacao import *
 from utils.functions.general_functions_conciliacao import *
 from decimal import Decimal
 from streamlit_echarts import st_echarts
@@ -18,7 +17,7 @@ cores_casas = [
 
 # Filtra tabela de ajustes por casa e ano (de acordo com os seletores)
 def define_df_ajustes(id_casa, ano):
-    df_ajustes = st.session_state["df_ajustes_conciliacao"]
+    df_ajustes = GET_AJUSTES()
     if id_casa != 157:
         df_ajustes_filtrado = df_ajustes[df_ajustes["ID_Casa"] == id_casa]
         df_ajustes_filtrado = df_ajustes_filtrado[df_ajustes_filtrado['Data_Ajuste'].dt.year == ano]
@@ -76,7 +75,7 @@ def contagem_categorias(df, categoria):
 
 # Função auxiliar para gráfico com todas as casas
 def lista_ajustes_casa(casa, ano):
-    df_ajustes = st.session_state["df_ajustes_conciliacao"]
+    df_ajustes = GET_AJUSTES()
     df_ajustes_casa = df_ajustes[(df_ajustes['Casa'] == casa) & (df_ajustes['Data_Ajuste'].dt.year == ano)]
     df_ajustes_casa['Mes'] = df_ajustes_casa['Data_Ajuste'].dt.month
 

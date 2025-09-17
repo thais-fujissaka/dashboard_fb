@@ -5,7 +5,7 @@ import calendar
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.conciliacoes import *
-# from utils.queries import *
+from utils.queries_conciliacao import *
 
 
 st.set_page_config(
@@ -25,6 +25,8 @@ config_sidebar()
 st.title(":material/money_bag: Conciliação FB")
 st.divider()
 
+# Recuperando dados
+df_casas = GET_CASAS()
 
 # Filtrando Data
 today = datetime.now()
@@ -63,7 +65,6 @@ if start_date > end_date:
 
 else:
     # Filtrando casas
-    df_casas = st.session_state["df_casas"]
     casas = df_casas['Casa'].tolist()
     
     # Troca o valor na lista

@@ -6,7 +6,7 @@ from utils.functions.general_functions_conciliacao import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.conciliacoes import *
 from utils.functions.farol_conciliacao import *
-# from utils.queries import *
+from utils.queries_conciliacao import *
 
 
 st.set_page_config(
@@ -26,6 +26,8 @@ config_sidebar()
 st.title(":material/finance: Farol de conciliação")
 st.divider()
 
+# Recuperando dados
+df_casas = GET_CASAS()
 
 # Filtrando por casa e ano
 col1, col2 = st.columns(2)
@@ -41,10 +43,6 @@ with col2:
     anos = list(range(2024, ano_atual+1))
     index_padrao = anos.index(ano_atual)
     ano_farol = st.selectbox("Selecione um ano:", anos, index=index_padrao)
-
-# Seletor de trimestre
-# trimestres = ['1º Trimestre', '2º Trimestre', '3º Trimestre', '4º Trimestre']
-# trimestre_farol = st.selectbox("Selecione um trimestre:", trimestres)
 
 st.divider()
 
@@ -224,7 +222,6 @@ if mes_farol == 'Todos os meses':
     st.write("")
     st.subheader(":material/arrow_downward: Visualizar dias não conciliados")
 
-    df_casas = st.session_state["df_casas"]
     casas = df_casas['Casa'].tolist()
     casas.remove("All bar")
 

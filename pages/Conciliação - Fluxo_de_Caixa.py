@@ -8,7 +8,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.general_functions import config_sidebar
-# from utils.queries import *
+from utils.queries_conciliacao import *
 from workalendar.america import Brazil
 
 
@@ -51,7 +51,7 @@ start_of_three_months_ago = datetime.datetime(year, month_sub_3, 1)
 
 
 # Filtrando casas
-df_casas = st.session_state["df_casas"]
+df_casas = GET_CASAS()
 casas = df_casas['Casa'].tolist()
 
 # Criando colunas para o seletor de casas e o botão
@@ -135,7 +135,7 @@ with tab1:
 
     ## Zig_Extrato
     st.subheader("Extrato Zig")
-    df_extrato_zig = st.session_state["df_extrato_zig"]
+    df_extrato_zig = GET_EXTRATO_ZIG()
     df_extrato_zig_filtrada = df_extrato_zig[df_extrato_zig['ID_Casa'].isin(ids_casas_selecionadas)]
     df_extrato_zig_filtrada = df_extrato_zig_filtrada[(df_extrato_zig_filtrada["Data_Liquidacao"] >= start_date) & (df_extrato_zig_filtrada["Data_Liquidacao"] <= end_date)]
     df_extrato_zig_filtrada = df_extrato_zig_filtrada[['ID_Extrato','ID_Casa','Casa','Descricao','Data_Liquidacao','Data_Transacao','Valor']]
@@ -187,7 +187,7 @@ with tab1:
 
     ## Parcelas Receitas Extraordinárias
     st.subheader("Parcelas Receitas Extraordinarias")
-    df_parc_receit_extr = st.session_state["df_parc_receit_extr"]
+    df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
     df_parc_receit_extr_filtrada = df_parc_receit_extr[df_parc_receit_extr['ID_Casa'].isin(ids_casas_selecionadas)]
     #df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[(df_parc_receit_extr_filtrada["Recebimento_Parcela"] >= start_date) & (df_parc_receit_extr_filtrada["Recebimento_Parcela"] <= end_date)]
     df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[['ID_Receita','ID_Casa','Casa','Cliente','Data_Ocorrencia','Vencimento_Parcela','Recebimento_Parcela','Valor_Parcela','Classif_Receita','Status_Pgto','Observacoes']]
@@ -228,7 +228,7 @@ with tab1:
 
     ## Custos BlueMe Sem Parcelamento
     st.subheader("Despesas BlueMe Sem Parcelamento")
-    df_custos_blueme_sem_parcelam = st.session_state["df_custos_blueme_sem_parcelam"]
+    df_custos_blueme_sem_parcelam = GET_CUSTOS_BLUEME_SEM_PARC()
     df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam[df_custos_blueme_sem_parcelam['ID_Casa'].isin(ids_casas_selecionadas)]
     #df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam_filtrada[(df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] >= start_date) & (df_custos_blueme_sem_parcelam_filtrada["Realizacao_Pgto"] <= end_date)]
     df_custos_blueme_sem_parcelam_filtrada = df_custos_blueme_sem_parcelam_filtrada[['ID_Despesa','ID_Casa','Casa','Fornecedor','Valor','Data_Vencimento','Previsao_Pgto','Realizacao_Pgto','Data_Competencia','Class_Cont_1','Class_Cont_2','Status_Pgto']]
@@ -269,7 +269,7 @@ with tab1:
 
     ## Custos BlueMe Com Parcelamento
     st.subheader("Despesas BlueMe Com Parcelamento")
-    df_custos_blueme_com_parcelam = st.session_state["df_custos_blueme_com_parcelam"]
+    df_custos_blueme_com_parcelam = GET_CUSTOS_BLUEME_COM_PARC()
     df_custos_blueme_com_parcelam = df_custos_blueme_com_parcelam[['ID_Parcela','ID_Despesa','Casa','ID_Casa','Fornecedor','Qtd_Parcelas','Num_Parcela','Valor_Parcela','Vencimento_Parcela','Realiz_Parcela','Valor_Original','Class_Cont_1','Class_Cont_2','Status_Pgto']]
     df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam[df_custos_blueme_com_parcelam['ID_Casa'].isin(ids_casas_selecionadas)]
     #df_custos_blueme_com_parcelam_filtrada = df_custos_blueme_com_parcelam_filtrada[(df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] >= start_date) & (df_custos_blueme_com_parcelam_filtrada["Realiz_Parcela"] <= end_date)] 
@@ -966,7 +966,7 @@ with tab2:
     # Informando o período filtrado
     st.info(f"📅 **Período filtrado**: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
 
-    df_orcamentos = st.session_state["df_orcamentos"]
+    df_orcamentos = GET_ORCAMENTOS()
     
     # Convertendo Ano_Orcamento e Mes_Orcamento para formato de data
     df_orcamentos['Data_Orcamento'] = pd.to_datetime(
@@ -1000,7 +1000,7 @@ with tab2:
 
     # Exibindo tabela de faturamento agregado
     st.subheader("📋 Faturamento Agregado")
-    df_faturamento_agregado = st.session_state["df_faturamento_agregado"]
+    df_faturamento_agregado = GET_FATURAMENTO_AGREGADO()
     
     df_faturamento_agregado['Ano_Mes'] = df_faturamento_agregado['Ano'].astype(str) + '-' + df_faturamento_agregado['Mes'].astype(str).str.zfill(2)
     
@@ -1232,7 +1232,7 @@ with tab2:
         
         try:
             # Obtendo dados de parcelas de receitas extraordinárias
-            df_parc_receit_extr = st.session_state["df_parc_receit_extr"]
+            df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
             
             # Debug: Verificando se o DataFrame existe e tem dados
             if df_parc_receit_extr is None or df_parc_receit_extr.empty:
@@ -1625,8 +1625,8 @@ with tab2:
         st.info(f"📅 **Período de projeção**: {data_futura_inicio.strftime('%d/%m/%Y')} a {data_futura_fim.strftime('%d/%m/%Y')}")
         
         # Obtendo dados das despesas BlueMe
-        df_despesas_sem_parcelamento = st.session_state["df_custos_blueme_sem_parcelam"]
-        df_despesas_com_parcelamento = st.session_state["df_custos_blueme_com_parcelam"]
+        df_despesas_sem_parcelamento = GET_CUSTOS_BLUEME_SEM_PARC()
+        df_despesas_com_parcelamento = GET_CUSTOS_BLUEME_COM_PARC()
         
         # Filtrando despesas por casas selecionadas
         df_despesas_sem_parcelamento = df_despesas_sem_parcelamento[df_despesas_sem_parcelamento['ID_Casa'].isin(ids_casas_selecionadas)]
@@ -1647,7 +1647,7 @@ with tab2:
             # Criando seção expansível com os parâmetros configurados no sistema
             with st.expander("📋 Parâmetros Configurados no Sistema", expanded=False):
                 # Obtendo dados da configuração do sistema
-                df_tipo_class_cont_2 = st.session_state["df_tipo_class_cont_2"]
+                df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                 
                 # Criando dataframe para exibição
                 df_configuracao_exibicao = df_tipo_class_cont_2[['Tipo_Fluxo_Futuro', 'Class_Cont_1', 'Class_Cont_2']].copy()
@@ -1685,7 +1685,7 @@ with tab2:
                 if tipo_fluxo == 'Fixo':
                     # Despesas fixas - usar valores dos orçamentos diretamente
                     # Obtendo as classificações que são do tipo "Fixo" da configuração do sistema
-                    df_tipo_class_cont_2 = st.session_state["df_tipo_class_cont_2"]
+                    df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                     classificacoes_fixo_configuradas = df_tipo_class_cont_2[
                         df_tipo_class_cont_2['Tipo_Fluxo_Futuro'] == 'Fixo'
                     ]['Class_Cont_1'].unique()
@@ -1708,7 +1708,7 @@ with tab2:
                 elif tipo_fluxo == 'Variavel do Faturamento':
                     # Despesas variáveis - aplicar fator de ajuste
                     # Obtendo as classificações que são do tipo "Variável do Faturamento" da configuração do sistema
-                    df_tipo_class_cont_2 = st.session_state["df_tipo_class_cont_2"]
+                    df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                     classificacoes_variavel_configuradas = df_tipo_class_cont_2[
                         df_tipo_class_cont_2['Tipo_Fluxo_Futuro'] == 'Variavel do Faturamento'
                     ]['Class_Cont_1'].unique()
@@ -1732,7 +1732,7 @@ with tab2:
                     # Usar despesas realmente lançadas (pendentes) apenas para classificações que são "Considerar Lançamentos"
                     
                     # Obtendo as classificações que são do tipo "Considerar Lançamentos" da configuração do sistema
-                    df_tipo_class_cont_2 = st.session_state["df_tipo_class_cont_2"]
+                    df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                     classificacoes_lancamentos_configuradas = df_tipo_class_cont_2[
                         df_tipo_class_cont_2['Tipo_Fluxo_Futuro'] == 'Considerar Lançamentos'
                     ]['Class_Cont_1'].unique()

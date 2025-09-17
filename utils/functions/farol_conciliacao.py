@@ -22,7 +22,7 @@ def conciliacao_casa(df, casa, datas_completas):
     df_copia = df.copy()
 
     # # Extrato Zig (Saques) #
-    df_extrato_zig = st.session_state['df_extrato_zig']
+    df_extrato_zig = GET_EXTRATO_ZIG()
     df_extrato_zig_farol = df_extrato_zig[df_extrato_zig['Casa'] == casa]
     if 'Extrato Zig (Saques)' not in df_copia.columns:
         df_copia['Extrato Zig (Saques)'] = somar_por_data(
@@ -35,7 +35,7 @@ def conciliacao_casa(df, casa, datas_completas):
         df_copia['Faturam dinheiro'] = 0 # stand-by
 
     # Receitas Extraordinárias #
-    df_parc_receit_extr = st.session_state['df_parc_receit_extr']
+    df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
     df_parc_receit_extr_farol = df_parc_receit_extr[df_parc_receit_extr['Casa'] == casa]
     if 'Receitas Extraordinárias' not in df_copia.columns:
         df_copia['Receitas Extraordinárias'] = somar_por_data(
@@ -43,15 +43,15 @@ def conciliacao_casa(df, casa, datas_completas):
         )
 
     # Eventos (desmembrar de Receitas Extraordinárias) #
-    df_eventos = st.session_state['df_eventos']
+    df_eventos = GET_EVENTOS()
     df_eventos_farol = df_eventos[df_eventos['Casa'] == casa]
     if 'Eventos' not in df_copia.columns:
         df_copia['Eventos'] = somar_por_data(
-            df_eventos_farol, "Recebimento Parcela", "Valor Parcela", datas_completas
+            df_eventos_farol, "Recebimento_Parcela", "Valor_Parcela", datas_completas
         )
 
     # Entradas Mutuos #
-    df_mutuos = st.session_state['df_mutuos']
+    df_mutuos = GET_MUTUOS()
     df_mutuos_farol = df_mutuos[(df_mutuos['Casa_Saida'] == casa) | (df_mutuos['Casa_Entrada'] == casa)] 
     if 'Entradas Mútuos' not in df_copia.columns:
         df_copia['Entradas Mútuos'] = somar_por_data(
@@ -60,7 +60,7 @@ def conciliacao_casa(df, casa, datas_completas):
         )
 
     # Desbloqueios Judiciais #
-    df_bloqueios_judiciais = st.session_state['df_bloqueios_judiciais']
+    df_bloqueios_judiciais = GET_BLOQUEIOS_JUDICIAIS()
     df_bloqueios_judiciais_farol = df_bloqueios_judiciais[df_bloqueios_judiciais['Casa'] == casa]
     if 'Desbloqueios Judiciais' not in df_copia.columns:
         df_copia['Desbloqueios Judiciais'] = somar_por_data(
@@ -69,7 +69,7 @@ def conciliacao_casa(df, casa, datas_completas):
         )
 
     # Extrato Bancário (Crédito) #
-    df_extratos_bancarios = st.session_state['df_extratos_bancarios']
+    df_extratos_bancarios = GET_EXTRATOS_BANCARIOS()
     df_extratos_bancarios_farol = df_extratos_bancarios[df_extratos_bancarios['Casa'] == casa]
     if 'Extrato Bancário (Crédito)' not in df_copia.columns:
         df_filtrado = df_extratos_bancarios_farol.copy()
@@ -88,7 +88,7 @@ def conciliacao_casa(df, casa, datas_completas):
         )
 
     # Custos sem parcelamento #
-    df_custos_blueme_sem_parcelam = st.session_state['df_custos_blueme_sem_parcelam']
+    df_custos_blueme_sem_parcelam = GET_CUSTOS_BLUEME_SEM_PARC()
     df_custos_blueme_sem_parcelam_farol = df_custos_blueme_sem_parcelam[df_custos_blueme_sem_parcelam['Casa'] == casa]
     if 'Custos sem Parcelamento' not in df_copia.columns:
         df_copia['Custos sem Parcelamento'] = somar_por_data(
@@ -96,7 +96,7 @@ def conciliacao_casa(df, casa, datas_completas):
         ) * (-1)
 
     # Custos com parcelamento #
-    df_custos_blueme_com_parcelam = st.session_state['df_custos_blueme_com_parcelam']
+    df_custos_blueme_com_parcelam = GET_CUSTOS_BLUEME_COM_PARC()
     df_custos_blueme_com_parcelam_farol = df_custos_blueme_com_parcelam[df_custos_blueme_com_parcelam['Casa'] == casa]
     if 'Custos com Parcelamento' not in df_copia.columns:
         df_copia['Custos com Parcelamento'] = somar_por_data(
@@ -134,7 +134,7 @@ def conciliacao_casa(df, casa, datas_completas):
         )
 
     # Ajustes #
-    df_ajustes_conciliacao = st.session_state['df_ajustes_conciliacao']
+    df_ajustes_conciliacao = GET_AJUSTES()
     df_ajustes_conciliacao_farol = df_ajustes_conciliacao[df_ajustes_conciliacao['Casa'] == casa]
     if 'Ajustes Conciliação' not in df_copia.columns:
         df_copia['Ajustes Conciliação'] = somar_por_data(

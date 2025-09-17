@@ -54,16 +54,16 @@ def main():
 
         # Mapeamento de permissões para página inicial
         permissoes_pagina_inicial = {
-            "Dev Dash Eventos": "pages/1_Calendário_de_Eventos.py",
-            "Admin Dash Eventos": "pages/1_Calendário_de_Eventos.py",
-            "Dash Eventos Acesso 1": "pages/1_Calendário_de_Eventos.py",
-            "Dash Eventos Acesso 2": "pages/1_Calendário_de_Eventos.py",
-            "Dash Eventos Acesso 3": "pages/1_Calendário_de_Eventos.py",
-            "Dash Eventos Acesso 4": "pages/1_Calendário_de_Eventos.py",
-            "Dash Eventos Acesso 5": "pages/1_Calendário_de_Eventos.py",
-            "Liderança Comercial Dash Eventos": "pages/1_Calendário_de_Eventos.py",
-            "Admin Priceless Dash Eventos": "pages/1_Calendário_de_Eventos.py",
-            "Gazit": "pages/7_Gazit.py",
+            "Dev Dash Eventos": "pages/Eventos - Calendário_de_Eventos.py",
+            "Admin Dash Eventos": "pages/Eventos - Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 1": "pages/Eventos - Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 2": "pages/Eventos - Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 3": "pages/Eventos - Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 4": "pages/Eventos - Calendário_de_Eventos.py",
+            "Dash Eventos Acesso 5": "pages/Eventos - Calendário_de_Eventos.py",
+            "Liderança Comercial Dash Eventos": "pages/Eventos - Calendário_de_Eventos.py",
+            "Admin Priceless Dash Eventos": "pages/Eventos - Calendário_de_Eventos.py",
+            "Gazit": "pages/Eventos - Gazit.py",
             "Acesso Conciliação": "pages/Conciliação - Conciliações.py"
         }
 
