@@ -24,7 +24,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_outras = df_custos_blueme_sem_parc[
                 df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isin(ids_outras) 
                 | df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isna()]                
-            df_blueme_outras['Realizacao_Pgto'] = df_blueme_outras['Realizacao_Pgto'].dt.date
+            df_blueme_outras.loc[:, 'Realizacao_Pgto'] = df_blueme_outras['Realizacao_Pgto'].dt.date
 
             # faz o merge para tentar conciliar
             df_blueme_outras = merge_com_fuzzy(
@@ -59,7 +59,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc_outras = df_custos_blueme_com_parc[
                 df_custos_blueme_com_parc['ID_Conta_Bancaria'].isin(ids_outras) 
                 | df_custos_blueme_com_parc['ID_Conta_Bancaria'].isna()]                
-            df_blueme_com_parc_outras['Realiz_Parcela'] = df_blueme_com_parc_outras['Realiz_Parcela'].dt.date
+            df_blueme_com_parc_outras.loc[:, 'Realiz_Parcela'] = df_blueme_com_parc_outras['Realiz_Parcela'].dt.date
 
             # faz o merge para tentar conciliar
             df_blueme_com_parc_outras = merge_com_fuzzy(
@@ -99,7 +99,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
                 df_saidas_mutuos['ID_Conta_Saida'].isin(ids_outras) 
                 | df_saidas_mutuos['ID_Conta_Saida'].isna()]  
 
-            df_saidas_mutuos_outras['Data_Mutuo'] = pd.to_datetime(df_saidas_mutuos_outras['Data_Mutuo']).dt.normalize()
+            df_saidas_mutuos_outras.loc[:, 'Data_Mutuo'] = pd.to_datetime(df_saidas_mutuos_outras['Data_Mutuo']).dt.normalize()
 
             # Não vou usar o campo 'Observacoes' - muitos None
             df_saidas_mutuos_outras = df_saidas_mutuos_outras.merge(
@@ -132,9 +132,9 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         if id_casa == 116: # Bar Léo - Centro
             df_extratos_conta["Valor"] = df_extratos_conta["Valor"].apply(lambda x: -x if x < 0 else x)
         else:
-            df_extratos_conta['Valor'] = df_extratos_conta['Valor'] * (-1)
+            df_extratos_conta.loc[:, 'Valor'] = df_extratos_conta['Valor'] * -1
         
-        df_extratos_conta['Data_Transacao'] = df_extratos_conta['Data_Transacao'].dt.date
+        df_extratos_conta.loc[:, 'Data_Transacao'] = df_extratos_conta['Data_Transacao'].dt.date
 
         if item == "blueme sem parcelamento":
             if nome_conta == "Arcos - Arcos Bar - Banco do Brasil": 
@@ -146,7 +146,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # filtra as despesas dessas contas
             df_blueme_sem_parc_conta = df_custos_blueme_sem_parc[df_custos_blueme_sem_parc['Conta_Bancaria'] == nome_conta]
-            df_blueme_sem_parc_conta['Realizacao_Pgto'] = df_blueme_sem_parc_conta['Realizacao_Pgto'].dt.date
+            df_blueme_sem_parc_conta.loc[:, 'Realizacao_Pgto'] = df_blueme_sem_parc_conta['Realizacao_Pgto'].dt.date
 
             if id_casa == 145: # Ultra Evil tem duas contas (184, 185) com o mesmo nome
                 # faz o merge para tentar conciliar
@@ -197,7 +197,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # filtra as despesas dessas contas
             df_blueme_com_parc_conta = df_custos_blueme_com_parc[df_custos_blueme_com_parc['Conta_Bancaria'] == nome_conta]
-            df_blueme_com_parc_conta['Realiz_Parcela'] = df_blueme_com_parc_conta['Realiz_Parcela'].dt.date
+            df_blueme_com_parc_conta.loc[:, 'Realiz_Parcela'] = df_blueme_com_parc_conta['Realiz_Parcela'].dt.date
 
             if id_casa == 145:
                 df_blueme_com_parc = merge_com_fuzzy(
@@ -245,8 +245,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         elif item == "bloqueios":
             # filtra as despesas dessas contas
             df_bloqueios_conta = df_bloqueios[(df_bloqueios['Nome da Conta'] == nome_conta)]                
-            df_bloqueios_conta['Data_Transacao'] = df_bloqueios_conta['Data_Transacao'].dt.date
-            df_bloqueios_conta['Valor'] = df_bloqueios_conta['Valor'] * (-1)
+            df_bloqueios_conta.loc[:, 'Data_Transacao'] = df_bloqueios_conta['Data_Transacao'].dt.date
+            df_bloqueios_conta.loc[:, 'Valor'] = df_bloqueios_conta['Valor'] * (-1)
 
             # faz o merge para tentar conciliar
             df_bloqueios_conta = merge_com_fuzzy(
@@ -278,7 +278,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         elif item == "saidas mutuos":
             # filtra pela conta de saida
             df_saidas_mutuos_conta = df_saidas_mutuos[(df_saidas_mutuos['Conta_Saida'] == nome_conta)]                
-            df_saidas_mutuos_conta['Data_Mutuo'] = df_saidas_mutuos_conta['Data_Mutuo'].dt.date
+            df_saidas_mutuos_conta.loc[:, 'Data_Mutuo'] = pd.to_datetime(df_saidas_mutuos_conta['Data_Mutuo'])
 
             # faz o merge para tentar conciliar
             df_saidas_mutuos_conta = merge_com_fuzzy(
@@ -334,7 +334,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # Bloqueios: filtra e organiza colunas
             df_bloqueios_filtrado = df_bloqueios[df_bloqueios['Nome da Conta'] == nome_conta]
-            df_bloqueios_filtrado['Valor'] = df_bloqueios_filtrado['Valor'] * (-1)
+            df_bloqueios_filtrado.loc[:, 'Valor'] = df_bloqueios_filtrado['Valor'] * (-1)
             df_bloqueios_filtrado = df_bloqueios_filtrado[["ID_Conta_Bancaria", "ID_Bloqueio", "Valor", "Data_Transacao", "Observacao"]]
             df_bloqueios_filtrado['Categoria_Despesa'] = "Bloqueio Judicial"
             df_bloqueios_filtrado = df_bloqueios_filtrado.rename(columns={
@@ -364,7 +364,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             # st.write(df_concat)
 
             # Garante que ambos estão no mesmo formato (datetime)
-            df_extratos_conta['Data_Transacao'] = pd.to_datetime(df_extratos_conta['Data_Transacao'], errors='coerce')
+            df_extratos_conta.loc[:, 'Data_Transacao'] = pd.to_datetime(df_extratos_conta['Data_Transacao'], errors='coerce')
             df_concat['Realizacao_Pgto'] = pd.to_datetime(df_concat['Realizacao_Pgto'], errors='coerce')
         
             # Df com o merge de cada item do extrato com despesa correspondente
@@ -382,7 +382,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # Estiliza e exibe
             df_concat_merge = df_concat_merge.reset_index(drop=True)
-            #df_concat_merge = df_concat_merge[["ID_Extrato_Bancario", "ID_Despesa", "ID_Conta_Bancaria", "Nome_Conta_Bancaria", "Data_Transacao", "Descricao_Transacao", "Valor", "Descricao_Despesa", "Categoria_Despesa"]]
+            df_concat_merge = df_concat_merge[["ID_Extrato_Bancario", "ID_Despesa", "ID_Conta_Bancaria", "Nome_Conta_Bancaria", "Data_Transacao", "Descricao_Transacao", "Valor", "Descricao_Despesa", "Categoria_Despesa"]]
             df_concat_merge["ID_Despesa"] = df_concat_merge["ID_Despesa"].astype("Int64")
             
             df_concat_merge = df_concat_merge.sort_values(by="Data_Transacao", ascending=False)

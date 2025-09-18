@@ -18,7 +18,7 @@ st.set_page_config(
 
 # Se der refresh, volta para página de login
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
-	st.switch_page('Main.py')
+	st.switch_page('Login.py')
 
 # Personaliza menu lateral
 config_sidebar()
@@ -207,7 +207,7 @@ df_farol_conciliacao['Casa'] = casas_validas
 df_farol_conciliacao = df_farol_conciliacao_mes(lista_casas_mes, df_farol_conciliacao, ano_farol, mes_atual)
 
 # Pinta as células de acordo com a porcentagem
-df_farol_conciliacao_estilo = df_farol_conciliacao.style.applymap(
+df_farol_conciliacao_estilo = df_farol_conciliacao.style.map(
     lambda val: estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol)
     )
 
@@ -225,7 +225,7 @@ if mes_farol == 'Todos os meses':
     casas = df_casas['Casa'].tolist()
     casas.remove("All bar")
 
-    casa_selecionada = st.selectbox("", casas, index=None, placeholder='Selecione uma casa')
+    casa_selecionada = st.selectbox("Selecione uma casa:", casas, index=None, placeholder='Selecione uma casa', label_visibility='hidden')
 
     # Definindo um dicionário para mapear nomes de casas a IDs de casas
     mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))

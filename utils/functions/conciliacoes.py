@@ -52,7 +52,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
     ## Mutuos
     df_mutuos = GET_MUTUOS()
     df_mutuos_filtrada = df_mutuos[(df_mutuos['ID_Casa_Saida'] == id_casa) | (df_mutuos['ID_Casa_Entrada'] == id_casa)] 
-    df_mutuos_filtrada = df_mutuos_filtrada[(df_mutuos["Data_Mutuo"] >= start_date) & (df_mutuos_filtrada["Data_Mutuo"] <= end_date)] 
+    df_mutuos_filtrada = df_mutuos_filtrada[(df_mutuos_filtrada["Data_Mutuo"] >= start_date) & (df_mutuos_filtrada["Data_Mutuo"] <= end_date)] 
 
     # Copia para formatação brasileira de colunas numéricas 
     df_mutuos_formatada = df_mutuos_filtrada.copy() 

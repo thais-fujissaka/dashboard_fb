@@ -21,7 +21,7 @@ st.set_page_config(
 
 # Se der refresh, volta para página de login
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
-	st.switch_page('Main.py')
+	st.switch_page('Login.py')
 
 # Personaliza menu lateral
 config_sidebar()
