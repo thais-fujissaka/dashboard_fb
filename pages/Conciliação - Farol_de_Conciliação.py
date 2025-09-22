@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+import datetime
 import calendar
 from utils.functions.general_functions_conciliacao import *
 from utils.constants.general_constants import casas_validas
@@ -43,7 +43,7 @@ with col1:
 
 # Seletor de ano
 with col2:
-    ano_atual = datetime.now().year 
+    ano_atual = datetime.datetime.now().year 
     anos = list(range(2024, ano_atual+1))
     index_padrao = anos.index(ano_atual)
     ano_farol = st.selectbox("Selecione um ano:", anos, index=index_padrao)
@@ -51,12 +51,12 @@ with col2:
 st.divider()
 
 # Conciliação completa (2024 -- atual)
-today = datetime.now()
+today = datetime.datetime.now()
 last_year = today.year - 1
-jan_last_year = datetime(last_year, 1, 1)
-dec_this_year = datetime(today.year, 12, 31)
-mes_atual = datetime.now().month
-ano_atual = datetime.now().year
+jan_last_year = datetime.datetime(last_year, 1, 1)
+dec_this_year = datetime.datetime(today.year, 12, 31)
+mes_atual = datetime.datetime.now().month
+ano_atual = datetime.datetime.now().year
 
 datas_completas = pd.date_range(start=jan_last_year, end=dec_this_year)
 df_conciliacao_farol = pd.DataFrame()

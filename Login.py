@@ -28,7 +28,7 @@ def main():
         st.session_state["loggedIn"] = False
 
     if not st.session_state["loggedIn"]:
-        st.title(":calendar: Controle de Eventos")
+        st.title(":bar_chart: Dashboard - FB")
         st.write("")
 
         with st.container(border=True):

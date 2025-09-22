@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+import datetime
 import calendar
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.general_functions import config_sidebar
@@ -29,13 +29,13 @@ st.divider()
 df_casas = GET_CASAS()
 
 # Filtrando Data
-today = datetime.now()
+today = datetime.datetime.now()
 last_year = today.year - 1
-jan_last_year = datetime(last_year, 1, 1)
-jan_this_year = datetime(today.year, 1, 1)
+jan_last_year = datetime.datetime(last_year, 1, 1)
+jan_this_year = datetime.datetime(today.year, 1, 1)
 last_day_of_month = calendar.monthrange(today.year, today.month)[1]
-this_month_this_year = datetime(today.year, today.month, last_day_of_month)
-dec_this_year = datetime(today.year, 12, 31)
+this_month_this_year = datetime.datetime(today.year, today.month, last_day_of_month)
+dec_this_year = datetime.datetime(today.year, 12, 31)
 
 ## 5 meses atras
 month_sub_3 = today.month - 3
@@ -46,7 +46,7 @@ if month_sub_3 <= 0:
     month_sub_3 += 12
     year -= 1
 
-start_of_three_months_ago = datetime(year, month_sub_3, 1)
+start_of_three_months_ago = datetime.datetime(year, month_sub_3, 1)
 
 # Campos de seleção de data
 col1, col2 = st.columns(2)
