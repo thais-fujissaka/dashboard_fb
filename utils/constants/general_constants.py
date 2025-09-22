@@ -1,0 +1,76 @@
+casas_validas = ['All bar', 
+                 'Arcos', 
+                 'Bar Brahma - Centro', 
+                 'Bar Brahma - Granja', 
+                 'Bar Brahma Paulista', 
+                 'Bar Léo - Centro', 
+                 'Blue Note - São Paulo', 
+                 'Blue Note SP (Novo)', 
+                 'Edificio Rolim', 
+                 'Escritório Fabrica de Bares', 
+                 'Girondino ', 
+                 'Girondino - CCBB', 
+                 'Jacaré', 
+                 'Love Cabaret', 
+                 'Orfeu', 
+                 'Priceless', 
+                 'Riviera Bar', 
+                 'Sanduiche comunicação LTDA ', 
+                 'Tempus Fugit  Ltda ', 
+                 'Ultra Evil Premium Ltda ']
+
+
+cores_casas = [
+    "#582310", # Arcos
+    "#DF2526", # Bar Brahma - Centro
+    "#84161f", # Bar Brahma - Granja
+    "#1C6EBA", # Bar Brahma Paulista
+    "#E9A700", # Bar Leo - Centro
+    "#081F5C", # Blue Note São Paulo
+    "#004080", # Blue Note Novo
+    "#336699", # Edificio Rolim
+    "#6699CC", # Escritorio FB
+    "#4A5129", # Girondino
+    "#8CA706", # Girondino CCBB
+    "#0CA22E", # Jacaré
+    "#E799BB", # Love Cabaret
+    "#006E77", # Orfeu
+    "#000000", # Priceless
+    "#C2185B", # Riviera
+    "#FF6600", # Sanduiche
+    "#9933CC", # Tempus
+    "#2C3E50", # Ultra Evil
+    ]
+
+
+# Mapeamentos manuais: fornecedor da despesa:descrição do extrato
+exceptions={
+    "emporio mel": ["cia do whisky", "PAGAMENTO DE BOLETO - CIA DO WHISKY"], 
+    "ministerio da fazenda": "receita federal",
+    "abrasel sao paulo": "Associacao Brasileira de Bares",
+    "PSS - CENTRAL DA LIMPEZA LTDA": "Psss Ltda",
+    "PSS – CENTRAL DA LIMPEZA LTDA": "Psss Ltda",
+    "HORTIFRUTI DO CHEF LTDA": ["Ng27 Consultoria e Gestao Empr", "PAGAMENTO DE BOLETO - NG27 CONSULTORIA E GESTAO EMPR"],
+    "AROMIZY LOCACAO E DISTRIBUICAO LTDA.": "Purifikar Sp Locacao",
+    "CAROLINA AMANCIO": "Nu Pagamentos Sa",
+    "CASANDRA DEVOTTO": "Pagseguro Internet I.P. S.A.",
+    "ICE4": "Ice4pros Fabrica de Gelo Ltda",
+    "MEXBRA ALIMENTOS LTDA": "Pagcerto Instituicao de Pagamento L",
+    "DE LA CROIX VINHOS": "Geoffroy Alain Marie de La Cro",
+    "FAMIGERADA COMERCIO E EXPORTACAO DE BEBIDAS LTDA": "Pagcerto Instituicao de Pagamento L",
+    "FACUNDO GUERRA RIVERO": "PIX - ENVIADO - 25/08 11:10 ARCOS B RESTAURANTE LTDA",
+    "ANDREIA SANTOS FREITAS DUARTE": "Distribuicoes e Representacoes Dede",
+    "PIS": ["Receita Federal", "Ministerio da Fazenda"],
+    "INSS": ["Receita Federal", "Ministerio da Fazenda", "IMPOSTOS - RFB-DARF CODIGO DE BARRAS"],
+    "ISS": ["Receita Federal", "Municipio de Sao Paulo", "IMPOSTOS - PREF MUN SAO PAULO 02"],
+    "ICMS": ["Receita Federal", "Ministerio da Fazenda", "Municipio de Sao Paulo", "Estado de Sao Paulo", "IMPOSTOS - SEFAZ/SP-AMBIENTEPAG"],
+    "IRRF": ["Receita Federal", "Ministerio da Fazenda", "IMPOSTOS - RFB-DARF CODIGO DE BARRAS"],
+    "FGTS": "CAIXA ECONOMICA FEDERAL",
+    "MUTUO ELAINE": ["TRANSF CC PARA CC PJ TEMPUS FUGIT PARTICIPACOES E. LT", "Tempus"],
+    "MINISTERIO DA FAZENDA": ["Receita Federal", "Ministerio da Fazenda", "IMPOSTOS - RFB-DARF CODIGO DE BARRAS"],
+    "BATALHA FABRICA DE PAES LTDA": "PAGAMENTO DE BOLETO - ZOOP BRASIL",
+    "VILA OLIMPIA MASSAS": "Pagseguro Internet I.P. S.A.",
+    "BATARD PADARIA ARTESANAL LTDA": "PAGAMENTO DE BOLETO - CELCOIN INSTITUICAO DE PAGAMEN",
+    "TELEFONICA BRASIL S/A": ["PIX - ENVIADO - 16/07 14:57 CARLOS EDUARDO SANTOS DIB", "PIX - ENVIADO - 18/06 13:44 CARLOS EDUARDO SANTOS DIB", "PIX - ENVIADO - 21/05 11:26 CARLOS EDUARDO SANTOS DIB", "PIX - ENVIADO - 16/04 13:38 CARLOS EDUARDO SANTOS DIB", "PIX - ENVIADO - 26/03 15:30 CARLOS EDUARDO SANTOS DIB"]
+
+}  
