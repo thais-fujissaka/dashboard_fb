@@ -107,7 +107,7 @@ def GET_LOJAS_USER(email):
 
 
 def mostrar_menu_permissoes_eventos(permissoes):
-    if "Dev Dash Eventos" in permissoes:
+    if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -122,7 +122,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/Eventos - Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos_Confirmados.py", label=":calendar: Calendário de Eventos Confirmados")
-    elif "Liderança Comercial Dash Eventos" in permissoes:
+    elif "Acesso Liderança Eventos" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -136,7 +136,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/Eventos - Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos_Confirmados.py", label=":calendar: Calendário de Eventos Confirmados")
-    elif "Admin Dash Eventos" in permissoes:
+    elif "Acesso Admin Eventos" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -149,7 +149,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         # st.sidebar.page_link("pages/10_Regras_de_Eventos.py", label=":clipboard: Regras de Eventos")
         st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/Eventos - Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
-    elif "Dash Eventos Acesso 1" in permissoes:
+    elif "Acesso Eventos 1" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -159,7 +159,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Conciliação_de_Parcelas_Eventos.py", label=":left_right_arrow: Conciliação de Parcelas de Eventos")
         st.sidebar.page_link("pages/Eventos - Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
-    elif "Dash Eventos Acesso 2" in permissoes:
+    elif "Acesso Eventos 2" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -170,7 +170,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
         st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Gazit")
         st.sidebar.page_link("pages/Eventos - Calendário_Gazit.py", label=":calendar: Calendário de Eventos - Gazit")
-    elif "Dash Eventos Acesso 3" in permissoes:
+    elif "Acesso Eventos 3" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -179,7 +179,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Conciliação_de_Parcelas_Eventos.py", label=":left_right_arrow: Conciliação de Parcelas de Eventos")
         st.sidebar.page_link("pages/Eventos - Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
-    elif "Dash Eventos Acesso 4" in permissoes:
+    elif "Acesso Eventos 4" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
@@ -187,7 +187,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Faturamento_Bruto_de_Eventos.py", label=":moneybag: Faturamento Bruto de Eventos")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
         st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/solo_dining: Análise de Consumo")
-    elif "Dash Eventos Acesso 5" in permissoes:
+    elif "Acesso Eventos 5" in permissoes:
         st.sidebar.markdown("## Eventos")
         st.sidebar.page_link("pages/Eventos - Calendário_de_Eventos.py", label=":calendar: Calendário de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
@@ -208,23 +208,30 @@ def mostrar_menu_permissoes_eventos(permissoes):
 
 
 def mostrar_menu_permissoes_cmv(permissoes):
-    if "Dev Dash Eventos" in permissoes:
+    if "Dev Dash FB" in permissoes:
+        st.sidebar.markdown("## CMV")
+        st.sidebar.page_link("pages/CMV_Teórico - Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
+    if "Acesso CMV 1" in permissoes:
         st.sidebar.markdown("## CMV")
         st.sidebar.page_link("pages/CMV_Teórico - Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
 
 
 def mostrar_menu_permissoes_compras(permissoes):
-    if "Dev Dash Eventos" in permissoes:
+    if "Dev Dash FB" in permissoes:
+        st.sidebar.markdown("## Compras")
+        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Compras - Análises")
+        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Compras - Processos")
+    if "Acesso Compras 1" in permissoes:
         st.sidebar.markdown("## Compras")
         st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Compras - Análises")
         st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Compras - Processos")
 
 
 def mostrar_menu_permissoes_produto(permissoes):
-    if "Dev Dash Eventos" in permissoes:
+    if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## Produtos")
         st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
-    if "Dash Eventos Acesso 4" in permissoes:
+    if "Acesso Produtos 1" in permissoes:
         st.sidebar.markdown("## Produtos")
         st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
 
