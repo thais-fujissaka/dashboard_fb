@@ -14,7 +14,10 @@ def input_selecao_casas(lista_casas_retirar, key):
     # Remove casas da lista_casas_retirar
     df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
     # Adiciona a opção "Todas as Casas"
-    lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
+    if 'Todas as Casas' in lista_casas_retirar:
+        lista_casas_validas = df_casas['Casa'].to_list()
+    else:
+        lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
 
     # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
     user_email = st.session_state['user_email']
@@ -260,196 +263,202 @@ def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value
     st.markdown(html, unsafe_allow_html=True)
 
 
-def dataframe_aggrid(df, name, num_columns=[], percent_columns=[], df_details=None, coluns_merge_details=None, coluns_name_details=None, key="default"):
-    # Converter colunas selecionadas para float com limpeza de texto
-    for col in num_columns:
-        if col in df.columns:
-            df[f"{col}_NUM"] = (
-                df[col]
-                .astype(str)
-                .str.upper()
-                .str.replace(r'[A-Z$R\s]', '', regex=True)
-                .str.replace('.', '', regex=False)
-                .str.replace(',', '.', regex=False)
-            )
-            df[f"{col}_NUM"] = pd.to_numeric(df[f"{col}_NUM"], errors='coerce')
+def format_numeric_column(df, col):
+    """Converte coluna numérica com limpeza e formata BR."""
+    if col not in df.columns:
+        return df
 
-            # Formatar a coluna original como string BR
-            df[col] = df[f"{col}_NUM"].apply(
-                lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") if pd.notnull(x) else ""
-            )
+    num_col = f"{col}_NUM"
+    df[num_col] = (
+        df[col].astype(str)
+        .str.upper()
+        .str.replace(r"[A-Z$R\s]", "", regex=True)
+        .str.replace(".", "", regex=False)
+        .str.replace(",", ".", regex=False)
+    )
+    df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
 
-    for col in percent_columns:
-        if col in df.columns:
-            df[f"{col}_NUM"] = (
-                df[col]
-                .astype(str)
-                .str.replace('%', '', regex=False)
-                .str.replace(',', '.', regex=False)
-                .str.replace('−', '-', regex=False)
-                .str.replace('–', '-', regex=False)
-                .str.replace(r'[^\d\.\-]', '', regex=True)
-            )
-            df[f"{col}_NUM"] = pd.to_numeric(df[f"{col}_NUM"], errors='coerce')
+    df[col] = df[num_col].apply(
+        lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        if pd.notnull(x) else ""
+    )
+    return df
 
-            # Formatar a coluna original como string percentual
-            df[col] = df[f"{col}_NUM"].apply(
-                lambda x: f"{x:.2f}%".replace('.', ',') if pd.notnull(x) else ""
-            )
 
-    # Definir cellStyle para pintar valores negativos/positivos
-    cellstyle_code = JsCode("""
+def format_percent_column(df, col):
+    """Converte coluna percentual com limpeza e formata %."""
+    if col not in df.columns:
+        return df
+
+    num_col = f"{col}_NUM"
+    df[num_col] = (
+        df[col].astype(str)
+        .str.replace("%", "", regex=False)
+        .str.replace(",", ".", regex=False)
+        .str.replace("−", "-", regex=False)
+        .str.replace("–", "-", regex=False)
+        .str.replace(r"[^\d\.\-]", "", regex=True)
+    )
+    df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
+
+    df[col] = df[num_col].apply(
+        lambda x: f"{x:.2f}%".replace(".", ",") if pd.notnull(x) else ""
+    )
+    return df
+
+
+def get_cellstyle_code():
+    """Código JS para colorir valores positivos/negativos."""
+    return JsCode("""
     function(params) {
         const value = params.data[params.colDef.field + '_NUM'];
-        if (value === null || value === undefined || isNaN(value)) {
-            return {};
-        }
-        if (value < 0) {
-            return {
-                color: '#ff7b7b',
-                fontWeight: 'bold'
-            };
-        }
-        if (value > 0) {
-            return {
-                color: '#90ee90',
-                fontWeight: 'bold'
-            };
-        }
+        if (value === null || value === undefined || isNaN(value)) return {};
+        if (value < 0) return { color: '#ff7b7b', fontWeight: 'bold' };
+        if (value > 0) return { color: '#90ee90', fontWeight: 'bold' };
         return {};
     }
     """)
 
-    # Construir grid options builder
+
+def apply_master_detail(df, df_details, coluns_merge_details, coluns_name_details,
+                        num_columns, percent_columns, cellstyle_code, grid_options):
+    """Configuração de MasterDetail no AgGrid."""
+    df["detail"] = df[coluns_merge_details].apply(
+        lambda i: df_details[df_details[coluns_merge_details] == i].to_dict("records")
+    )
+
+    special_column = {
+        "field": coluns_name_details,
+        "cellRenderer": "agGroupCellRenderer",
+        "checkboxSelection": False,
+    }
+
+    other_columns = []
+    for col in df.columns:
+        if col in [coluns_name_details, "detail"]:
+            continue
+        col_def = {"field": col}
+        if col in num_columns + percent_columns:
+            col_def["cellStyle"] = cellstyle_code
+        other_columns.append(col_def)
+
+    detail_columnDefs = [{"field": c} for c in df_details.columns]
+
+    grid_options.update({
+        "masterDetail": True,
+        "columnDefs": [special_column] + other_columns,
+        "detailCellRendererParams": {
+            "detailGridOptions": {
+                "columnDefs": detail_columnDefs,
+                "suppressColumnVirtualisation": True,
+                "onFirstDataRendered": JsCode("""
+                    function(params) {
+                        var allColumnIds = [];
+                        params.columnApi.getAllColumns().forEach(
+                            function(c){ allColumnIds.push(c.getColId()); }
+                        );
+                        params.columnApi.autoSizeColumns(allColumnIds, false);
+                    }
+                """),
+            },
+            "getDetailRowData": JsCode("function(params) {params.successCallback(params.data.detail);}"),
+        },
+        "rowData": df.to_dict("records"),
+        "enableRangeSelection": True,
+        "suppressRowClickSelection": True,
+        "cellSelection": True,
+        "rowHeight": 40,
+        "defaultColDef": {"minWidth": 100, "autoHeight": False, "filter": True},
+    })
+    return df, grid_options
+
+
+def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
+                     df_details=None, coluns_merge_details=None,
+                     coluns_name_details=None, key="default"):
+    num_columns = num_columns or []
+    percent_columns = percent_columns or []
+
+    # 1. Formatação de colunas numéricas e percentuais
+    for col in num_columns:
+        df = format_numeric_column(df, col)
+    for col in percent_columns:
+        df = format_percent_column(df, col)
+
+    # 2. CellStyle para colunas numéricas
+    cellstyle_code = get_cellstyle_code()
+
+    # 3. GridOptionsBuilder base
     gb = GridOptionsBuilder.from_dataframe(df)
     gb.configure_default_column(resizable=True, sortable=True, filterable=True)
 
-    # Esconder colunas _NUM e detail
     for col in num_columns + percent_columns:
         if f"{col}_NUM" in df.columns:
             gb.configure_column(f"{col}_NUM", hide=True, type=["numericColumn"])
     if "detail" in df.columns:
         gb.configure_column("detail", hide=True)
 
-    # Auto-ajustar todas as colunas
     for col in df.columns:
         gb.configure_column(col, autoSize=True)
 
     grid_options = gb.build()
-
-    grid_options["suppressSizeToFit"] = True  
-    grid_options["suppressColumnVirtualisation"] = True
-
-    # Auto-size para TODAS as colunas (inclui header/label)
-    grid_options["onGridReady"] = JsCode("""
-    function(params) {
-    var allColumnIds = [];
-    params.columnApi.getAllColumns().forEach(function(c) { allColumnIds.push(c.getColId()); });
-    params.columnApi.autoSizeColumns(allColumnIds, false); // false => considera header
-    }
-    """)
-
-    if df_details is not None:
-        df['detail'] = df[coluns_merge_details].apply(
-            lambda i: df_details[df_details[coluns_merge_details] == i].to_dict('records')
-        )
-
-        special_column = {
-            "field": coluns_name_details,
-            "cellRenderer": "agGroupCellRenderer",
-            "checkboxSelection": False,
-        }
-
-        other_columns = []
-        for col in df.columns:
-            if col in [coluns_name_details, "detail"]:
-                continue
-            col_def = {"field": col}
-            if col in num_columns + percent_columns:
-                col_def["cellStyle"] = cellstyle_code
-            other_columns.append(col_def)
-
-        columnDefs = [special_column] + other_columns
-
-        detail_columnDefs = [{"field": c} for c in df_details.columns]
-
-        grid_options.update({
-            "masterDetail": True,
-            "columnDefs": columnDefs,
-            "detailCellRendererParams": {
-                "detailGridOptions": {
-                    "columnDefs": detail_columnDefs,
-                    "suppressColumnVirtualisation": True,  # idem para o detalhe
-                    "onFirstDataRendered": JsCode("""
-                        function(params) {
-                            var allColumnIds = [];
-                            params.columnApi.getAllColumns().forEach(function(c){ allColumnIds.push(c.getColId()); });
-                            params.columnApi.autoSizeColumns(allColumnIds, false);
-                        }
-                    """),
-                },
-                "getDetailRowData": JsCode("function(params) {params.successCallback(params.data.detail);}"),
-            },
-            "rowData": df.to_dict('records'),
-            "enableRangeSelection": True,
-            "suppressRowClickSelection": True,
-            "cellSelection": True,
-            "rowHeight": 40,
-            "defaultColDef": {
-                "minWidth": 100,
-                "autoHeight": False,
-                "filter": True,
+    grid_options.update({
+        "suppressSizeToFit": True,
+        "suppressColumnVirtualisation": True,
+        "onGridReady": JsCode("""
+            function(params) {
+                var allColumnIds = [];
+                params.columnApi.getAllColumns().forEach(function(c) {
+                    allColumnIds.push(c.getColId());
+                });
+                params.columnApi.autoSizeColumns(allColumnIds, false);
             }
-        })
+        """),
+    })
 
+    # 4. MasterDetail se necessário
+    if df_details is not None:
+        df, grid_options = apply_master_detail(
+            df, df_details, coluns_merge_details, coluns_name_details,
+            num_columns, percent_columns, cellstyle_code, grid_options
+        )
     else:
         grid_options.update({
             "enableRangeSelection": True,
             "suppressRowClickSelection": False,
             "cellSelection": False,
             "rowHeight": 40,
-            "defaultColDef": {
-                "minWidth": 100,
-                "autoHeight": False,
-                "filter": True,
-            }
+            "defaultColDef": {"minWidth": 100, "autoHeight": False, "filter": True},
         })
 
-    # Criar DataFrame sem colunas técnicas
-    cols_to_drop = [col for col in df.columns if col.endswith('_NUM') or col == 'detail']
-    df_to_show = df.drop(columns=cols_to_drop, errors='ignore')
+    # 5. DataFrame final (sem colunas técnicas)
+    df_to_show = df.drop(columns=[c for c in df.columns if c.endswith("_NUM") or c == "detail"], errors="ignore")
 
-    # Ajustar columnDefs se não for masterDetail
     if "masterDetail" not in grid_options:
-        grid_options["columnDefs"] = [{"field": col} for col in df_to_show.columns]
+        grid_options["columnDefs"] = [{"field": c} for c in df_to_show.columns]
 
-    # Adicionar efeito zebra (linhas alternadas)
+    # 6. Tema e zebra
     if st.session_state.get("base_theme") == "dark":
-        custom_theme = (StAggridTheme(base="balham").withParams().withParts('colorSchemeDark'))
-    # Zebra escura
-        grid_options["getRowStyle"] = JsCode('''
+        custom_theme = StAggridTheme(base="balham").withParams().withParts("colorSchemeDark")
+        zebra_style = JsCode("""
         function(params) {
-            if (params.node.rowIndex % 2 === 0) {
-                return { background: '#222', color: '#fff' };
-            } else {
-                return { background: '#333', color: '#fff' };
-            }
+            return (params.node.rowIndex % 2 === 0)
+                ? { background: '#222', color: '#fff' }
+                : { background: '#333', color: '#fff' };
         }
-        ''')
+        """)
     else:
-    # Zebra clara (padrão)
-        custom_theme = (StAggridTheme(base="balham").withParams())
-        grid_options["getRowStyle"] = JsCode('''
+        custom_theme = StAggridTheme(base="balham").withParams()
+        zebra_style = JsCode("""
         function(params) {
-            if (params.node.rowIndex % 2 === 0) {
-                return { background: '#fff', color: '#111' };
-            } else {
-                return { background: '#e60e6e6', color: '#111' };
-            }
+            return (params.node.rowIndex % 2 === 0)
+                ? { background: '#fff', color: '#111' }
+                : { background: '#e6e6e6', color: '#111' };
         }
-        ''')
+        """)
+    grid_options["getRowStyle"] = zebra_style
 
-    # Mostrar AgGrid
+    # 7. Render AgGrid
     grid_response = AgGrid(
         df_to_show,
         gridOptions=grid_options,
@@ -462,26 +471,27 @@ def dataframe_aggrid(df, name, num_columns=[], percent_columns=[], df_details=No
         theme=custom_theme,
         height=min(len(df_to_show)*40+34+11, 399),
         custom_css={
-        ".ag-root-wrapper": {
-            "border-radius": "10px",   # cantos arredondados
-            "overflow": "hidden",      # evita vazar conteúdo nas bordas
-            "border": "1px solid #ddd" 
-        }, ".ag-cell": {
-            "font-family": "'Source Sans Pro', sans-serif",
-            "font-size": "14px",
-            "display": "flex",              
-            "align-items": "center",
+            ".ag-root-wrapper": {
+                "border-radius": "10px",
+                "overflow": "hidden",
+                "border": "1px solid #ddd",
+            },
+            ".ag-cell": {
+                "font-family": "'Source Sans Pro', sans-serif",
+                "font-size": "14px",
+                "display": "flex",
+                "align-items": "center",
+            },
+            ".ag-header-cell-text": {
+                "font-family": "'Source Sans Pro', sans-serif",
+                "font-size": "15px",
+                "font-weight": "600",
+            },
         },
-        ".ag-header-cell-text": {
-            "font-family": "'Source Sans Pro', sans-serif",
-            "font-size": "15px",
-            "font-weight": "600",
-        },
-    }
     )
 
-    filtered_df = grid_response['data']
-    filtered_df = filtered_df.drop(columns=[col for col in filtered_df.columns if col.endswith('_NUM')], errors='ignore')
+    filtered_df = grid_response["data"]
+    filtered_df = filtered_df.drop(columns=[c for c in filtered_df.columns if c.endswith("_NUM")], errors="ignore")
     return filtered_df, len(filtered_df)
 
 
