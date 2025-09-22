@@ -13,20 +13,7 @@ import streamlit.components.v1 as components
 from rapidfuzz import fuzz
 import re
 from utils.constants.general_constants import *
-
-
-# Personaliza menu lateral
-# def config_sidebar():
-#   if st.session_state["loggedIn"]:
-#     with st.sidebar:
-#         st.title("Menu")
-#         st.page_link("pages/Conciliações.py", label=":material/money_bag: Conciliações")
-#         st.page_link("pages/Farol_de_Conciliação.py", label="  ↳ :material/finance: Farol de Conciliação")
-#         st.page_link("pages/Ajustes.py", label="  ↳ :material/instant_mix: Ajustes")
-#         st.write("")
-#         st.page_link("pages/Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
-#         st.write("")
-#         st.button(label="Logout", on_click=logout)
+import io
 
 
 # Formata valores numéricos e datas 
@@ -307,6 +294,29 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, principal,
         #     ], ignore_index=True)
 
     return df_tmp
+
+
+# Componente: botão exportar df em excel
+def button_download(df, atributo, file_name, key):
+    df_copia = df.copy()
+    if atributo != 'ID_Despesa':
+        df_copia["Despesa_Consta_Extrato"] = np.where(df_copia[atributo].isna(), "Não", "Sim")
+    else:
+        df_copia["Despesa_Correspondente"] = np.where(df_copia[atributo].isna(), "Não", "Sim")
+
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_copia.to_excel(writer, index=False, sheet_name=file_name)
+    excel_data = output.getvalue()
+
+    st.download_button(
+        label="Baixar Excel",
+        data=excel_data,
+        file_name=f"{file_name}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        icon=":material/download:",
+        key=key
+    )
 
 
 # Funções excel

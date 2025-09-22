@@ -5,7 +5,7 @@ from utils.constants.general_constants import casas_validas
 from utils.functions.general_functions import config_sidebar
 from utils.functions.ajustes import *
 from utils.queries_conciliacao import *
-from datetime import datetime
+import datetime
 
 
 casas_validas = [c for c in casas_validas if c != "All bar"]
@@ -53,7 +53,7 @@ with col1:
 
 # Seletor de ano
 with col2:
-  ano_atual = datetime.now().year 
+  ano_atual = datetime.datetime.now().year 
   anos = list(range(2024, ano_atual+1))
   index_padrao = anos.index(ano_atual)
   ano = st.selectbox("Selecione um ano:", anos, index=index_padrao)

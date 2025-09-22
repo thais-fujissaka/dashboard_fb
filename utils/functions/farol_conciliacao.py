@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+import datetime
 from utils.functions.general_functions_conciliacao import *
 from utils.constants.general_constants import cores_casas
 from utils.functions.conciliacoes import *
@@ -9,7 +9,7 @@ from utils.queries_conciliacao import *
 from streamlit_echarts import st_echarts
 
 
-ano_atual = datetime.now().year
+ano_atual = datetime.datetime.now().year
 
 # Cria tabela de conciliação para cada casa
 def conciliacao_casa(df, casa, datas_completas):

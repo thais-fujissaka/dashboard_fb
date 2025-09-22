@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.functions.general_functions_conciliacao import *
+from utils.functions.general_functions import *
 from utils.functions.conciliacoes import *
 from utils.constants.general_constants import *
 
@@ -55,6 +55,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_outras_styled = df_blueme_outras.style.apply(colorir_linhas(df_blueme_outras, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_blueme_outras_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
+            st.write("")
+
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_blueme_outras, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
         
         elif item == "blueme com parcelamento outras":
@@ -94,8 +99,13 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc_outras_styled = df_blueme_com_parc_outras.style.apply(colorir_linhas(df_blueme_com_parc_outras, 'ID_Parcela', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_blueme_com_parc_outras_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
-            st.divider()
+            st.write("")
 
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_blueme_com_parc_outras, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
+            st.divider()
+        
         elif item == "saidas mutuos outras":
             # filtra pela conta de saida
             df_extratos_contas = df_extratos_bancarios[~df_extratos_bancarios['ID_Conta_Bancaria'].isin(ids_outras)]
@@ -130,6 +140,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_saidas_mutuos_outras_styled = df_saidas_mutuos_outras.style.apply(colorir_linhas(df_saidas_mutuos_outras, 'Mutuo_ID', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_saidas_mutuos_outras_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
+            st.write("")
+
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_saidas_mutuos_outras, 'ID_Extrato_Bancario', f"Saidas Mutuos - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
     else:
@@ -205,6 +220,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_sem_parc_styled = df_blueme_sem_parc.style.apply(colorir_linhas(df_blueme_sem_parc, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_blueme_sem_parc_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
+            st.write("")
+
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_blueme_sem_parc, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
         elif item == "blueme com parcelamento":
@@ -258,6 +278,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc_styled = df_blueme_com_parc.style.apply(colorir_linhas(df_blueme_com_parc, 'ID_Parcela', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_blueme_com_parc_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
+            st.write("")
+
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_blueme_com_parc, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
         elif item == "bloqueios":
@@ -296,6 +321,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_bloqueios_conta_styled = df_bloqueios_conta.style.apply(colorir_linhas(df_bloqueios_conta, 'ID_Bloqueio', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_bloqueios_conta_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
+            st.write("")
+
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_bloqueios_conta, 'ID_Extrato_Bancario', f"Bloqueios Judicias - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
         elif item == "saidas mutuos":
@@ -332,6 +362,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_saidas_mutuos_conta_styled = df_saidas_mutuos_conta.style.apply(colorir_linhas(df_saidas_mutuos_conta, 'Mutuo_ID', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_saidas_mutuos_conta_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
+
+            st.write("")
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_saidas_mutuos_conta, 'ID_Extrato_Bancario', f"Saidas Mutuos - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
         elif item == "extrato bancario":
@@ -421,6 +456,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             st.dataframe(df_concat_merge_styled, use_container_width=True, hide_index=True)
             exibir_legenda("extrato")
             
+            st.write("")
+            col1, col2 = st.columns([6, 1], vertical_alignment="center")
+            with col2:
+                button_download(df_concat_merge, 'ID_Despesa', f"Extrato - Despesas", key=f'download_{item}_{conta}')
+
 
 # Cria uma tab para cada conta bancária da casa: chamada em 'conciliacao_inicial' para Contas a Pagar e Contas a Receber
 def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_blueme_sem_parc_formatada, df_custos_blueme_com_parc, df_custos_blueme_com_parc_formatada, df_mutuos, df_mutuos_formatada, df_bloqueios, df_extratos_bancarios, df_extratos_bancarios_formatada):
