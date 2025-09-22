@@ -2,18 +2,12 @@ import streamlit as st
 import pandas as pd
 from utils.queries_conciliacao import *
 from utils.functions.general_functions_conciliacao import *
+from utils.constants.general_constants import cores_casas
 from decimal import Decimal
 from streamlit_echarts import st_echarts
 
 
 nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-
-cores_casas = [
-    "#582310", "#DF2526", "#84161f", "#1C6EBA", "#E9A700", "#FF8800", "#081F5C", "#004080",
-    "#336699", "#6699CC", "#4A5129", "#8CA706", "#0CA22E", "#E799BB", "#006E77", "#000000",
-    "#C2185B", "#FF6600", "#9933CC", "#330099"
-    ]
-
 
 # Filtra tabela de ajustes por casa e ano (de acordo com os seletores)
 def define_df_ajustes(id_casa, ano):

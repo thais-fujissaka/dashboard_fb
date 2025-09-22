@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.conciliacoes import *
-# from utils.queries import *
-from utils.constants.exceptions_map import *
+from utils.constants.general_constants import *
 
 
 # Exibe correspondência de blueme sem parcelamento, blueme com parcelamento, saidas mutuos e bloqueios com extrato: chamada em 'cria_tabs_contas'
@@ -17,9 +16,9 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         else:
             df_extratos_outras['Valor'] = df_extratos_outras['Valor'] * (-1)
             
-        df_extratos_outras['Data_Transacao'] = df_extratos_outras['Data_Transacao'].dt.date
+        df_extratos_outras.loc[:, 'Data_Transacao'] = df_extratos_outras['Data_Transacao'].dt.date
 
-        if item == "blueme sem parcelamento":
+        if item == "blueme sem parcelamento outras":
             # filtra as despesas dessas contas
             df_blueme_outras = df_custos_blueme_sem_parc[
                 df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isin(ids_outras) 
@@ -46,7 +45,11 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_outras = df_blueme_outras[["ID_Despesa", "ID_Extrato_Bancario", "ID_Conta_Bancaria", "Conta_Bancaria", "Fornecedor", "Valor", "Realizacao_Pgto", "Forma_Pagamento", "Class_Cont_1", "Class_Cont_2", "Doc_NF", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "Data_Transacao", "Descricao_Transacao"]]
             df_blueme_outras["ID_Conta_Bancaria"] = df_blueme_outras["ID_Conta_Bancaria"].astype("Int64")
             df_blueme_outras["ID_Extrato_Bancario"] = df_blueme_outras["ID_Extrato_Bancario"].astype("Int64")
-            
+            df_blueme_outras = df_blueme_outras.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
+
             # Estiliza e exibe 
             df_blueme_outras = df_blueme_outras.sort_values(by="Realizacao_Pgto", ascending=False)
             df_blueme_outras_styled = df_blueme_outras.style.apply(colorir_linhas(df_blueme_outras, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
@@ -54,13 +57,13 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.divider()
         
-        elif item == "blueme com parcelamento":
+        elif item == "blueme com parcelamento outras":
             # filtra as despesas dessas contas
             df_blueme_com_parc_outras = df_custos_blueme_com_parc[
                 df_custos_blueme_com_parc['ID_Conta_Bancaria'].isin(ids_outras) 
                 | df_custos_blueme_com_parc['ID_Conta_Bancaria'].isna()]                
             df_blueme_com_parc_outras.loc[:, 'Realiz_Parcela'] = df_blueme_com_parc_outras['Realiz_Parcela'].dt.date
-
+            
             # faz o merge para tentar conciliar
             df_blueme_com_parc_outras = merge_com_fuzzy(
             df_blueme_com_parc_outras,
@@ -81,6 +84,10 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc_outras = df_blueme_com_parc_outras[["ID_Parcela", "ID_Despesa", "ID_Extrato_Bancario", "ID_Conta_Bancaria", "Conta_Bancaria", "Fornecedor", "Qtd_Parcelas", "Num_Parcela", "Valor_Parcela", "Realiz_Parcela", "Forma_Pagamento", "Doc_NF", "Class_Cont_1", "Class_Cont_2", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "Data_Transacao", "Descricao_Transacao"]]
             df_blueme_com_parc_outras["ID_Conta_Bancaria"] = df_blueme_com_parc_outras["ID_Conta_Bancaria"].astype("Int64")
             df_blueme_com_parc_outras["ID_Extrato_Bancario"] = df_blueme_com_parc_outras["ID_Extrato_Bancario"].astype("Int64")
+            df_blueme_com_parc_outras = df_blueme_com_parc_outras.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
 
             # Estiliza e exibe 
             df_blueme_com_parc_outras = df_blueme_com_parc_outras.sort_values(by="Realiz_Parcela", ascending=False)
@@ -88,8 +95,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             st.dataframe(df_blueme_com_parc_outras_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
             st.divider()
-        
-        elif item == "saidas mutuos":
+
+        elif item == "saidas mutuos outras":
             # filtra pela conta de saida
             df_extratos_contas = df_extratos_bancarios[~df_extratos_bancarios['ID_Conta_Bancaria'].isin(ids_outras)]
             df_extratos_contas['Valor'] = df_extratos_contas['Valor'] * (-1)
@@ -113,6 +120,10 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_saidas_mutuos_outras = df_saidas_mutuos_outras[["Mutuo_ID", "ID_Extrato_Bancario", "Data_Mutuo", "Valor", "ID_Conta_Saida", "Conta_Saida", "Casa_Entrada", "ID_Conta_Entrada", "Conta_Entrada", "Observacoes", "Data_Transacao", "Descricao_Transacao"]]
             df_saidas_mutuos_outras["Mutuo_ID"] = df_saidas_mutuos_outras["Mutuo_ID"].astype("Int64")
             df_saidas_mutuos_outras["ID_Extrato_Bancario"] = df_saidas_mutuos_outras["ID_Extrato_Bancario"].astype("Int64")
+            df_saidas_mutuos_outras = df_saidas_mutuos_outras.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
 
             # Estiliza e exibe
             df_saidas_mutuos_outras = df_saidas_mutuos_outras.sort_values(by="Data_Mutuo", ascending=False)
@@ -180,9 +191,14 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             # Seleciona só colunas mais importantes e reordena
             if "ID_Conta_Bancaria_despesa" in df_blueme_sem_parc.columns:
                 df_blueme_sem_parc = df_blueme_sem_parc.rename(columns={"ID_Conta_Bancaria_despesa": "ID_Conta_Bancaria"})
+            
             df_blueme_sem_parc = df_blueme_sem_parc[["ID_Despesa", "ID_Extrato_Bancario", "ID_Conta_Bancaria", "Conta_Bancaria", "Fornecedor", "Valor", "Realizacao_Pgto", "Forma_Pagamento", "Class_Cont_1", "Class_Cont_2", "Doc_NF", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "Data_Transacao", "Descricao_Transacao"]]
             df_blueme_sem_parc["ID_Conta_Bancaria"] = df_blueme_sem_parc["ID_Conta_Bancaria"].astype("Int64")
             df_blueme_sem_parc["ID_Extrato_Bancario"] = df_blueme_sem_parc["ID_Extrato_Bancario"].astype("Int64")
+            df_blueme_sem_parc = df_blueme_sem_parc.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
 
             # Estiliza a exibe
             df_blueme_sem_parc = df_blueme_sem_parc.sort_values(by="Realizacao_Pgto", ascending=False)
@@ -232,10 +248,12 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc = df_blueme_com_parc[["ID_Parcela", "ID_Despesa", "ID_Extrato_Bancario", "ID_Conta_Bancaria", "Conta_Bancaria", "Fornecedor", "Qtd_Parcelas", "Num_Parcela", "Valor_Parcela", "Realiz_Parcela", "Forma_Pagamento", "Doc_NF", "Class_Cont_1", "Class_Cont_2", "Status_Conf_Document", "Status_Aprov_Diret", "Status_Aprov_Caixa", "Data_Transacao", "Descricao_Transacao"]]
             df_blueme_com_parc["ID_Conta_Bancaria"] = df_blueme_com_parc["ID_Conta_Bancaria"].astype("Int64")
             df_blueme_com_parc["ID_Extrato_Bancario"] = df_blueme_com_parc["ID_Extrato_Bancario"].astype("Int64")
-            
+            df_blueme_com_parc = df_blueme_com_parc.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
+
             # Estiliza a exibe
-            # Em vez de eliminar duplicatas, vou sinalizar que não bateu só com um item do extrato
-            # df_blueme_com_parc = df_blueme_com_parc.drop_duplicates(subset=["ID_Parcela"])
             df_blueme_com_parc = df_blueme_com_parc.sort_values(by="Realiz_Parcela", ascending=False)
             df_blueme_com_parc_styled = df_blueme_com_parc.style.apply(colorir_linhas(df_blueme_com_parc, 'ID_Parcela', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_blueme_com_parc_styled, use_container_width=True, hide_index=True)
@@ -244,15 +262,16 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
         elif item == "bloqueios":
             # filtra as despesas dessas contas
-            df_bloqueios_conta = df_bloqueios[(df_bloqueios['Nome da Conta'] == nome_conta)]                
-            df_bloqueios_conta.loc[:, 'Data_Transacao'] = df_bloqueios_conta['Data_Transacao'].dt.date
+            df_bloqueios_conta = df_bloqueios[(df_bloqueios['Nome da Conta'] == nome_conta)]  
+            df_bloqueios_conta = df_bloqueios_conta.rename(columns={"Data_Transacao": "Data_Bloqueio"})
+            df_bloqueios_conta.loc[:, 'Data_Bloqueio'] = df_bloqueios_conta['Data_Bloqueio'].dt.date
             df_bloqueios_conta.loc[:, 'Valor'] = df_bloqueios_conta['Valor'] * (-1)
 
             # faz o merge para tentar conciliar
             df_bloqueios_conta = merge_com_fuzzy(
             df_bloqueios_conta,
             df_extratos_conta,
-            left_on=['Data_Transacao', 'Valor'], 
+            left_on=['Data_Bloqueio', 'Valor'], 
             right_on=['Data_Transacao', 'Valor'],
             principal='despesa',
             text_left='Observacao',
@@ -260,16 +279,20 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exceptions=exceptions, 
             limiar=20   
             )
-
+            
             # Seleciona só colunas mais importantes e reordena
             if "ID_Conta_Bancaria_despesa" in df_bloqueios_conta.columns:
                 df_bloqueios_conta = df_bloqueios_conta.rename(columns={"ID_Conta_Bancaria_despesa": "ID_Conta_Bancaria"})
-            df_bloqueios_conta = df_bloqueios_conta[["ID_Bloqueio", "ID_Extrato_Bancario", "ID_Conta_Bancaria", "Nome da Conta", "Valor", "Data_Transacao", "Observacao", "Descricao_Transacao"]]
+            df_bloqueios_conta = df_bloqueios_conta[["ID_Bloqueio", "ID_Extrato_Bancario", "ID_Conta_Bancaria", "Nome da Conta", "Valor", "Data_Bloqueio", "Observacao", "Data_Transacao", "Descricao_Transacao"]]
             df_bloqueios_conta["ID_Conta_Bancaria"] = df_bloqueios_conta["ID_Conta_Bancaria"].astype("Int64")
             df_bloqueios_conta["ID_Extrato_Bancario"] = df_bloqueios_conta["ID_Extrato_Bancario"].astype("Int64")
+            df_bloqueios_conta = df_bloqueios_conta.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
 
             # Estiliza e exibe
-            df_bloqueios_conta = df_bloqueios_conta.sort_values(by="Data_Transacao", ascending=False)
+            df_bloqueios_conta = df_bloqueios_conta.sort_values(by="Data_Bloqueio", ascending=False)
             df_bloqueios_conta_styled = df_bloqueios_conta.style.apply(colorir_linhas(df_bloqueios_conta, 'ID_Bloqueio', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
             st.dataframe(df_bloqueios_conta_styled, use_container_width=True, hide_index=True)
             exibir_legenda("contas")
@@ -299,6 +322,10 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_saidas_mutuos_conta["ID_Conta_Saida"] = df_saidas_mutuos_conta["ID_Conta_Saida"].astype("Int64")
             df_saidas_mutuos_conta["ID_Conta_Entrada"] = df_saidas_mutuos_conta["ID_Conta_Entrada"].astype("Int64")
             df_saidas_mutuos_conta["ID_Extrato_Bancario"] = df_saidas_mutuos_conta["ID_Extrato_Bancario"].astype("Int64")
+            df_saidas_mutuos_conta = df_saidas_mutuos_conta.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
 
             # Estiliza e exibe
             df_saidas_mutuos_conta = df_saidas_mutuos_conta.sort_values(by="Data_Mutuo", ascending=False)
@@ -382,14 +409,18 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # Estiliza e exibe
             df_concat_merge = df_concat_merge.reset_index(drop=True)
-            df_concat_merge = df_concat_merge[["ID_Extrato_Bancario", "ID_Despesa", "ID_Conta_Bancaria", "Nome_Conta_Bancaria", "Data_Transacao", "Descricao_Transacao", "Valor", "Descricao_Despesa", "Categoria_Despesa"]]
+            df_concat_merge = df_concat_merge[["ID_Extrato_Bancario", "ID_Despesa",  "Categoria_Despesa", "ID_Conta_Bancaria", "Nome_Conta_Bancaria", "Data_Transacao", "Descricao_Transacao", "Valor", "Realizacao_Pgto", "Descricao_Despesa"]]
             df_concat_merge["ID_Despesa"] = df_concat_merge["ID_Despesa"].astype("Int64")
+            df_concat_merge = df_concat_merge.rename(
+                columns={"Data_Transacao": "Data_Transacao_Extrato",
+                        "Descricao_Transacao": "Descricao_Transacao_Extrato"
+                })
             
-            df_concat_merge = df_concat_merge.sort_values(by="Data_Transacao", ascending=False)
+            df_concat_merge = df_concat_merge.sort_values(by="Data_Transacao_Extrato", ascending=False)
             df_concat_merge_styled = df_concat_merge.style.apply(colorir_linhas(df_concat_merge, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'extrato'), axis=1)
             st.dataframe(df_concat_merge_styled, use_container_width=True, hide_index=True)
             exibir_legenda("extrato")
-
+            
 
 # Cria uma tab para cada conta bancária da casa: chamada em 'conciliacao_inicial' para Contas a Pagar e Contas a Receber
 def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_blueme_sem_parc_formatada, df_custos_blueme_com_parc, df_custos_blueme_com_parc_formatada, df_mutuos, df_mutuos_formatada, df_bloqueios, df_extratos_bancarios, df_extratos_bancarios_formatada):
@@ -403,7 +434,8 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
         148: [148, 153, 164, 187],  
         173: [188, 190],                                             
         116: [140, 151],                           
-        110: [117, 181],                          
+        110: [117, 181],
+        131: [116],                          
         129: [109],                            
         127: [104, 176],             
         156: [145, 155, 168],    
@@ -507,7 +539,7 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                         df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
-                        "blueme sem parcelamento")
+                        "blueme sem parcelamento outras")
 
                     # Despesas blueme com parcelamento #
                     st.subheader('Correspondência: Despesas BlueMe Com Parcelamento -> Extrato')
@@ -520,7 +552,7 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                         df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
-                        "blueme com parcelamento")
+                        "blueme com parcelamento outras")
                     
                     # Saídas Mútuos #
                     st.subheader('Correspondência: Saídas Mútuos -> Extrato')
@@ -533,7 +565,7 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
                         df_mutuos,
                         df_extratos_bancarios, 
                         conta_fmt, 
-                        "saidas mutuos")
+                        "saidas mutuos outras")
 
                 else:
                     # Despesas blueme sem parcelamento #

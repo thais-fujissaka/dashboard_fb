@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from utils.functions.general_functions import dataframe_query
+from utils.constants.general_constants import casas_validas
+
 
 @st.cache_data
 def GET_CASAS():
@@ -26,7 +28,6 @@ def GET_CASAS():
       GROUP BY te.ID_Casa_Normalizada, te2.NOME_FANTASIA
       ORDER BY te2.NOME_FANTASIA
       ''')
-    casas_validas = ['All bar', 'Escritório Fabrica de Bares', 'Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Brahma Paulista', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ']
     df_casas_validas = pd.DataFrame(casas_validas, columns=['Casa']) 
     df_casas_validas = df_casas.merge(df_casas_validas, on="Casa", how="inner")
     return df_casas_validas

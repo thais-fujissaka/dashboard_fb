@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from utils.functions.general_functions_conciliacao import *
+from utils.constants.general_constants import cores_casas
 from utils.functions.conciliacoes import *
 from utils.functions.farol_conciliacao import *
 from utils.queries_conciliacao import *
@@ -9,13 +10,6 @@ from streamlit_echarts import st_echarts
 
 
 ano_atual = datetime.now().year
-
-cores_casas = [
-    "#582310", "#DF2526", "#84161f", "#1C6EBA", "#E9A700", "#FF8800", "#081F5C", "#004080",
-    "#336699", "#6699CC", "#4A5129", "#8CA706", "#0CA22E", "#E799BB", "#006E77", "#000000",
-    "#C2185B", "#FF6600", "#9933CC", "#330099"
-    ]
-
 
 # Cria tabela de conciliação para cada casa
 def conciliacao_casa(df, casa, datas_completas):
@@ -489,11 +483,11 @@ def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     for i, mes in enumerate(meses):
         coluna_mes = []
         coluna_mes_fmt = []
-        meses_nao_conciliados = []
         for lista in lista_casas_mes:  # percorre a lista de porc de dias não conciliados de cada casa
             if (i == mes_atual - 1) and (ano_farol == ano_atual): # para mês e ano atual
-                if lista[i] == 0: # se não há dias conciliados, não mostra 100%
-                    porc_dias_conciliados = 0
+                if lista[i] != 0: # se não há dias conciliados, não mostra 100%
+                    porc_dias_conciliados = 100 - lista[i]
+                else: porc_dias_conciliados = 0
             elif (i < mes_atual - 1) and (ano_farol == ano_atual): # para meses anteriores ao atual e ano atual
                 porc_dias_conciliados = 100 - lista[i] # pega o mês i dessa casa
             elif (i > mes_atual - 1) and (ano_farol == ano_atual): # para meses posteriores ao atual e ano atual

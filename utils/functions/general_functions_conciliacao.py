@@ -12,7 +12,7 @@ from st_aggrid.shared import StAggridTheme
 import streamlit.components.v1 as components
 from rapidfuzz import fuzz
 import re
-from utils.constants.exceptions_map import *
+from utils.constants.general_constants import *
 
 
 # Personaliza menu lateral
