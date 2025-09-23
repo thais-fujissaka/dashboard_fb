@@ -557,22 +557,28 @@ def main():
     # Filtro por prato
     df_lista_produtos = pd.DataFrame(df_precos_itens_vendidos['ID Item Zig'].unique())
     df_lista_produtos['ID - Produto'] = df_precos_itens_vendidos['ID Item Zig'].astype(str) + ' - ' + df_precos_itens_vendidos['Item Vendido Zig']
-    lista_produtos = df_lista_produtos['ID - Produto'].tolist()
+    lista_produtos = df_lista_produtos['ID - Produto'].unique().tolist()
     produto_selecionado = st.selectbox('Selecionar Produto', lista_produtos, key='selecionar_produto')
     id_produto_selecionado = int(produto_selecionado.split(' - ')[0])
 
     st.markdown('## Fichas Técnicas - Itens Vendidos')
     ordem_col = ['ID Casa', 'Casa', 'ID Item Zig', 'Item Vendido Zig', 'ID Ficha Técnica', 'ID Insumo', 'Insumo', 'Quantidade na Ficha', 'Unidade Medida', 'Custo Item']
     df_fichas_itens_vendidos = df_fichas_itens_vendidos[df_fichas_itens_vendidos['ID Item Zig'] == id_produto_selecionado]
-    st.dataframe(df_fichas_itens_vendidos, use_container_width=True, hide_index=True)
+    st.dataframe(df_fichas_itens_vendidos[ordem_col], use_container_width=True, hide_index=True)
+    lista_ids_e_insumos_utilizados = df_fichas_itens_vendidos[['ID Insumo', 'Insumo']].to_dict('records')
+    dict_ids_e_insumos_utilizados = {item["ID Insumo"]: item["Insumo"] for item in lista_ids_e_insumos_utilizados}
      
     st.markdown('## Custos Itens de Estoque')
+    df_precos_insumos_de_estoque = df_precos_insumos_de_estoque[df_precos_insumos_de_estoque.apply(lambda row: dict_ids_e_insumos_utilizados.get(row['ID Insumo Estoque']) == row['Insumo Estoque'], axis=1)]
     st.dataframe(df_precos_insumos_de_estoque, use_container_width=True, hide_index=True)
 
     st.markdown('## Custos Itens de Produção')
+    df_precos_itens_producao_completo = df_precos_itens_producao_completo[df_precos_itens_producao_completo.apply(lambda row: dict_ids_e_insumos_utilizados.get(row['ID Item Produzido']) == row['Item Produzido'], axis=1)]
     st.dataframe(df_precos_itens_producao_completo, use_container_width=True, hide_index=True)
+    lista_fichas_itens_producao = df_precos_itens_producao_completo['ID Ficha Técnica Produção'].unique().tolist()
 
     st.markdown('## Fichas Técnicas - Itens de Produção')
+    df_precos_insumos_producao = df_precos_insumos_producao[df_precos_insumos_producao['ID Ficha Técnica Produção'].isin(lista_fichas_itens_producao)].sort_values(by='ID Ficha Técnica Produção')
     st.dataframe(df_precos_insumos_producao, use_container_width=True, hide_index=True)
     
 if __name__ == '__main__':
