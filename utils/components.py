@@ -131,7 +131,7 @@ def seletor_mes(label, key):
   return mes_selecionado
 
 
-def seletor_mes_produtos(key):
+def seletor_mes_produtos(key, label='Mês', help=None):
     # Dicionário para mapear os meses
     meses = {
         "Janeiro": 1,
@@ -155,7 +155,7 @@ def seletor_mes_produtos(key):
 
     # Seletor de mês
     nome_mes_selecionado = st.selectbox(
-        "Mês", nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key
+        label, nomes_meses, index=nomes_meses.index(mes_atual_nome), key=key, help=help
     )
 
     # Obter o mês correspondente ao mês selecionado
@@ -164,12 +164,12 @@ def seletor_mes_produtos(key):
     return nome_mes_selecionado, num_mes_selecionado
 
 
-def seletor_ano(ano_inicio, ano_fim, key):
+def seletor_ano(ano_inicio, ano_fim, key, label='Selecionar Ano', help=None):
    anos = list(range(ano_inicio, ano_fim + 1))
    anos_ordenados = sorted(anos, reverse=True)
    ano_atual = datetime.datetime.now().year 
    index_padrao = anos_ordenados.index(ano_atual)
-   ano = st.selectbox("Selecionar ano:", anos_ordenados, index=index_padrao,key=key)
+   ano = st.selectbox(label, anos_ordenados, index=index_padrao,key=key, help=help)
    return ano
 
 

@@ -145,3 +145,126 @@ SELECT
     ORDER BY N5.DESCRICAO
 """)
 
+
+# CMV Teórico
+
+def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_INSUMOS_ESTOQUE():
+    return dataframe_query(f'''
+        SELECT
+            VIVC.ID_CASA AS 'ID Casa',
+            VIVC.CASA AS 'Casa',
+            VIVC.ID_ITEM_VENDIDO AS 'ID Item Zig',
+            VIVC.ITEM_VENDIDO AS 'Item Vendido Zig',
+            FT.ID AS 'ID Ficha Técnica',
+            IE.ID AS 'ID Insumo Estoque',
+            IE.DESCRICAO AS 'Insumo Estoque',
+            AIFT.QUANTIDADE_POR_FICHA AS 'Quantidade na Ficha',
+            UM.UNIDADE_MEDIDA AS 'Unidade Medida',
+            0 AS 'Produção?'
+        FROM T_FICHAS_TECNICAS FT
+        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA VIVC ON FT.FK_ITEM_VENDIDO_POR_CASA = VIVC.ID
+        LEFT JOIN T_ASSOCIATIVA_INSUMOS_FICHA_TECNICA AIFT ON AIFT.FK_FICHA_TECNICA = FT.ID
+        LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON AIFT.FK_UNIDADE_MEDIDA = UM.ID
+        INNER JOIN T_INSUMOS_ESTOQUE IE ON AIFT.FK_ITEM_ESTOQUE = IE.ID
+        GROUP BY VIVC.ID_CASA, FT.ID, IE.ID
+    ''')
+
+
+def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_ITENS_PRODUCAO():
+    return dataframe_query(f'''
+        SELECT
+            VIVC.ID_CASA AS 'ID Casa',
+            VIVC.CASA AS 'Casa',
+            VIVC.ID_ITEM_VENDIDO AS 'ID Item Zig',
+            VIVC.ITEM_VENDIDO AS 'Item Vendido Zig',
+            FT.ID AS 'ID Ficha Técnica',
+            IP.ID AS 'ID Insumo Produção',
+            IP.NOME_ITEM_PRODUZIDO AS 'Insumo Produção',
+            AIPFT.QUANTIDADE AS 'Quantidade na Ficha',
+            UM.UNIDADE_MEDIDA AS 'Unidade Medida',
+            1 AS 'Produção?'
+        FROM T_FICHAS_TECNICAS FT
+        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA VIVC ON FT.FK_ITEM_VENDIDO_POR_CASA = VIVC.ID
+        LEFT JOIN T_ASSOCIATIVA_ITENS_PRODUCAO_FICHA_TECNICA AIPFT ON AIPFT.FK_FICHA_TECNICA = FT.ID
+        LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON AIPFT.FK_UNIDADE_MEDIDA = UM.ID
+        INNER JOIN T_ITENS_PRODUCAO IP ON AIPFT.FK_ITEM_PRODUCAO = IP.ID
+        GROUP BY VIVC.ID_CASA, FT.ID, IP.ID
+    ''')
+
+
+def GET_FICHAS_TECNICAS_DE_INSUMOS_PRODUCAO():
+    return dataframe_query(f'''
+        SELECT
+            te.ID AS 'ID Casa',
+            te.NOME_FANTASIA AS 'Casa',
+            tftp.ID AS 'ID Ficha Técnica Produção',
+            tip.ID AS 'ID Item Produzido',
+            tip.NOME_ITEM_PRODUZIDO AS 'Item Produzido',
+            tftp.QUANTIDADE_FICHA AS 'Quantidade Rendimento',
+            tudm2.UNIDADE_MEDIDA AS 'U.M. Rendimento',
+            tie.ID AS 'ID Insumo Estoque',
+            tie.DESCRICAO AS 'Insumo Estoque',
+            tip2.ID AS 'ID Insumo Produção',
+            tip2.NOME_ITEM_PRODUZIDO AS 'Insumo Produção',
+            taftip.QUANTIDADE AS 'Quantidade',
+            tudm.UNIDADE_MEDIDA AS 'U.M. Ficha Itens',
+            CASE WHEN tip2.ID IS NULL THEN 0 ELSE 1 END AS 'Produção?'
+        FROM
+            T_FICHA_TECNICA_PRODUCAO tftp
+            LEFT JOIN T_ITENS_PRODUCAO tip ON tip.ID = tftp.FK_ITEM_PRODUZIDO
+            LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm2 ON tudm2.ID = tftp.FK_UNIDADE_MEDIDA
+            LEFT JOIN T_ASSOCIATIVA_FICHAS_TECNICAS_ITENS_PRODUCAO taftip ON taftip.FK_FICHA_PRODUCAO = tftp.ID
+            LEFT JOIN T_EMPRESAS te ON te.ID = tip.FK_EMPRESA
+            LEFT JOIN T_INSUMOS_ESTOQUE tie ON tie.ID = taftip.FK_INSUMO_ESTOQUE
+            LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm ON tudm.ID = taftip.UNIDADE_MEDIDA
+            LEFT JOIN T_ITENS_PRODUCAO tip2 ON tip2.ID = taftip.FK_ITEM_PRODUZIDO
+    ''')
+
+
+@st.cache_data
+def GET_PRECOS_INSUMOS_N5_COM_PROPORCAO_ESTOQUE():
+    return dataframe_query(f'''
+        SELECT 
+            E.ID AS 'ID Casa',
+            E.NOME_FANTASIA AS 'Casa',
+            DATE(DR.COMPETENCIA) AS 'Data Compra',
+            MONTH(DR.COMPETENCIA) AS 'Mês Compra',
+            YEAR(DR.COMPETENCIA) AS 'Ano Compra',
+            N5.ID AS 'ID N5',
+            N5.DESCRICAO AS 'Insumo N5',
+            UM.UNIDADE_MEDIDA_NAME AS 'U.M. N5',
+            ROUND(CAST(SUM(DRI.VALOR) AS FLOAT), 2) AS 'Valor N5',
+            ROUND(CAST(SUM(DRI.QUANTIDADE) AS FLOAT), 3) AS 'Quantidade N5',
+            SUM(DRI.VALOR) / SUM(DRI.QUANTIDADE) AS 'Preço Médio N5',
+            IE.ID AS 'ID Insumo Estoque',
+            IE.DESCRICAO AS 'Insumo Estoque',
+            UM2.UNIDADE_MEDIDA AS 'U.M. Insumo Estoque',
+            ACE.PROPORCAO AS 'Proporção ACE',
+            ACE.PROPORCAO * ROUND(CAST(SUM(DRI.QUANTIDADE) AS FLOAT), 3) AS 'Quantidade Insumo Estoque',
+            (SUM(DRI.VALOR) / SUM(DRI.QUANTIDADE)) / ACE.PROPORCAO AS 'Preço Médio Insumo N5 Estoque'
+        FROM T_DESPESA_RAPIDA_ITEM DRI 
+            INNER JOIN T_INSUMOS_NIVEL_5 N5 ON (DRI.FK_INSUMO = N5.ID)
+            LEFT JOIN T_INSUMOS_NIVEL_4 N4 ON N4.ID = N5.FK_INSUMOS_NIVEL_4
+            LEFT JOIN T_INSUMOS_NIVEL_3 N3 ON N3.ID = N4.FK_INSUMOS_NIVEL_3
+            LEFT JOIN T_INSUMOS_NIVEL_2 N2 ON N2.ID = N3.FK_INSUMOS_NIVEL_2
+            LEFT JOIN T_INSUMOS_NIVEL_1 N1 ON N1.ID = N2.FK_INSUMOS_NIVEL_1
+            INNER JOIN T_DESPESA_RAPIDA DR ON (DRI.FK_DESPESA_RAPIDA = DR.ID)
+            INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
+            LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON (N5.FK_UNIDADE_MEDIDA = UM.ID)
+            LEFT JOIN T_ASSOCIATIVA_COMPRA_ESTOQUE ACE ON (ACE.FK_INSUMO = N5.ID)
+            LEFT JOIN T_INSUMOS_ESTOQUE IE ON (IE.ID = ACE.FK_INSUMO_ESTOQUE)
+            LEFT JOIN T_UNIDADES_DE_MEDIDAS UM2 ON IE.FK_UNIDADE_MEDIDA = UM2.ID
+        WHERE DR.COMPETENCIA >= '2023-01-01'
+            AND N1.DESCRICAO IN ('BEBIDAS','ALIMENTOS')
+        GROUP BY E.ID, N5.ID
+        ORDER BY E.NOME_FANTASIA ASC, N5.DESCRICAO
+''')
+
+
+def GET_CASAS_ITENS_PRODUCAO():
+    return dataframe_query(f'''
+        SELECT
+        ID AS 'ID Insumo Produção',
+        FK_EMPRESA AS 'ID Casa Produção'
+        FROM T_ITENS_PRODUCAO
+    ''')
