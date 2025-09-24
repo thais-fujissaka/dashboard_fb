@@ -10,3 +10,6 @@ venv/
 # Ignorar arquivos de configuração do editor
 .vscode/
 
+# Ignorar devcontainer
+.devcontainer/
+
