@@ -291,56 +291,57 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         ## Exportando em Excel
         excel_filename = 'Conciliacao_FB.xlsx'
 
-        if st.button('Atualizar Planilha Excel'):
-            sheet_name_zig = 'df_extrato_zig'
-            export_to_excel(df_extrato_zig_filtrada, sheet_name_zig, excel_filename)
+        if casa != 'All bar':
+            if st.button('Atualizar Planilha Excel'):
+                sheet_name_zig = 'df_extrato_zig'
+                export_to_excel(df_extrato_zig_filtrada, sheet_name_zig, excel_filename)
 
-            sheet_name_zig = 'df_zig_faturam'
-            export_to_excel(df_zig_faturam_filtrada, sheet_name_zig, excel_filename)  
+                sheet_name_zig = 'df_zig_faturam'
+                export_to_excel(df_zig_faturam_filtrada, sheet_name_zig, excel_filename)  
 
-            sheet_name_view_parc_agrup = 'view_parc_agrup'
-            export_to_excel(df_parc_receit_extr_filtrada, sheet_name_view_parc_agrup, excel_filename)
+                sheet_name_view_parc_agrup = 'view_parc_agrup'
+                export_to_excel(df_parc_receit_extr_filtrada, sheet_name_view_parc_agrup, excel_filename)
 
-            sheet_name_eventos = 'df_eventos'
-            export_to_excel(df_eventos_filtrada, sheet_name_eventos, excel_filename)
+                sheet_name_eventos = 'df_eventos'
+                export_to_excel(df_eventos_filtrada, sheet_name_eventos, excel_filename)
 
-            sheet_name_custos_blueme_sem_parcelamento = 'df_blueme_sem_parcelamento'
-            export_to_excel(df_custos_blueme_sem_parcelam_filtrada, sheet_name_custos_blueme_sem_parcelamento, excel_filename)
+                sheet_name_custos_blueme_sem_parcelamento = 'df_blueme_sem_parcelamento'
+                export_to_excel(df_custos_blueme_sem_parcelam_filtrada, sheet_name_custos_blueme_sem_parcelamento, excel_filename)
 
-            sheet_name_custos_blueme_com_parcelamento = 'df_blueme_com_parcelamento'
-            export_to_excel(df_custos_blueme_com_parcelam_filtrada, sheet_name_custos_blueme_com_parcelamento, excel_filename)
+                sheet_name_custos_blueme_com_parcelamento = 'df_blueme_com_parcelamento'
+                export_to_excel(df_custos_blueme_com_parcelam_filtrada, sheet_name_custos_blueme_com_parcelamento, excel_filename)
 
-            sheet_name_extratos = 'df_extratos'
-            export_to_excel(df_extratos_bancarios_filtrada, sheet_name_extratos, excel_filename)
+                sheet_name_extratos = 'df_extratos'
+                export_to_excel(df_extratos_bancarios_filtrada, sheet_name_extratos, excel_filename)
 
-            df_mutuos_filtrada['Valor_Entrada'] = df_mutuos_filtrada.apply(lambda row: row['Valor'] if row['ID_Casa_Entrada'] == id_casa else 0, axis=1)
-            df_mutuos_filtrada['Valor_Saida'] = df_mutuos_filtrada.apply(lambda row: row['Valor'] if row['ID_Casa_Saida'] == id_casa else 0, axis=1)
-            df_mutuos_filtrada = df_mutuos_filtrada.drop('Valor', axis=1)
-            sheet_name_mutuos = 'df_mutuos'
-            export_to_excel(df_mutuos_filtrada, sheet_name_mutuos, excel_filename)
+                df_mutuos_filtrada['Valor_Entrada'] = df_mutuos_filtrada.apply(lambda row: row['Valor'] if row['ID_Casa_Entrada'] == id_casa else 0, axis=1)
+                df_mutuos_filtrada['Valor_Saida'] = df_mutuos_filtrada.apply(lambda row: row['Valor'] if row['ID_Casa_Saida'] == id_casa else 0, axis=1)
+                df_mutuos_filtrada = df_mutuos_filtrada.drop('Valor', axis=1)
+                sheet_name_mutuos = 'df_mutuos'
+                export_to_excel(df_mutuos_filtrada, sheet_name_mutuos, excel_filename)
 
-            sheet_name_tesouraria = 'df_tesouraria_trans'
-            export_to_excel(df_tesouraria_filtrada, sheet_name_tesouraria, excel_filename)
+                sheet_name_tesouraria = 'df_tesouraria_trans'
+                export_to_excel(df_tesouraria_filtrada, sheet_name_tesouraria, excel_filename)
 
-            sheet_name_ajustes_conciliacao = 'df_ajustes_conciliaco'
-            export_to_excel(df_ajustes_conciliacao_filtrada, sheet_name_ajustes_conciliacao, excel_filename)
-            
-            sheet_name_bloqueios_judiciais = 'df_bloqueios_judiciais'
-            export_to_excel(df_bloqueios_judiciais_filtrada, sheet_name_bloqueios_judiciais, excel_filename)  
+                sheet_name_ajustes_conciliacao = 'df_ajustes_conciliaco'
+                export_to_excel(df_ajustes_conciliacao_filtrada, sheet_name_ajustes_conciliacao, excel_filename)
+                
+                sheet_name_bloqueios_judiciais = 'df_bloqueios_judiciais'
+                export_to_excel(df_bloqueios_judiciais_filtrada, sheet_name_bloqueios_judiciais, excel_filename)  
 
-            st.success('Arquivo atualizado com sucesso!')
+                st.success('Arquivo atualizado com sucesso!')
 
 
-        # Botão de Download Direto
-        if os.path.exists(excel_filename):
-            with open(excel_filename, "rb") as file:
-                file_content = file.read()
-                st.download_button(
-                label="Baixar Excel",
-                data=file_content,
-                file_name=f"Conciliacao_FB - {casa}.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+            # Botão de Download Direto
+            if os.path.exists(excel_filename):
+                with open(excel_filename, "rb") as file:
+                    file_content = file.read()
+                    st.download_button(
+                    label="Baixar Excel",
+                    data=file_content,
+                    file_name=f"Conciliacao_FB - {casa}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
     
     elif tab == 'Contas a Pagar':
         st.markdown(f":material/arrow_downward: **Contas Bancárias - {casa}**")
