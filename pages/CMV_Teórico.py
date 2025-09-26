@@ -155,7 +155,7 @@ def main():
             df_lista_produtos['ID - Produto'] = df_precos_itens_vendidos['ID Item Zig'].astype(str) + ' - ' + df_precos_itens_vendidos['Item Vendido Zig']
             lista_produtos = df_lista_produtos['ID - Produto'].unique().tolist()
             produto_selecionado = st.selectbox('Selecionar Produto', lista_produtos, key='selecionar_produto')
-            id_produto_selecionado = int(produto_selecionado.split(' - ')[0])
+            id_produto_selecionado = int(float(produto_selecionado.split(' - ')[0]))
 
 
             #
