@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.functions.general_functions import *
+from utils.functions.general_functions_conciliacao import *
 from utils.functions.conciliacoes import *
 from utils.constants.general_constants import *
 
@@ -16,14 +16,15 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         else:
             df_extratos_outras['Valor'] = df_extratos_outras['Valor'] * (-1)
             
-        df_extratos_outras.loc[:, 'Data_Transacao'] = df_extratos_outras['Data_Transacao'].dt.date
+        df_extratos_outras.loc[:, 'Data_Transacao'] = pd.to_datetime(df_extratos_outras['Data_Transacao'], errors='coerce')
 
         if item == "blueme sem parcelamento outras":
             # filtra as despesas dessas contas
             df_blueme_outras = df_custos_blueme_sem_parc[
                 df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isin(ids_outras) 
-                | df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isna()]                
-            df_blueme_outras.loc[:, 'Realizacao_Pgto'] = df_blueme_outras['Realizacao_Pgto'].dt.date
+                | df_custos_blueme_sem_parc['ID_Conta_Bancaria'].isna()]  
+                          
+            df_blueme_outras.loc[:, 'Realizacao_Pgto'] = pd.to_datetime(df_blueme_outras['Realizacao_Pgto'], errors='coerce')
 
             # faz o merge para tentar conciliar
             df_blueme_outras = merge_com_fuzzy(
@@ -57,8 +58,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_outras, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
         
@@ -66,8 +67,9 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             # filtra as despesas dessas contas
             df_blueme_com_parc_outras = df_custos_blueme_com_parc[
                 df_custos_blueme_com_parc['ID_Conta_Bancaria'].isin(ids_outras) 
-                | df_custos_blueme_com_parc['ID_Conta_Bancaria'].isna()]                
-            df_blueme_com_parc_outras.loc[:, 'Realiz_Parcela'] = df_blueme_com_parc_outras['Realiz_Parcela'].dt.date
+                | df_custos_blueme_com_parc['ID_Conta_Bancaria'].isna()] 
+                           
+            df_blueme_com_parc_outras.loc[:, 'Realiz_Parcela'] = pd.to_datetime(df_blueme_com_parc_outras['Realiz_Parcela'], errors='coerce')
             
             # faz o merge para tentar conciliar
             df_blueme_com_parc_outras = merge_com_fuzzy(
@@ -101,8 +103,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_com_parc_outras, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
         
@@ -142,8 +144,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_saidas_mutuos_outras, 'ID_Extrato_Bancario', f"Saidas Mutuos - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -160,7 +162,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
         else:
             df_extratos_conta.loc[:, 'Valor'] = df_extratos_conta['Valor'] * -1
         
-        df_extratos_conta.loc[:, 'Data_Transacao'] = df_extratos_conta['Data_Transacao'].dt.date
+        df_extratos_conta.loc[:, 'Data_Transacao'] = pd.to_datetime(df_extratos_conta['Data_Transacao'], errors='coerce')
 
         if item == "blueme sem parcelamento":
             if nome_conta == "Arcos - Arcos Bar - Banco do Brasil": 
@@ -172,7 +174,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # filtra as despesas dessas contas
             df_blueme_sem_parc_conta = df_custos_blueme_sem_parc[df_custos_blueme_sem_parc['Conta_Bancaria'] == nome_conta]
-            df_blueme_sem_parc_conta.loc[:, 'Realizacao_Pgto'] = df_blueme_sem_parc_conta['Realizacao_Pgto'].dt.date
+            df_blueme_sem_parc_conta.loc[:, 'Realizacao_Pgto'] = pd.to_datetime(df_blueme_sem_parc_conta['Realizacao_Pgto'], errors='coerce')
 
             if id_casa == 145: # Ultra Evil tem duas contas (184, 185) com o mesmo nome
                 # faz o merge para tentar conciliar
@@ -200,7 +202,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
                 text_left='Fornecedor',
                 text_right='Descricao_Transacao',
                 exceptions=exceptions,  
-                limiar=30   
+                limiar=25   
                 )
 
             # Seleciona só colunas mais importantes e reordena
@@ -222,8 +224,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_sem_parc, 'ID_Extrato_Bancario', f"Blueme Sem Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -233,7 +235,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
 
             # filtra as despesas dessas contas
             df_blueme_com_parc_conta = df_custos_blueme_com_parc[df_custos_blueme_com_parc['Conta_Bancaria'] == nome_conta]
-            df_blueme_com_parc_conta.loc[:, 'Realiz_Parcela'] = df_blueme_com_parc_conta['Realiz_Parcela'].dt.date
+            df_blueme_com_parc_conta.loc[:, 'Realiz_Parcela'] = pd.to_datetime(df_blueme_com_parc_conta['Realiz_Parcela'], errors='coerce')
 
             if id_casa == 145:
                 df_blueme_com_parc = merge_com_fuzzy(
@@ -259,7 +261,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
                 text_left='Fornecedor',
                 text_right='Descricao_Transacao',
                 exceptions=exceptions, 
-                limiar=40      
+                limiar=25      
                 )
 
             # Seleciona só colunas mais importantes e reordena
@@ -280,8 +282,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_blueme_com_parc, 'ID_Extrato_Bancario', f"Blueme Com Parc - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -289,7 +291,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             # filtra as despesas dessas contas
             df_bloqueios_conta = df_bloqueios[(df_bloqueios['Nome da Conta'] == nome_conta)]  
             df_bloqueios_conta = df_bloqueios_conta.rename(columns={"Data_Transacao": "Data_Bloqueio"})
-            df_bloqueios_conta.loc[:, 'Data_Bloqueio'] = df_bloqueios_conta['Data_Bloqueio'].dt.date
+            df_bloqueios_conta.loc[:, 'Data_Bloqueio'] = pd.to_datetime(df_bloqueios_conta['Data_Bloqueio'], errors='coerce')
             df_bloqueios_conta.loc[:, 'Valor'] = df_bloqueios_conta['Valor'] * (-1)
 
             # faz o merge para tentar conciliar
@@ -323,8 +325,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
             st.write("")
 
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_bloqueios_conta, 'ID_Extrato_Bancario', f"Bloqueios Judicias - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -343,7 +345,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             text_left='Observacoes',
             text_right='Descricao_Transacao',
             exceptions=exceptions,  
-            limiar=16  
+            limiar=7  
             )
             
             # Seleciona só colunas mais importantes e reordena
@@ -364,8 +366,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("contas")
 
             st.write("")
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_saidas_mutuos_conta, 'ID_Extrato_Bancario', f"Saidas Mutuos - Extrato", key=f'download_{item}_{conta}')
             st.divider()
 
@@ -457,8 +459,8 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             exibir_legenda("extrato")
             
             st.write("")
-            col1, col2 = st.columns([6, 1], vertical_alignment="center")
-            with col2:
+            col1, col2 = st.columns([1, 6], vertical_alignment="center")
+            with col1:
                 button_download(df_concat_merge, 'ID_Despesa', f"Extrato - Despesas", key=f'download_{item}_{conta}')
 
 
