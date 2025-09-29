@@ -230,12 +230,13 @@ def mostrar_menu_permissoes_cmv(permissoes):
 def mostrar_menu_permissoes_compras(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## Compras")
-        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Compras - Análises")
-        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Compras - Processos")
+        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Análises")
+        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Processos")
+        st.sidebar.page_link("pages/Compras - Curva_ABC.py", label=":material/abc: Curva ABC")
     if "Acesso Compras 1" in permissoes:
         st.sidebar.markdown("## Compras")
-        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Compras - Análises")
-        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Compras - Processos")
+        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Análises")
+        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Processos")
 
 
 def mostrar_menu_permissoes_produto(permissoes):
