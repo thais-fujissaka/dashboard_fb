@@ -257,7 +257,7 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.page_link("pages/Conciliação - Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
 
 
-def mostrar_menu_financeiro(permissoes):
+def mostrar_menu_permissoes_financeiro(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Financeiro")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
@@ -267,7 +267,7 @@ def config_sidebar():
     permissoes, user_name, email = config_permissoes_user()
     st.sidebar.header(f"Bem-vindo(a) {user_name}!")
     if st.session_state["loggedIn"]:
-        mostrar_menu_financeiro(permissoes)
+        mostrar_menu_permissoes_financeiro(permissoes)
         mostrar_menu_permissoes_eventos(permissoes)
         mostrar_menu_permissoes_cmv(permissoes)
         mostrar_menu_permissoes_compras(permissoes)

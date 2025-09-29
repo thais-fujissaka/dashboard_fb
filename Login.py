@@ -66,7 +66,8 @@ def main():
             "Gazit": "pages/Eventos - Gazit.py",
             "Acesso Conciliação": "pages/Conciliação - Conciliações.py",
             "Acesso CMV 1": "pages/CMV_Teórico - Fichas Técnicas.py",
-            "Acesso Compras 1": "pages/Compras - Análises.py"
+            "Acesso Compras 1": "pages/Compras - Análises.py",
+            "Acesso Financeiro 1": "pages/Financeiro - Despesas.py",
         }
 
         # Verifica a primeira permissão que existe no mapeamento
