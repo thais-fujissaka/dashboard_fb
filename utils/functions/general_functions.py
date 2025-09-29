@@ -91,6 +91,15 @@ def config_permissoes_user():
     return permissao, nomeUser, email
 
 
+def GET_LOJAS():
+  return dataframe_query(f'''
+    SELECT
+    te.ID as 'ID_Loja',
+    te.NOME_FANTASIA as 'Loja'
+    FROM T_EMPRESAS te
+''')
+
+
 @st.cache_data
 def GET_LOJAS_USER(email):
 	emailStr = f"'{email}'"
@@ -247,11 +256,18 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.write("")
         st.sidebar.page_link("pages/Conciliação - Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
 
+
+def mostrar_menu_financeiro(permissoes):
+    if 'Dev Dash FB' in permissoes:
+        st.sidebar.markdown("## Financeiro")
+        st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
+
 def config_sidebar():
 
     permissoes, user_name, email = config_permissoes_user()
     st.sidebar.header(f"Bem-vindo(a) {user_name}!")
     if st.session_state["loggedIn"]:
+        mostrar_menu_financeiro(permissoes)
         mostrar_menu_permissoes_eventos(permissoes)
         mostrar_menu_permissoes_cmv(permissoes)
         mostrar_menu_permissoes_compras(permissoes)
@@ -385,3 +401,52 @@ def df_filtrar_ano(df, coluna_data, ano):
 
 def escape_dolar(texto):
     return texto.replace('$', r'\$')
+
+
+def highlight_values(val):
+    color = 'red' if '-' in val else 'green'
+    return f'color: {color}'
+
+
+def preparar_dados_lojas_user_financeiro():
+    permissao, nomeuser, username = config_permissoes_user()
+    if 'Administrador' in permissao:
+        dflojas = GET_LOJAS()
+        lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
+        dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
+    else:
+        dflojas = GET_LOJAS_USER(username)
+
+    lojasReais = [
+        'Abaru - Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Léo - Centro',
+        'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Delivery Bar Leo Centro', 'Delivery Fabrica de Bares',
+        'Delivery Jacaré', 'Delivery Orfeu', 'Edificio Rolim', 'Escritório Fabrica de Bares',
+        'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless',
+        'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ',
+        'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão'
+    ]
+
+    lojas = dflojas[dflojas['Loja'].isin(set(lojasReais))]['Loja'].tolist()
+    lojas.sort(key=str.lower)
+
+    # Verificar se ambas as lojas estão na lista
+    if 'Abaru - Priceless' in lojas and 'Notiê - Priceless' in lojas:
+        # Remover a 'loja 1' da lista
+        lojas.remove('Abaru - Priceless')
+
+        # Encontrar o índice da 'loja 3' para inserir a 'loja 1' logo após
+        indice_loja_alvo = lojas.index('Notiê - Priceless')
+
+        # Inserir a 'loja 1' após a 'loja 3'
+        lojas.insert(indice_loja_alvo + 1, 'Abaru - Priceless')
+
+    return lojas
+
+
+def obter_valores_unicos_ordenados(df, coluna):
+    dados = df[coluna].dropna().unique().tolist()
+    dados.sort(key=str.lower)
+    return dados
+
+
+
