@@ -291,3 +291,40 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
     AND tc.DATA >= {dataStr}
     AND tc.DATA <= {datafimstr}
 ''')
+
+
+###########################  Previsão Faturamento  #############################
+
+
+def GET_PREVISOES_ZIG_AGRUPADAS():
+  return dataframe_query(f'''
+  SELECT
+    te.NOME_FANTASIA AS Empresa,
+    tzf.DATA AS Data,
+    SUM(tzf.VALOR) AS Valor
+  FROM
+    T_ZIG_FATURAMENTO tzf
+    LEFT JOIN T_EMPRESAS te ON tzf.FK_LOJA = te.ID
+  WHERE
+    tzf.DATA >= '2023-08-01 00:00:00'
+    AND tzf.VALOR > 0
+  GROUP BY
+    Data,
+    Empresa
+  ORDER BY
+    Data,
+    Empresa;
+''')
+
+
+
+def GET_FATURAMENTO_REAL():
+  return dataframe_query(f'''
+  SELECT
+	  te.NOME_FANTASIA as 'Loja',
+	  tzf.DATA as 'Data',
+	  SUM(tzf.VALOR) as 'Valor_Faturado' 
+	FROM T_ZIG_FATURAMENTO tzf 
+	INNER JOIN T_EMPRESAS te ON (tzf.FK_LOJA = te.ID)
+	GROUP BY te.ID, tzf.DATA
+''')

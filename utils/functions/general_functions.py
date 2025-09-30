@@ -268,8 +268,10 @@ def mostrar_menu_permissoes_financeiro(permissoes):
 
 
 def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):
-    st.sidebar.markdown("## Fluxo de Caixa")
-    st.sidebar.page_link("pages/Fluxo de Caixa - Projeção.py", label="📈 Projeção")
+    if 'Dev Dash FB' in permissoes:
+        st.sidebar.markdown("## Fluxo de Caixa")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Projeção.py", label="📈 Projeção")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Previsão_de_Faturamento.py", label="🪙 Previsão de Faturamento")
 
 def config_sidebar():
 
