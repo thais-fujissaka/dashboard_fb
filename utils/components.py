@@ -581,3 +581,125 @@ def component_plotPizzaChart(labels, sizes, name, max_columns=8):
     
     st_echarts(options=options, height="350px", key=chart_key)
 
+
+def criar_seletores(LojasComDados, data_inicio_default, data_fim_default):
+    col1, col2, col3 = st.columns([2, 1, 1])
+
+    # Adiciona seletores
+    with col1:
+        lojas_selecionadas = st.multiselect(
+            label='Selecione Lojas',
+            options=LojasComDados,
+            key='lojas_multiselect'
+        )
+    with col2:
+        data_inicio = st.date_input(
+            'Data de Início',
+            value=data_inicio_default,
+            key='data_inicio_input',
+            format="DD/MM/YYYY"
+        )
+    with col3:
+        data_fim = st.date_input(
+            'Data de Fim',
+            value=data_fim_default,
+            key='data_fim_input',
+            format="DD/MM/YYYY"
+        )
+
+    # Converte as datas selecionadas para o formato Timestamp
+    data_inicio = pd.to_datetime(data_inicio)
+    data_fim = pd.to_datetime(data_fim)
+
+    return lojas_selecionadas, data_inicio, data_fim
+
+
+def card_cmv(titulo, valor, is_estoque=False, is_percentual=False):
+
+  if valor.startswith('R$ -') and is_estoque:
+    html = f"""
+    <div style="
+        border: 1px solid #4A2F8C;
+        border-radius: 12px;
+        padding: 16px;
+        width: 100%;
+        background-color: #f9f9f9;
+        color: #333;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 129px;
+        text-align: center;
+    ">
+        <div style="font-size: 16px; font-weight: bold;">{titulo}</div>
+        <div style="font-size: 20px; font-weight: 500; margin-top: 4px; color: red">{valor}</div>
+    </div>
+    """
+
+  elif is_estoque:
+    html = f"""
+    <div style="
+        border: 1px solid #4A2F8C;
+        border-radius: 12px;
+        padding: 16px;
+        width: 100%;
+        background-color: #f9f9f9;
+        color: #333;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 129px;
+        text-align: center;
+    ">
+        <div style="font-size: 16px; font-weight: bold;">{titulo}</div>
+        <div style="font-size: 20px; font-weight: 500; margin-top: 4px; color: green">{valor}</div>
+    </div>
+    """
+  else:
+    html = f"""
+    <div style="
+        border: 1px solid #4A2F8C;
+        border-radius: 12px;
+        padding: 16px;
+        width: 100%;
+        background-color: #f9f9f9;
+        color: #333;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 129px;
+        text-align: center;
+    ">
+        <div style="font-size: 16px; font-weight: bold;">{titulo}</div>
+        <div style="font-size: 20px; font-weight: 500; margin-top: 4px;">{valor}</div>
+    </div>
+    """
+  st.markdown(html, unsafe_allow_html=True)
+
+
+def title_card_cmv(titulo):
+  # HTML + CSS customizado
+  html = f"""
+  <div style="
+      border: 1px solid #4A2F8C;
+      border-radius: 12px;
+      padding: 16px;
+      width: 100%;
+      background-color: #4A2F8C;
+      color: #333;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 129px;
+  ">
+      <div style="font-size: 20px; font-weight: bold; margin: auto 0; color: #f9f9f9">
+        {titulo}
+      </div>
+  </div>
+  """
+  st.markdown(html, unsafe_allow_html=True)
+

@@ -91,6 +91,15 @@ def config_permissoes_user():
     return permissao, nomeUser, email
 
 
+def GET_LOJAS():
+  return dataframe_query(f'''
+    SELECT
+    te.ID as 'ID_Loja',
+    te.NOME_FANTASIA as 'Loja'
+    FROM T_EMPRESAS te
+''')
+
+
 @st.cache_data
 def GET_LOJAS_USER(email):
 	emailStr = f"'{email}'"
@@ -210,6 +219,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
 def mostrar_menu_permissoes_cmv(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## CMV")
+        st.sidebar.page_link("pages/CMV.py", label="⚖️ CMV")
         st.sidebar.page_link("pages/CMV_Teórico - Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
         st.sidebar.page_link("pages/CMV_Teórico.py", label=":material/rubric: CMV Teórico")
     if "Acesso CMV 1" in permissoes:
@@ -221,12 +231,13 @@ def mostrar_menu_permissoes_cmv(permissoes):
 def mostrar_menu_permissoes_compras(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## Compras")
-        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Compras - Análises")
-        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Compras - Processos")
+        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Análises")
+        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Processos")
+        st.sidebar.page_link("pages/Compras - Curva_ABC.py", label=":material/abc: Curva ABC")
     if "Acesso Compras 1" in permissoes:
         st.sidebar.markdown("## Compras")
-        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Compras - Análises")
-        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Compras - Processos")
+        st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Análises")
+        st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Processos")
 
 
 def mostrar_menu_permissoes_produto(permissoes):
@@ -247,11 +258,28 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.write("")
         st.sidebar.page_link("pages/Conciliação - Fluxo_de_Caixa.py", label=":material/currency_exchange: Fluxo de Caixa")
 
+
+def mostrar_menu_permissoes_financeiro(permissoes):
+    if 'Dev Dash FB' in permissoes:
+        st.sidebar.markdown("## Financeiro")
+        st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
+        st.sidebar.page_link("pages/Financeiro - Faturamento_Extraordinário.py", label=":dollar: Faturamento Extraordinário")
+        st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
+
+
+def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):
+    if 'Dev Dash FB' in permissoes:
+        st.sidebar.markdown("## Fluxo de Caixa")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Projeção.py", label="📈 Projeção")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Previsão_de_Faturamento.py", label="🪙 Previsão de Faturamento")
+
 def config_sidebar():
 
     permissoes, user_name, email = config_permissoes_user()
     st.sidebar.header(f"Bem-vindo(a) {user_name}!")
     if st.session_state["loggedIn"]:
+        mostrar_menu_permissoes_financeiro(permissoes)
+        mostrar_menu_permissoes_fluxo_de_caixa(permissoes)
         mostrar_menu_permissoes_eventos(permissoes)
         mostrar_menu_permissoes_cmv(permissoes)
         mostrar_menu_permissoes_compras(permissoes)
@@ -385,3 +413,94 @@ def df_filtrar_ano(df, coluna_data, ano):
 
 def escape_dolar(texto):
     return texto.replace('$', r'\$')
+
+
+def highlight_values(val):
+    color = 'red' if '-' in val else 'green'
+    return f'color: {color}'
+
+
+def preparar_dados_lojas_user_financeiro():
+    permissao, nomeuser, username = config_permissoes_user()
+    if 'Administrador' in permissao:
+        dflojas = GET_LOJAS()
+        lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
+        dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
+    else:
+        dflojas = GET_LOJAS_USER(username)
+
+    lojasReais = [
+        'Abaru - Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Léo - Centro',
+        'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Delivery Bar Leo Centro', 'Delivery Fabrica de Bares',
+        'Delivery Jacaré', 'Delivery Orfeu', 'Edificio Rolim', 'Escritório Fabrica de Bares',
+        'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless',
+        'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ',
+        'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão'
+    ]
+
+    lojas = dflojas[dflojas['Loja'].isin(set(lojasReais))]['Loja'].tolist()
+    lojas.sort(key=str.lower)
+
+    # Verificar se ambas as lojas estão na lista
+    if 'Abaru - Priceless' in lojas and 'Notiê - Priceless' in lojas:
+        # Remover a 'loja 1' da lista
+        lojas.remove('Abaru - Priceless')
+
+        # Encontrar o índice da 'loja 3' para inserir a 'loja 1' logo após
+        indice_loja_alvo = lojas.index('Notiê - Priceless')
+
+        # Inserir a 'loja 1' após a 'loja 3'
+        lojas.insert(indice_loja_alvo + 1, 'Abaru - Priceless')
+
+    return lojas
+
+
+def preparar_dados_lojas_user_projecao_fluxo():
+  permissao, nomeuser, username = config_permissoes_user()
+  if 'Administrador' in permissao:
+    dflojas = GET_LOJAS()
+    lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
+    dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
+  else:
+    dflojas = GET_LOJAS_USER(username)
+
+  lojasReais = ['Abaru - Priceless', 'Arcos', 'All bar', 'Bar Brahma Aeroclube', 'Brahma Aricanduva',
+                'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Brasilia -  Aeroporto', 'Bardassê', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)',
+                'Colorado Aeroporto BSB', 'Delivery Bar Leo Centro', 'Delivery Fabrica de Bares', 'Delivery Jacaré', 'Delivery Orfeu', 'Duroc ', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'FDB DIGITAL PARTICIPACOES LTDA', 'FDB HOLDING INFERIOR LTDA', 'FDB HOLDING SUPERIOR LTDA', 'Filial', 'Hbar participacoes e empreendimentos ', 'Ilha das Flores ', 'Lojinha - Brahma', 'Navarro', 'Patizal ',  'Piratininga', 'Tundra',
+                'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Priceless', 'Riviera Bar', 
+                'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão']
+  
+  lojas = dflojas[dflojas['Loja'].isin(set(lojasReais))]['Loja'].tolist()
+  lojas.sort(key=str.lower)
+
+  # Verificar se ambas as lojas estão na lista
+  if 'Abaru - Priceless' in lojas and 'Notiê - Priceless' in lojas:
+    # Remover a 'loja 1' da lista
+    lojas.remove('Abaru - Priceless')
+    
+    # Encontrar o índice da 'loja 3' para inserir a 'loja 1' logo após
+    indice_loja_alvo = lojas.index('Notiê - Priceless')
+    
+    # Inserir a 'loja 1' após a 'loja 3'
+    lojas.insert(indice_loja_alvo + 1, 'Abaru - Priceless')
+
+    return lojas
+
+
+def obter_valores_unicos_ordenados(df, coluna):
+    dados = df[coluna].dropna().unique().tolist()
+    dados.sort(key=str.lower)
+    return dados
+
+
+def highlight_values_inverse(val):
+  if '-' in val:
+    color = 'green' 
+  elif val == '0,00' or val == 'nan':
+    color = 'black'
+  else:
+    color = 'red'
+  return f'color: {color}'
+
+
+
