@@ -219,6 +219,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
 def mostrar_menu_permissoes_cmv(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## CMV")
+        st.sidebar.page_link("pages/CMV.py", label="⚖️ CMV")
         st.sidebar.page_link("pages/CMV_Teórico - Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
         st.sidebar.page_link("pages/CMV_Teórico.py", label=":material/rubric: CMV Teórico")
     if "Acesso CMV 1" in permissoes:
@@ -451,6 +452,16 @@ def obter_valores_unicos_ordenados(df, coluna):
     dados = df[coluna].dropna().unique().tolist()
     dados.sort(key=str.lower)
     return dados
+
+
+def highlight_values_inverse(val):
+  if '-' in val:
+    color = 'green' 
+  elif val == '0,00' or val == 'nan':
+    color = 'black'
+  else:
+    color = 'red'
+  return f'color: {color}'
 
 
 
