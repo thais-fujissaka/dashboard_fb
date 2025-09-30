@@ -262,6 +262,7 @@ def mostrar_menu_permissoes_financeiro(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Financeiro")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
+        st.sidebar.page_link("pages/Financeiro - Faturamento_Extraordinário.py", label=":dollar: Faturamento Extraordinário")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
         
 

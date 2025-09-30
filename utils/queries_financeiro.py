@@ -139,3 +139,44 @@ def GET_ORCAM_FATURAM():
     ID_Loja,
     Ano_Mes;
   ''')
+
+############### Receitas extraordinárias ################
+
+@st.cache_data
+def GET_RECEIT_EXTRAORD():
+  #'Data_Evento' é, na realidade, a data da competencia, eu só coloquei esse nome pra ficar mais fácil de programar
+  return dataframe_query(f'''
+  SELECT
+    tre.ID as 'ID_receita',
+    te.NOME_FANTASIA as 'Loja',
+    trec3.NOME as 'Cliente',
+    trec.CLASSIFICACAO as 'Classificacao',
+    tep.ID as 'ID_Evento',
+    tep.NOME_EVENTO as 'Nome_Evento',
+    tre.VALOR as 'Valor_Total',
+    CAST(tre.DATA_OCORRENCIA AS DATE) as 'Data_Evento',
+    tre.VALOR_CATEGORIA_AB as 'Categ_AB',
+    tre.VALOR_CATEGORIA_ALUGUEL as 'Categ_Aluguel',
+    tre.VALOR_CATEGORIA_ARTISTICO as 'Categ_Artist',
+    tre.VALOR_CATEGORIA_COUVERT as 'Categ_Couvert',
+    tre.VALOR_CATEGORIA_LOCACAO as 'Categ_Locacao',
+    tre.VALOR_CATEGORIA_PATROCINIO as 'Categ_Patroc',
+    tre.VALOR_CATEGORIA_TAXA_SERVICO as 'Categ_Taxa_Serv'
+  FROM T_RECEITAS_EXTRAORDINARIAS tre
+    INNER JOIN T_EMPRESAS te ON (tre.FK_EMPRESA = te.ID)
+    LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLASSIFICACAO trec ON (tre.FK_CLASSIFICACAO = trec.ID)
+    LEFT JOIN T_RECEITAS_EXTRAORDINARIAS_CLIENTE trec3 ON (tre.FK_CLIENTE = trec3.ID)
+    LEFT JOIN T_EVENTO_PRE tep ON (tre.FK_EVENTO = tep.ID)
+  WHERE tre.FK_STATUS_PGTO = 103 
+    AND CAST(tre.DATA_OCORRENCIA AS DATE) >= '2023-10-01'
+  ''')
+
+
+
+def GET_CLSSIFICACAO():
+  return dataframe_query(f'''
+  SELECT
+    trec.CLASSIFICACAO as 'Classificacao'
+  FROM T_RECEITAS_EXTRAORDINARIAS_CLASSIFICACAO trec 
+  GROUP BY trec.CLASSIFICACAO 
+''')
