@@ -7,6 +7,7 @@ from utils.queries_produto import *
 from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from streamlit_echarts import st_echarts
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 def input_selecao_casas(lista_casas_retirar, key):
     # Dataframe com IDs e nomes das casas
@@ -264,24 +265,38 @@ def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value
 
 
 def format_numeric_column(df, col):
-    """Converte coluna numérica com limpeza e formata BR."""
     if col not in df.columns:
         return df
 
     num_col = f"{col}_NUM"
-    df[num_col] = (
-        df[col].astype(str)
-        .str.upper()
-        .str.replace(r"[A-Z$R\s]", "", regex=True)
-        .str.replace(".", "", regex=False)
-        .str.replace(",", ".", regex=False)
-    )
-    df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
-
-    df[col] = df[num_col].apply(
-        lambda x: f"{x:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        if pd.notnull(x) else ""
-    )
+    
+    def parse_br_number(x):
+        try:
+            # Remove tudo que não é dígito, vírgula ou ponto
+            s = str(x).replace("R$", "").replace(" ", "")
+            # Substitui vírgula decimal
+            if s.count(",") == 1 and s.count(".") == 0:
+                s = s.replace(",", ".")
+            # Remove pontos de milhar
+            elif s.count(".") > 0 and s.count(",") == 1:
+                s = s.replace(".", "")
+                s = s.replace(",", ".")
+            return Decimal(s)
+        except (InvalidOperation, ValueError):
+            return None
+    
+    df[num_col] = df[col].apply(parse_br_number)
+    
+    # Formatação BR
+    def format_br(x):
+        if x is None:
+            return ""
+        x = x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        s = f"{x:,.2f}"
+        return s.replace(",", "X").replace(".", ",").replace("X", ".")
+    
+    df[col] = df[num_col].apply(format_br)
+    
     return df
 
 
@@ -301,9 +316,18 @@ def format_percent_column(df, col):
     )
     df[num_col] = pd.to_numeric(df[num_col], errors="coerce")
 
+    # Formatação BR com Decimal
     df[col] = df[num_col].apply(
-        lambda x: f"{x:.2f}%".replace(".", ",") if pd.notnull(x) else ""
+        lambda x: f"{Decimal(str(x)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP):,.2f}"
+                  .replace(",", "X").replace(".", ",").replace("X", ".")
+        if pd.notnull(x) else ""
     )
+    return df
+
+
+def format_date_column(df, col, fmt="%d/%m/%Y %H:%M"):
+    if col in df.columns:
+        df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime(fmt)
     return df
 
 
@@ -374,16 +398,19 @@ def apply_master_detail(df, df_details, coluns_merge_details, coluns_name_detail
 
 
 def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
-                     df_details=None, coluns_merge_details=None,
+                     date_columns=None, df_details=None, coluns_merge_details=None,
                      coluns_name_details=None, key="default"):
     num_columns = num_columns or []
     percent_columns = percent_columns or []
+    date_columns = date_columns or []
 
     # 1. Formatação de colunas numéricas e percentuais
     for col in num_columns:
         df = format_numeric_column(df, col)
     for col in percent_columns:
         df = format_percent_column(df, col)
+    for col in date_columns:
+        df = format_date_column(df, col)
 
     # 2. CellStyle para colunas numéricas
     cellstyle_code = get_cellstyle_code()
@@ -464,8 +491,9 @@ def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
         gridOptions=grid_options,
         enable_enterprise_modules=True,
         update_mode=GridUpdateMode.MODEL_CHANGED,
-        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
-        fit_columns_on_grid_load=False,
+        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+        fit_columns_on_grid_load=True,
+        use_container_width=True,
         allow_unsafe_jscode=True,
         key=f"aggrid_{name}_{key}",
         theme=custom_theme,
@@ -491,7 +519,7 @@ def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
     )
 
     filtered_df = grid_response["data"]
-    filtered_df = filtered_df.drop(columns=[c for c in filtered_df.columns if c.endswith("_NUM")], errors="ignore")
+    # filtered_df = filtered_df.drop(columns=[c for c in filtered_df.columns if c.endswith("_NUM")], errors="ignore")
     return filtered_df, len(filtered_df)
 
 
