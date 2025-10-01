@@ -7,7 +7,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from utils.functions.general_functions_conciliacao import *
+from utils.functions.fluxo_realizado import *
 from utils.functions.general_functions import config_sidebar
+from utils.components import dataframe_aggrid
 from utils.queries_conciliacao import *
 
 
@@ -27,6 +29,16 @@ config_sidebar()
 
 st.title(":material/event_upcoming: Fluxo Futuro")
 st.divider()
+
+# Recuperando dados
+df_casas = GET_CASAS()
+df_orcamentos = GET_ORCAMENTOS()
+df_faturamento_agregado = GET_FATURAMENTO_AGREGADO()
+df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
+df_despesas_sem_parcelamento = GET_CUSTOS_BLUEME_SEM_PARC()
+df_despesas_com_parcelamento = GET_CUSTOS_BLUEME_COM_PARC()
+df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
+
 
 # Filtrando Data
 today = datetime.datetime.now()
@@ -55,7 +67,6 @@ start_of_three_months_ago = datetime.datetime(year, month_sub_3, 1)
 
 
 # Filtrando por casa(s) e data
-df_casas = GET_CASAS()
 casas = df_casas['Casa'].tolist()
 
 # Troca o valor na lista
@@ -67,7 +78,7 @@ col_casas, col_botao = st.columns([4, 2])
 
 with col_casas:
     # Usando session_state se disponível, senão usa o valor padrão
-    default_casas = st.session_state.get('casas_selecionadas', [casas[0]] if casas else [])
+    default_casas = st.session_state.get('casas_selecionadas', [casas[1]] if casas else [])
     casas_selecionadas = st.multiselect("Casas", casas, default=default_casas, placeholder='Selecione casas', key="casas_multiselect")
 
 with col_botao:
@@ -112,36 +123,38 @@ with col_datas:
     # Campos de seleção de data
     col1, col2 = st.columns(2)
     with col1:
-        start_date = st.date_input("Data de início", 
-                                value=next_month, 
-                                min_value=jan_last_year, 
-                                max_value=dec_this_year, 
-                                format="DD/MM/YYYY",
-                                key='start_date')
+        start_date = st.date_input(
+            "Data de início", 
+            value=next_month, 
+            min_value=jan_last_year, 
+            max_value=dec_this_year, 
+            format="DD/MM/YYYY",
+            key='start_date')
     with col2:
-        end_date = st.date_input("Data de fim", 
-                                value=end_of_year, 
-                                min_value=jan_last_year, 
-                                max_value=dec_this_year, 
-                                format="DD/MM/YYYY",
-                                key='end_date')
+        end_date = st.date_input(
+            "Data de fim", 
+            value=end_of_year, 
+            min_value=jan_last_year, 
+            max_value=dec_this_year, 
+            format="DD/MM/YYYY",
+            key='end_date')
 
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
 
-with col_botao_futuro:
-    st.markdown("<br>", unsafe_allow_html=True)  # para alinhar o botão com os widgets
-    if st.button("📅 Próximo mês → Fim do ano", help="Define o período do primeiro dia do próximo mês até o último dia do ano atual", use_container_width=True):
-        # Limpa os widgets para recriar com novos valores
-        if "start_date" in st.session_state:
-            del st.session_state["start_date"]
-        if "end_date" in st.session_state:
-            del st.session_state["end_date"]
+# with col_botao_futuro:
+#     st.markdown("<br>", unsafe_allow_html=True)  # para alinhar o botão com os widgets
+#     if st.button("📅 Próximo mês → Fim do ano", help="Define o período do primeiro dia do próximo mês até o último dia do ano atual", use_container_width=True):
+#         # Limpa os widgets para recriar com novos valores
+#         if "start_date" in st.session_state:
+#             del st.session_state["start_date"]
+#         if "end_date" in st.session_state:
+#             del st.session_state["end_date"]
 
-        # Atualizando o date_input através do session_state
-        st.session_state['start_date'] = next_month
-        st.session_state['end_date'] = end_of_year
-        st.rerun()
+#         # Atualizando o date_input através do session_state
+#         st.session_state['start_date'] = next_month
+#         st.session_state['end_date'] = end_of_year
+#         st.rerun()
 
 if not casas_selecionadas:
     st.warning("Por favor, selecione pelo menos uma casa.")
@@ -149,13 +162,11 @@ if not casas_selecionadas:
 
 st.divider()
 
-# Definindo bases
-st.subheader("📋 Orçamento")
+## Orçamentos
+st.subheader("Orçamentos")
 
 # Informando o período filtrado
-st.info(f"📅 **Período filtrado**: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
-
-df_orcamentos = GET_ORCAMENTOS()
+# st.info(f"📅 **Período filtrado**: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
 
 # Convertendo Ano_Orcamento e Mes_Orcamento para formato de data
 df_orcamentos['Data_Orcamento'] = pd.to_datetime(
@@ -176,20 +187,18 @@ df_orcamentos_filtrada = df_orcamentos[
 ]
 
 # Exibindo tabela de orçamentos
-df_orcamentos_filtrada_aggrid = component_plotDataframe_aggrid(
+df_orcamentos_filtrada_aggrid, tam_df_orcamentos_filtrada_aggrid = dataframe_aggrid(
     df=df_orcamentos_filtrada,
-    name="Orcamentos",
+    name="Orçamentos",
     num_columns=["Valor_Orcamento"],
-    percent_columns=[],
-    df_details=None,
-    coluns_merge_details=None,
-    coluns_name_details=None
+    date_columns=['Data_Orcamento']
 )
 function_copy_dataframe_as_tsv(df_orcamentos_filtrada_aggrid)
 
-# Exibindo tabela de faturamento agregado
-st.subheader("📋 Faturamento Agregado")
-df_faturamento_agregado = GET_FATURAMENTO_AGREGADO()
+st.divider()
+
+## Faturamento Agregado
+st.subheader("Faturamento Agregado")
 
 df_faturamento_agregado['Ano_Mes'] = df_faturamento_agregado['Ano'].astype(str) + '-' + df_faturamento_agregado['Mes'].astype(str).str.zfill(2)
 
@@ -198,30 +207,29 @@ df_faturamento_agregado = df_faturamento_agregado[['ID_Faturam_Agregado', 'ID_Ca
 df_faturamento_agregado_filtrada = df_faturamento_agregado[df_faturamento_agregado['ID_Casa'].isin(ids_casas_selecionadas)]
 
 # Exibindo tabela de faturamento agregado
-df_faturamento_agregado_aggrid = component_plotDataframe_aggrid(
+df_faturamento_agregado_aggrid, tam_df_faturamento_agregado_aggrid = dataframe_aggrid(
     df=df_faturamento_agregado_filtrada,
     name="Faturamento Agregado",
     num_columns=["Valor_Bruto", "Desconto", "Valor_Liquido"],
-    percent_columns=[],
-    df_details=None,
-    coluns_merge_details=None,
-    coluns_name_details=None
+    
 )
 function_copy_dataframe_as_tsv(df_faturamento_agregado_aggrid)
 
+st.divider()
+
 # ===== CONFIGURAÇÃO DO FATOR DE AJUSTE =====
 st.subheader("📅 Configuração do Fator de Ajuste")
-st.markdown("**Defina o período histórico para cálculo do fator de ajuste:**")
+# st.markdown("**Defina o período histórico para cálculo do fator de ajuste:**")
 
-# Calculando datas padrão para o filtro (últimos 6 meses realizados)
+# Calculando datas padrão para o filtro
 hoje = datetime.datetime.now()
 data_limite_padrao = hoje.replace(day=1) - timedelta(days=1)  # Último dia do mês anterior
-data_inicio_padrao = data_limite_padrao.replace(day=1) - timedelta(days=180)  # 6 meses atrás
+data_inicio_padrao = datetime.datetime(hoje.year, 1, 1)  # Primeiro dia do ano corrente
 
 # Usando session_state se disponível, senão usa o valor padrão
 default_fator_data = st.session_state.get('fator_ajuste_date_input', (data_inicio_padrao, data_limite_padrao))
 fator_ajuste_date_input = st.date_input(
-    "Período para cálculo do fator de ajuste",
+    "Período para cálculo do fator de ajuste:",
     value=default_fator_data,
     min_value=jan_last_year,
     max_value=data_limite_padrao,
@@ -241,10 +249,10 @@ else:
     data_inicio_fator = fator_ajuste_date_input
     data_fim_fator = fator_ajuste_date_input
 
-st.info(f"📊 **Período selecionado para cálculo do fator**: {data_inicio_fator.strftime('%d/%m/%Y')} a {data_fim_fator.strftime('%d/%m/%Y')}")
+# st.info(f"📊 **Período selecionado para cálculo do fator**: {data_inicio_fator.strftime('%d/%m/%Y')} a {data_fim_fator.strftime('%d/%m/%Y')}")
 
 # ===== ANÁLISE COMPARATIVA: ORÇADO vs REALIZADO =====
-st.subheader("📊 Análise Comparativa: Orçado vs Realizado")
+st.subheader("Análise Comparativa: Orçado vs Realizado")
 
 # Mostrando o período usado para análise
 if 'fator_ajuste_date_input' in st.session_state:
@@ -258,7 +266,7 @@ if 'fator_ajuste_date_input' in st.session_state:
             periodo_analise = "Período não definido"
     else:
         periodo_analise = fator_data.strftime('%d/%m/%Y')
-    st.info(f"📅 **Período de análise**: {periodo_analise}")
+    # st.info(f"📅 **Período de análise**: {periodo_analise}")
 
 # Filtrando dados para análise comparativa usando o filtro de data personalizado
 # Se o filtro de fator de ajuste não foi definido ainda, usar valores padrão
@@ -376,8 +384,11 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
     fig_comparacao.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
     
     st.plotly_chart(fig_comparacao, use_container_width=True)
-    
+
+    st.divider()
+
     # Métricas de análise
+    st.subheader(":material/heap_snapshot_large: Métricas de projeção")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -398,31 +409,29 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
         percentual_medio_display = f"{percentual_medio:.1f}%" if not pd.isna(percentual_medio) else "N/A"
         st.metric("Realizado vs Orçado (%)", percentual_medio_display)
     
+    st.divider()
+
     # Tabela detalhada de comparação
-    st.subheader("📋 Detalhamento Mensal - Orçado vs Realizado")
+    st.subheader("Detalhamento Mensal - Orçado vs Realizado")
     
     df_comparacao_display = df_comparacao[['Mes_Ano', 'Valor_Orcamento', 'Valor_Bruto', 'Diferenca', 'Percentual_Realizado']].copy()
     df_comparacao_display.columns = ['Mês/Ano', 'Orçado (R$)', 'Realizado (R$)', 'Diferença (R$)', 'Realizado/Orçado (%)']
     
-    df_comparacao_aggrid = component_plotDataframe_aggrid(
+    df_comparacao_aggrid, tam_df_comparacao_aggrid = dataframe_aggrid(
         df=df_comparacao_display,
         name="Comparação Orçado vs Realizado",
         num_columns=["Orçado (R$)", "Realizado (R$)", "Diferença (R$)"],
-        percent_columns=["Realizado/Orçado (%)"],
-        df_details=None,
-        coluns_merge_details=None,
-        coluns_name_details=None
+        percent_columns=["Realizado/Orçado (%)"]
     )
     
     function_copy_dataframe_as_tsv(df_comparacao_aggrid)
+
+    st.divider()
     
     # ===== PROJEÇÃO DE RECEITAS DE PATROCÍNIOS =====
     st.subheader("🎯 Projeção de Receitas de Patrocínios")
     
-    try:
-        # Obtendo dados de parcelas de receitas extraordinárias
-        df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
-        
+    try:        
         # Debug: Verificando se o DataFrame existe e tem dados
         if df_parc_receit_extr is None or df_parc_receit_extr.empty:
             st.warning("⚠️ DataFrame de parcelas de receitas extraordinárias está vazio ou não disponível.")
@@ -508,38 +517,18 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                     df_patrocinios_exibicao = df_patrocinios_exibicao.sort_values('Vencimento Parcela')
                     
                     # Exibindo tabela de patrocínios futuros
-                    df_patrocinios_aggrid = component_plotDataframe_aggrid(
+                    df_patrocinios_aggrid, tam_df_patrocinios_aggrid = dataframe_aggrid(
                         df=df_patrocinios_exibicao,
                         name="Projeção de Receitas de Patrocínios",
                         num_columns=["Valor Parcela (R$)"],
-                        percent_columns=[],
-                        df_details=None,
-                        coluns_merge_details=None,
-                        coluns_name_details=None
+                        date_columns=[]
                     )
                     
                     # Calculando total dos valores filtrados
-                    if not df_patrocinios_aggrid.empty and "Valor Parcela (R$)" in df_patrocinios_aggrid.columns:
-                        valores_filtrados = pd.to_numeric(df_patrocinios_aggrid["Valor Parcela (R$)"], errors='coerce')
-                        total_patrocinios = valores_filtrados.sum()
-                        
-                        st.markdown(f"""
-                        <div style="
-                            background-color: #1e1e1e; 
-                            border: 1px solid #ffb131; 
-                            border-radius: 4px; 
-                            padding: 8px 12px; 
-                            margin: 5px 0; 
-                            text-align: center;
-                            display: inline-block;
-                        ">
-                            <span style="color: #ffb131; font-weight: bold;">💰 Total Patrocínios: R$ {total_patrocinios:,.2f}</span>
-                            <span style="color: #cccccc; margin-left: 10px;">({len(df_patrocinios_aggrid)} parcelas pendentes)</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
+                    total_valores_filtrados(df_patrocinios_aggrid, tam_df_patrocinios_aggrid, "Valor Parcela (R$)", despesa_com_parc=False)
                     function_copy_dataframe_as_tsv(df_patrocinios_aggrid)
                     
+
                     # Agrupando patrocínios por mês para uso nas projeções
                     df_patrocinios_futuros['Mes_Ano'] = df_patrocinios_futuros['Vencimento_Parcela'].dt.strftime('%m/%Y')
                     # Convertendo Valor_Parcela para float para evitar problemas com Decimal
@@ -678,6 +667,7 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             
             # Adicionando linha de receita total
             st.caption(f"🔍 Adicionando receita total ao gráfico: {len(receita_total_mensal)} pontos")
+
             
             fig_projecao.add_trace(go.Scatter(
                 x=receita_total_mensal['Mes_Ano_Display'],
@@ -711,8 +701,11 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
         fig_projecao.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
         
         st.plotly_chart(fig_projecao, use_container_width=True)
+
+        st.divider()
         
         # Métricas de projeção
+        st.subheader(":material/heap_snapshot_large: Métricas de projeção")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -743,8 +736,10 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             diferenca_percentual = (diferenca_projecao / total_orcado_futuro * 100) if total_orcado_futuro > 0 else 0
             st.metric("Ajuste Orçamento (%)", f"↓{diferenca_percentual:.1f}%")
         
+        st.divider()
+
         # Tabela de projeções
-        st.subheader("📋 Detalhamento das Projeções")
+        st.subheader("Detalhamento das Projeções")
         
         # Preparando dados para a tabela consolidada
         # Sempre incluir patrocínios, mesmo que vazios
@@ -778,10 +773,10 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
         projecoes_consolidadas['Receita_Total'] = projecoes_consolidadas['Orcamento_Projetado'].astype(float) + projecoes_consolidadas['Patrocinios'].astype(float)
         
         # Debug: Verificando dados da tabela consolidada
-        st.caption(f"🔍 Tabela consolidada: {len(projecoes_consolidadas)} linhas")
-        st.caption(f"🔍 Colunas da tabela: {list(projecoes_consolidadas.columns)}")
-        st.caption(f"🔍 Dados da tabela: {projecoes_consolidadas[['Mes_Ano', 'Orcamento_Projetado', 'Patrocinios', 'Receita_Total']].to_dict('records')}")
-        
+        # st.caption(f"🔍 Tabela consolidada: {len(projecoes_consolidadas)} linhas")
+        # st.caption(f"🔍 Colunas da tabela: {list(projecoes_consolidadas.columns)}")
+        # st.caption(f"🔍 Dados da tabela: {projecoes_consolidadas[['Mes_Ano', 'Orcamento_Projetado', 'Patrocinios', 'Receita_Total']].to_dict('records')}")
+
         # Preparando para exibição
         projecoes_display = projecoes_consolidadas[[
             'Mes_Ano', 'Orcamento_Original', 'Orcamento_Projetado', 'Ajuste_Orcamento', 
@@ -792,14 +787,10 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             'Patrocínios (R$)', 'Receita Total (R$)'
         ]
         
-        projecoes_aggrid = component_plotDataframe_aggrid(
+        projecoes_aggrid, tam_projecoes_aggrid = dataframe_aggrid(
             df=projecoes_display,
             name="Projeções Ajustadas",
-            num_columns=["Orçado Original (R$)", "Projeção Ajustada (R$)", "Ajuste (R$)", "Patrocínios (R$)", "Receita Total (R$)"],
-            percent_columns=[],
-            df_details=None,
-            coluns_merge_details=None,
-            coluns_name_details=None
+            num_columns=["Orçado Original (R$)", "Projeção Ajustada (R$)", "Ajuste (R$)", "Patrocínios (R$)", "Receita Total (R$)"]
         )
         
         function_copy_dataframe_as_tsv(projecoes_aggrid)
@@ -807,15 +798,13 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
     else:
         st.warning("Não há orçamentos futuros disponíveis para projeção.")
 
+    st.divider()
+
     # ===== PROJEÇÃO DE FLUXO DE CAIXA FUTURO BASEADA NO TIPO DE FLUXO =====
     st.subheader("🔮 Projeção de Fluxo de Caixa Futuro - Por Tipo de Fluxo")
     
     # Informando o período de projeção
-    st.info(f"📅 **Período de projeção**: {data_futura_inicio.strftime('%d/%m/%Y')} a {data_futura_fim.strftime('%d/%m/%Y')}")
-    
-    # Obtendo dados das despesas BlueMe
-    df_despesas_sem_parcelamento = GET_CUSTOS_BLUEME_SEM_PARC()
-    df_despesas_com_parcelamento = GET_CUSTOS_BLUEME_COM_PARC()
+    st.info(f"📅 **Período de projeção**: {data_futura_inicio.strftime('%d/%m/%Y')} a {data_futura_fim.strftime('%d/%m/%Y')}")    
     
     # Filtrando despesas por casas selecionadas
     df_despesas_sem_parcelamento = df_despesas_sem_parcelamento[df_despesas_sem_parcelamento['ID_Casa'].isin(ids_casas_selecionadas)]
@@ -834,10 +823,7 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
         projecoes_por_tipo = []
         
         # Criando seção expansível com os parâmetros configurados no sistema
-        with st.expander("📋 Parâmetros Configurados no Sistema", expanded=False):
-            # Obtendo dados da configuração do sistema
-            df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
-            
+        with st.expander("Parâmetros Configurados no Sistema", expanded=False):            
             # Criando dataframe para exibição
             df_configuracao_exibicao = df_tipo_class_cont_2[['Tipo_Fluxo_Futuro', 'Class_Cont_1', 'Class_Cont_2']].copy()
             df_configuracao_exibicao = df_configuracao_exibicao.rename(columns={
@@ -853,14 +839,9 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             df_configuracao_exibicao = df_configuracao_exibicao.drop('Ordem', axis=1)
             
             # Exibindo tabela de configuração
-            config_aggrid = component_plotDataframe_aggrid(
+            config_aggrid, tam_config_aggrid = dataframe_aggrid(
                 df=df_configuracao_exibicao,
-                name="Configuração do Sistema",
-                num_columns=[],
-                percent_columns=[],
-                df_details=None,
-                coluns_merge_details=None,
-                coluns_name_details=None
+                name="Configuração do Sistema"
             )
             
             function_copy_dataframe_as_tsv(config_aggrid)
@@ -874,7 +855,6 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             if tipo_fluxo == 'Fixo':
                 # Despesas fixas - usar valores dos orçamentos diretamente
                 # Obtendo as classificações que são do tipo "Fixo" da configuração do sistema
-                df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                 classificacoes_fixo_configuradas = df_tipo_class_cont_2[
                     df_tipo_class_cont_2['Tipo_Fluxo_Futuro'] == 'Fixo'
                 ]['Class_Cont_1'].unique()
@@ -897,7 +877,6 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             elif tipo_fluxo == 'Variavel do Faturamento':
                 # Despesas variáveis - aplicar fator de ajuste
                 # Obtendo as classificações que são do tipo "Variável do Faturamento" da configuração do sistema
-                df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                 classificacoes_variavel_configuradas = df_tipo_class_cont_2[
                     df_tipo_class_cont_2['Tipo_Fluxo_Futuro'] == 'Variavel do Faturamento'
                 ]['Class_Cont_1'].unique()
@@ -921,7 +900,6 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                 # Usar despesas realmente lançadas (pendentes) apenas para classificações que são "Considerar Lançamentos"
                 
                 # Obtendo as classificações que são do tipo "Considerar Lançamentos" da configuração do sistema
-                df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
                 classificacoes_lancamentos_configuradas = df_tipo_class_cont_2[
                     df_tipo_class_cont_2['Tipo_Fluxo_Futuro'] == 'Considerar Lançamentos'
                 ]['Class_Cont_1'].unique()
@@ -1069,9 +1047,11 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             fig_projecao_consolidada.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
             
             st.plotly_chart(fig_projecao_consolidada, use_container_width=True)
+
+            st.divider()
             
             # ===== TABELA DETALHADA POR CLASS_CONT_1 E MÊS =====
-            st.subheader("📋 Detalhamento por Classificação Contábil e Mês")
+            st.subheader("Detalhamento por Classificação Contábil e Mês")
             
             # Preparando dados para a tabela detalhada
             if not df_projecoes_consolidadas.empty:
@@ -1129,20 +1109,18 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                 colunas_numericas = [col for col in pivot_detalhado.columns if col not in colunas_texto]
                 
                 # Exibindo tabela detalhada
-                df_detalhado_aggrid = component_plotDataframe_aggrid(
+                df_detalhado_aggrid, tam_df_detalhado_aggrid = dataframe_aggrid(
                     df=pivot_detalhado,
                     name="Detalhamento por Classificação e Mês",
-                    num_columns=colunas_numericas,
-                    percent_columns=[],
-                    df_details=None,
-                    coluns_merge_details=None,
-                    coluns_name_details=None
+                    num_columns=colunas_numericas
                 )
                 
                 function_copy_dataframe_as_tsv(df_detalhado_aggrid)
+
+                st.divider()
                 
                 # ===== TABELA DETALHADA DE LANÇAMENTOS =====
-                st.subheader("📋 Detalhamento das Despesas - Tipo 'Lançamentos'")
+                st.subheader("Detalhamento das Despesas - Tipo 'Lançamentos'")
                 
                 # Filtrando apenas despesas do tipo "Lançamentos" das projeções consolidadas
                 if not df_projecoes_consolidadas.empty:
@@ -1221,46 +1199,25 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                         df_lancamentos_exibicao = df_lancamentos_exibicao.rename(columns=mapeamento_colunas)
                         
                         # Exibindo tabela detalhada
-                        df_lancamentos_aggrid = component_plotDataframe_aggrid(
+                        df_lancamentos_aggrid, tam_df_lancamentos_aggrid = dataframe_aggrid(
                             df=df_lancamentos_exibicao,
                             name="Detalhamento de Lançamentos",
-                            num_columns=["Valor (R$)"],
-                            percent_columns=[],
-                            df_details=None,
-                            coluns_merge_details=None,
-                            coluns_name_details=None
+                            num_columns=["Valor (R$)"]
                         )
                         
                         # Calculando total dos valores filtrados
-                        if not df_lancamentos_aggrid.empty and "Valor (R$)" in df_lancamentos_aggrid.columns:
-                            # Convertendo valores para numérico se necessário
-                            valores_filtrados = pd.to_numeric(df_lancamentos_aggrid["Valor (R$)"], errors='coerce')
-                            total_filtrado = valores_filtrados.sum()
-                            
-                            # Exibindo total formatado
-                            st.markdown(f"""
-                            <div style="
-                                background-color: #1e1e1e; 
-                                border: 1px solid #ffb131; 
-                                border-radius: 4px; 
-                                padding: 8px 12px; 
-                                margin: 5px 0; 
-                                text-align: center;
-                                display: inline-block;
-                            ">
-                                <span style="color: #ffb131; font-weight: bold;">💰 Total: R$ {total_filtrado:,.2f}</span>
-                                <span style="color: #cccccc; margin-left: 10px;">({len(df_lancamentos_aggrid)} registros)</span>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
+                        total_valores_filtrados(df_lancamentos_aggrid, tam_df_lancamentos_aggrid, 'Valor (R$)')
                         function_copy_dataframe_as_tsv(df_lancamentos_aggrid)
                         
                     else:
                         st.info("Não há despesas do tipo 'Lançamentos' para exibir.")
                 else:
                     st.warning("Não há dados de projeções consolidadas disponíveis.")
+
+                st.divider()
                 
                 # Informações adicionais da tabela detalhada
+                st.subheader(":material/heap_snapshot_large: Informações adicionais")
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -1281,13 +1238,15 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
 else:
     st.warning("Dados insuficientes para análise comparativa. Verifique se há dados de orçamento e faturamento realizado nos últimos 6 meses.")
 
+st.divider()
+
 # Gráfico de Projeção Avançada por Mês - Receitas vs Despesas
-st.subheader("📊 Projeção Avançada por Mês - Receitas vs Despesas")
+st.subheader("Projeção Avançada por Mês - Receitas vs Despesas")
 
 # Verificando se temos dados de projeção disponíveis
 if 'df_projecoes_consolidadas' in locals() and not df_projecoes_consolidadas.empty:
     # Usando os dados de projeção consolidados
-    st.info("📈 Utilizando projeções baseadas nos tipos de fluxo futuro configurados")
+    # st.info("📈 Utilizando projeções baseadas nos tipos de fluxo futuro configurados")
     
     # Verificando se patrocinios_mensais está definida
     if 'patrocinios_mensais' not in locals():
@@ -1427,7 +1386,10 @@ if 'df_projecoes_consolidadas' in locals() and not df_projecoes_consolidadas.emp
         
         st.plotly_chart(fig_projecao_mensal, use_container_width=True)
         
+        st.divider()
+
         # Métricas resumidas da projeção
+        st.subheader(":material/heap_snapshot_large: Métricas de projeção")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -1467,8 +1429,10 @@ if 'df_projecoes_consolidadas' in locals() and not df_projecoes_consolidadas.emp
             else:
                 st.metric("Patrocínios/Total (%)", "N/A")
         
+        st.divider()
+
         # Tabela resumida da projeção
-        st.subheader("📋 Resumo da Projeção Avançada por Mês")
+        st.subheader("Resumo da Projeção Avançada por Mês")
         
         # Criando tabela pivot usando os dados consolidadas
         if not df_receitas_consolidadas.empty:
@@ -1504,14 +1468,10 @@ if 'df_projecoes_consolidadas' in locals() and not df_projecoes_consolidadas.emp
         
         # Exibindo tabela
         colunas_numericas = [col for col in pivot_projecao.columns if col != 'Mes_Ano_Display']
-        pivot_projecao_aggrid = component_plotDataframe_aggrid(
+        pivot_projecao_aggrid, tam_pivot_projecao_aggrid = dataframe_aggrid(
             df=pivot_projecao,
             name="Resumo da Projeção Avançada Mensal",
-            num_columns=colunas_numericas,
-            percent_columns=[],
-            df_details=None,
-            coluns_merge_details=None,
-            coluns_name_details=None
+            num_columns=colunas_numericas
         )
         
         function_copy_dataframe_as_tsv(pivot_projecao_aggrid)
@@ -1660,8 +1620,10 @@ else:
     else:
         st.warning("Não há dados de orçamento disponíveis para as casas selecionadas.")
 
+st.divider()
+
 # ===== TABELA DE FATORES DE AJUSTE POR CASA =====
-st.subheader("📊 Fatores de Ajuste por Casa")
+st.subheader("Fatores de Ajuste por Casa")
 st.markdown("**Análise de Performance: Orçado vs Realizado**")
 
 # Mostrando o período usado para análise
@@ -1676,117 +1638,126 @@ if 'fator_ajuste_date_input' in st.session_state:
             periodo_analise_fatores = "Período não definido"
     else:
         periodo_analise_fatores = fator_data.strftime('%d/%m/%Y')
-    st.info(f"📅 **Período de análise**: {periodo_analise_fatores}")
+    # st.info(f"📅 **Período de análise**: {periodo_analise_fatores}")
 
 # Calculando fatores de ajuste por casa individual
 fatores_por_casa = []
 
 for casa in casas_selecionadas:
-    casa_id = mapeamento_lojas[casa]
-    
-    # Filtrando dados de orçamento para esta casa usando o filtro de data personalizado
-    if 'fator_ajuste_date_input' not in st.session_state:
-        hoje = datetime.datetime.now()
-        data_limite_analise_casa = hoje.replace(day=1) - timedelta(days=1)  # Último dia do mês anterior
-        data_inicio_analise_casa = data_limite_analise_casa.replace(day=1) - timedelta(days=180)  # 6 meses atrás
+    if casa == 'Todas as casas':
+        casas_para_processar = list(mapeamento_lojas.keys())  # todas as casas do mapeamento
+        casas_para_processar = [c for c in casas_para_processar if c != 'All bar']
     else:
-        fator_data = st.session_state['fator_ajuste_date_input']
-        if isinstance(fator_data, tuple):
-            data_inicio_analise_casa = pd.to_datetime(fator_data[0])
-            if len(fator_data) >= 2:
-                data_limite_analise_casa = pd.to_datetime(fator_data[1])
+        casas_para_processar = [casa]
+
+    for c in casas_para_processar:
+        casa_id = mapeamento_lojas[c]
+        casas_ids = [casa_id]  # lista com o(s) ID(s) para filtro
+        casa_label = c  # label da casa para exibir na tabela
+    
+        # Filtrando dados de orçamento para esta casa usando o filtro de data personalizado
+        if 'fator_ajuste_date_input' not in st.session_state:
+            hoje = datetime.datetime.now()
+            data_limite_analise_casa = hoje.replace(day=1) - timedelta(days=1)  # Último dia do mês anterior
+            data_inicio_analise_casa = data_limite_analise_casa.replace(day=1) - timedelta(days=180)  # 6 meses atrás
+        else:
+            fator_data = st.session_state['fator_ajuste_date_input']
+            if isinstance(fator_data, tuple):
+                data_inicio_analise_casa = pd.to_datetime(fator_data[0])
+                if len(fator_data) >= 2:
+                    data_limite_analise_casa = pd.to_datetime(fator_data[1])
+                else:
+                    data_limite_analise_casa = data_inicio_analise_casa  # Se só tem uma data, usar a mesma
             else:
-                data_limite_analise_casa = data_inicio_analise_casa  # Se só tem uma data, usar a mesma
+                data_inicio_analise_casa = pd.to_datetime(fator_data)
+                data_limite_analise_casa = pd.to_datetime(fator_data)
+        
+        df_orcamentos_casa = df_orcamentos[
+            (df_orcamentos['ID_Casa'].isin(casas_ids)) &
+            (df_orcamentos['Data_Orcamento'] >= data_inicio_analise_casa) &
+            (df_orcamentos['Data_Orcamento'] <= data_limite_analise_casa) &
+            (df_orcamentos['Class_Cont_1'] == 'Faturamento Bruto')
+        ]
+        
+        # Filtrando dados de faturamento para esta casa
+        df_faturamento_casa = df_faturamento_agregado[
+            (df_faturamento_agregado['ID_Casa'].isin(casas_ids))
+        ]
+        
+        if not df_orcamentos_casa.empty and not df_faturamento_casa.empty:
+            # Agrupando orçamentos por mês para esta casa
+            orcamentos_casa_mensais = df_orcamentos_casa.groupby(['Ano_Orcamento', 'Mes_Orcamento'])['Valor_Orcamento'].sum().reset_index()
+            orcamentos_casa_mensais['Data_Comparacao'] = pd.to_datetime(
+                orcamentos_casa_mensais['Ano_Orcamento'].astype(str) + '-' + 
+                orcamentos_casa_mensais['Mes_Orcamento'].astype(str).str.zfill(2) + '-01'
+            )
+            
+            # Agrupando faturamento por mês para esta casa
+            faturamento_casa_mensais = df_faturamento_casa.groupby('Ano_Mes')['Valor_Bruto'].sum().reset_index()
+            faturamento_casa_mensais['Data_Comparacao'] = pd.to_datetime(
+                faturamento_casa_mensais['Ano_Mes'] + '-01'
+            )
+            
+            # Merge dos dados para comparação desta casa
+            df_comparacao_casa = pd.merge(
+                orcamentos_casa_mensais[['Data_Comparacao', 'Valor_Orcamento']],
+                faturamento_casa_mensais[['Data_Comparacao', 'Valor_Bruto']],
+                on='Data_Comparacao',
+                how='left'
+            ).fillna(0)
+            
+            # Calculando percentual realizado para esta casa
+            df_comparacao_casa['Percentual_Realizado'] = df_comparacao_casa.apply(
+                lambda row: (row['Valor_Bruto'] / row['Valor_Orcamento'] * 100) if row['Valor_Orcamento'] != 0 else 0, 
+                axis=1
+            ).fillna(0)
+            
+            # Calculando métricas para esta casa
+            total_orcado_casa = df_comparacao_casa['Valor_Orcamento'].sum()
+            total_realizado_casa = df_comparacao_casa['Valor_Bruto'].sum()
+            percentual_medio_casa = df_comparacao_casa['Percentual_Realizado'].mean()
+            
+            # Calculando fator de ajuste para esta casa
+            if percentual_medio_casa > 0:
+                fator_ajuste_casa = min(percentual_medio_casa / 100, 1.0)
+            else:
+                fator_ajuste_casa = 1.0
+            
+            # Classificando performance
+            if percentual_medio_casa >= 110:
+                classificacao = "🟢 Excelente"
+                cor_classificacao = "green"
+            elif percentual_medio_casa >= 100:
+                classificacao = "🟡 Boa"
+                cor_classificacao = "orange"
+            elif percentual_medio_casa >= 90:
+                classificacao = "🟠 Atenção"
+                cor_classificacao = "red"
+            else:
+                classificacao = "🔴 Crítica"
+                cor_classificacao = "darkred"
+            
+            # Adicionando à lista de fatores
+            fatores_por_casa.append({
+                'Casa': casa_label,
+                'Total_Orcado': total_orcado_casa,
+                'Total_Realizado': total_realizado_casa,
+                'Percentual_Realizado': percentual_medio_casa,
+                'Fator_Ajuste': fator_ajuste_casa,
+                'Classificacao': classificacao,
+                'Meses_Analisados': len(df_comparacao_casa)
+            })
         else:
-            data_inicio_analise_casa = pd.to_datetime(fator_data)
-            data_limite_analise_casa = pd.to_datetime(fator_data)
-    
-    df_orcamentos_casa = df_orcamentos[
-        (df_orcamentos['ID_Casa'] == casa_id) &
-        (df_orcamentos['Data_Orcamento'] >= data_inicio_analise_casa) &
-        (df_orcamentos['Data_Orcamento'] <= data_limite_analise_casa) &
-        (df_orcamentos['Class_Cont_1'] == 'Faturamento Bruto')
-    ]
-    
-    # Filtrando dados de faturamento para esta casa
-    df_faturamento_casa = df_faturamento_agregado[
-        (df_faturamento_agregado['ID_Casa'] == casa_id)
-    ]
-    
-    if not df_orcamentos_casa.empty and not df_faturamento_casa.empty:
-        # Agrupando orçamentos por mês para esta casa
-        orcamentos_casa_mensais = df_orcamentos_casa.groupby(['Ano_Orcamento', 'Mes_Orcamento'])['Valor_Orcamento'].sum().reset_index()
-        orcamentos_casa_mensais['Data_Comparacao'] = pd.to_datetime(
-            orcamentos_casa_mensais['Ano_Orcamento'].astype(str) + '-' + 
-            orcamentos_casa_mensais['Mes_Orcamento'].astype(str).str.zfill(2) + '-01'
-        )
-        
-        # Agrupando faturamento por mês para esta casa
-        faturamento_casa_mensais = df_faturamento_casa.groupby('Ano_Mes')['Valor_Bruto'].sum().reset_index()
-        faturamento_casa_mensais['Data_Comparacao'] = pd.to_datetime(
-            faturamento_casa_mensais['Ano_Mes'] + '-01'
-        )
-        
-        # Merge dos dados para comparação desta casa
-        df_comparacao_casa = pd.merge(
-            orcamentos_casa_mensais[['Data_Comparacao', 'Valor_Orcamento']],
-            faturamento_casa_mensais[['Data_Comparacao', 'Valor_Bruto']],
-            on='Data_Comparacao',
-            how='outer'
-        ).fillna(0)
-        
-        # Calculando percentual realizado para esta casa
-        df_comparacao_casa['Percentual_Realizado'] = df_comparacao_casa.apply(
-            lambda row: (row['Valor_Bruto'] / row['Valor_Orcamento'] * 100) if row['Valor_Orcamento'] != 0 else 0, 
-            axis=1
-        ).fillna(0)
-        
-        # Calculando métricas para esta casa
-        total_orcado_casa = df_comparacao_casa['Valor_Orcamento'].sum()
-        total_realizado_casa = df_comparacao_casa['Valor_Bruto'].sum()
-        percentual_medio_casa = df_comparacao_casa['Percentual_Realizado'].mean()
-        
-        # Calculando fator de ajuste para esta casa
-        if percentual_medio_casa > 0:
-            fator_ajuste_casa = min(percentual_medio_casa / 100, 1.0)
-        else:
-            fator_ajuste_casa = 1.0
-        
-        # Classificando performance
-        if percentual_medio_casa >= 110:
-            classificacao = "🟢 Excelente"
-            cor_classificacao = "green"
-        elif percentual_medio_casa >= 100:
-            classificacao = "🟡 Boa"
-            cor_classificacao = "orange"
-        elif percentual_medio_casa >= 90:
-            classificacao = "🟠 Atenção"
-            cor_classificacao = "red"
-        else:
-            classificacao = "🔴 Crítica"
-            cor_classificacao = "darkred"
-        
-        # Adicionando à lista de fatores
-        fatores_por_casa.append({
-            'Casa': casa,
-            'Total_Orcado': total_orcado_casa,
-            'Total_Realizado': total_realizado_casa,
-            'Percentual_Realizado': percentual_medio_casa,
-            'Fator_Ajuste': fator_ajuste_casa,
-            'Classificacao': classificacao,
-            'Meses_Analisados': len(df_comparacao_casa)
-        })
-    else:
-        # Caso não haja dados suficientes
-        fatores_por_casa.append({
-            'Casa': casa,
-            'Total_Orcado': 0,
-            'Total_Realizado': 0,
-            'Percentual_Realizado': 0,
-            'Fator_Ajuste': 1.0,
-            'Classificacao': "⚪ Sem dados",
-            'Meses_Analisados': 0
-        })
+            # Caso não haja dados suficientes
+            fatores_por_casa.append({
+                'Casa': casa_label,
+                'Total_Orcado': 0,
+                'Total_Realizado': 0,
+                'Percentual_Realizado': 0,
+                'Fator_Ajuste': 1.0,
+                'Classificacao': "⚪ Sem dados",
+                'Meses_Analisados': 0
+            })
 
 # Criando DataFrame com os fatores
 df_fatores_ajuste = pd.DataFrame(fatores_por_casa)
@@ -1814,20 +1785,19 @@ if not df_fatores_ajuste.empty:
     st.markdown("**📋 Resumo dos Fatores de Ajuste por Casa**")
     st.caption(f"Período de análise: {data_inicio_analise.strftime('%d/%m/%Y')} a {data_limite_analise.strftime('%d/%m/%Y')}")
     
-    fatores_aggrid = component_plotDataframe_aggrid(
+    fatores_aggrid, tam_fatores_aggrid = dataframe_aggrid(
         df=df_fatores_display,
         name="Fatores de Ajuste por Casa",
         num_columns=["Total Orçado", "Total Realizado"],
-        percent_columns=["Realizado/Orçado (%)"],
-        df_details=None,
-        coluns_merge_details=None,
-        coluns_name_details=None
+        percent_columns=["Realizado/Orçado (%)"]
     )
     
     function_copy_dataframe_as_tsv(fatores_aggrid)
+
+    st.divider()
     
     # Métricas resumidas
-    st.markdown("**📊 Métricas Gerais**")
+    st.subheader(":material/heap_snapshot_large: Métricas gerais")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -1847,6 +1817,8 @@ if not df_fatores_ajuste.empty:
         casas_criticas = len(df_fatores_ajuste[df_fatores_ajuste['Percentual_Realizado'] < 90])
         st.metric("Casas Críticas", f"{casas_criticas}/{total_casas}")
     
+    st.divider()
+
     # Legenda das classificações
     st.markdown("**📝 Legenda das Classificações:**")
     st.markdown("""

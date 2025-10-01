@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
-from datetime import timedelta
 import calendar
-import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from utils.functions.general_functions_conciliacao import *
@@ -75,7 +73,7 @@ col_casas, col_botao = st.columns([4, 1])
 
 with col_casas:
     # Usando session_state se disponível, senão usa o valor padrão
-    default_casas = st.session_state.get('casas_selecionadas', [casas[0]] if casas else [])
+    default_casas = st.session_state.get('casas_selecionadas', [casas[1]] if casas else []) # default: Arcos
     casas_selecionadas = st.multiselect("Casas", casas, default=default_casas, placeholder='Selecione casas', key="casas_multiselect")
 
 with col_botao:
@@ -174,11 +172,27 @@ st.divider()
 ## Parcelas Receitas Extraordinárias
 st.subheader("Parcelas Receitas Extraordinárias")
 df_parc_receit_extr_filtrada = filtra_df(df_parc_receit_extr, 'Recebimento_Parcela', ids_casas_selecionadas, start_date, end_date)
-df_parc_receit_extr_filtrada = df_parc_receit_extr_filtrada[['ID_Receita','ID_Casa','Casa','Cliente','Data_Ocorrencia','Vencimento_Parcela','Recebimento_Parcela','Valor_Parcela','Classif_Receita','Status_Pgto','Observacoes']]
+
+df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada.copy()
+df_parc_receit_extr_filtrada_copia["Recebimento_Parcela"] = pd.to_datetime(df_parc_receit_extr_filtrada_copia["Recebimento_Parcela"], errors="coerce")
+df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada_copia[
+    ~(
+        (df_parc_receit_extr_filtrada_copia["Classif_Receita"].str.lower() == "eventos") &
+        (df_parc_receit_extr_filtrada_copia["Recebimento_Parcela"].dt.month >= 9)
+    )
+]
+
+df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada_copia[['ID_Receita','ID_Casa','Casa','Cliente','Data_Ocorrencia','Vencimento_Parcela','Recebimento_Parcela','Valor_Parcela','Classif_Receita','Status_Pgto','Observacoes']]
+
+# df_excluidos = df_parc_receit_extr_filtrada[
+#         (df_parc_receit_extr_filtrada["Classif_Receita"].str.lower() == "eventos") &
+#         (df_parc_receit_extr_filtrada["Recebimento_Parcela"].dt.month >= 9)
+#     ]
+
 
 # Exibe df com aggrid
 df_parc_receit_extr_filtrada_aggrid, tam_df_parc_receit_extr_filtrada_aggrid = dataframe_aggrid(
-    df=df_parc_receit_extr_filtrada,
+    df=df_parc_receit_extr_filtrada_copia,
     name="Parcelas Receitas Extraordinárias",
     num_columns=["Valor_Parcela"],     
     date_columns=['Data_Ocorrencia', 'Vencimento_Parcela', 'Recebimento_Parcela']              
@@ -350,11 +364,10 @@ function_copy_dataframe_as_tsv(df_saidas_mutuos_filtrada_aggrid)
 
 st.divider()
 
-
 # Preparando dados para os gráficos - Fluxo de Caixa por Mês e Fluxo Líquido por Mês
 df_consolidado = prepare_monthly_data(
     df_extrato_zig_filtrada, 
-    df_parc_receit_extr_filtrada, 
+    df_parc_receit_extr_filtrada_copia, 
     df_eventos_filtrada, 
     df_desbloqueios_filtrada,
     df_custos_blueme_sem_parcelam_filtrada,
@@ -363,7 +376,7 @@ df_consolidado = prepare_monthly_data(
 )
 
 ## Gráfico Consolidado - Fluxo de Caixa por Mês
-st.subheader("📊 Fluxo de Caixa Consolidado por Mês")
+st.subheader("Fluxo de Caixa Consolidado por Mês")
 
 # Criando o gráfico
 try:
@@ -384,13 +397,13 @@ try:
                 valores.append(valor)
                 
             if tipo == 'Extrato Zig': 
-                cor = "#0F3F24" 
+                cor = "#245b3b" 
                 name = 'Receitas - Extrato Zig'
             if tipo == 'Extraordinária': 
-                cor = "#1F7544"
+                cor = "#2e8b57"
                 name = 'Receitas Extraordinárias'
             if tipo == 'Eventos': 
-                cor = "#36A867"
+                cor = "#9ac5a8"
                 name = 'Receitas - Eventos'
             if tipo == 'Desbloqueios': 
                 cor = '#32CD32'
@@ -414,13 +427,13 @@ try:
                 valores.append(valor)
             
             if tipo == 'Sem Parcelamento': 
-                cor = "#82001A" 
+                cor = "#b51b33" 
                 name = 'Despesas Sem Parcelamento'
             if tipo == 'Com Parcelamento': 
-                cor = '#DC143C'
+                cor = '#e95159'
                 name = 'Despesas Com Parcelamento'
             if tipo == 'Bloqueios': 
-                cor = "#F98F7D"
+                cor = "#fa9b98"
                 name = 'Despesas - Bloqueios Judiciais'
 
             fig.add_trace(go.Bar(
@@ -466,21 +479,20 @@ except Exception as e:
 st.divider()        
 
 ## Gráfico Consolidado - Fluxo Líquido por Mês
-st.subheader("📈 Fluxo Líquido por Mês")
+st.subheader("Fluxo Líquido por Mês")
 
 # Calculando fluxo líquido
 receitas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Receitas'].groupby('Mes_Ano_Str')['Valor'].sum()
 despesas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Despesas'].groupby('Mes_Ano_Str')['Valor'].sum()
 
-fluxo_liquido = pd.DataFrame({
-    'Mes_Ano_Str': receitas_mensais.index,
-    'Receitas': receitas_mensais.values,
-    'Despesas': despesas_mensais.values
-})
+fluxo_liquido = pd.concat(
+    [receitas_mensais.rename("Receitas"), despesas_mensais.rename("Despesas")],
+    axis=1
+).fillna(0).reset_index()
 
 fluxo_liquido['Fluxo_Liquido'] = fluxo_liquido['Receitas'] - fluxo_liquido['Despesas']
-fluxo_liquido['Receitas'] = fluxo_liquido['Receitas'].fillna(0)
-fluxo_liquido['Despesas'] = fluxo_liquido['Despesas'].fillna(0)
+# fluxo_liquido['Receitas'] = fluxo_liquido['Receitas'].fillna(0)
+# fluxo_liquido['Despesas'] = fluxo_liquido['Despesas'].fillna(0)
 
 # Gráfico de linha para fluxo líquido
 fig_liquido = go.Figure()
@@ -536,72 +548,43 @@ st.plotly_chart(fig_liquido, use_container_width=True)
 
 st.divider()
 
+
+# Resumo estatístico
+st.subheader(":material/heap_snapshot_large: Resumo Estatístico")
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+    total_receitas = df_consolidado[df_consolidado['Categoria'] == 'Receitas']['Valor'].sum()
+    st.metric("Total Receitas", f"R$ {total_receitas:,.2f}")
+
+with col2:
+    total_despesas = df_consolidado[df_consolidado['Categoria'] == 'Despesas']['Valor'].sum()
+    st.metric("Total Despesas", f"R$ {total_despesas:,.2f}")
+
+with col3:
+    fluxo_liquido_total = total_receitas - total_despesas
+    st.metric("Fluxo Líquido", f"R$ {fluxo_liquido_total:,.2f}")
+
+with col4:
+    if total_receitas > 0:
+        margem = (fluxo_liquido_total / total_receitas) * 100
+        st.metric("Margem (%)", f"{margem:.1f}%")
+    else:
+        st.metric("Margem (%)", "N/A")
+
+st.divider()
+
+
 # Tabela Dinâmica - Class_Cont_0 (Agrupamento)
-st.subheader("📊 Despesas por Classificação Contábil (Class_Cont_0)")
+st.subheader("Despesas por Classificação Contábil (Class_Cont_0)")
 
 # Preparando dados para Class_Cont_0
-def prepare_pivot_data_class0():
-    # Despesas - BlueMe Sem Parcelamento (aplicando filtro de data)
-    despesas_sem_parc = df_custos_blueme_sem_parcelam_filtrada.copy()
-    despesas_sem_parc["Realizacao_Pgto"] = pd.to_datetime(despesas_sem_parc["Realizacao_Pgto"], errors="coerce")
-    despesas_sem_parc = despesas_sem_parc[(despesas_sem_parc["Realizacao_Pgto"] >= start_date) & (despesas_sem_parc["Realizacao_Pgto"] <= end_date)]
-    despesas_sem_parc['Mes_Ano'] = despesas_sem_parc['Realizacao_Pgto'].dt.to_period('M')
-    despesas_sem_parc['Valor'] = (
-        despesas_sem_parc['Valor']
-        .astype(str)                 # garante que tudo é string
-        .str.replace('.', '', regex=False)  # remove pontos de milhar
-        .str.replace(',', '.', regex=False) # troca vírgula por ponto
-    )
-    despesas_sem_parc['Valor'] = pd.to_numeric(despesas_sem_parc['Valor'], errors='coerce')
-
-    
-    # Despesas - BlueMe Com Parcelamento (aplicando filtro de data)
-    despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
-    despesas_com_parc["Realiz_Parcela"] = pd.to_datetime(despesas_com_parc["Realiz_Parcela"], errors="coerce")
-    despesas_com_parc = despesas_com_parc[(despesas_com_parc["Realiz_Parcela"] >= start_date) & (despesas_com_parc["Realiz_Parcela"] <= end_date)]
-    despesas_com_parc['Mes_Ano'] = despesas_com_parc['Realiz_Parcela'].dt.to_period('M')
-    despesas_com_parc['Valor_Parcela'] = (
-    despesas_com_parc['Valor_Parcela']
-        .astype(str)                 # garante que tudo é string
-        .str.replace('.', '', regex=False)  # remove pontos de milhar
-        .str.replace(',', '.', regex=False) # troca vírgula por ponto
-    )
-    despesas_com_parc['Valor_Parcela'] = pd.to_numeric(despesas_com_parc['Valor_Parcela'], errors='coerce')
-
-
-    # Combinando dados
-    if not despesas_sem_parc.empty:
-        despesas_sem_parc_grouped = despesas_sem_parc.groupby(['Class_Cont_1', 'Mes_Ano'])['Valor'].sum().reset_index()
-    else:
-        despesas_sem_parc_grouped = pd.DataFrame(columns=['Class_Cont_1', 'Mes_Ano', 'Valor'])
-        
-    if not despesas_com_parc.empty:
-        despesas_com_parc_grouped = despesas_com_parc.groupby(['Class_Cont_1', 'Mes_Ano'])['Valor_Parcela'].sum().reset_index()
-        despesas_com_parc_grouped = despesas_com_parc_grouped.rename(columns={'Valor_Parcela': 'Valor'})
-    else:
-        despesas_com_parc_grouped = pd.DataFrame(columns=['Class_Cont_1', 'Mes_Ano', 'Valor'])
-    
-    # Combinando os resultados
-    all_despesas = pd.concat([despesas_sem_parc_grouped, despesas_com_parc_grouped], ignore_index=True)
-    
-    # Agrupando novamente para consolidar
-    if not all_despesas.empty:
-        despesas_consolidadas = all_despesas.groupby(['Class_Cont_1', 'Mes_Ano'])['Valor'].sum().reset_index()
-        
-        # Adicionando Class_Cont_0 baseado no mapeamento
-        despesas_consolidadas['Class_Cont_0'] = despesas_consolidadas['Class_Cont_1'].map(mapeamento_class_cont)
-        
-        # Para Class_Cont_1 não mapeadas, usar a própria Class_Cont_1
-        despesas_consolidadas['Class_Cont_0'] = despesas_consolidadas['Class_Cont_0'].fillna(despesas_consolidadas['Class_Cont_1'])
-        
-        # Agrupando por Class_Cont_0
-        despesas_class0 = despesas_consolidadas.groupby(['Class_Cont_0', 'Mes_Ano'])['Valor'].sum().reset_index()
-        return despesas_class0
-    else:
-        return pd.DataFrame()
-
-# Obtendo dados para Class_Cont_0
-df_class0_data = prepare_pivot_data_class0()
+df_class0_data = prepare_pivot_data_class(
+    df_custos_blueme_sem_parcelam_filtrada, 
+    df_custos_blueme_com_parcelam_filtrada, 
+    mapeamento_class_cont,
+    classe=0
+)
 
 if not df_class0_data.empty:
     # Criando tabela dinâmica para Class_Cont_0
@@ -636,88 +619,21 @@ if not df_class0_data.empty:
     # Botão para copiar dados de Class_Cont_0
     function_copy_dataframe_as_tsv(df_pivot_class0_aggrid)
     
-    st.markdown("---")
+    st.divider()
+
 
 # Tabela Dinâmica - Class_Cont_1 (Detalhamento)
-st.subheader("📊 Despesas por Classificação Contábil (Class_Cont_1)")
+st.subheader("Despesas por Classificação Contábil (Class_Cont_1)")
 
 # Preparando dados para a tabela dinâmica
-def prepare_pivot_data():
-    # Despesas - BlueMe Sem Parcelamento (aplicando filtro de data)
-    despesas_sem_parc = df_custos_blueme_sem_parcelam_filtrada.copy()
-    despesas_sem_parc['Realizacao_Pgto'] = pd.to_datetime(despesas_sem_parc['Realizacao_Pgto'], errors='coerce')
-    despesas_sem_parc = despesas_sem_parc[(despesas_sem_parc["Realizacao_Pgto"] >= start_date) & (despesas_sem_parc["Realizacao_Pgto"] <= end_date)]
-    despesas_sem_parc['Mes_Ano'] = despesas_sem_parc['Realizacao_Pgto'].dt.to_period('M')
-    despesas_sem_parc['Valor'] = (
-    despesas_sem_parc['Valor']
-        .astype(str)                 # garante que tudo é string
-        .str.replace('.', '', regex=False)  # remove pontos de milhar
-        .str.replace(',', '.', regex=False) # troca vírgula por ponto
-    )
-    despesas_sem_parc['Valor'] = pd.to_numeric(despesas_sem_parc['Valor'], errors='coerce')
-
-    
-    # Despesas - BlueMe Com Parcelamento (aplicando filtro de data)
-    despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
-    despesas_com_parc["Realiz_Parcela"] = pd.to_datetime(despesas_com_parc["Realiz_Parcela"], errors="coerce")
-    despesas_com_parc = despesas_com_parc[(despesas_com_parc["Realiz_Parcela"] >= start_date) & (despesas_com_parc["Realiz_Parcela"] <= end_date)]
-    despesas_com_parc['Mes_Ano'] = despesas_com_parc['Realiz_Parcela'].dt.to_period('M')
-    despesas_com_parc['Valor_Parcela'] = (
-    despesas_com_parc['Valor_Parcela']
-        .astype(str)                 # garante que tudo é string
-        .str.replace('.', '', regex=False)  # remove pontos de milhar
-        .str.replace(',', '.', regex=False) # troca vírgula por ponto
-    )
-    despesas_com_parc['Valor_Parcela'] = pd.to_numeric(despesas_com_parc['Valor_Parcela'], errors='coerce')
-
-    
-    # Combinando dados
-    if not despesas_sem_parc.empty:
-        despesas_sem_parc_grouped = despesas_sem_parc.groupby(['Class_Cont_1', 'Mes_Ano'])['Valor'].sum().reset_index()
-    else:
-        despesas_sem_parc_grouped = pd.DataFrame(columns=['Class_Cont_1', 'Mes_Ano', 'Valor'])
-        
-    if not despesas_com_parc.empty:
-        despesas_com_parc_grouped = despesas_com_parc.groupby(['Class_Cont_1', 'Mes_Ano'])['Valor_Parcela'].sum().reset_index()
-        despesas_com_parc_grouped = despesas_com_parc_grouped.rename(columns={'Valor_Parcela': 'Valor'})
-    else:
-        despesas_com_parc_grouped = pd.DataFrame(columns=['Class_Cont_1', 'Mes_Ano', 'Valor'])
-    
-
-    # Combinando os resultados
-    all_despesas = pd.concat([despesas_sem_parc_grouped, despesas_com_parc_grouped], ignore_index=True)
-    
-    # Agrupando novamente para consolidar
-    if not all_despesas.empty:
-        despesas_consolidadas = all_despesas.groupby(['Class_Cont_1', 'Mes_Ano'])['Valor'].sum().reset_index()
-        
-        # Criando tabela dinâmica usando pivot
-        pivot_table = despesas_consolidadas.pivot(
-            index='Class_Cont_1',
-            columns='Mes_Ano',
-            values='Valor'
-        ).fillna(0)
-        
-        # Convertendo índices de coluna para string
-        pivot_table.columns = pivot_table.columns.astype(str)
-        
-        # Adicionando coluna de total
-        pivot_table['Total'] = pivot_table.sum(axis=1)
-        
-        # Ordenando por total (maior para menor)
-        pivot_table = pivot_table.sort_values('Total', ascending=False)
-        
-        # Resetando o índice para incluir Class_Cont_1 como coluna
-        pivot_table = pivot_table.reset_index()
-        
-        return pivot_table
-    else:
-        return pd.DataFrame()
+pivot_table = prepare_pivot_data_class(
+    df_custos_blueme_sem_parcelam_filtrada, 
+    df_custos_blueme_com_parcelam_filtrada, 
+    mapeamento_class_cont, 
+    classe=1)
 
 # Criando a tabela dinâmica
-try:
-    pivot_table = prepare_pivot_data()
-    
+try:   
     if not pivot_table.empty:
         # Separando colunas numéricas das de texto
         colunas_numericas = [col for col in pivot_table.columns if col != 'Class_Cont_1']
@@ -733,63 +649,14 @@ try:
         function_copy_dataframe_as_tsv(df_pivot_aggrid)
         
         # Tabela Dinâmica - Detalhamento por Class_Cont_2
-        st.subheader("📋 Detalhamento por Subclassificação Contábil")
-        
+        st.subheader(":material/arrow_downward: Detalhamento por Subclassificação Contábil")
+      
         # Preparando dados para Class_Cont_2
-        def prepare_pivot_data_class2():
-            # Despesas - BlueMe Sem Parcelamento (aplicando filtro de data)
-            despesas_sem_parc = df_custos_blueme_sem_parcelam_filtrada.copy()
-            despesas_sem_parc["Realizacao_Pgto"] = pd.to_datetime(despesas_sem_parc["Realizacao_Pgto"], errors="coerce")
-            despesas_sem_parc = despesas_sem_parc[(despesas_sem_parc["Realizacao_Pgto"] >= start_date) & (despesas_sem_parc["Realizacao_Pgto"] <= end_date)]
-            despesas_sem_parc['Mes_Ano'] = despesas_sem_parc['Realizacao_Pgto'].dt.to_period('M')
-            despesas_sem_parc['Valor'] = (
-            despesas_sem_parc['Valor']
-                .astype(str)                 # garante que tudo é string
-                .str.replace('.', '', regex=False)  # remove pontos de milhar
-                .str.replace(',', '.', regex=False) # troca vírgula por ponto
-            )
-            despesas_sem_parc['Valor'] = pd.to_numeric(despesas_sem_parc['Valor'], errors='coerce')
-
-            
-            # Despesas - BlueMe Com Parcelamento (aplicando filtro de data)
-            despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
-            despesas_com_parc["Realiz_Parcela"] = pd.to_datetime(despesas_com_parc["Realiz_Parcela"], errors="coerce")
-            despesas_com_parc = despesas_com_parc[(despesas_com_parc["Realiz_Parcela"] >= start_date) & (despesas_com_parc["Realiz_Parcela"] <= end_date)]
-            despesas_com_parc['Mes_Ano'] = despesas_com_parc['Realiz_Parcela'].dt.to_period('M')
-            despesas_com_parc['Valor_Parcela'] = (
-            despesas_com_parc['Valor_Parcela']
-                .astype(str)                 # garante que tudo é string
-                .str.replace('.', '', regex=False)  # remove pontos de milhar
-                .str.replace(',', '.', regex=False) # troca vírgula por ponto
-            )
-            despesas_com_parc['Valor_Parcela'] = pd.to_numeric(despesas_com_parc['Valor_Parcela'], errors='coerce')
-
-            
-            # Combinando dados
-            if not despesas_sem_parc.empty:
-                despesas_sem_parc_grouped = despesas_sem_parc.groupby(['Class_Cont_1', 'Class_Cont_2', 'Mes_Ano'])['Valor'].sum().reset_index()
-            else:
-                despesas_sem_parc_grouped = pd.DataFrame(columns=['Class_Cont_1', 'Class_Cont_2', 'Mes_Ano', 'Valor'])
-                
-            if not despesas_com_parc.empty:
-                despesas_com_parc_grouped = despesas_com_parc.groupby(['Class_Cont_1', 'Class_Cont_2', 'Mes_Ano'])['Valor_Parcela'].sum().reset_index()
-                despesas_com_parc_grouped = despesas_com_parc_grouped.rename(columns={'Valor_Parcela': 'Valor'})
-            else:
-                despesas_com_parc_grouped = pd.DataFrame(columns=['Class_Cont_1', 'Class_Cont_2', 'Mes_Ano', 'Valor'])
-
-    
-            # Combinando os resultados
-            all_despesas = pd.concat([despesas_sem_parc_grouped, despesas_com_parc_grouped], ignore_index=True)
-            
-            # Agrupando novamente para consolidar
-            if not all_despesas.empty:
-                despesas_consolidadas = all_despesas.groupby(['Class_Cont_1', 'Class_Cont_2', 'Mes_Ano'])['Valor'].sum().reset_index()
-                return despesas_consolidadas
-            else:
-                return pd.DataFrame()
-        
-        # Obtendo dados para Class_Cont_2
-        df_class2_data = prepare_pivot_data_class2()
+        df_class2_data = prepare_pivot_data_class(
+            df_custos_blueme_sem_parcelam_filtrada, 
+            df_custos_blueme_com_parcelam_filtrada, 
+            mapeamento_class_cont, 
+            classe=2)
         
         if not df_class2_data.empty:
             # Obtendo lista de Class_Cont_1 disponíveis
@@ -797,10 +664,11 @@ try:
             
             # Selectbox para escolher a classificação
             classificacao_selecionada = st.selectbox(
-                "Selecione a Classificação Contábil para ver os detalhes:",
+                "Selecione uma Classificação Contábil da tabela acima para ver os detalhes:",
                 classificacoes_disponiveis,
                 index=0
             )
+            st.write("")
             
             # Filtrando dados para a classificação selecionada
             df_class2_filtrado = df_class2_data[df_class2_data['Class_Cont_1'] == classificacao_selecionada]
@@ -842,7 +710,6 @@ try:
                 st.warning(f"Não há dados de subclassificação disponíveis para {classificacao_selecionada}")
         else:
             st.warning("Não há dados de subclassificação disponíveis para o período e casas selecionadas.")
-        
     else:
         st.warning("Não há dados de despesas disponíveis para o período e casas selecionadas.")
         
@@ -851,76 +718,20 @@ except Exception as e:
 
 st.divider()
 
-# Resumo estatístico
-st.subheader("📋 Resumo Estatístico")
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    total_receitas = df_consolidado[df_consolidado['Categoria'] == 'Receitas']['Valor'].sum()
-    st.metric("Total Receitas", f"R$ {total_receitas:,.2f}")
-
-with col2:
-    total_despesas = df_consolidado[df_consolidado['Categoria'] == 'Despesas']['Valor'].sum()
-    st.metric("Total Despesas", f"R$ {total_despesas:,.2f}")
-
-with col3:
-    fluxo_liquido_total = total_receitas - total_despesas
-    st.metric("Fluxo Líquido", f"R$ {fluxo_liquido_total:,.2f}")
-
-with col4:
-    if total_receitas > 0:
-        margem = (fluxo_liquido_total / total_receitas) * 100
-        st.metric("Margem (%)", f"{margem:.1f}%")
-    else:
-        st.metric("Margem (%)", "N/A")
 
 # Tabela de Referência - Mapeamento Class_Cont_0 ↔ Class_Cont_1
-st.markdown("---")
-st.subheader("📋 Tabela de Referência - Mapeamento de Classificações")
+st.subheader("Tabela de Referência - Mapeamento de Classificações")
 st.write("Mapeamento Class_Cont_0 ↔ Class_Cont_1")
 
 # Criando DataFrame de referência
-def create_mapping_reference():
-    # Criando lista de mapeamentos
-    mapping_list = []
-    for class_cont_1, class_cont_0 in mapeamento_class_cont.items():
-        mapping_list.append({
-            'Class_Cont_0': class_cont_0,
-            'Class_Cont_1': class_cont_1,
-            'Status': 'Mapeado'
-        })
-    
-    # Verificando Class_Cont_1 que aparecem nos dados mas não estão mapeadas
-    all_class_cont_1 = set()
-    
-    # Despesas sem parcelamento
-    if not df_custos_blueme_sem_parcelam_filtrada.empty:
-        # Filtrando valores não nulos
-        class_cont_1_sem_parc = df_custos_blueme_sem_parcelam_filtrada['Class_Cont_1'].dropna().unique()
-        all_class_cont_1.update(class_cont_1_sem_parc)
-    
-    # Despesas com parcelamento
-    if not df_custos_blueme_com_parcelam_filtrada.empty:
-        # Filtrando valores não nulos
-        class_cont_1_com_parc = df_custos_blueme_com_parcelam_filtrada['Class_Cont_1'].dropna().unique()
-        all_class_cont_1.update(class_cont_1_com_parc)
-    
-    # Verificando quais não estão mapeadas
-    unmapped = all_class_cont_1 - set(mapeamento_class_cont.keys())
-    
-    for class_cont_1 in sorted(unmapped):
-        mapping_list.append({
-            'Class_Cont_0': class_cont_1,  # Usa a própria Class_Cont_1
-            'Class_Cont_1': class_cont_1,
-            'Status': 'Não Mapeado'
-        })
-    
-    return pd.DataFrame(mapping_list)
+df_mapping_ref = create_mapping_reference(
+    mapeamento_class_cont, 
+    df_custos_blueme_sem_parcelam_filtrada, 
+    df_custos_blueme_com_parcelam_filtrada
+)
 
 # Criando e exibindo tabela de referência
 try:
-    df_mapping_ref = create_mapping_reference()
-    
     if not df_mapping_ref.empty:
         # Ordenando por Class_Cont_0 e depois por Class_Cont_1
         # Tratando valores None na ordenação
@@ -938,7 +749,7 @@ try:
         st.divider()
         
         # Resumo estatístico
-        st.subheader("📋 Resumo Estatístico")
+        st.subheader(":material/heap_snapshot_large: Resumo Estatístico")
         total_mapped = len(df_mapping_ref[df_mapping_ref['Status'] == 'Mapeado'])
         total_unmapped = len(df_mapping_ref[df_mapping_ref['Status'] == 'Não Mapeado'])
         
