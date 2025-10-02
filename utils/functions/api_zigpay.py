@@ -14,8 +14,8 @@ def get_compradores_zigpay_api(data_inicio, data_fim, id_zigpay):
     df = pd.DataFrame()
     
     params = {          
-        "dtinicio": f"{data_inicio}",
-        "dtfim": f"{data_fim}",
+        "dtinicio": pd.to_datetime(data_inicio).strftime("%Y-%m-%dT%H:%M:%S"),
+        "dtfim": pd.to_datetime(data_fim).strftime("%Y-%m-%dT%H:%M:%S"),
         "loja": f"{id_zigpay}"
     }
     response = requests.get(url, headers=headers, params=params)
@@ -43,8 +43,8 @@ def df_compradores_zigpay_mes(mes, ano, id_zigpay):
 
     df = pd.DataFrame()
     for data in pd.date_range(start=data_inicio, end=data_fim, freq='4D'):
-        data_inicio_requisicao = data.strftime("%Y-%m-%d")
-        data_fim_requisicao = (data + pd.DateOffset(days=3)).strftime("%Y-%m-%d")
+        data_inicio_requisicao = data
+        data_fim_requisicao = (data + pd.DateOffset(days=3))
         get_compradores_zigpay_api(data_inicio_requisicao, data_fim_requisicao, id_zigpay)
         df = pd.concat([df, get_compradores_zigpay_api(data_inicio_requisicao, data_fim_requisicao, id_zigpay)], ignore_index=True)
 

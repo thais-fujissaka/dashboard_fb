@@ -50,7 +50,7 @@ with seletores_container:
 # Obtendo os dados de transações e compradores
 df_transacoes = GET_TRANSACOES_PERIODO_HORARIO_DIA_DA_SEMANA(id_casa)
 df_compradores_zig = df_compradores_zigpay_mes(num_mes, ano, id_zigpay)
-
+st.dataframe(df_compradores_zig, use_container_width=True, hide_index=True)
 # Filtrando os dados de transações para o mês e ano selecionados
 df_transacoes = df_transacoes[
 	(df_transacoes["Ano"] == ano) & (df_transacoes["Mes"] == nome_mes)

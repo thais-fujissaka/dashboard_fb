@@ -59,6 +59,9 @@ def main():
 
   FaturamentoZig = config_Faturamento_zig(lojas_selecionadas, data_inicio, data_fim)
 
+  # Formatação de datas
+  FaturamentoZig = df_format_date_brazilian(FaturamentoZig, 'Data da Venda')
+
   with st.container(border=True):
     col0, col1, col2 = st.columns([1, 10, 1])
     with col1:
@@ -67,7 +70,7 @@ def main():
         st.subheader("Top 10 Alimentos:")
       with col2:
         st.markdown("*Sem delivery")
-      top_dez(FaturamentoZig, 'Alimentos')
+      top_dez(FaturamentoZig, 'Alimentos', key='top10alimentos')
 
   with st.container(border=True):
     col0, col1, col2 = st.columns([1, 10, 1])
@@ -77,7 +80,7 @@ def main():
         st.subheader("Top 10 Bebidas:")
       with col2:
         st.markdown("*Sem delivery")
-      top_dez(FaturamentoZig, 'Bebidas')
+      top_dez(FaturamentoZig, 'Bebidas', key='top10bebidas')
 
   with st.container(border=True):
     col0, col1, col2 = st.columns([1, 10, 1])

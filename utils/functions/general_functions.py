@@ -244,6 +244,7 @@ def mostrar_menu_permissoes_produto(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## Produtos")
         st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
+        st.sidebar.page_link("pages/Produto - Relatório de Vendas.py", label=":material/restaurant: Relatório de Vendas")
     if "Acesso Produtos 1" in permissoes:
         st.sidebar.markdown("## Produtos")
         st.sidebar.page_link("pages/Produto - Análise de Consumo.py", label=":material/restaurant: Análise de Consumo")
