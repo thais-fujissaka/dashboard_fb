@@ -24,8 +24,6 @@ def config_Faturamento_zig(lojas_selecionadas, data_inicio, data_fim):
     'Valor Bruto Venda': 'Valor Bruto Venda', 'Desconto': 'Desconto', 'Valor Líquido Venda': 'Valor Líquido Venda',
     'Categoria': 'Categoria', 'Tipo': 'Tipo'
   })
-  # Formatação de datas
-  FaturamentoZig = df_format_date_brazilian(FaturamentoZig, 'Data da Venda')
 
   return FaturamentoZig
 
@@ -129,7 +127,7 @@ def config_orcamento_faturamento(lojas_selecionadas, data_inicio, data_fim):
 
 
 
-def top_dez(dataframe, categoria):
+def top_dez(dataframe, categoria, key):
   df = dataframe[dataframe['Categoria'] == categoria]
 
   # Agrupar por ID Produto
@@ -193,6 +191,7 @@ def top_dez(dataframe, categoria):
     },
     disabled=True,
     hide_index=True,
+    key=key
   )
 
 
@@ -258,6 +257,7 @@ def vendas_agrupadas(dataframe):
     },
     disabled=True,
     hide_index=True,
+    key='vendas_agrupadas'
   )
 
   return AgrupadoSorted
@@ -322,6 +322,7 @@ def vendas_agrupadas_por_tipo(dataframe):
     },
     disabled=True,
     hide_index=True,
+    key = 'tabela_vendas_agrupadas_por_tipo'
   )
 
   return AgrupadoSorted
