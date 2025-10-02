@@ -2,6 +2,7 @@ import streamlit as st
 from utils.components import *
 from utils.functions.date_functions import *
 from utils.functions.general_functions import *
+from utils.functions.atualizar_faturamento_agregado_dia import *
 from utils.user import *
 from utils.functions.cmv_teorico import *
 from utils.queries_cmv import *
@@ -20,7 +21,12 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 def main():
     # Sidebar
     config_sidebar()
-    col1, col2, col3 = st.columns([6, 1, 1])
+
+    # Permissão para atualizar a tabela de faturamento diário agregado
+    permissoes, user_name, email = config_permissoes_user()
+
+    # Header
+    col1, col2, col3 = st.columns([6, 1, 1], vertical_alignment="center")
     with col1:
         st.title(":material/rubric: CMV Teórico")
     with col2:
@@ -31,29 +37,24 @@ def main():
     st.divider()
 
     # Seletores
-    col_casa, col_mes, col_ano = st.columns([1, 1, 1])
+    col_casa, col_mes, col_ano, col_periodo = st.columns([1, 1, 1, 1])
     with col_casa:
         lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas']
         id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, 'selecao_casa')
     with col_mes:
-        #periodo = input_periodo_datas(key='data_inicio')
         nome_mes, mes = seletor_mes_produtos('mes', 'Mês de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')
     with col_ano:
         ano = seletor_ano(2024, 2025, 'ano', 'Ano de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')
+    with col_periodo:
+        periodo = input_periodo_datas(key='datas')
+        
+    try:
+        data_inicio = pd.to_datetime(periodo[0])
+        data_fim = pd.to_datetime(periodo[1])
+    except:
+        st.warning('Selecione um período de datas.')
 
     st.divider()
-
-    # PREÇO DOS ITENS VENDIDOS
-    # 1. Dados dos itens vendidos (A&B), sem considerar o desconto
-
-    # FICHAS TÉCNICAS - Custo do item vendido
-    # 2. Dados dos insumos de estoque das fichas técnicas (por casa)
-        # Para cada insumo de estoque, calcular uma média de preços de compra e de estoque
-
-    # 3. Dados dos insumos de produção das fichas técnicas (por casa)
-        # Para cada insumo de produção, visualizar os insumos de estoque necessários para produzir o insumo de produção
-
-    # 4. Chegar no Custo Unit. do Produto pelo custo dos insumos (estoque + produção)
     
     ### FICHAS TÉCNICAS - ITENS VENDIDOS PARA INSUMOS DE ESTOQUE E PRODUÇÃO
     # dataframe com as quantidades de insumos de estoque para cada ITEM VENDIDO
@@ -137,9 +138,43 @@ def main():
     df_precos_itens_vendidos_download = df_precos_itens_vendidos.copy()
 
     df_precos_insumos_producao = df_precos_insumos_producao.drop(columns={'Produção?'})
-    df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item'])
 
+    # Tabela de faturamento
+    df_itens_vendidos_dia = GET_FATURAMENTO_ITENS_VENDIDOS_DIA()
+
+    # Formatação de dados
+    df_itens_vendidos_dia['Data Venda'] = pd.to_datetime(df_itens_vendidos_dia['Data Venda'], errors='coerce')
     
+    df_itens_vendidos_dia = df_itens_vendidos_dia[(df_itens_vendidos_dia['Data Venda'] >= data_inicio) & (df_itens_vendidos_dia['Data Venda'] <= data_fim)]
+    df_itens_vendidos_dia = df_itens_vendidos_dia.sort_values(by=['ID Casa', 'Product ID'], ascending=False)
+    df_itens_vendidos_dia = df_itens_vendidos_dia.groupby(
+        ['ID Casa', 'Casa', 'Product ID', 'ID Item Zig', 'Item Vendido Zig']).aggregate({
+            'ID Casa': 'first',
+            'Casa': 'first',
+            'Product ID': 'first',
+            'ID Item Zig': 'first',
+            'Item Vendido Zig': 'first',
+            'Data Venda': 'first',
+            'Valor Unitário': 'first',
+            'Quantidade': 'sum',
+            'Faturamento': 'sum',
+            'Desconto': 'sum'
+        })
+    df_itens_vendidos_dia = df_itens_vendidos_dia[df_itens_vendidos_dia['ID Casa'] == id_casa]
+    tipos_dados_itens_vendidos_dia = {
+        'Valor Unitário': float,
+        'Quantidade': float,
+        'Desconto': float,
+        'Faturamento': float
+    }
+    df_itens_vendidos_dia = df_itens_vendidos_dia.astype(tipos_dados_itens_vendidos_dia, errors='ignore')
+
+    # Merge faturamento com custos das fichas
+    df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
+    df_precos_itens_vendidos['% CMV'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário']) * 100
+    df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento', 'Desconto'])
+
+
     col1, col2 = st.columns([3, 1], vertical_alignment='center', gap='large')
     with col1:
         st.markdown(f'## CMV - Custo Itens Vendidos ({casa})')
@@ -151,14 +186,13 @@ def main():
         col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='center', gap='large')
         with col2:
             # Filtro por prato
-            df_lista_produtos = pd.DataFrame(df_precos_itens_vendidos['ID Item Zig'].unique())
-            df_lista_produtos['ID - Produto'] = df_precos_itens_vendidos['ID Item Zig'].astype(str) + ' - ' + df_precos_itens_vendidos['Item Vendido Zig']
+            df_lista_produtos = pd.DataFrame(df_precos_itens_vendidos['ID Item Zig'].round(0).astype(int).unique())
+            df_lista_produtos['ID - Produto'] = df_precos_itens_vendidos['ID Item Zig'].round(0).astype(int).astype(str) + ' - ' + df_precos_itens_vendidos['Item Vendido Zig']
             lista_produtos = df_lista_produtos['ID - Produto'].unique().tolist()
             produto_selecionado = st.selectbox('Selecionar Produto', lista_produtos, key='selecionar_produto')
             id_produto_selecionado = int(float(produto_selecionado.split(' - ')[0]))
 
 
-            #
             ordem_col = ['ID Casa', 'Casa', 'ID Item Zig', 'Item Vendido Zig', 'ID Ficha Técnica', 'ID Insumo', 'Insumo', 'Quantidade na Ficha', 'Unidade Medida', 'Custo Item']
             df_fichas_itens_vendidos = df_fichas_itens_vendidos[df_fichas_itens_vendidos['ID Item Zig'] == id_produto_selecionado]
             lista_ids_e_insumos_utilizados = df_fichas_itens_vendidos[['ID Insumo', 'Insumo']].to_dict('records')
@@ -182,7 +216,6 @@ def main():
             df_precos_itens_producao_completo = format_columns_brazilian(df_precos_itens_producao_completo, ['Custo Ficha', 'Custo Item Produzido'])
             df_precos_insumos_producao = format_columns_brazilian(df_precos_insumos_producao, ['Preço Médio Insumo Estoque', 'Custo Ficha'])
 
-        
             col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
             with col1:
                 st.markdown(f'## Ficha Técnica - {produto_selecionado}')
@@ -211,5 +244,18 @@ def main():
                 button_download(df_precos_insumos_producao_download, f'fichas_prod{casa}', f'fichas_prod_{casa}')
             st.dataframe(df_precos_insumos_producao, use_container_width=True, hide_index=True)
     
+    # if 'Dev Dash FB' in permissoes:
+    #     with st.container(border=True):
+    #         col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='bottom', gap='large')
+    #         with col2:
+    #             st.markdown('## Atualizar Faturamento Diário Agregado')
+    #             st.write('')
+    #             col1, col2, col3 = st.columns([2, 1, 1], vertical_alignment='bottom')
+    #             with col1:
+    #                 periodo_atualizar = input_periodo_datas(key='atualizar_itens_vendidos_dia', label='Período de Atualização da T_ITENS_VENDIDOS_DIA')
+    #                 data_inicio_atualizar, data_fim_atualizar = periodo_atualizar
+    #             with col2:
+    #                 st.button(label='Atualizar Faturamento Diário Agregado', use_container_width=True, type='primary',key='atualizar_faturamento', on_click=lambda: atualizar_faturam_agregado_dia(data_inicio_atualizar, data_fim_atualizar), help=f'Popula a T_ITENS_VENDIDOS_DIA com faturamento agregado da semana anterior. **Uso restrito da área de Controladoria**.')
+        
 if __name__ == '__main__':
     main()
