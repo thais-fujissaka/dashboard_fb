@@ -19,6 +19,9 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 
 
 def grafico_linhas_faturamento_tipos(df, coluna_soma: str, key):
+    
+    df = df.copy()
+
     # Mapeamento de inglês → abreviado em português sem acento
     dias_semana_abrev = {
         "Monday": "Seg",
@@ -37,7 +40,7 @@ def grafico_linhas_faturamento_tipos(df, coluna_soma: str, key):
     df['Dia da Semana'] = df['Data_Evento'].dt.day_name().map(dias_semana_abrev)
 
     # Formatar rótulo Data + Dia
-    df['Data_Label'] = df['Data_Evento'].dt.strftime("%Y-%m-%d") + " (" + df['Dia da Semana'] + ")"
+    df.loc[:, 'Data_Label'] = df['Data_Evento'].dt.strftime("%Y-%m-%d") + " (" + df['Dia da Semana'] + ")"
 
     df = df.groupby(['Data_Evento', 'Tipo', 'Data_Label']).agg({
       coluna_soma: 'sum',
@@ -133,15 +136,22 @@ def main():
   with col1:
     
     classificacoes_selecionadas = st.multiselect(label='Selecione Tipos', options=classificacoes)
+    FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZigClasse, 'Tipo', classificacoes_selecionadas)
     st.write('')
 
     st.subheader("Faturamento de Bebidas por Tipo:")
-    FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZigClasse, 'Tipo', classificacoes_selecionadas)
     grafico_linhas_faturamento_tipos(FaturamentoZigClasse, 'Valor Bruto Venda', 'grafico_linhas_faturamento_tipos')
     st.write('')
     st.subheader("Número de Vendas de Bebidas por Tipo:")
     grafico_linhas_faturamento_tipos(FaturamentoZigClasse, 'Quantia comprada', 'grafico_linhas_quantias_tipos')
 
+    col1, col2 = st.columns([4, 1], vertical_alignment = "center")
+    with col1:
+        st.markdown('### Itens Vendidos')
+    with col2:
+        button_download(FaturamentoZigClasse, f'itens', f'download_itens')
+    FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasse, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])
+    st.dataframe(FaturamentoZigClasse, use_container_width=True, hide_index=True)
 
 if __name__ == '__main__':
   main()
