@@ -161,11 +161,13 @@ df_extrato_zig_filtrada_aggrid, tam_df_extrato_zig_filtrada_aggrid = dataframe_a
     key='teste_extrato_zig'
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_extrato_zig_filtrada_aggrid, tam_df_extrato_zig_filtrada_aggrid, 'Valor')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_extrato_zig_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_extrato_zig_filtrada_aggrid, tam_df_extrato_zig_filtrada_aggrid, 'Valor')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_extrato_zig_filtrada_aggrid)
 
 st.divider()
 
@@ -184,12 +186,6 @@ df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada_copia[
 
 df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada_copia[['ID_Receita','ID_Casa','Casa','Cliente','Data_Ocorrencia','Vencimento_Parcela','Recebimento_Parcela','Valor_Parcela','Classif_Receita','Status_Pgto','Observacoes']]
 
-# df_excluidos = df_parc_receit_extr_filtrada[
-#         (df_parc_receit_extr_filtrada["Classif_Receita"].str.lower() == "eventos") &
-#         (df_parc_receit_extr_filtrada["Recebimento_Parcela"].dt.month >= 9)
-#     ]
-
-
 # Exibe df com aggrid
 df_parc_receit_extr_filtrada_aggrid, tam_df_parc_receit_extr_filtrada_aggrid = dataframe_aggrid(
     df=df_parc_receit_extr_filtrada_copia,
@@ -198,11 +194,13 @@ df_parc_receit_extr_filtrada_aggrid, tam_df_parc_receit_extr_filtrada_aggrid = d
     date_columns=['Data_Ocorrencia', 'Vencimento_Parcela', 'Recebimento_Parcela']              
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_parc_receit_extr_filtrada_aggrid, tam_df_parc_receit_extr_filtrada_aggrid, 'Valor_Parcela')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_parc_receit_extr_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_parc_receit_extr_filtrada_aggrid, tam_df_parc_receit_extr_filtrada_aggrid, 'Valor_Parcela')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_parc_receit_extr_filtrada_aggrid)
 
 st.divider()
 
@@ -219,11 +217,13 @@ df_eventos_filtrada_aggrid, tam_df_eventos_filtrada_aggrid = dataframe_aggrid(
     date_columns=['Vencimento_Parcela', 'Recebimento_Parcela']              
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_eventos_filtrada_aggrid, tam_df_eventos_filtrada_aggrid, 'Valor_Parcela')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_eventos_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_eventos_filtrada_aggrid, tam_df_eventos_filtrada_aggrid, 'Valor_Parcela')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_eventos_filtrada_aggrid)
 
 st.divider()
 
@@ -241,11 +241,13 @@ df_desbloqueios_filtrada_aggrid, tam_df_desbloqueios_filtrada_aggrid = dataframe
     date_columns=['Data_Transacao']              
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_desbloqueios_filtrada_aggrid, tam_df_desbloqueios_filtrada_aggrid, 'Valor')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_desbloqueios_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_desbloqueios_filtrada_aggrid, tam_df_desbloqueios_filtrada_aggrid, 'Valor')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_desbloqueios_filtrada_aggrid)
 
 st.divider()
 
@@ -267,11 +269,13 @@ df_custos_blueme_sem_parcelam_filtrada_aggrid, tam_df_custos_blueme_sem_parcelam
     date_columns=['Data_Vencimento', 'Previsao_Pgto', 'Realizacao_Pgto', 'Data_Competencia']
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_custos_blueme_sem_parcelam_filtrada_aggrid, tam_df_custos_blueme_sem_parcelam_filtrada_aggrid, 'Valor')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_custos_blueme_sem_parcelam_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_custos_blueme_sem_parcelam_filtrada_aggrid, tam_df_custos_blueme_sem_parcelam_filtrada_aggrid, 'Valor')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_custos_blueme_sem_parcelam_filtrada_aggrid)
 
 st.divider()
 
@@ -288,11 +292,13 @@ df_custos_blueme_com_parcelam_filtrada_aggrid, tam_df_custos_blueme_com_parcelam
     date_columns=['Vencimento_Parcela', 'Realiz_Parcela']
 )
 
-# Calculando total dos valores filtrados
-total_valores_filtrados(df_custos_blueme_com_parcelam_filtrada_aggrid, tam_df_custos_blueme_com_parcelam_filtrada_aggrid, 'Valor_Parcela', despesa_com_parc=True)
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_custos_blueme_com_parcelam_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calculando total dos valores filtrados
+    total_valores_filtrados(df_custos_blueme_com_parcelam_filtrada_aggrid, tam_df_custos_blueme_com_parcelam_filtrada_aggrid, 'Valor_Parcela', despesa_com_parc=True)
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_custos_blueme_com_parcelam_filtrada_aggrid)
 
 st.divider()
 
@@ -309,11 +315,13 @@ df_bloqueios_filtrada_aggrid, tam_df_bloqueios_filtrada_aggrid = dataframe_aggri
     date_columns=['Data_Transacao']              
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_bloqueios_filtrada_aggrid, tam_df_bloqueios_filtrada_aggrid, 'Valor')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_bloqueios_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_bloqueios_filtrada_aggrid, tam_df_bloqueios_filtrada_aggrid, 'Valor')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_bloqueios_filtrada_aggrid)
 
 st.divider()
 
@@ -335,11 +343,13 @@ df_entradas_mutuos_filtrada_aggrid, tam_df_entradas_mutuos_filtrada_aggrid = dat
     date_columns=['Data_Mutuo']              
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_entradas_mutuos_filtrada_aggrid, tam_df_entradas_mutuos_filtrada_aggrid, 'Valor')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_entradas_mutuos_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_entradas_mutuos_filtrada_aggrid, tam_df_entradas_mutuos_filtrada_aggrid, 'Valor')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_entradas_mutuos_filtrada_aggrid)
 
 st.divider()
 
@@ -356,11 +366,13 @@ df_saidas_mutuos_filtrada_aggrid, tam_df_saidas_mutuos_filtrada_aggrid = datafra
     date_columns=['Data_Mutuo']              
 )
 
-# Calcula total dos valores filtrados
-total_valores_filtrados(df_saidas_mutuos_filtrada_aggrid, tam_df_saidas_mutuos_filtrada_aggrid, 'Valor')
-
-# Botão para excel
-function_copy_dataframe_as_tsv(df_saidas_mutuos_filtrada_aggrid)
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    # Calcula total dos valores filtrados
+    total_valores_filtrados(df_saidas_mutuos_filtrada_aggrid, tam_df_saidas_mutuos_filtrada_aggrid, 'Valor')
+with col2:
+    # Botão para excel
+    function_copy_dataframe_as_tsv(df_saidas_mutuos_filtrada_aggrid)
 
 st.divider()
 
@@ -376,82 +388,170 @@ df_consolidado = prepare_monthly_data(
 )
 
 ## Gráfico Consolidado - Fluxo de Caixa por Mês
-st.subheader("Fluxo de Caixa Consolidado por Mês")
+# st.subheader("Fluxo de Caixa Consolidado por Mês")
 
-# Criando o gráfico
-try:
-    if not df_consolidado.empty:
-        # Criando gráfico de barras personalizado
-        fig = go.Figure()
-        
-        # Obtendo todos os meses únicos
-        meses_unicos = sorted(df_consolidado['Mes_Ano_Str'].unique())
+with st.container(border=True):
+    col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment="center")
+    with col2:
+        st.write("")
+        st.markdown("""
+        <h2 style="color: #1f77b4; font-weight: bold;">Fluxo de Caixa Consolidado por Mês</h1>
+        """, unsafe_allow_html=True)
 
-        # Adicionando barras de receitas
-        receitas_data = df_consolidado[df_consolidado['Categoria'] == 'Receitas']
-        for tipo in receitas_data['Tipo'].unique():
-            dados_tipo = receitas_data[receitas_data['Tipo'] == tipo]
-            valores = []
-            for mes in meses_unicos:
-                valor = dados_tipo[dados_tipo['Mes_Ano_Str'] == mes]['Valor'].sum()
-                valores.append(valor)
+        # Criando o gráfico
+        try:
+            if not df_consolidado.empty:
+                # Criando gráfico de barras personalizado
+                fig = go.Figure()
                 
-            if tipo == 'Extrato Zig': 
-                cor = "#245b3b" 
-                name = 'Receitas - Extrato Zig'
-            if tipo == 'Extraordinária': 
-                cor = "#2e8b57"
-                name = 'Receitas Extraordinárias'
-            if tipo == 'Eventos': 
-                cor = "#9ac5a8"
-                name = 'Receitas - Eventos'
-            if tipo == 'Desbloqueios': 
-                cor = '#32CD32'
-                name = 'Receitas - Desbloqueios Judiciais'
+                # Obtendo todos os meses únicos
+                meses_unicos = sorted(df_consolidado['Mes_Ano_Str'].unique())
 
-            fig.add_trace(go.Bar(
-                x=meses_unicos,
-                y=valores,
-                name=name,
-                marker_color=cor,
-                offsetgroup='Receitas'
-            ))
-        
-        # Adicionando barras de despesas
-        despesas_data = df_consolidado[df_consolidado['Categoria'] == 'Despesas']
-        for tipo in despesas_data['Tipo'].unique():
-            dados_tipo = despesas_data[despesas_data['Tipo'] == tipo]
-            valores = []
-            for mes in meses_unicos:
-                valor = dados_tipo[dados_tipo['Mes_Ano_Str'] == mes]['Valor'].sum()
-                valores.append(valor)
+                # Adicionando barras de receitas
+                receitas_data = df_consolidado[df_consolidado['Categoria'] == 'Receitas']
+                for tipo in receitas_data['Tipo'].unique():
+                    dados_tipo = receitas_data[receitas_data['Tipo'] == tipo]
+                    valores = []
+                    for mes in meses_unicos:
+                        valor = dados_tipo[dados_tipo['Mes_Ano_Str'] == mes]['Valor'].sum()
+                        valores.append(valor)
+                        
+                    if tipo == 'Extrato Zig': 
+                        cor = "#245b3b" 
+                        name = 'Receitas - Extrato Zig'
+                    if tipo == 'Extraordinária': 
+                        cor = "#2e8b57"
+                        name = 'Receitas Extraordinárias'
+                    if tipo == 'Eventos': 
+                        cor = "#9ac5a8"
+                        name = 'Receitas - Eventos'
+                    if tipo == 'Desbloqueios': 
+                        cor = '#32CD32'
+                        name = 'Receitas - Desbloqueios Judiciais'
+
+                    fig.add_trace(go.Bar(
+                        x=meses_unicos,
+                        y=valores,
+                        name=name,
+                        marker_color=cor,
+                        offsetgroup='Receitas'
+                    ))
+                
+                # Adicionando barras de despesas
+                despesas_data = df_consolidado[df_consolidado['Categoria'] == 'Despesas']
+                for tipo in despesas_data['Tipo'].unique():
+                    dados_tipo = despesas_data[despesas_data['Tipo'] == tipo]
+                    valores = []
+                    for mes in meses_unicos:
+                        valor = dados_tipo[dados_tipo['Mes_Ano_Str'] == mes]['Valor'].sum()
+                        valores.append(valor)
+                    
+                    if tipo == 'Sem Parcelamento': 
+                        cor = "#b51b33" 
+                        name = 'Despesas Sem Parcelamento'
+                    if tipo == 'Com Parcelamento': 
+                        cor = '#e95159'
+                        name = 'Despesas Com Parcelamento'
+                    if tipo == 'Bloqueios': 
+                        cor = "#fa9b98"
+                        name = 'Despesas - Bloqueios Judiciais'
+
+                    fig.add_trace(go.Bar(
+                        x=meses_unicos,
+                        y=valores,
+                        name=name,
+                        marker_color=cor,
+                        offsetgroup='Despesas'
+                    ))
+
+                # Personalizando o layout
+                casas_titulo = ', '.join(casas_selecionadas) if len(casas_selecionadas) <= 3 else f"{len(casas_selecionadas)} casas selecionadas"
+                fig.update_layout(
+                    title=f'Fluxo de Caixa Consolidado - {casas_titulo} ({start_date.strftime("%d/%m/%Y")} a {end_date.strftime("%d/%m/%Y")})',
+                    xaxis_title="Mês/Ano",
+                    yaxis_title="Valor (R$)",
+                    barmode='stack',
+                    height=600,
+                    showlegend=True,
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1
+                    ),
+                    bargap=0.3,  # Espaço entre grupos de barras (meses)
+                    bargroupgap=0.0  # Sem espaço entre barras do mesmo grupo (receitas e despesas do mesmo mês)
+                )
+                
+                # Formatando eixo Y para moeda brasileira
+                fig.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
+                
+                # Exibindo o gráfico
+                st.plotly_chart(fig, use_container_width=True)
             
-            if tipo == 'Sem Parcelamento': 
-                cor = "#b51b33" 
-                name = 'Despesas Sem Parcelamento'
-            if tipo == 'Com Parcelamento': 
-                cor = '#e95159'
-                name = 'Despesas Com Parcelamento'
-            if tipo == 'Bloqueios': 
-                cor = "#fa9b98"
-                name = 'Despesas - Bloqueios Judiciais'
+            else:
+                st.warning("Não há dados disponíveis para o período e casas selecionadas.")
 
-            fig.add_trace(go.Bar(
-                x=meses_unicos,
-                y=valores,
-                name=name,
-                marker_color=cor,
-                offsetgroup='Despesas'
-            ))
+        except Exception as e:
+            st.error(f"Erro ao gerar gráfico: {str(e)}")
 
-        # Personalizando o layout
-        casas_titulo = ', '.join(casas_selecionadas) if len(casas_selecionadas) <= 3 else f"{len(casas_selecionadas)} casas selecionadas"
-        fig.update_layout(
-            title=f'Fluxo de Caixa Consolidado - {casas_titulo} ({start_date.strftime("%d/%m/%Y")} a {end_date.strftime("%d/%m/%Y")})',
+        st.divider()        
+
+        ## Gráfico Consolidado - Fluxo Líquido por Mês
+        # st.subheader("Fluxo Líquido por Mês")
+
+        # Calculando fluxo líquido
+        receitas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Receitas'].groupby('Mes_Ano_Str')['Valor'].sum()
+        despesas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Despesas'].groupby('Mes_Ano_Str')['Valor'].sum()
+
+        fluxo_liquido = pd.concat(
+            [receitas_mensais.rename("Receitas"), despesas_mensais.rename("Despesas")],
+            axis=1
+        ).fillna(0).reset_index()
+
+        fluxo_liquido['Fluxo_Liquido'] = fluxo_liquido['Receitas'] - fluxo_liquido['Despesas']
+        # fluxo_liquido['Receitas'] = fluxo_liquido['Receitas'].fillna(0)
+        # fluxo_liquido['Despesas'] = fluxo_liquido['Despesas'].fillna(0)
+
+        # Gráfico de linha para fluxo líquido
+        fig_liquido = go.Figure()
+
+        fig_liquido.add_trace(go.Scatter(
+            x=fluxo_liquido['Mes_Ano_Str'],
+            y=fluxo_liquido['Fluxo_Liquido'],
+            mode='lines+markers',
+            name='Fluxo Líquido',
+            line=dict(color='#1f77b4', width=3),
+            marker=dict(size=8)
+        ))
+
+        fig_liquido.add_trace(go.Scatter(
+            x=fluxo_liquido['Mes_Ano_Str'],
+            y=fluxo_liquido['Receitas'],
+            mode='lines+markers',
+            name='Receitas Totais',
+            line=dict(color='#2E8B57', width=2, dash='dash'),
+            marker=dict(size=6)
+        ))
+
+        fig_liquido.add_trace(go.Scatter(
+            x=fluxo_liquido['Mes_Ano_Str'],
+            y=fluxo_liquido['Despesas'],
+            mode='lines+markers',
+            name='Despesas Totais',
+            line=dict(color='#DC143C', width=2, dash='dash'),
+            marker=dict(size=6)
+        ))
+
+        # Adicionando linha horizontal em y=0
+        fig_liquido.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.5)
+
+        fig_liquido.update_layout(
+            title=f'Fluxo Líquido Mensal - {casas_titulo} ({start_date.strftime("%d/%m/%Y")} a {end_date.strftime("%d/%m/%Y")})',
             xaxis_title="Mês/Ano",
             yaxis_title="Valor (R$)",
-            barmode='stack',
-            height=600,
+            height=500,
             showlegend=True,
             legend=dict(
                 orientation="h",
@@ -459,174 +559,184 @@ try:
                 y=1.02,
                 xanchor="right",
                 x=1
-            ),
-            bargap=0.3,  # Espaço entre grupos de barras (meses)
-            bargroupgap=0.0  # Sem espaço entre barras do mesmo grupo (receitas e despesas do mesmo mês)
+            )
+        )
+
+        fig_liquido.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
+
+        st.plotly_chart(fig_liquido, use_container_width=True)
+
+        st.divider()
+
+
+        ## Tabela - Receitas por Categoria (Agrupamento)
+        col1, col2 = st.columns([6, 1])
+        with col1:
+            st.subheader("Receitas por Categoria")
+        
+        df_receitas_categoria = df_consolidado[df_consolidado['Categoria'] == 'Receitas']
+        df_receitas_categoria = df_receitas_categoria.drop(['Mes_Ano_Str', 'Categoria'], axis=1)
+
+        if not df_receitas_categoria.empty:
+            # Criando tabela dinâmica para Receitas por Categoria
+            df_receitas_categoria = df_receitas_categoria.pivot(
+                index='Tipo',
+                columns='Mes_Ano',
+                values='Valor'
+            ).fillna(0)
+
+        # Corrige nomes de colunas (se forem Period, converte para string)
+        df_receitas_categoria.columns = df_receitas_categoria.columns.astype(str)
+
+        # Adicionando coluna de total por categoria
+        df_receitas_categoria['Total_Categoria'] = df_receitas_categoria.sum(axis=1)
+        
+        # Ordenando por total (maior para menor)
+        df_receitas_categoria = df_receitas_categoria.sort_values('Total_Categoria', ascending=False)
+
+        # Resetando o índice para incluir Tipo como coluna
+        df_receitas_categoria = df_receitas_categoria.reset_index()
+
+        colunas_numericas_receitas = [col for col in df_receitas_categoria.columns if col != 'Tipo']
+
+        # Exibindo tabela
+        df_receitas_categoria_aggrid, tam_df_receitas_categoria_aggrid = dataframe_aggrid(
+            df=df_receitas_categoria,
+            name="Receitas por Categoria",
+            num_columns=colunas_numericas_receitas
         )
         
-        # Formatando eixo Y para moeda brasileira
-        fig.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
+        with col2:
+            # Botão para copiar dados 
+            function_copy_dataframe_as_tsv(df_receitas_categoria_aggrid)
+
+        st.divider()
+
+        ## Tabela Dinâmica - Class_Cont_0 (Agrupamento)
+        col1, col2 = st.columns([6, 1])
+        with col1:
+            st.subheader("Despesas por Classificação Contábil (Class_Cont_0)")
+
+        # Preparando dados para Class_Cont_0
+        df_class0_data = prepare_pivot_data_class_despesas(
+            df_custos_blueme_sem_parcelam_filtrada, 
+            df_custos_blueme_com_parcelam_filtrada, 
+            mapeamento_class_cont,
+            classe=0
+        )
+
+        if not df_class0_data.empty:
+            # Criando tabela dinâmica para Class_Cont_0
+            pivot_table_class0 = df_class0_data.pivot(
+                index='Class_Cont_0',
+                columns='Mes_Ano',
+                values='Valor'
+            ).fillna(0)
+            
+            # Convertendo índices de coluna para string
+            pivot_table_class0.columns = pivot_table_class0.columns.astype(str)
+            
+            # Adicionando coluna de total
+            pivot_table_class0['Total'] = pivot_table_class0.sum(axis=1)
+            
+            # Ordenando por total (maior para menor)
+            pivot_table_class0 = pivot_table_class0.sort_values('Total', ascending=False)
+            
+            # Resetando o índice para incluir Class_Cont_0 como coluna
+            pivot_table_class0 = pivot_table_class0.reset_index()
+            
+            # Separando colunas numéricas das de texto
+            colunas_numericas_class0 = [col for col in pivot_table_class0.columns if col != 'Class_Cont_0']
+            
+            # Exibindo tabela dinâmica de Class_Cont_0
+            df_pivot_class0_aggrid, tam_df_pivot_class0_aggrid = dataframe_aggrid(
+                df=pivot_table_class0,
+                name="Despesas por Classificação Contábil (Class_Cont_0)",
+                num_columns=colunas_numericas_class0
+            )
+            
+            with col2:
+                # Botão para copiar dados de Class_Cont_0
+                function_copy_dataframe_as_tsv(df_pivot_class0_aggrid)
+
+        st.divider()
+
+        st.subheader(":material/arrow_downward: Fluxo: Receitas - Despesas")
+        receitas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Receitas'].groupby('Mes_Ano')['Valor'].sum()
+        despesas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Despesas'].groupby('Mes_Ano')['Valor'].sum()
         
-        # Exibindo o gráfico
-        st.plotly_chart(fig, use_container_width=True)
-    
-    else:
-        st.warning("Não há dados disponíveis para o período e casas selecionadas.")
+        df_fluxo_liquido = pd.concat(
+            [receitas_mensais.rename("Receitas"), despesas_mensais.rename("Despesas")],
+            axis=1
+        ).fillna(0).reset_index()
 
-except Exception as e:
-    st.error(f"Erro ao gerar gráfico: {str(e)}")
+        df_fluxo_liquido['Fluxo_Liquido'] = df_fluxo_liquido['Receitas'] - df_fluxo_liquido['Despesas']
 
-st.divider()        
+        pivot_fluxo = df_fluxo_liquido.melt(
+            id_vars='Mes_Ano',
+            value_vars=['Receitas', 'Despesas', 'Fluxo_Liquido'],
+            var_name='Categoria',
+            value_name='Valor'
+        ).pivot(
+            index='Categoria',
+            columns='Mes_Ano',
+            values='Valor'
+        ).fillna(0).reindex(['Receitas', 'Despesas', 'Fluxo_Liquido'])
 
-## Gráfico Consolidado - Fluxo Líquido por Mês
-st.subheader("Fluxo Líquido por Mês")
+        # Convertendo índices de coluna para string
+        pivot_fluxo.columns = pivot_fluxo.columns.astype(str)
 
-# Calculando fluxo líquido
-receitas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Receitas'].groupby('Mes_Ano_Str')['Valor'].sum()
-despesas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Despesas'].groupby('Mes_Ano_Str')['Valor'].sum()
+        # Resetando o índice para incluir Class_Cont_0 como coluna
+        pivot_fluxo = pivot_fluxo.reset_index()
 
-fluxo_liquido = pd.concat(
-    [receitas_mensais.rename("Receitas"), despesas_mensais.rename("Despesas")],
-    axis=1
-).fillna(0).reset_index()
+        colunas_numericas_fluxo = [col for col in pivot_fluxo if col != 'Categoria']
 
-fluxo_liquido['Fluxo_Liquido'] = fluxo_liquido['Receitas'] - fluxo_liquido['Despesas']
-# fluxo_liquido['Receitas'] = fluxo_liquido['Receitas'].fillna(0)
-# fluxo_liquido['Despesas'] = fluxo_liquido['Despesas'].fillna(0)
+        # Exibindo tabela dinâmica
+        df_pivot__fluxo_aggrid, tam_df_pivot__fluxo_aggrid = dataframe_aggrid(
+            df=pivot_fluxo,
+            name="Tabela - Receitas-Despesas",
+            num_columns=colunas_numericas_fluxo,  
+            highlight_rows=['Fluxo_Liquido']
+        )
+        
+        # Botão para copiar dados
+        # function_copy_dataframe_as_tsv(df_pivot__fluxo_aggrid)
+        st.divider()
 
-# Gráfico de linha para fluxo líquido
-fig_liquido = go.Figure()
+        # Resumo estatístico
+        st.subheader(":material/heap_snapshot_large: Resumo Estatístico - Todos os meses")
+        col1, col2, col3, col4 = st.columns(4)
 
-fig_liquido.add_trace(go.Scatter(
-    x=fluxo_liquido['Mes_Ano_Str'],
-    y=fluxo_liquido['Fluxo_Liquido'],
-    mode='lines+markers',
-    name='Fluxo Líquido',
-    line=dict(color='#1f77b4', width=3),
-    marker=dict(size=8)
-))
+        with col1:
+            total_receitas = df_consolidado[df_consolidado['Categoria'] == 'Receitas']['Valor'].sum()
+            st.metric("Total Receitas", f"R$ {total_receitas:,.2f}")
 
-fig_liquido.add_trace(go.Scatter(
-    x=fluxo_liquido['Mes_Ano_Str'],
-    y=fluxo_liquido['Receitas'],
-    mode='lines+markers',
-    name='Receitas Totais',
-    line=dict(color='#2E8B57', width=2, dash='dash'),
-    marker=dict(size=6)
-))
+        with col2:
+            total_despesas = df_consolidado[df_consolidado['Categoria'] == 'Despesas']['Valor'].sum()
+            st.metric("Total Despesas", f"R$ {total_despesas:,.2f}")
 
-fig_liquido.add_trace(go.Scatter(
-    x=fluxo_liquido['Mes_Ano_Str'],
-    y=fluxo_liquido['Despesas'],
-    mode='lines+markers',
-    name='Despesas Totais',
-    line=dict(color='#DC143C', width=2, dash='dash'),
-    marker=dict(size=6)
-))
+        with col3:
+            fluxo_liquido_total = total_receitas - total_despesas
+            st.metric("Fluxo Líquido", f"R$ {fluxo_liquido_total:,.2f}")
 
-# Adicionando linha horizontal em y=0
-fig_liquido.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.5)
-
-fig_liquido.update_layout(
-    title=f'Fluxo Líquido Mensal - {casas_titulo} ({start_date.strftime("%d/%m/%Y")} a {end_date.strftime("%d/%m/%Y")})',
-    xaxis_title="Mês/Ano",
-    yaxis_title="Valor (R$)",
-    height=500,
-    showlegend=True,
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1
-    )
-)
-
-fig_liquido.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
-
-st.plotly_chart(fig_liquido, use_container_width=True)
-
+        with col4:
+            if total_receitas > 0:
+                margem = (fluxo_liquido_total / total_receitas) * 100
+                st.metric("Margem (%)", f"{margem:.1f}%")
+            else:
+                st.metric("Margem (%)", "N/A")
+    st.write("")
+            
 st.divider()
-
-
-# Resumo estatístico
-st.subheader(":material/heap_snapshot_large: Resumo Estatístico")
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    total_receitas = df_consolidado[df_consolidado['Categoria'] == 'Receitas']['Valor'].sum()
-    st.metric("Total Receitas", f"R$ {total_receitas:,.2f}")
-
-with col2:
-    total_despesas = df_consolidado[df_consolidado['Categoria'] == 'Despesas']['Valor'].sum()
-    st.metric("Total Despesas", f"R$ {total_despesas:,.2f}")
-
-with col3:
-    fluxo_liquido_total = total_receitas - total_despesas
-    st.metric("Fluxo Líquido", f"R$ {fluxo_liquido_total:,.2f}")
-
-with col4:
-    if total_receitas > 0:
-        margem = (fluxo_liquido_total / total_receitas) * 100
-        st.metric("Margem (%)", f"{margem:.1f}%")
-    else:
-        st.metric("Margem (%)", "N/A")
-
-st.divider()
-
-
-# Tabela Dinâmica - Class_Cont_0 (Agrupamento)
-st.subheader("Despesas por Classificação Contábil (Class_Cont_0)")
-
-# Preparando dados para Class_Cont_0
-df_class0_data = prepare_pivot_data_class(
-    df_custos_blueme_sem_parcelam_filtrada, 
-    df_custos_blueme_com_parcelam_filtrada, 
-    mapeamento_class_cont,
-    classe=0
-)
-
-if not df_class0_data.empty:
-    # Criando tabela dinâmica para Class_Cont_0
-    pivot_table_class0 = df_class0_data.pivot(
-        index='Class_Cont_0',
-        columns='Mes_Ano',
-        values='Valor'
-    ).fillna(0)
-    
-    # Convertendo índices de coluna para string
-    pivot_table_class0.columns = pivot_table_class0.columns.astype(str)
-    
-    # Adicionando coluna de total
-    pivot_table_class0['Total'] = pivot_table_class0.sum(axis=1)
-    
-    # Ordenando por total (maior para menor)
-    pivot_table_class0 = pivot_table_class0.sort_values('Total', ascending=False)
-    
-    # Resetando o índice para incluir Class_Cont_0 como coluna
-    pivot_table_class0 = pivot_table_class0.reset_index()
-    
-    # Separando colunas numéricas das de texto
-    colunas_numericas_class0 = [col for col in pivot_table_class0.columns if col != 'Class_Cont_0']
-    
-    # Exibindo tabela dinâmica de Class_Cont_0
-    df_pivot_class0_aggrid, tam_df_pivot_class0_aggrid = dataframe_aggrid(
-        df=pivot_table_class0,
-        name="Despesas por Classificação Contábil (Class_Cont_0)",
-        num_columns=colunas_numericas_class0
-    )
-    
-    # Botão para copiar dados de Class_Cont_0
-    function_copy_dataframe_as_tsv(df_pivot_class0_aggrid)
-    
-    st.divider()
 
 
 # Tabela Dinâmica - Class_Cont_1 (Detalhamento)
-st.subheader("Despesas por Classificação Contábil (Class_Cont_1)")
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    st.subheader("Despesas por Classificação Contábil (Class_Cont_1)")
 
 # Preparando dados para a tabela dinâmica
-pivot_table = prepare_pivot_data_class(
+pivot_table = prepare_pivot_data_class_despesas(
     df_custos_blueme_sem_parcelam_filtrada, 
     df_custos_blueme_com_parcelam_filtrada, 
     mapeamento_class_cont, 
@@ -645,14 +755,18 @@ try:
             num_columns=colunas_numericas,  # Apenas colunas numéricas
         )
         
-        # Botão para copiar dados
-        function_copy_dataframe_as_tsv(df_pivot_aggrid)
+        with col2:
+            # Botão para copiar dados
+            function_copy_dataframe_as_tsv(df_pivot_aggrid)
         
         # Tabela Dinâmica - Detalhamento por Class_Cont_2
-        st.subheader(":material/arrow_downward: Detalhamento por Subclassificação Contábil")
+        st.write("")
+        col1, col2 = st.columns([6, 1], vertical_alignment='center')
+        with col1:
+            st.subheader(":material/arrow_downward: Detalhamento por Subclassificação Contábil")
       
         # Preparando dados para Class_Cont_2
-        df_class2_data = prepare_pivot_data_class(
+        df_class2_data = prepare_pivot_data_class_despesas(
             df_custos_blueme_sem_parcelam_filtrada, 
             df_custos_blueme_com_parcelam_filtrada, 
             mapeamento_class_cont, 
@@ -703,8 +817,9 @@ try:
                     num_columns=colunas_numericas_class2
                 )
                 
-                # Botão para copiar dados de Class_Cont_2
-                function_copy_dataframe_as_tsv(df_pivot_class2_aggrid)
+                with col2:
+                    # Botão para copiar dados de Class_Cont_2
+                    function_copy_dataframe_as_tsv(df_pivot_class2_aggrid)
                 
             else:
                 st.warning(f"Não há dados de subclassificação disponíveis para {classificacao_selecionada}")
@@ -720,8 +835,10 @@ st.divider()
 
 
 # Tabela de Referência - Mapeamento Class_Cont_0 ↔ Class_Cont_1
-st.subheader("Tabela de Referência - Mapeamento de Classificações")
-st.write("Mapeamento Class_Cont_0 ↔ Class_Cont_1")
+col1, col2 = st.columns([6, 1], vertical_alignment='center')
+with col1:
+    st.subheader("Tabela de Referência - Mapeamento de Classificações")
+    st.write("Mapeamento Class_Cont_0 ↔ Class_Cont_1")
 
 # Criando DataFrame de referência
 df_mapping_ref = create_mapping_reference(
@@ -743,8 +860,9 @@ try:
             name="Mapeamento Class_Cont_0 ↔ Class_Cont_1"
         )
         
-        # Botão para copiar dados de referência
-        function_copy_dataframe_as_tsv(df_mapping_ref_aggrid)
+        with col2:
+            # Botão para copiar dados de referência
+            function_copy_dataframe_as_tsv(df_mapping_ref_aggrid)
 
         st.divider()
         

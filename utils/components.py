@@ -399,10 +399,11 @@ def apply_master_detail(df, df_details, coluns_merge_details, coluns_name_detail
 
 def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
                      date_columns=None, df_details=None, coluns_merge_details=None,
-                     coluns_name_details=None, key="default"):
+                     coluns_name_details=None, key="default", highlight_rows=None):
     num_columns = num_columns or []
     percent_columns = percent_columns or []
     date_columns = date_columns or []
+    highlight_rows = highlight_rows or []
 
     # 1. Formatação de colunas numéricas e percentuais
     for col in num_columns:
@@ -467,22 +468,29 @@ def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
     # 6. Tema e zebra
     if st.session_state.get("base_theme") == "dark":
         custom_theme = StAggridTheme(base="balham").withParams().withParts("colorSchemeDark")
-        zebra_style = JsCode("""
-        function(params) {
+        zebra_style = JsCode(f"""
+        function(params) {{
+            if ({str(highlight_rows)}.includes(params.data.Categoria)) {{
+                return {{ fontWeight: 'bold', background: '#444', color: '#fff' }};
+            }}
             return (params.node.rowIndex % 2 === 0)
-                ? { background: '#222', color: '#fff' }
-                : { background: '#333', color: '#fff' };
-        }
+                ? {{ background: '#222', color: '#fff' }}
+                : {{ background: '#333', color: '#fff' }};
+        }}
         """)
     else:
         custom_theme = StAggridTheme(base="balham").withParams()
-        zebra_style = JsCode("""
-        function(params) {
+        zebra_style = JsCode(f"""
+        function(params) {{
+            if ({str(highlight_rows)}.includes(params.data.Categoria)) {{
+                return {{ fontWeight: 'bold', background: '#f9f9f9', color: '#111' }};
+            }}
             return (params.node.rowIndex % 2 === 0)
-                ? { background: '#fff', color: '#111' }
-                : { background: '#e6e6e6', color: '#111' };
-        }
+                ? {{ background: '#fff', color: '#111' }}
+                : {{ background: '#e6e6e6', color: '#111' }};
+        }}
         """)
+
     grid_options["getRowStyle"] = zebra_style
 
     # 7. Render AgGrid
