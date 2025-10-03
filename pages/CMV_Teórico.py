@@ -53,6 +53,7 @@ def main():
         data_fim = pd.to_datetime(periodo[1])
     except:
         st.warning('Selecione um período de datas.')
+        st.stop()
 
     st.divider()
     
@@ -171,7 +172,8 @@ def main():
 
     # Merge faturamento com custos das fichas
     df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
-    df_precos_itens_vendidos['% CMV'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário']) * 100
+    df_precos_itens_vendidos['% CMV'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário'])
+    df_precos_itens_vendidos.sort_values(by=['% CMV'], ascending=False, inplace=True)
     df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento', 'Desconto'])
 
 
@@ -180,7 +182,23 @@ def main():
         st.markdown(f'## CMV - Custo Itens Vendidos ({casa})')
     with col2:
         button_download(df_precos_itens_vendidos_download, f'custo_itens_{casa}', f'custo_itens_{casa}')
-    st.dataframe(df_precos_itens_vendidos, use_container_width=True, hide_index=True)
+    st.dataframe(
+        df_precos_itens_vendidos,
+        column_config={
+            '% CMV': st.column_config.ProgressColumn(
+                "% CMV",
+                format='percent',
+                min_value=0,
+                max_value=1,
+            ),
+            'Faturamento': st.column_config.TextColumn(
+                'Faturamento',
+                default="R$ %s",
+            )
+        },
+        use_container_width=True,
+        hide_index=True
+    )
 
     with st.container(border=True):
         col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='center', gap='large')
