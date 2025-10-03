@@ -36,6 +36,14 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
     ## Parcelas Receitas Extraordinarias
     df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
     df_parc_receit_extr_filtrada, df_parc_receit_extr_formatada = filtra_formata_df(df_parc_receit_extr, "Recebimento_Parcela", id_casa, start_date, end_date)
+    df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada.copy()
+    df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada_copia[ # não vou exibir eventos a partir de setembro
+    ~(
+        (df_parc_receit_extr_filtrada_copia["Classif_Receita"].str.lower() == "eventos") &
+        (df_parc_receit_extr_filtrada_copia["Recebimento_Parcela"].dt.month >= 9)
+    )
+]
+    df_parc_receit_extr_formatada = formata_df(df_parc_receit_extr_filtrada_copia)
 
     ## Custos BlueMe Sem Parcelamento
     df_custos_blueme_sem_parcelam = GET_CUSTOS_BLUEME_SEM_PARC()
@@ -98,6 +106,10 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         st.subheader("Parcelas Receitas Extraordinárias")
         st.dataframe(df_parc_receit_extr_formatada, use_container_width=True, hide_index=True)
         st.divider()
+
+        st.subheader("Eventos")
+        st.dataframe(df_eventos_formatada, use_container_width=True, hide_index=True)
+        st.divider()
         
         st.subheader("Despesas BlueMe Sem Parcelamento")
         st.dataframe(df_custos_blueme_sem_parcelam_formatada, use_container_width=True, hide_index=True)
@@ -126,10 +138,6 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
         st.subheader("Bloqueios Judiciais")
         st.dataframe(df_bloqueios_judiciais_formatada, use_container_width=True, hide_index=True)
         st.divider()   
-
-        st.subheader("Eventos")
-        st.dataframe(df_eventos_formatada, use_container_width=True, hide_index=True)
-        st.divider() 
 
         
         ## df de Conciliação

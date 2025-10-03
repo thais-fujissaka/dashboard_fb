@@ -458,7 +458,7 @@ def component_plotDataframe_aggrid(
         fit_columns_on_grid_load=True,
         allow_unsafe_jscode=True,
         key=f"aggrid_{name}_{key}",
-        theme=StAggridTheme(base="balham").withParams().withParts('colorSchemeDark')
+        theme=StAggridTheme(base="balham").withParams().withParts('colorSchemeLight')
     )
     return pd.DataFrame(grid_response['data'])
 
@@ -480,24 +480,25 @@ def function_copy_dataframe_as_tsv(df: pd.DataFrame):
 
     # HTML+JS para ocultar o textarea, copiar ao clicar e avisar o usuário
     components.html(f"""
-    <textarea id="clipboard-textarea" style="position: absolute; left: -10000px;">
+    <textarea id="clipboard-textarea" style="position: absolute; left: -1000px;">
 {tsv}
     </textarea>
     <button onclick="
         const ta = document.getElementById('clipboard-textarea');
         ta.select();
         document.execCommand('copy');
-        alert('TSV copiado para a área de transferência!');
+        alert('Dataframe copiado para a área de transferência!');
     " style="
-        background-color:#1e1e1e;
-        color:#fff;
-        border:1px solid #333;
+        background-color:#d78f18;
+        color:black;
+        border:1px solid #d78f18;
         padding:8px 16px;
         border-radius:4px;
         cursor:pointer;
         margin-top:8px;
-    ">Copiar como TSV</button>
-    """, height=80)
+        width:150px;
+    ">Copiar Dataframe</button>
+    """, height=50)
 
 
     
