@@ -85,7 +85,7 @@ def main():
     # Calcula o preço da unidade (preço de 1 unidade de medida) do insumo de estoque
     df_precos_insumos_de_estoque['Preço Médio Insumo Estoque'] = df_precos_insumos_de_estoque['Valor N5'] / df_precos_insumos_de_estoque['Quantidade Insumo Estoque']
 
-    #### PAREI AQUI, FALTA SELECIONAR UM ÚNICO PREÇO PARA CADA INSUMO DE ESTOQUE
+    df_compras_insumos_de_estoque = df_precos_insumos_de_estoque.copy()
 
     # Remover NaN
     df_precos_insumos_de_estoque = df_precos_insumos_de_estoque.dropna(subset=['Preço Médio Insumo Estoque'])
@@ -97,9 +97,6 @@ def main():
     df_precos_insumos_de_estoque = df_precos_insumos_de_estoque[
         df_precos_insumos_de_estoque['Preço Médio Insumo Estoque'] > 0
     ]
-
-    # Filtra por casa   
-    df_precos_insumos_de_estoque = df_precos_insumos_de_estoque[df_precos_insumos_de_estoque['ID Casa'] == id_casa]
 
     ### FICHAS TÉCNICAS - INSUMOS DE PRODUÇÃO
     # dataframe com as quantidades de insumos de estoque e de produção para cada ITEM DE PRODUÇÃO
@@ -122,12 +119,12 @@ def main():
         ignore_index=True
     ).drop_duplicates()
 
-    df_precos_insumos_producao, df_precos_itens_producao_completo, df_precos_selecionados_estoque_mes_casa = calcular_precos_itens_producao_mes_casa(df_fichas_itens_producao, df_precos_insumos_de_estoque, insumos_necessarios_estoque_casa, id_casa, mes, ano)
+    df_precos_insumos_producao, df_precos_itens_producao_completo, df_precos_insumos_de_estoque = calcular_precos_itens_producao_mes_casa(df_fichas_itens_producao, df_precos_insumos_de_estoque, insumos_necessarios_estoque_casa, id_casa, mes, ano)
 
 
     ### CUSTO ITENS VENDIDOS
     df_fichas_itens_vendidos = df_fichas_itens_vendidos[df_fichas_itens_vendidos['ID Casa'] == id_casa]
-    df_precos_itens_vendidos, df_fichas_itens_vendidos, df_fichas_itens_vendidos_auditoria = calcular_custos_itens_vendidos(df_fichas_itens_vendidos, df_precos_selecionados_estoque_mes_casa, df_precos_itens_producao_completo, )
+    df_precos_itens_vendidos, df_fichas_itens_vendidos, df_fichas_itens_vendidos_auditoria = calcular_custos_itens_vendidos(df_fichas_itens_vendidos, df_precos_insumos_de_estoque, df_precos_itens_producao_completo)
 
     # Ordena colunas
     df_precos_itens_vendidos = df_precos_itens_vendidos.sort_values(by=['Custo Item'], ascending=False)
@@ -181,7 +178,7 @@ def main():
     with col1:
         st.markdown(f'## CMV - Custo Itens Vendidos ({casa})')
     with col2:
-        button_download(df_precos_itens_vendidos_download, f'custo_itens_{casa}', f'custo_itens_{casa}')
+        button_download(df_precos_itens_vendidos_download, f'custo_itens_{casa}'[:31], f'custo_itens_{casa}'[:31])
     st.dataframe(
         df_precos_itens_vendidos,
         column_config={
@@ -227,40 +224,55 @@ def main():
             df_fichas_insumos_de_estoque_download = df_precos_insumos_de_estoque.copy()
             df_precos_itens_producao_completo_download = df_precos_itens_producao_completo.copy()
             df_precos_insumos_producao_download = df_precos_insumos_producao.copy()
-            
+
             # Formatação de colunas
             df_fichas_itens_vendidos = format_columns_brazilian(df_fichas_itens_vendidos, ['Custo Item'])
             df_precos_insumos_de_estoque = format_columns_brazilian(df_precos_insumos_de_estoque, ['Valor N5', 'Preço Médio Insumo Estoque'])
             df_precos_itens_producao_completo = format_columns_brazilian(df_precos_itens_producao_completo, ['Custo Ficha', 'Custo Item Produzido'])
             df_precos_insumos_producao = format_columns_brazilian(df_precos_insumos_producao, ['Preço Médio Insumo Estoque', 'Custo Ficha'])
+            
 
             col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
             with col1:
                 st.markdown(f'## Ficha Técnica - {produto_selecionado}')
             with col2:
-                button_download(df_fichas_itens_vendidos_download[ordem_col], f'fichas_{casa}', f'fichas_{casa}')
+                button_download(df_fichas_itens_vendidos_download[ordem_col], f'fichas_{casa}'[:31], f'fichas_{casa}'[:31])
             st.dataframe(df_fichas_itens_vendidos[ordem_col], use_container_width=True, hide_index=True)
             
             col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
             with col1:
                 st.markdown('### Custos Itens de Estoque')
             with col2:
-                button_download(df_fichas_insumos_de_estoque_download, f'estoq_{casa}', f'estoq_{casa}')
+                button_download(df_fichas_insumos_de_estoque_download, f'estoq_{casa}'[:31], f'estoq_{casa}'[:31])
             st.dataframe(df_precos_insumos_de_estoque, use_container_width=True, hide_index=True)
 
             col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
             with col1:
                 st.markdown('### Custos Itens de Produção')
             with col2:
-                button_download(df_precos_itens_producao_completo_download, f'prod_{casa}', f'prod_{casa}')
+                button_download(df_precos_itens_producao_completo_download, f'prod_{casa}'[:31], f'prod_{casa}'[:31])
             st.dataframe(df_precos_itens_producao_completo, use_container_width=True, hide_index=True)
 
             col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
             with col1:
                 st.markdown(f'## Fichas Técnicas - Itens de Produção - {produto_selecionado}')
             with col2:
-                button_download(df_precos_insumos_producao_download, f'fichas_prod{casa}', f'fichas_prod_{casa}')
+                button_download(df_precos_insumos_producao_download, f'fichas_prod{casa}'[:31], f'fichas_prod_{casa}'[:31])
             st.dataframe(df_precos_insumos_producao, use_container_width=True, hide_index=True)
+
+            # Filtra compras dos insumos de estoque que vão no produto
+            lista_ids_insumos_estoque_produto_selecionado = df_precos_insumos_de_estoque['ID Insumo Estoque'].unique().tolist() + df_precos_insumos_producao['ID Insumo Estoque'].unique().tolist()
+            df_compras_insumos_de_estoque = df_compras_insumos_de_estoque[df_compras_insumos_de_estoque['ID Insumo Estoque'].isin(lista_ids_insumos_estoque_produto_selecionado)].sort_values(by=['ID Insumo Estoque'], ascending=[True])
+            df_compras_insumos_de_estoque_download = df_compras_insumos_de_estoque.copy()
+            df_compras_insumos_de_estoque = format_columns_brazilian(df_compras_insumos_de_estoque, ['Valor N5', 'Preço Médio Insumo Estoque'])
+
+            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            with col1:
+                st.markdown(f'## Compras - Itens de Estoque - {produto_selecionado}')
+            with col2:
+                button_download(df_compras_insumos_de_estoque_download, f'{produto_selecionado}'[:31], f'{produto_selecionado}'[:31])
+            dataframe_aggrid(df_compras_insumos_de_estoque, 'df_compras_insumos_de_estoque')
+
     
     # if 'Dev Dash FB' in permissoes:
     #     with st.container(border=True):

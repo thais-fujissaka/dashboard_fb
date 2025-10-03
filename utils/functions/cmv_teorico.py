@@ -36,19 +36,20 @@ def selecionar_precos_mes_casa(df_precos_insumos_estoque, df_insumos_estoque_nec
         (df_precos_insumos_estoque['Mês Compra'].isin([mes, mes_anterior])) &
         (df_precos_insumos_estoque['Ano Compra'].isin([ano, ano_anterior])) &
         (df_precos_insumos_estoque['ID Casa'] == id_casa)].copy()
-
+    
     # Prioridade para o mês atual no preço (merge)
     df_precos_insumos_estoque_filtrado = df_precos_insumos_estoque_filtrado.assign(
-        prioridade = ((df_precos_insumos_estoque_filtrado['Mês Compra'] == mes) &
-                    (df_precos_insumos_estoque_filtrado['Ano Compra'] == ano)).astype(int)
+        prioridade = ((df_precos_insumos_estoque_filtrado['ID Casa'] == id_casa) & 
+                      (df_precos_insumos_estoque_filtrado['Mês Compra'] == mes) &
+                      (df_precos_insumos_estoque_filtrado['Ano Compra'] == ano)).astype(int)
     )
     df_precos_insumos_estoque_filtrado = (
         df_precos_insumos_estoque_filtrado
         .sort_values(by=['prioridade'], ascending=False)
-        .drop_duplicates(subset=['ID Casa', 'ID Insumo Estoque'], keep='first')
+        .drop_duplicates(subset=['ID Insumo Estoque'], keep='first')
         .drop(columns=['prioridade'])
     )
-
+    
     # Adiciona os preços dos insumos de estoque comprados no mês ou no mês anterior com prioridade para o mês atual
     df_insumos_necessarios_casa = pd.merge(df_insumos_necessarios_casa, df_precos_insumos_estoque_filtrado, how='left', on=['ID Casa', 'Casa', 'ID Insumo Estoque', 'Insumo Estoque'])
     df_insumos_comprados_mes_ou_anterior = df_insumos_necessarios_casa[df_insumos_necessarios_casa['ID Insumo Estoque'].isin(df_precos_insumos_estoque_filtrado['ID Insumo Estoque'])]
