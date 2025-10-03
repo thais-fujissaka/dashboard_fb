@@ -137,6 +137,16 @@ def main():
     
     classificacoes_selecionadas = st.multiselect(label='Selecione Tipos', options=classificacoes)
     FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZigClasse, 'Tipo', classificacoes_selecionadas)
+    FaturamentoZigClasse = FaturamentoZigClasse.groupby(['Data_Evento', 'ID Produto', 'Nome Produto']).agg({
+      'Loja': 'first',
+      'Categoria': 'first',
+      'Tipo': 'first',
+      'Preço Unitário': 'first',
+      'Quantia comprada': 'sum',
+      'Desconto': 'sum',
+      'Valor Bruto Venda': 'sum',
+      'Valor Líquido Venda': 'sum'
+    }).reset_index()
     st.write('')
 
     st.subheader("Faturamento de Bebidas por Tipo:")
