@@ -137,6 +137,16 @@ def main():
     
     classificacoes_selecionadas = st.multiselect(label='Selecione Tipos', options=classificacoes)
     FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZigClasse, 'Tipo', classificacoes_selecionadas)
+    FaturamentoZigClasseAgrupado = FaturamentoZigClasse.copy().groupby(['Data_Evento', 'ID Produto', 'Nome Produto']).agg({
+      'Loja': 'first',
+      'Categoria': 'first',
+      'Tipo': 'first',
+      'Preço Unitário': 'first',
+      'Quantia comprada': 'sum',
+      'Desconto': 'sum',
+      'Valor Bruto Venda': 'sum',
+      'Valor Líquido Venda': 'sum'
+    }).reset_index()
     st.write('')
 
     st.subheader("Faturamento de Bebidas por Tipo:")
@@ -147,11 +157,21 @@ def main():
 
     col1, col2 = st.columns([4, 1], vertical_alignment = "center")
     with col1:
-        st.markdown('### Itens Vendidos')
+        st.markdown('### Itens Vendidos Detalhado')
     with col2:
         button_download(FaturamentoZigClasse, f'itens', f'download_itens')
     FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasse, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])
     st.dataframe(FaturamentoZigClasse, use_container_width=True, hide_index=True)
+
+
+    col1, col2 = st.columns([4, 1], vertical_alignment = "center")
+    with col1:
+        st.markdown('### Itens Vendidos Agrupados')
+    with col2:
+        button_download(FaturamentoZigClasseAgrupado, f'itens_agrupados', f'download_itens_agrupados')
+    FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasseAgrupado, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])
+    st.dataframe(FaturamentoZigClasse, use_container_width=True, hide_index=True)
+
 
 if __name__ == '__main__':
   main()
