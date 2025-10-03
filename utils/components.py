@@ -85,14 +85,14 @@ def input_selecao_casas_analise_produtos(lista_casas_retirar, key):
     return id_casa, casa, id_zigpay
 
 
-def input_periodo_datas(key):
+def input_periodo_datas(key, label='Período'):
     today = get_today()
     jan_this_year = get_jan_this_year(today)
     first_day_this_month_this_year = get_first_day_this_month_this_year(today)
     last_day_this_month_this_year = get_last_day_this_month_this_year(today)
 
     # Inicializa o input com o mês atual
-    date_input = st.date_input("Período",
+    date_input = st.date_input(label,
                             value=(first_day_this_month_this_year, last_day_this_month_this_year),
                             min_value=jan_this_year,
                             format="DD/MM/YYYY",

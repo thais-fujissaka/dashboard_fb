@@ -270,6 +270,28 @@ def GET_CASAS_ITENS_PRODUCAO():
     ''')
 
 
+@st.cache_data
+def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
+  return dataframe_query(f'''
+    SELECT 
+      tivd.FK_CASA AS 'ID Casa',
+      te.NOME_FANTASIA AS 'Casa',
+      tvivpc.ID_ITEM_VENDIDO AS 'ID Item Zig',
+      tvivpc.ID_ZIG_ITEM_VENDIDO AS 'Product ID',
+      tivd.PRODUCT_NAME AS 'Item Vendido Zig',
+      DATE(tivd.EVENT_DATE) AS 'Data Venda',
+      tivd.VALOR_UNITARIO AS 'Valor Unitário',
+      tivd.QUANTIDADE AS 'Quantidade',
+      tivd.DESCONTO AS 'Desconto',
+      COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0) AS 'Faturamento'
+    FROM T_ITENS_VENDIDOS_DIA tivd
+    LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
+    LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
+      ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
+      AND tvivpc.ID_CASA = tivd.FK_CASA
+  ''')
+
+
 ############################### CMV ###################################
 
 @st.cache_data
