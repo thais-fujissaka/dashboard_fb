@@ -2,7 +2,6 @@ import streamlit as st
 from utils.components import *
 from utils.functions.date_functions import *
 from utils.functions.general_functions import *
-from utils.functions.atualizar_faturamento_agregado_dia import *
 from utils.user import *
 from utils.functions.cmv_teorico import *
 from utils.queries_cmv import *
@@ -273,19 +272,6 @@ def main():
                 button_download(df_compras_insumos_de_estoque_download, f'{produto_selecionado}'[:31], f'{produto_selecionado}'[:31])
             dataframe_aggrid(df_compras_insumos_de_estoque, 'df_compras_insumos_de_estoque')
 
-    
-    # if 'Dev Dash FB' in permissoes:
-    #     with st.container(border=True):
-    #         col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='bottom', gap='large')
-    #         with col2:
-    #             st.markdown('## Atualizar Faturamento Diário Agregado')
-    #             st.write('')
-    #             col1, col2, col3 = st.columns([2, 1, 1], vertical_alignment='bottom')
-    #             with col1:
-    #                 periodo_atualizar = input_periodo_datas(key='atualizar_itens_vendidos_dia', label='Período de Atualização da T_ITENS_VENDIDOS_DIA')
-    #                 data_inicio_atualizar, data_fim_atualizar = periodo_atualizar
-    #             with col2:
-    #                 st.button(label='Atualizar Faturamento Diário Agregado', use_container_width=True, type='primary',key='atualizar_faturamento', on_click=lambda: atualizar_faturam_agregado_dia(data_inicio_atualizar, data_fim_atualizar), help=f'Popula a T_ITENS_VENDIDOS_DIA com faturamento agregado da semana anterior. **Uso restrito da área de Controladoria**.')
         
 if __name__ == '__main__':
     main()
