@@ -276,6 +276,10 @@ def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):
         st.sidebar.page_link("pages/Fluxo_de_Caixa - Previsão_de_Faturamento.py", label="🪙 Previsão de Faturamento")
         st.sidebar.page_link("pages/Conciliação - Fluxo_Realizado.py", label=":material/currency_exchange: Fluxo Realizado")
         st.sidebar.page_link("pages/Conciliação - Fluxo_Futuro.py", label=":material/event_upcoming: Fluxo Futuro")
+    if 'Acesso Conciliação' in permissoes:
+        st.sidebar.markdown("## Fluxo de Caixa")
+        st.sidebar.page_link("pages/Conciliação - Fluxo_Realizado.py", label=":material/currency_exchange: Fluxo Realizado")
+        st.sidebar.page_link("pages/Conciliação - Fluxo_Futuro.py", label=":material/event_upcoming: Fluxo Futuro")
 
 def config_sidebar():
 
