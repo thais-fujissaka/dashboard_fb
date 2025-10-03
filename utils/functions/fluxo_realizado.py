@@ -92,7 +92,7 @@ def prepare_monthly_data(
     receitas_zig['Data_Liquidacao'] = pd.to_datetime(receitas_zig['Data_Liquidacao'], errors='coerce', dayfirst=True)
 
     # Converte Valor para float (tratando vírgula como separador decimal)
-    receitas_zig['Valor'] = converte_string_float(receitas_zig, 'Valor') # transforma valores em float
+    # receitas_zig['Valor'] = converte_string_float(receitas_zig, 'Valor') # transforma valores em float
     receitas_zig['Valor'] = pd.to_numeric(receitas_zig['Valor'], errors='coerce')
 
     mask_extrato_zig = (
@@ -114,7 +114,7 @@ def prepare_monthly_data(
     receitas_extr['Recebimento_Parcela'] = pd.to_datetime(receitas_extr['Recebimento_Parcela'], errors='coerce', dayfirst=True)
     
     # Converte Valor para float 
-    receitas_extr['Valor_Parcela'] = converte_string_float(receitas_extr, 'Valor_Parcela') # transforma valores em float
+    # receitas_extr['Valor_Parcela'] = converte_string_float(receitas_extr, 'Valor_Parcela') # transforma valores em float
     receitas_extr['Valor_Parcela'] = pd.to_numeric(receitas_extr['Valor_Parcela'], errors='coerce')
 
     receitas_extr['Mes_Ano'] = receitas_extr['Recebimento_Parcela'].dt.to_period('M')
@@ -127,7 +127,7 @@ def prepare_monthly_data(
     receitas_eventos['Recebimento_Parcela'] = pd.to_datetime(receitas_eventos['Recebimento_Parcela'], errors='coerce', dayfirst=True)
     
     # Converte Valor para float 
-    receitas_eventos['Valor_Parcela'] = converte_string_float(receitas_eventos, 'Valor_Parcela') # transforma valores em float
+    # receitas_eventos['Valor_Parcela'] = converte_string_float(receitas_eventos, 'Valor_Parcela') # transforma valores em float
     receitas_eventos['Valor_Parcela'] = pd.to_numeric(receitas_eventos['Valor_Parcela'], errors='coerce')
 
     receitas_eventos['Mes_Ano'] = receitas_eventos['Recebimento_Parcela'].dt.to_period('M')
@@ -140,7 +140,7 @@ def prepare_monthly_data(
     desbloqueios_judiciais['Data_Transacao'] = pd.to_datetime(desbloqueios_judiciais['Data_Transacao'], errors='coerce', dayfirst=True)
     
     # Converte Valor para float 
-    desbloqueios_judiciais['Valor'] = converte_string_float(desbloqueios_judiciais, 'Valor') # transforma valores em float
+    # desbloqueios_judiciais['Valor'] = converte_string_float(desbloqueios_judiciais, 'Valor') # transforma valores em float
     desbloqueios_judiciais['Valor'] = pd.to_numeric(desbloqueios_judiciais['Valor'], errors='coerce')
 
     desbloqueios_judiciais['Mes_Ano'] = desbloqueios_judiciais['Data_Transacao'].dt.to_period('M')
@@ -152,7 +152,7 @@ def prepare_monthly_data(
     despesas_sem_parc['Realizacao_Pgto'] = pd.to_datetime(despesas_sem_parc['Realizacao_Pgto'], errors='coerce', dayfirst=True)
 
     # Converte Valor para float
-    despesas_sem_parc['Valor'] = converte_string_float(despesas_sem_parc, 'Valor') # transforma valores em float
+    # despesas_sem_parc['Valor'] = converte_string_float(despesas_sem_parc, 'Valor') # transforma valores em float
     despesas_sem_parc['Valor'] = pd.to_numeric(despesas_sem_parc['Valor'], errors='coerce')
 
     despesas_sem_parc['Mes_Ano'] = despesas_sem_parc['Realizacao_Pgto'].dt.to_period('M')
@@ -163,7 +163,7 @@ def prepare_monthly_data(
     despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
     despesas_com_parc['Realiz_Parcela'] = pd.to_datetime(despesas_com_parc['Realiz_Parcela'], errors='coerce', dayfirst=True)
 
-    despesas_com_parc['Valor_Parcela'] = converte_string_float(despesas_com_parc, 'Valor_Parcela') # transforma valores em float
+    # despesas_com_parc['Valor_Parcela'] = converte_string_float(despesas_com_parc, 'Valor_Parcela') # transforma valores em float
     despesas_com_parc['Valor_Parcela'] = pd.to_numeric(despesas_com_parc['Valor_Parcela'], errors='coerce')
 
     despesas_com_parc['Mes_Ano'] = despesas_com_parc['Realiz_Parcela'].dt.to_period('M')
@@ -175,7 +175,7 @@ def prepare_monthly_data(
     bloqueios_judiciais = df_bloqueios_filtrada.copy()
     bloqueios_judiciais['Data_Transacao'] = pd.to_datetime(bloqueios_judiciais['Data_Transacao'], errors='coerce', dayfirst=True)
 
-    bloqueios_judiciais['Valor'] = converte_string_float(bloqueios_judiciais, 'Valor') # transforma valores em float
+    # bloqueios_judiciais['Valor'] = converte_string_float(bloqueios_judiciais, 'Valor') # transforma valores em float
     bloqueios_judiciais['Valor'] = pd.to_numeric(bloqueios_judiciais['Valor'], errors='coerce')
     bloqueios_judiciais['Valor'] = bloqueios_judiciais['Valor'] * (-1)
 
@@ -215,14 +215,14 @@ def prepare_pivot_data_class_despesas(df_custos_blueme_sem_parcelam_filtrada, df
     despesas_sem_parc = df_custos_blueme_sem_parcelam_filtrada.copy()
     despesas_sem_parc["Realizacao_Pgto"] = pd.to_datetime(despesas_sem_parc["Realizacao_Pgto"], errors="coerce", dayfirst=True)
     despesas_sem_parc['Mes_Ano'] = despesas_sem_parc['Realizacao_Pgto'].dt.to_period('M')
-    despesas_sem_parc['Valor'] = converte_string_float(despesas_sem_parc, 'Valor') # transforma valores em float
+    # despesas_sem_parc['Valor'] = converte_string_float(despesas_sem_parc, 'Valor') # transforma valores em float
     despesas_sem_parc['Valor'] = pd.to_numeric(despesas_sem_parc['Valor'], errors='coerce')
 
-    ## Despesas - BlueMe Com Parcelamento (aplicando filtro de data)
+    ## Despesas - BlueMe Com Parcelamento
     despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
     despesas_com_parc["Realiz_Parcela"] = pd.to_datetime(despesas_com_parc["Realiz_Parcela"], errors="coerce", dayfirst=True)
     despesas_com_parc['Mes_Ano'] = despesas_com_parc['Realiz_Parcela'].dt.to_period('M')
-    despesas_com_parc['Valor_Parcela'] = converte_string_float(despesas_com_parc, 'Valor_Parcela') # transforma valores em float
+    # despesas_com_parc['Valor_Parcela'] = converte_string_float(despesas_com_parc, 'Valor_Parcela') # transforma valores em float
     despesas_com_parc['Valor_Parcela'] = pd.to_numeric(despesas_com_parc['Valor_Parcela'], errors='coerce')
 
     # Combinando dados

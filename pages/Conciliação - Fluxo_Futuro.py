@@ -163,7 +163,9 @@ if not casas_selecionadas:
 st.divider()
 
 ## Orçamentos
-st.subheader("Orçamentos")
+col1, col2 = st.columns([6, 1])
+with col1:
+    st.subheader("Orçamentos")
 
 # Informando o período filtrado
 # st.info(f"📅 **Período filtrado**: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
@@ -193,12 +195,16 @@ df_orcamentos_filtrada_aggrid, tam_df_orcamentos_filtrada_aggrid = dataframe_agg
     num_columns=["Valor_Orcamento"],
     date_columns=['Data_Orcamento']
 )
-function_copy_dataframe_as_tsv(df_orcamentos_filtrada_aggrid)
+
+with col2:
+    function_copy_dataframe_as_tsv(df_orcamentos_filtrada_aggrid)
 
 st.divider()
 
 ## Faturamento Agregado
-st.subheader("Faturamento Agregado")
+col1, col2 = st.columns([6, 1])
+with col1:
+    st.subheader("Faturamento Agregado")
 
 df_faturamento_agregado['Ano_Mes'] = df_faturamento_agregado['Ano'].astype(str) + '-' + df_faturamento_agregado['Mes'].astype(str).str.zfill(2)
 
@@ -213,7 +219,9 @@ df_faturamento_agregado_aggrid, tam_df_faturamento_agregado_aggrid = dataframe_a
     num_columns=["Valor_Bruto", "Desconto", "Valor_Liquido"],
     
 )
-function_copy_dataframe_as_tsv(df_faturamento_agregado_aggrid)
+
+with col2:
+    function_copy_dataframe_as_tsv(df_faturamento_agregado_aggrid)
 
 st.divider()
 
@@ -301,7 +309,8 @@ df_faturamento_analise = df_faturamento_agregado[
 
 # Aplicando filtro de data ao faturamento realizado
 # Convertendo Ano_Mes para datetime para comparação
-df_faturamento_analise['Data_Faturamento'] = pd.to_datetime(
+df_faturamento_analise = df_faturamento_analise.copy()
+df_faturamento_analise.loc[:, 'Data_Faturamento'] = pd.to_datetime(
     df_faturamento_analise['Ano_Mes'] + '-01'
 )
 
@@ -412,7 +421,9 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
     st.divider()
 
     # Tabela detalhada de comparação
-    st.subheader("Detalhamento Mensal - Orçado vs Realizado")
+    col1, col2 = st.columns([6, 1])
+    with col1:
+        st.subheader("Detalhamento Mensal - Orçado vs Realizado")
     
     df_comparacao_display = df_comparacao[['Mes_Ano', 'Valor_Orcamento', 'Valor_Bruto', 'Diferenca', 'Percentual_Realizado']].copy()
     df_comparacao_display.columns = ['Mês/Ano', 'Orçado (R$)', 'Realizado (R$)', 'Diferença (R$)', 'Realizado/Orçado (%)']
@@ -424,7 +435,8 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
         percent_columns=["Realizado/Orçado (%)"]
     )
     
-    function_copy_dataframe_as_tsv(df_comparacao_aggrid)
+    with col2:
+        function_copy_dataframe_as_tsv(df_comparacao_aggrid)
 
     st.divider()
     
@@ -524,9 +536,11 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                         date_columns=[]
                     )
                     
-                    # Calculando total dos valores filtrados
-                    total_valores_filtrados(df_patrocinios_aggrid, tam_df_patrocinios_aggrid, "Valor Parcela (R$)", despesa_com_parc=False)
-                    function_copy_dataframe_as_tsv(df_patrocinios_aggrid)
+                    col1, col2 = st.columns([6, 1])
+                    with col1: # Calculando total dos valores filtrados
+                        total_valores_filtrados(df_patrocinios_aggrid, tam_df_patrocinios_aggrid, "Valor Parcela (R$)", despesa_com_parc=False)
+                    with col2:
+                        function_copy_dataframe_as_tsv(df_patrocinios_aggrid)
                     
 
                     # Agrupando patrocínios por mês para uso nas projeções
@@ -577,12 +591,13 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
     ]
     
     if not df_orcamentos_futuros.empty:
+        df_orcamentos_futuros = df_orcamentos_futuros.copy()
         # Convertendo Valor_Orcamento para float para evitar problemas com decimal.Decimal
-        df_orcamentos_futuros['Valor_Orcamento_Float'] = df_orcamentos_futuros['Valor_Orcamento'].astype(float)
+        df_orcamentos_futuros.loc[:, 'Valor_Orcamento_Float'] = df_orcamentos_futuros['Valor_Orcamento'].astype(float)
         
         # Aplicando fator de ajuste
-        df_orcamentos_futuros['Valor_Projetado'] = df_orcamentos_futuros['Valor_Orcamento_Float'] * fator_ajuste
-        df_orcamentos_futuros['Ajuste'] = df_orcamentos_futuros['Valor_Projetado'] - df_orcamentos_futuros['Valor_Orcamento_Float']
+        df_orcamentos_futuros.loc[:, 'Valor_Projetado'] = df_orcamentos_futuros['Valor_Orcamento_Float'] * fator_ajuste
+        df_orcamentos_futuros.loc[:, 'Ajuste'] = df_orcamentos_futuros['Valor_Projetado'] - df_orcamentos_futuros['Valor_Orcamento_Float']
         
         # Agrupando projeções por mês
         projecoes_mensais = df_orcamentos_futuros.groupby(['Ano_Orcamento', 'Mes_Orcamento']).agg({
@@ -739,7 +754,9 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
         st.divider()
 
         # Tabela de projeções
-        st.subheader("Detalhamento das Projeções")
+        col1, col2 = st.columns([6, 1])
+        with col1:
+            st.subheader("Detalhamento das Projeções")
         
         # Preparando dados para a tabela consolidada
         # Sempre incluir patrocínios, mesmo que vazios
@@ -793,7 +810,8 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             num_columns=["Orçado Original (R$)", "Projeção Ajustada (R$)", "Ajuste (R$)", "Patrocínios (R$)", "Receita Total (R$)"]
         )
         
-        function_copy_dataframe_as_tsv(projecoes_aggrid)
+        with col2:
+            function_copy_dataframe_as_tsv(projecoes_aggrid)
         
     else:
         st.warning("Não há orçamentos futuros disponíveis para projeção.")
@@ -1051,7 +1069,9 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
             st.divider()
             
             # ===== TABELA DETALHADA POR CLASS_CONT_1 E MÊS =====
-            st.subheader("Detalhamento por Classificação Contábil e Mês")
+            col1, col2 = st.columns([6, 1])
+            with col1:
+                st.subheader("Detalhamento por Classificação Contábil e Mês")
             
             # Preparando dados para a tabela detalhada
             if not df_projecoes_consolidadas.empty:
@@ -1115,7 +1135,8 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                     num_columns=colunas_numericas
                 )
                 
-                function_copy_dataframe_as_tsv(df_detalhado_aggrid)
+                with col2:
+                    function_copy_dataframe_as_tsv(df_detalhado_aggrid)
 
                 st.divider()
                 
@@ -1205,9 +1226,11 @@ if not df_orcamentos_analise.empty and not df_faturamento_analise.empty:
                             num_columns=["Valor (R$)"]
                         )
                         
-                        # Calculando total dos valores filtrados
-                        total_valores_filtrados(df_lancamentos_aggrid, tam_df_lancamentos_aggrid, 'Valor (R$)')
-                        function_copy_dataframe_as_tsv(df_lancamentos_aggrid)
+                        col1, col2 = st.columns([6, 1])
+                        with col1: # Calculando total dos valores filtrados
+                            total_valores_filtrados(df_lancamentos_aggrid, tam_df_lancamentos_aggrid, 'Valor (R$)')
+                        with col2:
+                            function_copy_dataframe_as_tsv(df_lancamentos_aggrid)
                         
                     else:
                         st.info("Não há despesas do tipo 'Lançamentos' para exibir.")
@@ -1432,7 +1455,9 @@ if 'df_projecoes_consolidadas' in locals() and not df_projecoes_consolidadas.emp
         st.divider()
 
         # Tabela resumida da projeção
-        st.subheader("Resumo da Projeção Avançada por Mês")
+        col1, col2 = st.columns([6, 1])
+        with col1:
+            st.subheader("Resumo da Projeção Avançada por Mês")
         
         # Criando tabela pivot usando os dados consolidadas
         if not df_receitas_consolidadas.empty:
@@ -1474,7 +1499,8 @@ if 'df_projecoes_consolidadas' in locals() and not df_projecoes_consolidadas.emp
             num_columns=colunas_numericas
         )
         
-        function_copy_dataframe_as_tsv(pivot_projecao_aggrid)
+        with col2:
+            function_copy_dataframe_as_tsv(pivot_projecao_aggrid)
         
     else:
         st.warning("Não há dados de projeção para exibir no gráfico.")
@@ -1623,8 +1649,10 @@ else:
 st.divider()
 
 # ===== TABELA DE FATORES DE AJUSTE POR CASA =====
-st.subheader("Fatores de Ajuste por Casa")
-st.markdown("**Análise de Performance: Orçado vs Realizado**")
+col1, col2 = st.columns([6, 1])
+with col1:
+    st.subheader("Fatores de Ajuste por Casa")
+    st.markdown("**Análise de Performance: Orçado vs Realizado**")
 
 # Mostrando o período usado para análise
 if 'fator_ajuste_date_input' in st.session_state:
@@ -1792,7 +1820,8 @@ if not df_fatores_ajuste.empty:
         percent_columns=["Realizado/Orçado (%)"]
     )
     
-    function_copy_dataframe_as_tsv(fatores_aggrid)
+    with col2:
+        function_copy_dataframe_as_tsv(fatores_aggrid)
 
     st.divider()
     

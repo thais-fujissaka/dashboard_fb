@@ -267,6 +267,8 @@ def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value
 def format_numeric_column(df, col):
     if col not in df.columns:
         return df
+    
+    df = df.copy()
 
     num_col = f"{col}_NUM"
     
@@ -285,7 +287,7 @@ def format_numeric_column(df, col):
         except (InvalidOperation, ValueError):
             return None
     
-    df[num_col] = df[col].apply(parse_br_number)
+    df.loc[:, num_col] = df[col].apply(parse_br_number)
     
     # Formatação BR
     def format_br(x):
@@ -295,7 +297,7 @@ def format_numeric_column(df, col):
         s = f"{x:,.2f}"
         return s.replace(",", "X").replace(".", ",").replace("X", ".")
     
-    df[col] = df[num_col].apply(format_br)
+    df[col] = df[num_col].apply(format_br).astype("string")
     
     return df
 
