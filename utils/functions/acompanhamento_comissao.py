@@ -57,6 +57,14 @@ def calcular_comissao(df_recebimentos, orcamento_mes, meta_atingida):
 
     return df_comissoes
 
+
+def adiciona_gerentes(vendedores, vendedores_cargos):
+    vendedores_cargos = vendedores_cargos.copy()
+    for _, item in vendedores_cargos.iterrows():
+        if item['Cargo'] == 'Gerente de Eventos':
+            vendedores.append(item['ID - Responsavel'])
+    return vendedores
+
 def calcular_comissao_gerente_priceless(df_recebimentos_total_mes, id_responsavel, id_casa):
     if id_casa in [149, -1]:
         df_recebimentos_total_mes = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 149].copy()
