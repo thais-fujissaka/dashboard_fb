@@ -225,14 +225,18 @@ def main():
             comissao = 0
 
             # Map de vendedores e cargos
-            vendedores_cargos = df_acessos_comissoes[['ID - Responsavel', 'Cargo']].drop_duplicates()
+            vendedores_cargos = df_acessos_comissoes[['ID - Responsavel', 'Cargo', 'ID Casa']].drop_duplicates()
+            if id_casa != -1:
+                vendedores_cargos = vendedores_cargos[vendedores_cargos['ID Casa'] == id_casa]
 
             # Visualização das parcelas
             if df_recebimentos.empty:
                 st.warning("Não há recebimentos e comissões para os filtros selecionados.")
                 st.stop()
             else:
-                vendedores = df_recebimentos['ID - Responsavel'].unique().tolist()
+                vendedores = df_recebimentos['ID - Responsavel'].tolist()
+                vendedores = adiciona_gerentes(vendedores, vendedores_cargos)
+                vendedores = list(set(vendedores))
                 total_vendido = df_recebimentos['Valor da Parcela'].sum()
                 altura_header = 318
                 altura_maxima_pagina = 1300
@@ -240,6 +244,7 @@ def main():
                 altura_nome_vendedor = 52
                 altura_linha = 35
                 altura_expander = 86
+                
                 for vendedor in vendedores:
                     df_vendedor = df_comissoes_por_meta[df_comissoes_por_meta['ID - Responsavel'] == vendedor].copy()
                     cargo_vendedor = vendedores_cargos[vendedores_cargos['ID - Responsavel'] == vendedor]['Cargo'].values[0]
@@ -249,19 +254,19 @@ def main():
                     df_vendedor['Ano Recebimento'] = df_vendedor['Ano Recebimento'].astype(int).astype(str)
                     df_vendedor['Mês Recebimento'] = df_vendedor['Mês Recebimento'].astype(int).astype(str)
                     
+                    if 149 in ids_casas_vendedor and cargo_vendedor == 'Gerente de Eventos':
+                        df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[(df_recebimentos_total_mes['ID - Responsavel'] != vendedor) & (df_recebimentos_total_mes['ID Casa'] == 149)].copy()
+                        df_recebimentos_gerente_priceless = calcular_comissao_gerente_priceless(df_recebimentos_total_mes_outros_vendedores, vendedor, id_casa)
+                        df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_priceless], ignore_index=True)
+
+                    if 110 in ids_casas_vendedor and cargo_vendedor == 'Gerente de Eventos':
+                        df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 110].copy()
+                        df_recebimentos_gerente_blue_note = calcular_comissao_gerente_blue_note(df_recebimentos_total_mes, vendedor, id_casa)
+                        df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_blue_note], ignore_index=True)
+                        
                     if not df_vendedor.empty:
                         df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão', 'Comissão']]
 
-                        if 149 in ids_casas_vendedor and cargo_vendedor == 'Gerente de Eventos':
-                            df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[(df_recebimentos_total_mes['ID - Responsavel'] != vendedor) & (df_recebimentos_total_mes['ID Casa'] == 149)].copy()
-                            df_recebimentos_gerente_priceless = calcular_comissao_gerente_priceless(df_recebimentos_total_mes_outros_vendedores, vendedor, id_casa)
-                            df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_priceless], ignore_index=True)
-
-                        if 110 in ids_casas_vendedor and cargo_vendedor == 'Gerente de Eventos':
-                            df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 110].copy()
-                            df_recebimentos_gerente_blue_note = calcular_comissao_gerente_blue_note(df_recebimentos_total_mes, vendedor, id_casa)
-                            df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_blue_note], ignore_index=True)
-                        
                         # Drop comissoes iguais a zero
                         df_vendedor = df_vendedor[df_vendedor['Comissão'] != 0]
 
