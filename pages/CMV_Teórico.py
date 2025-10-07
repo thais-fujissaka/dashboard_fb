@@ -138,7 +138,7 @@ def main():
 
     # Tabela de faturamento
     df_itens_vendidos_dia = GET_FATURAMENTO_ITENS_VENDIDOS_DIA()
-
+    
     # Formatação de dados
     df_itens_vendidos_dia['Data Venda'] = pd.to_datetime(df_itens_vendidos_dia['Data Venda'], errors='coerce')
     
