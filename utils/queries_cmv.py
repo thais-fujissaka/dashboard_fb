@@ -280,15 +280,16 @@ def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
       tvivpc.ID_ZIG_ITEM_VENDIDO AS 'Product ID',
       tivd.PRODUCT_NAME AS 'Item Vendido Zig',
       DATE(tivd.EVENT_DATE) AS 'Data Venda',
-      tivd.VALOR_UNITARIO AS 'Valor Unitário',
-      tivd.QUANTIDADE AS 'Quantidade',
-      tivd.DESCONTO AS 'Desconto',
+      SUM(QUANTIDADE * VALOR_UNITARIO) / SUM(QUANTIDADE) AS 'Valor Unitário',
+      SUM(tivd.QUANTIDADE) AS 'Quantidade',
+      SUM(tivd.DESCONTO) AS 'Desconto',
       COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0) AS 'Faturamento'
     FROM T_ITENS_VENDIDOS_DIA tivd
     LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
     LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
       ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
       AND tvivpc.ID_CASA = tivd.FK_CASA
+    GROUP BY tivd.FK_CASA, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)
   ''')
 
 
@@ -305,19 +306,19 @@ def GET_FATURAM_ZIG_ALIM_BEB_MENSAL(data_inicio, data_fim):
       WHEN te.ID IN (103, 112, 118, 139) THEN 1
       ELSE 0 
     END AS Delivery,
-    cast(date_format(cast(tiv.EVENT_DATE AS date), '%Y-%m-01') AS date) AS Primeiro_Dia_Mes,
-    concat(year(cast(tiv.EVENT_DATE AS date)), '-', month(cast(tiv.EVENT_DATE AS date))) AS Ano_Mes,
-    cast(tiv.EVENT_DATE AS date) AS Data_Evento,
-    SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
-    SUM(tiv.DISCOUNT_VALUE) AS Desconto,
-    SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
-  FROM T_ITENS_VENDIDOS tiv
-  LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
+    cast(date_format(cast(tivd.EVENT_DATE AS date), '%Y-%m-01') AS date) AS Primeiro_Dia_Mes,
+    concat(year(cast(tivd.EVENT_DATE AS date)), '-', month(cast(tivd.EVENT_DATE AS date))) AS Ano_Mes,
+    cast(tivd.EVENT_DATE AS date) AS Data_Evento,
+    SUM((tivd.VALOR_UNITARIO  * tivd.QUANTIDADE)) AS Valor_Bruto,
+    SUM(tivd.DESCONTO) AS Desconto,
+    SUM((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO) AS Valor_Liquido
+  FROM T_ITENS_VENDIDOS_DIA tivd
+  LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tivd.PRODUCT_ID = tivc.ID_ZIGPAY
   LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
   LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
-  LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
-  WHERE cast(tiv.EVENT_DATE AS date) >= '{data_inicio}'
-    AND cast(tiv.EVENT_DATE AS date) <= '{data_fim}'
+  LEFT JOIN T_EMPRESAS te ON tivd.LOJA_ID = te.ID_ZIGPAY
+  WHERE cast(tivd.EVENT_DATE AS date) >= '{data_inicio}'
+    AND cast(tivd.EVENT_DATE AS date) <= '{data_fim}'
     AND tivc2.DESCRICAO IN ('Alimentos', 'Bebidas')
   GROUP BY 
     ID_Loja,

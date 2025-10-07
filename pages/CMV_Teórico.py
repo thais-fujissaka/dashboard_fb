@@ -15,7 +15,7 @@ st.set_page_config(
 
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
     st.switch_page('Login.py')
-    
+
 
 def main():
     # Sidebar
@@ -138,7 +138,7 @@ def main():
 
     # Tabela de faturamento
     df_itens_vendidos_dia = GET_FATURAMENTO_ITENS_VENDIDOS_DIA()
-
+    
     # Formatação de dados
     df_itens_vendidos_dia['Data Venda'] = pd.to_datetime(df_itens_vendidos_dia['Data Venda'], errors='coerce')
     
@@ -166,12 +166,36 @@ def main():
     }
     df_itens_vendidos_dia = df_itens_vendidos_dia.astype(tipos_dados_itens_vendidos_dia, errors='ignore')
 
-    # Merge faturamento com custos das fichas
+    # Merge faturamento com custos das fichas (% CMV Unit.)
     df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
-    df_precos_itens_vendidos['% CMV'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário'])
-    df_precos_itens_vendidos.sort_values(by=['% CMV'], ascending=False, inplace=True)
-    df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento', 'Desconto'])
+    df_precos_itens_vendidos['% CMV Unit.'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário'])
+    df_precos_itens_vendidos.sort_values(by=['% CMV Unit.'], ascending=False, inplace=True)
+    
+    # CMV Teórico em R$
+    df_precos_itens_vendidos['CMV Teórico'] = df_precos_itens_vendidos['Custo Item'] * df_precos_itens_vendidos['Quantidade']
 
+    
+    
+    # Métricas gerais
+    cmv_teorico = df_precos_itens_vendidos['CMV Teórico'].sum()
+    vendas_ab = df_precos_itens_vendidos['Faturamento'].sum()
+    cmv_teorico_porcentagem_estimada_periodo = cmv_teorico / vendas_ab * 100
+    
+    col1, col2, col3 = st.columns([1, 1, 1], vertical_alignment='center')
+    with col1:
+        kpi_card('CMV Teórico (R$)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000")
+    with col2:
+        kpi_card('Vendas A&B (R$)', f'{format_brazilian(vendas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
+    with col3:
+        cor = "#0051FF"
+        if cmv_teorico_porcentagem_estimada_periodo > 30:
+            cor = 'red'
+        elif cmv_teorico_porcentagem_estimada_periodo < 25:
+            cor = 'green'
+        kpi_card('CMV Teórico Estimado no Período (%)', f'{format_brazilian(cmv_teorico_porcentagem_estimada_periodo)} %', background_color="#FFFFFF", title_color="#333", value_color=cor)
+
+    # Formata valores
+    df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento', 'Desconto', 'CMV Teórico'])
 
     col1, col2 = st.columns([3, 1], vertical_alignment='center', gap='large')
     with col1:
@@ -181,15 +205,11 @@ def main():
     st.dataframe(
         df_precos_itens_vendidos,
         column_config={
-            '% CMV': st.column_config.ProgressColumn(
-                "% CMV",
+            '% CMV Unit.': st.column_config.ProgressColumn(
+                "% CMV Unit.",
                 format='percent',
                 min_value=0,
                 max_value=1,
-            ),
-            'Faturamento': st.column_config.TextColumn(
-                'Faturamento',
-                default="R$ %s",
             )
         },
         use_container_width=True,
