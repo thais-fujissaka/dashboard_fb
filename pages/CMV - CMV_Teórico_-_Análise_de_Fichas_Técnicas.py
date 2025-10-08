@@ -45,7 +45,7 @@ def main():
     with col_ano:
         ano = seletor_ano(2024, 2025, 'ano', 'Ano de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')
     with col_periodo:
-        periodo = input_periodo_datas(key='datas')
+        periodo = input_periodo_datas(key='datas', label='Período de Faturamento')
         
     try:
         data_inicio = pd.to_datetime(periodo[0])
@@ -188,17 +188,17 @@ def main():
         cor_cmv_bruto = cor_porcentagem_cmv(cmv_teorico_bruto_porcentagem)
         kpi_card_cmv_teorico('CMV Teórico (Venda Bruta)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=f'{cmv_teorico_bruto_porcentagem}', color_percentual=cor_cmv_bruto)
     with col2:
-        kpi_card_cmv_teorico('Venda Bruta A&B (R$)', f'{format_brazilian(vendas_brutas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
+        kpi_card_cmv_teorico('Faturamento Bruto de A&B (R$)', f'{format_brazilian(vendas_brutas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
     with col3:
         cor_cmv_liquido = cor_porcentagem_cmv(cmv_teorico_bruto_porcentagem)
         kpi_card_cmv_teorico('CMV Teórico (Venda Líquida)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=f'{cmv_teorico_liquido_porcentagem}', color_percentual=cor_cmv_liquido)
     with col4:
-        kpi_card_cmv_teorico('Venda Líquida A&B (R$)', f'{format_brazilian(vendas_liquidas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
+        kpi_card_cmv_teorico('Faturamento Líquido de A&B (R$)', f'{format_brazilian(vendas_liquidas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
     with col5:
         kpi_card_cmv_teorico('CMV Orçado', f'-', background_color="#FFFFFF", title_color="#333", value_color="#000")
 
     # Formata valores
-    df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento', 'Desconto', 'CMV Teórico'])
+    df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento Bruto', 'Faturamento Líquido', 'Desconto', 'CMV Teórico'])
 
     col1, col2 = st.columns([3, 1], vertical_alignment='center', gap='large')
     with col1:
