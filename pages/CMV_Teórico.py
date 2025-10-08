@@ -292,6 +292,18 @@ def main():
                 button_download(df_compras_insumos_de_estoque_download, f'{produto_selecionado}'[:31], f'{produto_selecionado}'[:31])
             dataframe_aggrid(df_compras_insumos_de_estoque, 'df_compras_insumos_de_estoque')
 
+
+
+            df_precos_itens_com_fichas_duplicadas = df_precos_itens_vendidos_download.copy()
+            df_precos_itens_com_fichas_duplicadas = df_precos_itens_com_fichas_duplicadas[df_precos_itens_com_fichas_duplicadas.duplicated(subset=['ID Item Zig'], keep=False)].sort_values(by=['Item Vendido Zig'], ascending=[True])
+            df_precos_itens_com_fichas_duplicadas = format_columns_brazilian(df_precos_itens_com_fichas_duplicadas, ['Custo Item'])
+            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            with col1:
+                st.markdown(f'## Fichas Duplicadas')
+            with col2:
+                button_download(df_precos_itens_com_fichas_duplicadas, f'fichas_duplicadas'[:31], f'fichas_duplicadas'[:31])
+            dataframe_aggrid(df_precos_itens_com_fichas_duplicadas, 'df_fichas_duplicadas')
+
         
 if __name__ == '__main__':
     main()
