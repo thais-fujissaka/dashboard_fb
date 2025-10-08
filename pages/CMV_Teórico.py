@@ -132,8 +132,6 @@ def main():
     df_precos_itens_producao_completo = df_precos_itens_producao_completo.sort_values(by=['Custo Item Produzido'], ascending=False)
     df_precos_insumos_producao = df_precos_insumos_producao.sort_values(by=['Custo Ficha'], ascending=False)
 
-    df_precos_itens_vendidos_download = df_precos_itens_vendidos.copy()
-
     df_precos_insumos_producao = df_precos_insumos_producao.drop(columns={'Produção?'})
 
     # Tabela de faturamento
@@ -154,7 +152,8 @@ def main():
             'Data Venda': 'first',
             'Valor Unitário': 'first',
             'Quantidade': 'sum',
-            'Faturamento': 'sum',
+            'Faturamento Bruto': 'sum',
+            'Faturamento Líquido': 'sum',
             'Desconto': 'sum'
         })
     df_itens_vendidos_dia = df_itens_vendidos_dia[df_itens_vendidos_dia['ID Casa'] == id_casa]
@@ -162,37 +161,41 @@ def main():
         'Valor Unitário': float,
         'Quantidade': float,
         'Desconto': float,
-        'Faturamento': float
+        'Faturamento Bruto': float,
+        'Faturamento Líquido': float
     }
     df_itens_vendidos_dia = df_itens_vendidos_dia.astype(tipos_dados_itens_vendidos_dia, errors='ignore')
 
     # Merge faturamento com custos das fichas (% CMV Unit.)
-    df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
+    df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento Bruto', 'Faturamento Líquido']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
     df_precos_itens_vendidos['% CMV Unit.'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário'])
     df_precos_itens_vendidos.sort_values(by=['% CMV Unit.'], ascending=False, inplace=True)
     
     # CMV Teórico em R$
     df_precos_itens_vendidos['CMV Teórico'] = df_precos_itens_vendidos['Custo Item'] * df_precos_itens_vendidos['Quantidade']
 
-    
+    df_precos_itens_vendidos_download = df_precos_itens_vendidos.copy()
     
     # Métricas gerais
     cmv_teorico = df_precos_itens_vendidos['CMV Teórico'].sum()
-    vendas_ab = df_precos_itens_vendidos['Faturamento'].sum()
-    cmv_teorico_porcentagem_estimada_periodo = cmv_teorico / vendas_ab * 100
+    vendas_brutas_ab = df_precos_itens_vendidos['Faturamento Bruto'].sum()
+    vendas_liquidas_ab = df_precos_itens_vendidos['Faturamento Líquido'].sum()
+    cmv_teorico_bruto_porcentagem = round(cmv_teorico / vendas_brutas_ab * 100, 2)
+    cmv_teorico_liquido_porcentagem = round(cmv_teorico / vendas_liquidas_ab * 100, 2)
     
-    col1, col2, col3 = st.columns([1, 1, 1], vertical_alignment='center')
+    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1], vertical_alignment='center')
     with col1:
-        kpi_card('CMV Teórico (R$)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000")
+        cor_cmv_bruto = cor_porcentagem_cmv(cmv_teorico_bruto_porcentagem)
+        kpi_card_cmv_teorico('CMV Teórico (Venda Bruta)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=f'{cmv_teorico_bruto_porcentagem}', color_percentual=cor_cmv_bruto)
     with col2:
-        kpi_card('Vendas A&B (R$)', f'{format_brazilian(vendas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
+        kpi_card_cmv_teorico('Venda Bruta A&B (R$)', f'{format_brazilian(vendas_brutas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
     with col3:
-        cor = "#0051FF"
-        if cmv_teorico_porcentagem_estimada_periodo > 30:
-            cor = 'red'
-        elif cmv_teorico_porcentagem_estimada_periodo < 25:
-            cor = 'green'
-        kpi_card('CMV Teórico Estimado no Período (%)', f'{format_brazilian(cmv_teorico_porcentagem_estimada_periodo)} %', background_color="#FFFFFF", title_color="#333", value_color=cor)
+        cor_cmv_liquido = cor_porcentagem_cmv(cmv_teorico_bruto_porcentagem)
+        kpi_card_cmv_teorico('CMV Teórico (Venda Líquida)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=f'{cmv_teorico_liquido_porcentagem}', color_percentual=cor_cmv_liquido)
+    with col4:
+        kpi_card_cmv_teorico('Venda Líquida A&B (R$)', f'{format_brazilian(vendas_liquidas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
+    with col5:
+        kpi_card_cmv_teorico('CMV Orçado', f'-', background_color="#FFFFFF", title_color="#333", value_color="#000")
 
     # Formata valores
     df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento', 'Desconto', 'CMV Teórico'])

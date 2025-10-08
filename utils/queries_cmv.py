@@ -283,7 +283,8 @@ def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
       SUM(QUANTIDADE * VALOR_UNITARIO) / SUM(QUANTIDADE) AS 'Valor Unitário',
       SUM(tivd.QUANTIDADE) AS 'Quantidade',
       SUM(tivd.DESCONTO) AS 'Desconto',
-      COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0) AS 'Faturamento'
+      COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0) AS 'Faturamento Bruto',
+      COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0) AS 'Faturamento Líquido'
     FROM T_ITENS_VENDIDOS_DIA tivd
     LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
     LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 

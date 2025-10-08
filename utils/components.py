@@ -264,6 +264,86 @@ def kpi_card(title, value, background_color="#FFFFFF", title_color="#333", value
     st.markdown(html, unsafe_allow_html=True)
 
 
+def kpi_card_cmv_teorico(title, value, background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=None, color_percentual=None):
+
+    if color_percentual:
+        if color_percentual == 'verde':
+            color_percentual = 'rgb(9, 171, 59)'
+            background_color_percentual = 'rgba(9, 171, 59, 0.1)'
+        elif color_percentual == 'amarelo':
+            color_percentual = 'rgb(255, 165, 0)'
+            background_color_percentual = 'rgba(255, 196, 0, 0.15)'
+        elif color_percentual == 'vermelho':
+            color_percentual = 'rgb(255, 75, 75)'
+            background_color_percentual = 'rgba(255, 75, 75, 0.1)'
+    else:
+        color_percentual = 'rgb(128, 128, 128)'
+        background_color_percentual = 'rgba(128, 128, 128, 0.1)'
+
+    if valor_percentual:
+        html = f"""
+        <div style="
+            background-color: {background_color};
+            border: 1px solid rgba(49, 51, 63, 0.2);
+            border-radius: 10px;
+            padding: 16px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: none;
+            margin: 0px;
+            cursor: default;
+            transition: none;
+        ">
+            <div style="font-size: 14px; color: {title_color}; font-weight: normal; margin-bottom: 4px;">
+                {title}
+            </div>
+            <div style="font-size: 24px; color: {value_color}; font-weight: bold;">
+                {value}
+            </div>
+            <div style="
+                background-color: {background_color_percentual};
+                color: {color_percentual};
+                border-radius: 20px;
+                padding: 2px 8px;
+                font-size: 18px;
+                font-weight: 500;
+            ">
+                {valor_percentual} %
+            </div>
+        </div>
+        """
+    else:
+        html = f"""
+        <div style="
+            background-color: {background_color};
+            border: 1px solid rgba(49, 51, 63, 0.2);
+            border-radius: 10px;
+            padding: 16px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: none;
+            margin: 0px;
+            cursor: default;
+            transition: none;
+        ">
+            <div style="font-size: 14px; color: {title_color}; font-weight: normal; margin-bottom: 6px;">
+                {title}
+            </div>
+            <div style="font-size: 24px; color: {value_color}; font-weight: bold;">
+                {value}
+            </div>
+        </div>
+        """
+
+    st.markdown(html, unsafe_allow_html=True)
+
+
 def format_numeric_column(df, col):
     if col not in df.columns:
         return df
