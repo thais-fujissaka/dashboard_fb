@@ -65,7 +65,7 @@ def main():
             "Acesso Admin Priceless Eventos": "pages/Eventos - Calendário_de_Eventos.py",
             "Gazit": "pages/Eventos - Gazit.py",
             "Acesso Conciliação": "pages/Conciliação - Conciliações.py",
-            "Acesso CMV 1": "pages/CMV_Teórico.py",
+            "Acesso CMV 1": "pages/CMV - CMV_Real.py",
             "Acesso Compras 1": "pages/Compras - Análises.py",
             "Acesso Financeiro 1": "pages/Financeiro - Despesas.py",
         }

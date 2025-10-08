@@ -10,8 +10,8 @@ from utils.user import logout
 
 st.set_page_config(
   layout = 'wide',
-  page_title = 'CMV',
-  page_icon=':⚖',
+  page_title = 'CMV Real',
+  page_icon='⚖',
   initial_sidebar_state="collapsed"
 )  
 pd.set_option('future.no_silent_downcasting', True)
@@ -23,7 +23,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 col, col2, col3 = st.columns([6, 1, 1])
 with col:
-  st.title('CMV')
+  st.title('⚖ CMV Real')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
 with col3:

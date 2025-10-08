@@ -3,7 +3,7 @@ import pandas as pd
 from utils.functions.general_functions import dataframe_query, execute_query
 
 
-# CMV Teórico
+# CMV Teórico - Análise de Fichas Técnicas
 
 def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_INSUMOS_ESTOQUE():
     return dataframe_query(f'''
