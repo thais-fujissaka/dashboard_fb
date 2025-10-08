@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import calendar
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from st_aggrid import ColumnsAutoSizeMode
 from utils.functions.general_functions_conciliacao import *
 from utils.constants.general_constants import mapeamento_class_cont
 from utils.functions.general_functions import config_sidebar
@@ -144,7 +144,7 @@ st.divider()
 
 ## Receitas ##
 st.markdown("""
-    <h2 style="color: green; font-weight: bold;">Receitas</h1>
+    <h2 style="color: green; font-weight: bold;">Receitas</h2>
     """, unsafe_allow_html=True)
 
 ## Zig_Extrato
@@ -158,7 +158,9 @@ df_extrato_zig_filtrada_aggrid, tam_df_extrato_zig_filtrada_aggrid = dataframe_a
     name='Extrato Zig', 
     num_columns=["Valor"],
     date_columns=['Data_Liquidacao', 'Data_Transacao'],
-    key='teste_extrato_zig'
+    key='teste_extrato_zig',
+    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+    fit_columns_on_grid_load=True
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -191,7 +193,7 @@ df_parc_receit_extr_filtrada_aggrid, tam_df_parc_receit_extr_filtrada_aggrid = d
     df=df_parc_receit_extr_filtrada_copia,
     name="Parcelas Receitas Extraordinárias",
     num_columns=["Valor_Parcela"],     
-    date_columns=['Data_Ocorrencia', 'Vencimento_Parcela', 'Recebimento_Parcela']              
+    date_columns=['Data_Ocorrencia', 'Vencimento_Parcela', 'Recebimento_Parcela'],             
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -214,7 +216,7 @@ df_eventos_filtrada_aggrid, tam_df_eventos_filtrada_aggrid = dataframe_aggrid(
     df=df_eventos_filtrada,
     name="Eventos",
     num_columns=["Valor_Parcela"],      
-    date_columns=['Vencimento_Parcela', 'Recebimento_Parcela']              
+    date_columns=['Vencimento_Parcela', 'Recebimento_Parcela'],              
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -238,7 +240,9 @@ df_desbloqueios_filtrada_aggrid, tam_df_desbloqueios_filtrada_aggrid = dataframe
     df=df_desbloqueios_filtrada,
     name="Desbloqueios Judiciais",
     num_columns=["Valor"],      
-    date_columns=['Data_Transacao']              
+    date_columns=['Data_Transacao'],
+    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+    fit_columns_on_grid_load=True              
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -253,7 +257,7 @@ st.divider()
 
 ## Despesas ## 
 st.markdown("""
-    <h2 style="color: #DC143C; font-weight: bold;">Despesas</h1>
+    <h2 style="color: #DC143C; font-weight: bold;">Despesas</h2>
     """, unsafe_allow_html=True)
 
 ## Custos BlueMe Sem Parcelamento
@@ -266,7 +270,7 @@ df_custos_blueme_sem_parcelam_filtrada_aggrid, tam_df_custos_blueme_sem_parcelam
     df=df_custos_blueme_sem_parcelam_filtrada,
     name="Despesas BlueMe Sem Parcelamento",
     num_columns=["Valor"],      
-    date_columns=['Data_Vencimento', 'Previsao_Pgto', 'Realizacao_Pgto', 'Data_Competencia']
+    date_columns=['Data_Vencimento', 'Previsao_Pgto', 'Realizacao_Pgto', 'Data_Competencia'],
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -289,7 +293,7 @@ df_custos_blueme_com_parcelam_filtrada_aggrid, tam_df_custos_blueme_com_parcelam
     df=df_custos_blueme_com_parcelam_filtrada,
     name="Despesas Com Parcelamento",
     num_columns=["Valor_Parcela", "Valor_Original"],      
-    date_columns=['Vencimento_Parcela', 'Realiz_Parcela']
+    date_columns=['Vencimento_Parcela', 'Realiz_Parcela'],
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -312,7 +316,9 @@ df_bloqueios_filtrada_aggrid, tam_df_bloqueios_filtrada_aggrid = dataframe_aggri
     df=df_bloqueios_filtrada,
     name="Bloqueios Judiciais",
     num_columns=["Valor"],      
-    date_columns=['Data_Transacao']              
+    date_columns=['Data_Transacao'],
+    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+    fit_columns_on_grid_load=True              
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -327,7 +333,7 @@ st.divider()
 
 ## Mutuos ##
 st.markdown("""
-    <h2 style="color: orange; font-weight: bold;">Mútuos</h1>
+    <h2 style="color: orange; font-weight: bold;">Mútuos</h2>
     """, unsafe_allow_html=True)
 
 ## Entradas Mútuos
@@ -340,7 +346,9 @@ df_entradas_mutuos_filtrada_aggrid, tam_df_entradas_mutuos_filtrada_aggrid = dat
     df=df_entradas_mutuos_filtrada,
     name="Entradas Mútuos",
     num_columns=["Valor"],      
-    date_columns=['Data_Mutuo']              
+    date_columns=['Data_Mutuo'],
+    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+    fit_columns_on_grid_load=True              
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -363,7 +371,9 @@ df_saidas_mutuos_filtrada_aggrid, tam_df_saidas_mutuos_filtrada_aggrid = datafra
     df=df_saidas_mutuos_filtrada,
     name="Saídas Mútuos",
     num_columns=["Valor"],      
-    date_columns=['Data_Mutuo']              
+    date_columns=['Data_Mutuo'],
+    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+    fit_columns_on_grid_load=True              
 )
 
 col1, col2 = st.columns([6, 1], vertical_alignment='center')
@@ -395,7 +405,7 @@ with st.container(border=True):
     with col2:
         st.write("")
         st.markdown("""
-        <h2 style="color: #1f77b4; font-weight: bold;">Fluxo de Caixa Consolidado por Mês</h1>
+        <h2 style="color: #1f77b4; font-weight: bold;">Fluxo de Caixa Consolidado por Mês</h2>
         """, unsafe_allow_html=True)
 
         # Criando o gráfico
@@ -603,7 +613,9 @@ with st.container(border=True):
         df_receitas_categoria_aggrid, tam_df_receitas_categoria_aggrid = dataframe_aggrid(
             df=df_receitas_categoria,
             name="Receitas por Categoria",
-            num_columns=colunas_numericas_receitas
+            num_columns=colunas_numericas_receitas,
+            fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+            fit_columns_on_grid_load=True
         )
         
         with col2:
@@ -652,7 +664,7 @@ with st.container(border=True):
             df_pivot_class0_aggrid, tam_df_pivot_class0_aggrid = dataframe_aggrid(
                 df=pivot_table_class0,
                 name="Despesas por Classificação Contábil (Class_Cont_0)",
-                num_columns=colunas_numericas_class0
+                num_columns=colunas_numericas_class0,
             )
             
             with col2:
@@ -696,7 +708,9 @@ with st.container(border=True):
             df=pivot_fluxo,
             name="Tabela - Receitas-Despesas",
             num_columns=colunas_numericas_fluxo,  
-            highlight_rows=['Fluxo_Liquido']
+            highlight_rows=['Fluxo_Liquido'],
+            fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+            fit_columns_on_grid_load=True
         )
         
         # Botão para copiar dados
@@ -752,7 +766,9 @@ try:
         df_pivot_aggrid, tam_df_pivot_aggrid = dataframe_aggrid(
             df=pivot_table,
             name="Tabela Dinâmica - Despesas por Classificação e Mês",
-            num_columns=colunas_numericas,  # Apenas colunas numéricas
+            num_columns=colunas_numericas, 
+            fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+            fit_columns_on_grid_load=True
         )
         
         with col2:
@@ -814,7 +830,9 @@ try:
                 df_pivot_class2_aggrid, tam_df_pivot_class2_aggrid = dataframe_aggrid(
                     df=pivot_table_class2,
                     name=f"Detalhamento - {classificacao_selecionada}",
-                    num_columns=colunas_numericas_class2
+                    num_columns=colunas_numericas_class2,
+                    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+                    fit_columns_on_grid_load=True
                 )
                 
                 with col2:
@@ -857,7 +875,9 @@ try:
         # Exibindo tabela de referência
         df_mapping_ref_aggrid, tam_df_mapping_ref_aggrid = dataframe_aggrid(
             df=df_mapping_ref,
-            name="Mapeamento Class_Cont_0 ↔ Class_Cont_1"
+            name="Mapeamento Class_Cont_0 ↔ Class_Cont_1",
+            fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+            fit_columns_on_grid_load=True
         )
         
         with col2:

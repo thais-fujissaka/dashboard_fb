@@ -38,11 +38,11 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
     df_parc_receit_extr_filtrada, df_parc_receit_extr_formatada = filtra_formata_df(df_parc_receit_extr, "Recebimento_Parcela", id_casa, start_date, end_date)
     df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada.copy()
     df_parc_receit_extr_filtrada_copia = df_parc_receit_extr_filtrada_copia[ # não vou exibir eventos a partir de setembro
-    ~(
-        (df_parc_receit_extr_filtrada_copia["Classif_Receita"].str.lower() == "eventos") &
-        (df_parc_receit_extr_filtrada_copia["Recebimento_Parcela"].dt.month >= 9)
-    )
-]
+        ~(
+            (df_parc_receit_extr_filtrada_copia["Classif_Receita"].str.lower() == "eventos") &
+            (df_parc_receit_extr_filtrada_copia["Recebimento_Parcela"].dt.month >= 9)
+        )
+    ]
     df_parc_receit_extr_formatada = formata_df(df_parc_receit_extr_filtrada_copia)
 
     ## Custos BlueMe Sem Parcelamento

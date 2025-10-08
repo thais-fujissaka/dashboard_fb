@@ -432,6 +432,7 @@ def GET_ORCAMENTOS():
 @st.cache_data
 def GET_FATURAMENTO_AGREGADO():
     df_faturamento_agregado = dataframe_query('''
+    # Faturamento Agregado
       WITH empresas_normalizadas AS (
         SELECT
           ID             AS original_id,
@@ -463,6 +464,7 @@ def GET_FATURAMENTO_AGREGADO():
         
       UNION ALL
 
+      # Receitas Extraordinárias
       SELECT 
       trec2.ID as ID_Faturam_Agregado,
       te.ID as ID_Casa,
@@ -472,7 +474,7 @@ def GET_FATURAMENTO_AGREGADO():
       MONTH(vpa.DATA_RECEBIMENTO) as Mes,
       SUM(vpa.VALOR_PARCELA) as Valor_Bruto,
       0 as Desconto,
-      vpa.VALOR_PARCELA as Valor_Liquido
+      SUM(vpa.VALOR_PARCELA) as Valor_Liquido
       FROM View_Parcelas_Agrupadas vpa
       INNER JOIN T_EMPRESAS te ON (vpa.FK_EMPRESA = te.ID)
       LEFT JOIN T_RECEITAS_EXTRAORDINARIAS tre ON (vpa.ID = tre.ID)
@@ -484,9 +486,32 @@ def GET_FATURAMENTO_AGREGADO():
       WHERE vpa.DATA_RECEBIMENTO IS NOT NULL
       AND vpa.DATA_RECEBIMENTO >= '2025-01-01'
       AND trec2.ID IN (131,142,124,135,111,153,104,106,116,114,110,137)  # Bilheteria, Bilheteria-Rebate, Coleta de Oleo, Delivery, Eventos, Eventos de Marketing, Lojinha, Plataforma Ifood, Plataforma Rappi, Plataforma Total Acesso, Repasses FabLab, Voucher  
-      GROUP BY te.ID, trec2.ID, YEAR(vpa.DATA_RECEBIMENTO), MONTH(vpa.DATA_RECEBIMENTO)
+      GROUP BY te.ID, trec2.ID, YEAR(vpa.DATA_RECEBIMENTO), MONTH(vpa.DATA_RECEBIMENTO)          
       ''')
     return df_faturamento_agregado
+
+
+@st.cache_data
+def GET_EVENTOS_FATURAM_AGREGADO():
+    df_eventos_faturam_agregado = dataframe_query('''
+      SELECT 
+        tep.ID AS ID_Faturam_Agregado,
+        tep.FK_EMPRESA AS ID_Casa,
+        te.NOME_FANTASIA AS Casa,
+        YEAR(tpep.DATA_RECEBIMENTO_PARCELA) as Ano,
+        MONTH(tpep.DATA_RECEBIMENTO_PARCELA) as Mes,
+        SUM(tpep.VALOR_PARCELA) as Valor_Bruto,
+        0 as Desconto,
+        SUM(tpep.VALOR_PARCELA) as Valor_Liquido                          
+      FROM T_EVENTOS_PRICELESS tep
+      LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)
+      LEFT JOIN T_PARCELAS_EVENTOS_PRICELESS tpep ON (tep.ID = tpep.FK_EVENTO_PRICELESS)
+      WHERE tpep.DATA_VENCIMENTO_PARCELA IS NOT NULL AND tpep.DATA_RECEBIMENTO_PARCELA >= '2025-09-01 00:00:00'
+      GROUP BY te.ID, YEAR(tpep.DATA_RECEBIMENTO_PARCELA), MONTH(tpep.DATA_RECEBIMENTO_PARCELA)  
+      ''')
+    df_eventos_faturam_agregado['Categoria'] = 'Eventos'
+    df_eventos_faturam_agregado = df_eventos_faturam_agregado[['ID_Faturam_Agregado', 'ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mes', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
+    return df_eventos_faturam_agregado
 
 
 @st.cache_data

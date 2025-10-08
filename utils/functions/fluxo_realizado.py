@@ -333,15 +333,15 @@ def create_mapping_reference(mapeamento_class_cont, df_custos_blueme_sem_parcela
 
 
 # Preparando dados para Tabela - Receitas por Categoria
-def prepare_pivot_data_class_receitas(df_extrato_zig, df_receitas_extr, df_eventos, df_desbloqueios):
-    ## Receitas - Extrato Zig
-    extrato_zig = df_extrato_zig.copy()
-    extrato_zig["Data_Liquidacao"] = pd.to_datetime(extrato_zig["Data_Liquidacao"], errors="coerce", dayfirst=True)
-    extrato_zig['Mes_Ano'] = extrato_zig['Data_Liquidacao'].dt.to_period('M')
-    extrato_zig['Valor'] = converte_string_float(extrato_zig, 'Valor') # transforma valores em float
-    extrato_zig['Valor'] = pd.to_numeric(extrato_zig['Valor'], errors='coerce')
-    extrato_zig['Valor'] = extrato_zig['Valor'] * (-1) 
-    st.write(extrato_zig)
+# def prepare_pivot_data_class_receitas(df_extrato_zig, df_receitas_extr, df_eventos, df_desbloqueios):
+#     ## Receitas - Extrato Zig
+#     extrato_zig = df_extrato_zig.copy()
+#     extrato_zig["Data_Liquidacao"] = pd.to_datetime(extrato_zig["Data_Liquidacao"], errors="coerce", dayfirst=True)
+#     extrato_zig['Mes_Ano'] = extrato_zig['Data_Liquidacao'].dt.to_period('M')
+#     extrato_zig['Valor'] = converte_string_float(extrato_zig, 'Valor') # transforma valores em float
+#     extrato_zig['Valor'] = pd.to_numeric(extrato_zig['Valor'], errors='coerce')
+#     extrato_zig['Valor'] = extrato_zig['Valor'] * (-1) 
+#     st.write(extrato_zig)
 
 #     ## Despesas - BlueMe Com Parcelamento (aplicando filtro de data)
 #     despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
