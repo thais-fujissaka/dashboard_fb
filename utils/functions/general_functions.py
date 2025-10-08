@@ -220,12 +220,10 @@ def mostrar_menu_permissoes_cmv(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## CMV")
         st.sidebar.page_link("pages/CMV.py", label="⚖️ CMV")
-        st.sidebar.page_link("pages/CMV_Teórico - Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
         st.sidebar.page_link("pages/CMV_Teórico.py", label=":material/rubric: CMV Teórico")
     if "Acesso CMV 1" in permissoes:
         st.sidebar.markdown("## CMV")
-        st.sidebar.page_link("pages/CMV_Teórico_-_Fichas_Técnicas.py", label=":material/rubric: CMV - Fichas Técnicas")
-        
+        st.sidebar.page_link("pages/CMV_Teórico.py", label=":material/rubric: CMV Teórico")        
 
 
 def mostrar_menu_permissoes_compras(permissoes):
