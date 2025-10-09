@@ -173,8 +173,6 @@ def main():
     
     # CMV Teórico em R$
     df_precos_itens_vendidos['CMV Teórico'] = df_precos_itens_vendidos['Custo Item'] * df_precos_itens_vendidos['Quantidade']
-
-    df_precos_itens_vendidos_download = df_precos_itens_vendidos.copy()
     
     # Métricas gerais
     cmv_teorico = df_precos_itens_vendidos['CMV Teórico'].sum()
@@ -197,12 +195,52 @@ def main():
     with col5:
         kpi_card_cmv_teorico('CMV Orçado', f'-', background_color="#FFFFFF", title_color="#333", value_color="#000")
 
+    
+
+    col1, col2 = st.columns([3, 1], vertical_alignment='bottom', gap='large')
+    with col1:
+        st.write('')
+        st.markdown(f'## CMV - Custo Itens Vendidos ({casa})')  
+    
+    col3, col4 = st.columns([1, 1], vertical_alignment='bottom', gap='large')
+    # Filtros 
+    opcoes_faixa_cmv = {
+        'Bom': [0, 29],
+        'Regular': [29, 32],
+        'Crítico': [32, 10000]
+    }
+    with col3:
+        faixas_cmv_selecionadas = st.multiselect(
+            label='Faixa de CMV Unitário',
+            options=opcoes_faixa_cmv.keys(),
+            default=['Bom', 'Regular', 'Crítico'],
+            help='Bom (até 28%)  |  Regular (29% - 31%)  |  Crítico (a partir de 32%)',
+            key='filtros_faixa_cmv'
+        )
+        lista_faixas_cmv_selecionadas = [opcoes_faixa_cmv[faixa] for faixa in faixas_cmv_selecionadas]
+        if lista_faixas_cmv_selecionadas:
+            condicoes = [
+                df_precos_itens_vendidos['% CMV Unit.'].between(faixa[0] / 100, faixa[1] / 100, inclusive='left')
+                for faixa in lista_faixas_cmv_selecionadas
+            ]
+            # Combinar todas as condições com OR
+            filtro_faixa_cmv_final = condicoes[0]
+            for condicao in condicoes[1:]:
+                filtro_faixa_cmv_final = filtro_faixa_cmv_final | condicao
+            df_precos_itens_vendidos = df_precos_itens_vendidos[filtro_faixa_cmv_final]
+    with col4:
+        categoria_produto = st.multiselect(
+            label='Categoria de Produto',
+            options=[],
+            default=[],
+            key='filtros_categoria_produto'
+        )
+    
+    df_precos_itens_vendidos_download = df_precos_itens_vendidos.copy()
+    
     # Formata valores
     df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento Bruto', 'Faturamento Líquido', 'Desconto', 'CMV Teórico'])
 
-    col1, col2 = st.columns([3, 1], vertical_alignment='center', gap='large')
-    with col1:
-        st.markdown(f'## CMV - Custo Itens Vendidos ({casa})')
     with col2:
         button_download(df_precos_itens_vendidos_download, f'custo_itens_{casa}'[:31], f'custo_itens_{casa}'[:31])
     st.dataframe(
@@ -215,17 +253,18 @@ def main():
                 max_value=1,
             )
         },
+        height=568,
         use_container_width=True,
         hide_index=True
     )
 
     with st.container(border=True):
-        col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='center', gap='large')
+        col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='bottom', gap='large')
         with col2:
             # Filtro por prato
             df_lista_produtos = pd.DataFrame(df_precos_itens_vendidos['ID Item Zig'].round(0).astype(int).unique())
             df_lista_produtos['ID - Produto'] = df_precos_itens_vendidos['ID Item Zig'].round(0).astype(int).astype(str) + ' - ' + df_precos_itens_vendidos['Item Vendido Zig']
-            lista_produtos = df_lista_produtos['ID - Produto'].unique().tolist()
+            lista_produtos = [produto for produto in df_lista_produtos['ID - Produto'].unique().tolist() if pd.notna(produto)]
             produto_selecionado = st.selectbox('Selecionar Produto', lista_produtos, key='selecionar_produto')
             id_produto_selecionado = int(float(produto_selecionado.split(' - ')[0]))
 
@@ -254,28 +293,28 @@ def main():
             df_precos_insumos_producao = format_columns_brazilian(df_precos_insumos_producao, ['Preço Médio Insumo Estoque', 'Custo Ficha'])
             
 
-            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown(f'## Ficha Técnica - {produto_selecionado}')
             with col2:
                 button_download(df_fichas_itens_vendidos_download[ordem_col], f'fichas_{casa}'[:31], f'fichas_{casa}'[:31])
             st.dataframe(df_fichas_itens_vendidos[ordem_col], use_container_width=True, hide_index=True)
             
-            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown('### Custos Itens de Estoque')
             with col2:
                 button_download(df_fichas_insumos_de_estoque_download, f'estoq_{casa}'[:31], f'estoq_{casa}'[:31])
             st.dataframe(df_precos_insumos_de_estoque, use_container_width=True, hide_index=True)
 
-            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown('### Custos Itens de Produção')
             with col2:
                 button_download(df_precos_itens_producao_completo_download, f'prod_{casa}'[:31], f'prod_{casa}'[:31])
             st.dataframe(df_precos_itens_producao_completo, use_container_width=True, hide_index=True)
 
-            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown(f'## Fichas Técnicas - Itens de Produção - {produto_selecionado}')
             with col2:
@@ -288,7 +327,7 @@ def main():
             df_compras_insumos_de_estoque_download = df_compras_insumos_de_estoque.copy()
             df_compras_insumos_de_estoque = format_columns_brazilian(df_compras_insumos_de_estoque, ['Valor N5', 'Preço Médio Insumo Estoque'])
 
-            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown(f'## Compras - Itens de Estoque - {produto_selecionado}')
             with col2:
@@ -300,7 +339,7 @@ def main():
             df_precos_itens_com_fichas_duplicadas = df_precos_itens_vendidos_download.copy()
             df_precos_itens_com_fichas_duplicadas = df_precos_itens_com_fichas_duplicadas[df_precos_itens_com_fichas_duplicadas.duplicated(subset=['ID Item Zig'], keep=False)].sort_values(by=['Item Vendido Zig'], ascending=[True])
             df_precos_itens_com_fichas_duplicadas = format_columns_brazilian(df_precos_itens_com_fichas_duplicadas, ['Custo Item'])
-            col1, col2 = st.columns([6, 1], vertical_alignment='center', gap='large')
+            col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown(f'## Fichas Duplicadas')
             with col2:

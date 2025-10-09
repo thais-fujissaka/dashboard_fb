@@ -286,7 +286,7 @@ def calcular_custos_itens_vendidos(df_fichas_itens_vendidos, df_precos_insumos_d
 def cor_porcentagem_cmv(cmv_teorico_porcentagem):
     if cmv_teorico_porcentagem < 29:
         return 'verde'
-    elif cmv_teorico_porcentagem >= 29 and cmv_teorico_porcentagem < 31:
+    elif cmv_teorico_porcentagem >= 29 and cmv_teorico_porcentagem < 32:
         return 'amarelo'
     else:
         return 'vermelho'
