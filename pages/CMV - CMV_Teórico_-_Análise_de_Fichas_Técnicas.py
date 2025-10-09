@@ -175,6 +175,12 @@ def main():
     
     # CMV Teórico em R$
     df_precos_itens_vendidos['CMV Teórico'] = df_precos_itens_vendidos['Custo Item'] * df_precos_itens_vendidos['Quantidade']
+
+    # Guarda dataframe com fichas duplicadas para auditoria
+    df_precos_itens_com_fichas_duplicadas = df_precos_itens_vendidos.copy()
+
+    # Remove itens duplicados (erro com fichas duplicadas)
+    df_precos_itens_vendidos = df_precos_itens_vendidos.drop_duplicates(subset=['ID Item Zig'])
     
     # Métricas gerais
     cmv_teorico = df_precos_itens_vendidos['CMV Teórico'].sum()
@@ -183,7 +189,7 @@ def main():
     cmv_teorico_bruto_porcentagem = round(cmv_teorico / vendas_brutas_ab * 100, 2)
     cmv_teorico_liquido_porcentagem = round(cmv_teorico / vendas_liquidas_ab * 100, 2)
     
-    col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1], vertical_alignment='center')
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1], vertical_alignment='center')
     with col1:
         cor_cmv_bruto = cor_porcentagem_cmv(cmv_teorico_bruto_porcentagem)
         kpi_card_cmv_teorico('CMV Teórico (Venda Bruta)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=f'{cmv_teorico_bruto_porcentagem}', color_percentual=cor_cmv_bruto)
@@ -194,10 +200,26 @@ def main():
         kpi_card_cmv_teorico('CMV Teórico (Venda Líquida)', f"R$ {format_brazilian(cmv_teorico)}", background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=f'{cmv_teorico_liquido_porcentagem}', color_percentual=cor_cmv_liquido)
     with col4:
         kpi_card_cmv_teorico('Faturamento Líquido de A&B (R$)', f'{format_brazilian(vendas_liquidas_ab)}', background_color="#FFFFFF", title_color="#333", value_color="#000")
-    with col5:
-        kpi_card_cmv_teorico('CMV Orçado', f'-', background_color="#FFFFFF", title_color="#333", value_color="#000")
+    st.write('')
 
-    
+    qtde_total_itens = len(df_precos_itens_vendidos)
+    qtde_itens_cmv_bom = len(df_precos_itens_vendidos[(df_precos_itens_vendidos['% CMV Unit.'] < 0.29)])
+    qtde_itens_cmv_regular = len(df_precos_itens_vendidos[(df_precos_itens_vendidos['% CMV Unit.'] >= 0.29) & (df_precos_itens_vendidos['% CMV Unit.'] < 0.32)])
+    qtde_itens_cmv_critico = len(df_precos_itens_vendidos[df_precos_itens_vendidos['% CMV Unit.'] >= 0.32])
+
+    percentual_itens_cmv_bom = round(qtde_itens_cmv_bom / qtde_total_itens * 100, 2)
+    percentual_itens_cmv_regular = round(qtde_itens_cmv_regular / qtde_total_itens * 100, 2)
+    percentual_itens_cmv_critico = round(qtde_itens_cmv_critico / qtde_total_itens * 100, 2)
+
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1], vertical_alignment='center')
+    with col1:
+        kpi_card_cmv_teorico('CMV Orçado', f'-', background_color="#FFFFFF", title_color="#333", value_color="#000")
+    with col2:
+        kpi_card_cmv_teorico('Quantidade de Itens com CMV Unitário BOM', f'{qtde_itens_cmv_bom}', background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=percentual_itens_cmv_bom)
+    with col3:
+        kpi_card_cmv_teorico('Quantidade de Itens com CMV Unitário REGULAR', f'{qtde_itens_cmv_regular}', background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=percentual_itens_cmv_regular)
+    with col4:
+        kpi_card_cmv_teorico('Quantidade de Itens com CMV Unitário CRÍTICO', f'{qtde_itens_cmv_critico}', background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=percentual_itens_cmv_critico)
 
     col1, col2 = st.columns([3, 1], vertical_alignment='bottom', gap='large')
     with col1:
@@ -361,9 +383,6 @@ def main():
                 button_download(df_compras_insumos_de_estoque_download, f'{produto_selecionado}'[:31], f'{produto_selecionado}'[:31])
             dataframe_aggrid(df_compras_insumos_de_estoque, 'df_compras_insumos_de_estoque')
 
-
-
-            df_precos_itens_com_fichas_duplicadas = df_precos_itens_vendidos_download.copy()
             df_precos_itens_com_fichas_duplicadas = df_precos_itens_com_fichas_duplicadas[df_precos_itens_com_fichas_duplicadas.duplicated(subset=['ID Item Zig'], keep=False)].sort_values(by=['Item Vendido Zig'], ascending=[True])
             df_precos_itens_com_fichas_duplicadas = format_columns_brazilian(df_precos_itens_com_fichas_duplicadas, ['Custo Item'])
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
