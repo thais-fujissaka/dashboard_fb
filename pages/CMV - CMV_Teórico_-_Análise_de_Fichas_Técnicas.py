@@ -175,6 +175,12 @@ def main():
     
     # CMV Teórico em R$
     df_precos_itens_vendidos['CMV Teórico'] = df_precos_itens_vendidos['Custo Item'] * df_precos_itens_vendidos['Quantidade']
+
+    # Guarda dataframe com fichas duplicadas para auditoria
+    df_precos_itens_com_fichas_duplicadas = df_precos_itens_vendidos.copy()
+
+    # Remove itens duplicados (erro com fichas duplicadas)
+    df_precos_itens_vendidos = df_precos_itens_vendidos.drop_duplicates(subset=['ID Item Zig'])
     
     # Métricas gerais
     cmv_teorico = df_precos_itens_vendidos['CMV Teórico'].sum()
@@ -361,9 +367,6 @@ def main():
                 button_download(df_compras_insumos_de_estoque_download, f'{produto_selecionado}'[:31], f'{produto_selecionado}'[:31])
             dataframe_aggrid(df_compras_insumos_de_estoque, 'df_compras_insumos_de_estoque')
 
-
-
-            df_precos_itens_com_fichas_duplicadas = df_precos_itens_vendidos_download.copy()
             df_precos_itens_com_fichas_duplicadas = df_precos_itens_com_fichas_duplicadas[df_precos_itens_com_fichas_duplicadas.duplicated(subset=['ID Item Zig'], keep=False)].sort_values(by=['Item Vendido Zig'], ascending=[True])
             df_precos_itens_com_fichas_duplicadas = format_columns_brazilian(df_precos_itens_com_fichas_duplicadas, ['Custo Item'])
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
