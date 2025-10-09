@@ -481,11 +481,14 @@ def apply_master_detail(df, df_details, coluns_merge_details, coluns_name_detail
 
 def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
                      date_columns=None, df_details=None, coluns_merge_details=None,
-                     coluns_name_details=None, key="default", highlight_rows=None):
+                     coluns_name_details=None, key="default", highlight_rows=None,
+                     fit_columns=None, fit_columns_on_grid_load=None, height = None):
     num_columns = num_columns or []
     percent_columns = percent_columns or []
     date_columns = date_columns or []
     highlight_rows = highlight_rows or []
+    fit_columns = fit_columns or ColumnsAutoSizeMode.FIT_CONTENTS
+    fit_columns_on_grid_load = fit_columns_on_grid_load or False
 
     # 1. Formatação de colunas numéricas e percentuais
     for col in num_columns:
@@ -565,7 +568,7 @@ def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
         zebra_style = JsCode(f"""
         function(params) {{
             if ({str(highlight_rows)}.includes(params.data.Categoria)) {{
-                return {{ fontWeight: 'bold', background: '#f9f9f9', color: '#111' }};
+                return {{ fontWeight: 'bold', background: '#e6e6e6', color: '#111' }};
             }}
             return (params.node.rowIndex % 2 === 0)
                 ? {{ background: '#fff', color: '#111' }}
@@ -581,13 +584,12 @@ def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
         gridOptions=grid_options,
         enable_enterprise_modules=True,
         update_mode=GridUpdateMode.MODEL_CHANGED,
-        columns_auto_size_mode=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-        fit_columns_on_grid_load=True,
-        use_container_width=True,
+        columns_auto_size_mode=fit_columns,
+        fit_columns_on_grid_load=fit_columns_on_grid_load,
         allow_unsafe_jscode=True,
         key=f"aggrid_{name}_{key}",
         theme=custom_theme,
-        height=min(len(df_to_show)*40+34+11, 399),
+        height=height or min(len(df_to_show)*40+34+11, 399),
         custom_css={
             ".ag-root-wrapper": {
                 "border-radius": "10px",
@@ -609,7 +611,7 @@ def dataframe_aggrid(df, name, num_columns=None, percent_columns=None,
     )
 
     filtered_df = grid_response["data"]
-    # filtered_df = filtered_df.drop(columns=[c for c in filtered_df.columns if c.endswith("_NUM")], errors="ignore")
+    filtered_df = filtered_df.drop(columns=[c for c in filtered_df.columns if c.endswith("_NUM")], errors="ignore")
     return filtered_df, len(filtered_df)
 
 

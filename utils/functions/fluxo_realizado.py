@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from utils.functions.general_functions_conciliacao import format_brazilian
 
 
 # Filtra df por casas selecionadas e data
@@ -34,6 +35,7 @@ def total_valores_filtrados(df_aggrid, tam_df_aggrid, col_valor, despesa_com_par
         if not df_aggrid.empty and col_valor in df_aggrid.columns:
             valores_filtrados = converte_string_float(df_aggrid, col_valor) # transforma valores em float
             total_filtrado = valores_filtrados.sum()
+            total_filtrado_fmt = format_brazilian(total_filtrado)
 
             st.markdown(f"""
             <div style="
@@ -45,7 +47,7 @@ def total_valores_filtrados(df_aggrid, tam_df_aggrid, col_valor, despesa_com_par
                 text-align: center;
                 display: inline-block;
             ">
-                <span style="color: #d78f18; font-weight: bold;">💰 Total: R$ {total_filtrado:,.2f}</span>
+                <span style="color: #d78f18; font-weight: bold;">💰 Total: R$ {total_filtrado_fmt}</span>
                 <span style="color: black; margin-left: 10px;">({tam_df_aggrid} registros)</span>
             </div>
             """, unsafe_allow_html=True)
@@ -55,10 +57,12 @@ def total_valores_filtrados(df_aggrid, tam_df_aggrid, col_valor, despesa_com_par
             if col_valor in df_aggrid.columns:
                 valores_parcelas = converte_string_float(df_aggrid, col_valor) # transforma valores em float
                 total_parcelas = valores_parcelas.sum()
+                total_parcelas_fmt = format_brazilian(total_parcelas)
             
             if "Valor_Original" in df_aggrid.columns:
                 valores_originais = converte_string_float(df_aggrid, 'Valor_Original') # transforma valores em float
                 total_original = valores_originais.sum()
+                total_original_fmt = format_brazilian(total_original)
             
             st.markdown(f"""
             <div style="
@@ -70,8 +74,8 @@ def total_valores_filtrados(df_aggrid, tam_df_aggrid, col_valor, despesa_com_par
                 text-align: center;
                 display: inline-block;
             ">
-                <span style="color: #d78f18; font-weight: bold;">💰 Parcelas: R$ {total_parcelas:,.2f}</span>
-                <span style="color: black; margin-left: 10px;">| Original: R$ {total_original:,.2f}</span>
+                <span style="color: #d78f18; font-weight: bold;">💰 Parcelas: R$ {total_parcelas_fmt}</span>
+                <span style="color: black; margin-left: 10px;">| Original: R$ {total_original_fmt}</span>
                 <span style="color: black; margin-left: 10px;">({tam_df_aggrid} registros)</span>
             </div>
             """, unsafe_allow_html=True)
@@ -333,15 +337,15 @@ def create_mapping_reference(mapeamento_class_cont, df_custos_blueme_sem_parcela
 
 
 # Preparando dados para Tabela - Receitas por Categoria
-def prepare_pivot_data_class_receitas(df_extrato_zig, df_receitas_extr, df_eventos, df_desbloqueios):
-    ## Receitas - Extrato Zig
-    extrato_zig = df_extrato_zig.copy()
-    extrato_zig["Data_Liquidacao"] = pd.to_datetime(extrato_zig["Data_Liquidacao"], errors="coerce", dayfirst=True)
-    extrato_zig['Mes_Ano'] = extrato_zig['Data_Liquidacao'].dt.to_period('M')
-    extrato_zig['Valor'] = converte_string_float(extrato_zig, 'Valor') # transforma valores em float
-    extrato_zig['Valor'] = pd.to_numeric(extrato_zig['Valor'], errors='coerce')
-    extrato_zig['Valor'] = extrato_zig['Valor'] * (-1) 
-    st.write(extrato_zig)
+# def prepare_pivot_data_class_receitas(df_extrato_zig, df_receitas_extr, df_eventos, df_desbloqueios):
+#     ## Receitas - Extrato Zig
+#     extrato_zig = df_extrato_zig.copy()
+#     extrato_zig["Data_Liquidacao"] = pd.to_datetime(extrato_zig["Data_Liquidacao"], errors="coerce", dayfirst=True)
+#     extrato_zig['Mes_Ano'] = extrato_zig['Data_Liquidacao'].dt.to_period('M')
+#     extrato_zig['Valor'] = converte_string_float(extrato_zig, 'Valor') # transforma valores em float
+#     extrato_zig['Valor'] = pd.to_numeric(extrato_zig['Valor'], errors='coerce')
+#     extrato_zig['Valor'] = extrato_zig['Valor'] * (-1) 
+#     st.write(extrato_zig)
 
 #     ## Despesas - BlueMe Com Parcelamento (aplicando filtro de data)
 #     despesas_com_parc = df_custos_blueme_com_parcelam_filtrada.copy()
