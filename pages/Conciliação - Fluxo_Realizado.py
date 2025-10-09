@@ -579,7 +579,7 @@ with st.container(border=True):
         st.divider()
 
 
-        ## Tabela - Receitas por Categoria (Agrupamento)
+        ## Tabela - Receitas por Categoria
         col1, col2 = st.columns([6, 1])
         with col1:
             st.subheader("Receitas por Categoria")
@@ -624,10 +624,11 @@ with st.container(border=True):
 
         st.divider()
 
-        ## Tabela Dinâmica - Class_Cont_0 (Agrupamento)
+        ## Tabela Dinâmica - Despesas Class_Cont_0
         col1, col2 = st.columns([6, 1])
         with col1:
-            st.subheader("Despesas por Classificação Contábil (Class_Cont_0)")
+            st.subheader("Despesas por Classificação")
+            st.write('Considera Classificação Contábil (Class_Cont_0). Inclui bloqueios judiciais, se houver.')
 
         # Preparando dados para Class_Cont_0
         df_class0_data = prepare_pivot_data_class_despesas(
@@ -659,21 +660,49 @@ with st.container(border=True):
             
             # Separando colunas numéricas das de texto
             colunas_numericas_class0 = [col for col in pivot_table_class0.columns if col != 'Class_Cont_0']
-            
-            # Exibindo tabela dinâmica de Class_Cont_0
-            df_pivot_class0_aggrid, tam_df_pivot_class0_aggrid = dataframe_aggrid(
-                df=pivot_table_class0,
-                name="Despesas por Classificação Contábil (Class_Cont_0)",
+            pivot_table_class0 = pivot_table_class0.rename(columns={'Class_Cont_0':'Classificacao'})
+
+
+            # Incluido bloqueios judiciais nas despesas
+            df_despesas_bloqueios = df_bloqueios_filtrada.copy()
+            df_despesas_bloqueios['Mes_Ano'] = df_despesas_bloqueios['Data_Transacao'].dt.strftime('%Y-%m')
+            df_despesas_bloqueios['Valor'] *= (-1)
+            df_despesas_bloqueios_mensais = df_despesas_bloqueios.groupby('Mes_Ano', as_index=False)['Valor'].sum()
+            df_despesas_bloqueios_mensais['Classificacao'] = 'Bloqueios Judiciais'
+
+            pivot_despesas_bloqueios_mensais = df_despesas_bloqueios_mensais.pivot(
+                index='Classificacao',
+                columns='Mes_Ano',
+                values='Valor'
+            ).fillna(0)
+
+            # Adicionando coluna de total
+            pivot_despesas_bloqueios_mensais['Total'] = pivot_despesas_bloqueios_mensais.sum(axis=1)
+
+            # Resetando o índice para incluir Class_Cont_0 como coluna
+            pivot_despesas_bloqueios_mensais = pivot_despesas_bloqueios_mensais.reset_index()
+
+            df_todas_despesas = pd.concat([pivot_table_class0, pivot_despesas_bloqueios_mensais]).fillna(0)
+            colunas_numericas_despesas = [c for c in df_todas_despesas if c != 'Classificacao']
+
+            df_todas_despesas_aggrid, tam_df_todas_despesas_aggrid = dataframe_aggrid(
+                df=df_todas_despesas,
+                name="Despesas por Classificação (inclui bloqueios)",
                 num_columns=colunas_numericas_class0,
+                fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+                fit_columns_on_grid_load=True,
+                height = 800
             )
-            
+
             with col2:
                 # Botão para copiar dados de Class_Cont_0
-                function_copy_dataframe_as_tsv(df_pivot_class0_aggrid)
+                function_copy_dataframe_as_tsv(df_todas_despesas_aggrid)
 
         st.divider()
-
-        st.subheader(":material/arrow_downward: Fluxo: Receitas - Despesas")
+       
+        # Calcula diferença entre receitas e despesas
+        # st.subheader(":material/arrow_downward: Diferença: Receitas - Despesas")
+        # st.write('Diferença bruta entre receitas e despesas mês a mês.')
         receitas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Receitas'].groupby('Mes_Ano')['Valor'].sum()
         despesas_mensais = df_consolidado[df_consolidado['Categoria'] == 'Despesas'].groupby('Mes_Ano')['Valor'].sum()
         
@@ -682,39 +711,97 @@ with st.container(border=True):
             axis=1
         ).fillna(0).reset_index()
 
-        df_fluxo_liquido['Fluxo_Liquido'] = df_fluxo_liquido['Receitas'] - df_fluxo_liquido['Despesas']
+        df_fluxo_liquido['Diferença'] = df_fluxo_liquido['Receitas'] - df_fluxo_liquido['Despesas']
 
-        pivot_fluxo = df_fluxo_liquido.melt(
+        # pivot_fluxo = df_fluxo_liquido.melt(
+        #     id_vars='Mes_Ano',
+        #     value_vars=['Receitas', 'Despesas', 'Diferença'],
+        #     var_name='Categoria',
+        #     value_name='Valor'
+        # ).pivot(
+        #     index='Categoria',
+        #     columns='Mes_Ano',
+        #     values='Valor'
+        # ).fillna(0).reindex(['Receitas', 'Despesas', 'Diferença'])
+
+        # # Convertendo índices de coluna para string
+        # pivot_fluxo.columns = pivot_fluxo.columns.astype(str)
+
+        # # Resetando o índice para incluir Class_Cont_0 como coluna
+        # pivot_fluxo = pivot_fluxo.reset_index()
+
+        # colunas_numericas_fluxo = [col for col in pivot_fluxo if col != 'Categoria']
+
+        # # Exibindo tabela
+        # df_pivot_fluxo_aggrid, tam_df_pivot_fluxo_aggrid = dataframe_aggrid(
+        #     df=pivot_fluxo,
+        #     name="Tabela - Receitas-Despesas",
+        #     num_columns=colunas_numericas_fluxo,  
+        #     highlight_rows=['Diferença'],
+        #     fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+        #     fit_columns_on_grid_load=True
+        # )
+        
+
+        # Calcula saldo/fluxo de caixa
+        st.subheader(":material/arrow_downward: Fluxo de Caixa")
+        st.write('O saldo de um mês é considerado no caixa do mês seguinte.')
+
+        # Inicializa listas e saldo anterior
+        df_saldo = df_fluxo_liquido.copy()
+        saldo_anterior = 0.0
+        receitas_ajustadas = []
+        saldos = []
+
+        # Loop iterativo mês a mês
+        for _, row in df_saldo.iterrows():
+            receita = row['Receitas'] + saldo_anterior
+            despesa = row['Despesas']
+            saldo = receita - despesa
+
+            receitas_ajustadas.append(receita)
+            saldos.append(saldo)
+
+            # o saldo atual vira o saldo anterior pro próximo mês
+            saldo_anterior = saldo
+
+        # Adiciona as novas colunas
+        df_saldo['Receitas Ajustadas'] = receitas_ajustadas
+        df_saldo['Saldo'] = saldos
+
+        # Mantém a ordem
+        df_saldo = df_saldo.rename(columns={'Receitas':'Receitas Totais', 'Despesas':'Despesas Totais'})
+        df_saldo = df_saldo[['Mes_Ano', 'Receitas Totais', 'Diferença', 'Receitas Ajustadas', 'Despesas Totais', 'Saldo']]
+
+        pivot_saldo = df_saldo.melt(
             id_vars='Mes_Ano',
-            value_vars=['Receitas', 'Despesas', 'Fluxo_Liquido'],
+            value_vars=['Receitas Totais', 'Receitas Ajustadas', 'Despesas Totais', 'Saldo'],
             var_name='Categoria',
             value_name='Valor'
         ).pivot(
             index='Categoria',
             columns='Mes_Ano',
             values='Valor'
-        ).fillna(0).reindex(['Receitas', 'Despesas', 'Fluxo_Liquido'])
+        ).fillna(0).reindex(['Receitas Totais', 'Receitas Ajustadas', 'Despesas Totais', 'Saldo'])
 
         # Convertendo índices de coluna para string
-        pivot_fluxo.columns = pivot_fluxo.columns.astype(str)
+        pivot_saldo.columns = pivot_saldo.columns.astype(str)
 
         # Resetando o índice para incluir Class_Cont_0 como coluna
-        pivot_fluxo = pivot_fluxo.reset_index()
+        pivot_saldo = pivot_saldo.reset_index()
 
-        colunas_numericas_fluxo = [col for col in pivot_fluxo if col != 'Categoria']
-
-        # Exibindo tabela dinâmica
-        df_pivot__fluxo_aggrid, tam_df_pivot__fluxo_aggrid = dataframe_aggrid(
-            df=pivot_fluxo,
-            name="Tabela - Receitas-Despesas",
-            num_columns=colunas_numericas_fluxo,  
-            highlight_rows=['Fluxo_Liquido'],
+        colunas_numericas_saldo = [col for col in pivot_saldo if col != 'Categoria']
+    
+        # Exibindo tabela
+        df_pivot_saldo, tam_df_pivot_saldo_aggrid = dataframe_aggrid(
+            df=pivot_saldo,
+            name="Saldo/Fluxo de caixa",
+            num_columns=colunas_numericas_saldo,  
+            highlight_rows=['Saldo'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
             fit_columns_on_grid_load=True
         )
         
-        # Botão para copiar dados
-        # function_copy_dataframe_as_tsv(df_pivot__fluxo_aggrid)
         st.divider()
 
         # Resumo estatístico
@@ -723,20 +810,24 @@ with st.container(border=True):
 
         with col1:
             total_receitas = df_consolidado[df_consolidado['Categoria'] == 'Receitas']['Valor'].sum()
-            st.metric("Total Receitas", f"R$ {total_receitas:,.2f}")
+            total_receitas_fmt = format_brazilian(total_receitas)
+            st.metric("Total Receitas", f"R$ {total_receitas_fmt}")
 
         with col2:
             total_despesas = df_consolidado[df_consolidado['Categoria'] == 'Despesas']['Valor'].sum()
-            st.metric("Total Despesas", f"R$ {total_despesas:,.2f}")
+            total_despesas_fmt = format_brazilian(total_despesas)
+            st.metric("Total Despesas", f"R$ {total_despesas_fmt}")
 
         with col3:
             fluxo_liquido_total = total_receitas - total_despesas
-            st.metric("Fluxo Líquido", f"R$ {fluxo_liquido_total:,.2f}")
+            fluxo_liquido_total_fmt = format_brazilian(fluxo_liquido_total)
+            st.metric("Fluxo Líquido", f"R$ {fluxo_liquido_total_fmt}")
 
         with col4:
             if total_receitas > 0:
                 margem = (fluxo_liquido_total / total_receitas) * 100
-                st.metric("Margem (%)", f"{margem:.1f}%")
+                margem_fmt = format_brazilian(margem)
+                st.metric("Margem (%)", f"{margem_fmt}%")
             else:
                 st.metric("Margem (%)", "N/A")
     st.write("")
@@ -895,11 +986,13 @@ try:
         with col1:
             st.metric("Total de Classificações", len(df_mapping_ref))
         with col2:
-            percentual_mapeadas = f"{total_mapped/len(df_mapping_ref)*100:.1f}%" if len(df_mapping_ref) > 0 else "N/A"
-            st.metric("Mapeadas", total_mapped, delta=percentual_mapeadas)
+            percentual_mapeadas = total_mapped/len(df_mapping_ref)*100 if len(df_mapping_ref) > 0 else "N/A"
+            percentual_mapeadas_fmt = format_brazilian(percentual_mapeadas)
+            st.metric("Mapeadas", total_mapped, delta=f"{percentual_mapeadas_fmt}%")
         with col3:
-            percentual_nao_mapeadas = f"{total_unmapped/len(df_mapping_ref)*100:.1f}%" if len(df_mapping_ref) > 0 else "N/A"
-            st.metric("Não Mapeadas", total_unmapped, delta=percentual_nao_mapeadas)
+            percentual_nao_mapeadas = total_unmapped/len(df_mapping_ref)*100 if len(df_mapping_ref) > 0 else "N/A"
+            percentual_nao_mapeadas_fmt = format_brazilian(percentual_nao_mapeadas)
+            st.metric("Não Mapeadas", total_unmapped, delta=f"{percentual_nao_mapeadas_fmt}%")
         
         # Aviso sobre classificações não mapeadas
         if total_unmapped > 0:

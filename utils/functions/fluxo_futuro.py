@@ -235,21 +235,30 @@ def analise_orcado_realizado(
         
         with col1:
             total_orcado = df_comparacao['Valor_Orcamento'].sum() if not df_comparacao.empty else 0
-            st.metric("Total Orçado", f"R$ {total_orcado:,.2f}")
+            total_orcado_fmt = format_brazilian(total_orcado)
+            st.metric("Total Orçado", f"R$ {total_orcado_fmt}")
         
         with col2:
             total_realizado = df_comparacao['Valor_Bruto'].sum() if not df_comparacao.empty else 0
-            st.metric("Total Realizado", f"R$ {total_realizado:,.2f}")
+            total_realizado_fmt = format_brazilian(total_realizado)
+            st.metric("Total Realizado", f"R$ {total_realizado_fmt}")
         
         with col3:
             diferenca_total = total_realizado - total_orcado
-            st.metric("Diferença Total", f"R$ {diferenca_total:,.2f}", 
-                        delta=f"{diferenca_total/total_orcado*100:.1f}%" if total_orcado > 0 else "N/A")
+            diferenca_total_fmt = format_brazilian(diferenca_total)
+            porc_diferenca_total = diferenca_total/total_orcado*100
+            porc_diferenca_total_fmt = format_brazilian(porc_diferenca_total)
+            st.metric("Diferença Total", f"R$ {diferenca_total_fmt}", 
+                        delta=f"{porc_diferenca_total_fmt}%" if total_orcado > 0 else "N/A")
         
         with col4:
             percentual_medio = df_comparacao['Percentual_Realizado'].mean()
-            percentual_medio_display = f"{percentual_medio:.1f}%" if not pd.isna(percentual_medio) else "N/A"
-            st.metric("Média: Realizado vs Orçado (%)", percentual_medio_display)
+            # percentual_medio_display = f"{percentual_medio:.1f}%" if not pd.isna(percentual_medio) else "N/A"
+            percentual_medio_display_fmt = format_brazilian(percentual_medio)
+            st.metric("Média: Realizado vs Orçado (%)", f"{percentual_medio_display_fmt}%")
+
+    else: 
+        st.warning('Não há dados disponíveis para exibição.')
 
     # Calculando fator de ajuste baseado no histórico (abordagem conservadora)
     # Aplica ajuste apenas quando percentual_medio < 100% (corrige para baixo)
@@ -273,7 +282,7 @@ def projecao_receitas_patrocinios(
             st.warning("⚠️ DataFrame de parcelas de receitas extraordinárias está vazio ou não disponível.")
             patrocinios_mensais = pd.DataFrame(columns=['Mes_Ano', 'Valor_Parcela', 'Mes_Ano_Display'])
         else:
-            # Filtrando apenas patrocínios pendentes (Recebimento_Parcela nulo) 
+            # 1. Filtrando apenas patrocínios pendentes (Recebimento_Parcela nulo) 
             # e vencimento dentro do período futuro
             df_patrocinios_futuros = df_parc_receit_extr[
                 (df_parc_receit_extr['ID_Casa'].isin(ids_casas_selecionadas)) &
@@ -307,7 +316,7 @@ def projecao_receitas_patrocinios(
                 )
                 
                 col1, col2 = st.columns([6, 1])
-                with col1: # Calculando total dos valores filtrados
+                with col1: 
                     total_valores_filtrados(df_patrocinios_aggrid, tam_df_patrocinios_aggrid, "Valor_Parcela", despesa_com_parc=False)
                 with col2:
                     function_copy_dataframe_as_tsv(df_patrocinios_aggrid)
@@ -333,7 +342,7 @@ def projecao_receitas_patrocinios(
 
     st.divider()
 
-    ## Projeção Ajustada - Próximos Meses
+    ## 2. Projeção Ajustada - Próximos Meses
     st.subheader("Orçamento Ajustado - Próximos Meses")
 
     # Obtendo orçamentos (de faturamento) futuros para ajustar - usando o filtro de datas do usuário
@@ -368,7 +377,7 @@ def projecao_receitas_patrocinios(
         )
         projecoes_mensais['Mes_Ano'] = projecoes_mensais['Data_Projecao'].dt.strftime('%m/%Y')
         
-        # Criando gráfico de projeção
+        # 3. Criando gráfico de projeção
         fig_projecao = go.Figure()
         
         # Orçado original (linha azul)
@@ -459,41 +468,49 @@ def projecao_receitas_patrocinios(
 
         st.divider()
         
-        # Métricas de projeção
+        # 4. Métricas de projeção
         st.subheader(":material/heap_snapshot_large: Métricas de projeção")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
             total_orcado_futuro = projecoes_mensais['Valor_Orcamento'].sum()
-            st.metric("Total Orçado Futuro", f"R$ {total_orcado_futuro:,.2f}")
+            total_orcado_futuro_fmt = format_brazilian(total_orcado_futuro)
+            st.metric("Total Orçado Futuro", f"R$ {total_orcado_futuro_fmt}")
         
         with col2:
             total_projetado = projecoes_mensais['Valor_Projetado'].sum()
-            st.metric("Total Projetado (Orçamento)", f"R$ {total_projetado:,.2f}")
+            total_projetado_fmt = format_brazilian(total_projetado)
+            st.metric("Total Orçado Ajustado", f"R$ {total_projetado_fmt}")
         
         with col3:
             total_patrocinios_projecao = patrocinios_mensais['Valor_Parcela'].astype(float).sum() if not patrocinios_mensais.empty else 0
-            st.metric("Total Patrocínios", f"R$ {total_patrocinios_projecao:,.2f}")
+            total_patrocinios_projecao_fmt = format_brazilian(total_patrocinios_projecao)
+            st.metric("Total Patrocínios", f"R$ {total_patrocinios_projecao_fmt}")
         
         with col4:
             receita_total_projetada = total_projetado + total_patrocinios_projecao
-            st.metric("Receita Total Projetada", f"R$ {receita_total_projetada:,.2f}")
+            receita_total_projetada_fmt = format_brazilian(receita_total_projetada)
+            st.metric("Receita Total Projetada", f"R$ {receita_total_projetada_fmt}")
         
         # Métricas adicionais
         col1, col2 = st.columns(2)
         
         with col1:
             diferenca_projecao = total_projetado - total_orcado_futuro
-            st.metric("Ajuste Orçamento", f"R$ {diferenca_projecao:,.2f}", 
-                        delta=f"{diferenca_projecao/total_orcado_futuro*100:.1f}%" if total_orcado_futuro > 0 else "N/A")
+            diferenca_projecao_fmt = format_brazilian(diferenca_projecao)
+            porc_diferenca_projecao = diferenca_projecao/total_orcado_futuro*100
+            porc_diferenca_projecao_fmt = format_brazilian(porc_diferenca_projecao)
+            st.metric("Ajuste Orçamento", f"R$ {diferenca_projecao_fmt}", 
+                        delta=f"{porc_diferenca_projecao_fmt}%" if total_orcado_futuro > 0 else "N/A")
         
         with col2:
             diferenca_percentual = (diferenca_projecao / total_orcado_futuro * 100) if total_orcado_futuro > 0 else 0
-            st.metric("Ajuste Orçamento (%)", f"↓{diferenca_percentual:.1f}%")
+            diferenca_percentual_fmt = format_brazilian(diferenca_percentual)
+            st.metric("Ajuste Orçamento (%)", f"↓{diferenca_percentual_fmt}%")
         
         st.divider()
 
-        # Tabela de projeções
+        # 5. Tabela de projeções
         col1, col2 = st.columns([6, 1])
         with col1:
             st.subheader("Detalhamento das Projeções")
@@ -592,7 +609,7 @@ def projecao_despesas_futuras(
             st.dataframe(df_configuracao_exibicao, hide_index=True)
             function_copy_dataframe_as_tsv(df_configuracao_exibicao)
         
-        # Processando por tipo de fluxo futuro
+        # 2. Processando por tipo de fluxo futuro
         projecoes_por_tipo = []
         
         for tipo_fluxo in ['Fixo', 'Variavel do Faturamento', 'Considerar Lançamentos']:
@@ -749,7 +766,7 @@ def projecao_despesas_futuras(
         todos_tipo_despesas_pivot = todos_tipo_despesas_pivot.reset_index()
         colunas_numericas_despesas = [col for col in todos_tipo_despesas_pivot if col != 'Tipo de Fluxo']
 
-        # 2. Exibindo df
+        # Exibindo df
         df_todos_tipo_despesas_aggrid, tam_df_todos_tipo_despesas_aggrid = dataframe_aggrid(
             df=todos_tipo_despesas_pivot,
             name="Despesas futuras por tipo de fluxo",
@@ -1109,41 +1126,48 @@ def projecao_avancada_receitas_despesas(
             col1, col2, col3, col4 = st.columns(4)
             
             with col1:
-                total_receitas_proj = df_receitas_consolidadas['Valor'].sum() if not df_receitas_consolidadas.empty else 0
-                st.metric("Total Receitas Projetadas", f"R$ {total_receitas_proj:,.2f}")
-            
+                total_receitas_orcamento = df_receitas_consolidadas['Valor_Orcamento'].sum() if not df_receitas_consolidadas.empty else 0
+                total_receitas_orcamento_fmt = format_brazilian(total_receitas_orcamento)
+                st.metric("Receitas Orçamento", f"R$ {total_receitas_orcamento_fmt}")
+
             with col2:
-                total_despesas_proj = despesas_data['Valor'].sum() if not despesas_data.empty else 0
-                st.metric("Total Despesas Projetadas", f"R$ {total_despesas_proj:,.2f}")
+                total_receitas_patrocinios = df_receitas_consolidadas['Valor_Patrocinios'].sum() if not df_receitas_consolidadas.empty else 0
+                total_receitas_patrocinios_fmt = format_brazilian(total_receitas_patrocinios)
+                st.metric("Receitas Patrocínios", f"R$ {total_receitas_patrocinios_fmt}")
             
             with col3:
-                saldo_projetado = total_receitas_proj - total_despesas_proj
-                st.metric("Saldo Projetado", f"R$ {saldo_projetado:,.2f}")
+                total_receitas_proj = df_receitas_consolidadas['Valor'].sum() if not df_receitas_consolidadas.empty else 0
+                total_receitas_proj_fmt = format_brazilian(total_receitas_proj)
+                st.metric("Total Receitas Projetadas", f"R$ {total_receitas_proj_fmt}")
             
             with col4:
                 if total_receitas_proj > 0:
-                    margem_projetada = (saldo_projetado / total_receitas_proj) * 100
-                    st.metric("Margem Projetada (%)", f"{margem_projetada:.1f}%")
+                    percentual_patrocinios = (total_receitas_patrocinios / total_receitas_proj) * 100
+                    percentual_patrocinios_fmt = format_brazilian(percentual_patrocinios)
+                    st.metric("Patrocínios/Total (%)", f"{percentual_patrocinios_fmt}%")
                 else:
-                    st.metric("Margem Projetada (%)", "N/A")
+                    st.metric("Patrocínios/Total (%)", "N/A")
             
             # Métricas detalhadas das receitas
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                total_receitas_orcamento = df_receitas_consolidadas['Valor_Orcamento'].sum() if not df_receitas_consolidadas.empty else 0
-                st.metric("Receitas Orçamento", f"R$ {total_receitas_orcamento:,.2f}")
-            
+                total_despesas_proj = despesas_data['Valor'].sum() if not despesas_data.empty else 0
+                total_despesas_proj_fmt = format_brazilian(total_despesas_proj)
+                st.metric("Total Despesas Projetadas", f"R$ {total_despesas_proj_fmt}")
+
             with col2:
-                total_receitas_patrocinios = df_receitas_consolidadas['Valor_Patrocinios'].sum() if not df_receitas_consolidadas.empty else 0
-                st.metric("Receitas Patrocínios", f"R$ {total_receitas_patrocinios:,.2f}")
-            
+                saldo_projetado = total_receitas_proj - total_despesas_proj
+                saldo_projetado_fmt = format_brazilian(saldo_projetado)
+                st.metric("Saldo Projetado", f"R$ {saldo_projetado_fmt}")
+
             with col3:
                 if total_receitas_proj > 0:
-                    percentual_patrocinios = (total_receitas_patrocinios / total_receitas_proj) * 100
-                    st.metric("Patrocínios/Total (%)", f"{percentual_patrocinios:.1f}%")
+                    margem_projetada = (saldo_projetado / total_receitas_proj) * 100
+                    margem_projetada_fmt = format_brazilian(margem_projetada)
+                    st.metric("Margem Projetada (%)", f"{margem_projetada_fmt}%")
                 else:
-                    st.metric("Patrocínios/Total (%)", "N/A")
+                    st.metric("Margem Projetada (%)", "N/A")
             
             st.divider()
 
@@ -1157,7 +1181,7 @@ def projecao_avancada_receitas_despesas(
                 # Criando DataFrame para a tabela
                 tabela_projecao = df_receitas_consolidadas[['Mes_Ano_Display', 'Valor_Orcamento', 'Valor_Patrocinios', 'Valor']].copy()
                 tabela_projecao = tabela_projecao.rename(columns={
-                    'Valor_Orcamento': 'Receitas Orçamento',
+                    'Valor_Orcamento': 'Receitas Projetadas',
                     'Valor_Patrocinios': 'Receitas Patrocínios',
                     'Valor': 'Receitas Total'
                 })
@@ -1176,13 +1200,13 @@ def projecao_avancada_receitas_despesas(
                 tabela_projecao['Saldo'] = tabela_projecao['Receitas Total'] - tabela_projecao['Despesas Projetadas']
                 
                 # Reordenando colunas
-                colunas_ordenadas = ['Mes_Ano_Display', 'Receitas Orçamento', 'Receitas Patrocínios', 'Receitas Total', 'Despesas Projetadas', 'Saldo']
+                colunas_ordenadas = ['Mes_Ano_Display', 'Receitas Projetadas', 'Receitas Patrocínios', 'Receitas Total', 'Despesas Projetadas', 'Saldo']
                 tabela_projecao = tabela_projecao[colunas_ordenadas]
                 
                 pivot_projecao = tabela_projecao
             else:
                 # Fallback se não houver receitas consolidadas
-                pivot_projecao = pd.DataFrame(columns=['Mes_Ano_Display', 'Receitas Orçamento', 'Receitas Patrocínios', 'Receitas Total', 'Despesas Projetadas', 'Saldo'])
+                pivot_projecao = pd.DataFrame(columns=['Mes_Ano_Display', 'Receitas Projetadas', 'Receitas Patrocínios', 'Receitas Total', 'Despesas Projetadas', 'Saldo'])
             
             # Exibindo tabela
             colunas_numericas = [col for col in pivot_projecao.columns if col != 'Mes_Ano_Display']

@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
 from st_aggrid import ColumnsAutoSizeMode
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.fluxo_futuro import *
@@ -367,11 +366,13 @@ if not df_fatores_ajuste.empty:
     
     with col1:
         media_percentual = df_fatores_ajuste['Percentual_Realizado'].mean()
-        st.metric("Média Realizado/Orçado", f"{media_percentual:.1f}%")
+        media_percentual_fmt = format_brazilian(media_percentual)
+        st.metric("Média Realizado/Orçado", f"{media_percentual_fmt}%")
     
     with col2:
         media_fator = df_fatores_ajuste['Fator_Ajuste'].mean()
-        st.metric("Fator de Ajuste Médio", f"{media_fator:.3f}")
+        media_fator_fmt = format_brazilian(media_fator)
+        st.metric("Fator de Ajuste Médio", f"{media_fator_fmt}")
     
     with col3:
         casas_excelentes = len(df_fatores_ajuste[df_fatores_ajuste['Percentual_Realizado'] >= 110])
