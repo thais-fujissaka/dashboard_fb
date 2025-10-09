@@ -257,6 +257,10 @@ def main():
     # Formata valores
     df_precos_itens_vendidos = format_columns_brazilian(df_precos_itens_vendidos, ['Custo Item', 'Valor Unitário', 'Faturamento Bruto', 'Faturamento Líquido', 'Desconto', 'CMV Teórico'])
 
+    if df_precos_itens_vendidos.empty:
+        st.warning('Nenhum item encontrado para os filtros selecionados.')
+        st.stop()
+
     with col2:
         button_download(df_precos_itens_vendidos_download, f'custo_itens_{casa}'[:31], f'custo_itens_{casa}'[:31])
     st.dataframe(
@@ -284,7 +288,11 @@ def main():
             df_lista_produtos = df_lista_produtos.drop_duplicates(subset=['ID Item Zig']).reset_index(drop=True)
 
             lista_produtos = df_lista_produtos['ID - Produto'].tolist()
-            produto_selecionado = st.selectbox('Selecionar Produto', lista_produtos, key='selecionar_produto')
+
+            
+            produto_selecionado = st.selectbox('Selecione um Produto para ver as fichas técnicas', lista_produtos, key='selecionar_produto')
+            if produto_selecionado == None:
+                st.stop()
             id_produto_selecionado = int(float(produto_selecionado.split(' - ')[0]))
 
 
