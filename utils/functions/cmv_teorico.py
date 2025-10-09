@@ -281,3 +281,12 @@ def calcular_custos_itens_vendidos(df_fichas_itens_vendidos, df_precos_insumos_d
     df_precos_itens_vendidos = df_fichas_itens_vendidos[['ID Casa', 'Casa', 'ID Item Zig', 'Item Vendido Zig', 'ID Ficha Técnica', 'Custo Item']].copy().groupby(['ID Casa', 'Casa', 'ID Item Zig', 'Item Vendido Zig', 'ID Ficha Técnica']).agg({'Custo Item': 'sum'}).reset_index()
     
     return df_precos_itens_vendidos, df_fichas_itens_vendidos, df_fichas_itens_vendidos_auditoria
+
+
+def cor_porcentagem_cmv(cmv_teorico_porcentagem):
+    if cmv_teorico_porcentagem < 29:
+        return 'verde'
+    elif cmv_teorico_porcentagem >= 29 and cmv_teorico_porcentagem < 32:
+        return 'amarelo'
+    else:
+        return 'vermelho'

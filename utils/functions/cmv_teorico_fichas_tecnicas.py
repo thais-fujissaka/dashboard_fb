@@ -62,50 +62,6 @@ def function_copy_dataframe_as_tsv(df):
         height=110
     )
 
-def function_box_lenDf(len_df, df, y='', x='', box_id='', item='', total_line=False):
-    #Cria uma box para exibir inforações de quantidade de linha
-    if total_line == True:
-        len_df = len(df)
-        len_df -= 1
-    else:
-        len_df = len(df)
-
-    st.markdown(
-        """
-        <style>
-        .small-box {
-            border: 1px solid #8B0000; /* Cor da borda */
-            border-radius: 5px; /* Cantos arredondados */
-            padding: 10px; /* Espaçamento interno */
-            background-color: transparent; /* Cor de fundo da caixa */
-            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); /* Sombra */
-            font-size: 14px; /* Tamanho da fonte */
-            font-weight: bold; /* Negrito */
-            text-align: center; /* Alinhamento do texto */
-            width: 150px; /* Largura da caixinha */
-            z-index: 1; /* Garantir que a caixa fique acima de outros elementos */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-    
-    # CSS para o posicionamento específico via ID
-    st.markdown(
-        f"""
-        <style>
-        #{box_id} {{
-            position: absolute; /* Posicionamento absoluto */
-            top: {y}px; /* Distância do topo da página */
-            left: {x}px; /* Distância da borda esquerda da página */
-        }}
-        </style>
-        <div id="{box_id}" class="small-box">
-            O DataFrame contém <span style="color: #8B0000;">{len_df}</span> {item}.
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 def function_format_number_columns(df=None, columns_money=[], columns_number=[], columns_percent=[], valor=None):
     #Função geral para formatar numeros
@@ -205,13 +161,4 @@ def function_highlight_value(value, invert_color=False):
     except Exception:
         return ''
         
-def function_format_amount(df):
-    #Cria coluna de g e ml
-    unidade = str(df['Unidade Medida']).upper()
-    if "KG" in unidade:
-        return "G"
-    elif "L" in unidade:
-        return "ML"
-    else:
-        return unidade
 
