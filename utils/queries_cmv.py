@@ -136,6 +136,8 @@ def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
       tvivpc.ID_ITEM_VENDIDO AS 'ID Item Zig',
       tvivpc.ID_ZIG_ITEM_VENDIDO AS 'Product ID',
       tivd.PRODUCT_NAME AS 'Item Vendido Zig',
+      tivc2.DESCRICAO AS 'Categoria',
+      tivt.DESCRICAO AS 'Tipo',
       DATE(tivd.EVENT_DATE) AS 'Data Venda',
       SUM(QUANTIDADE * VALOR_UNITARIO) / SUM(QUANTIDADE) AS 'Valor Unitário',
       SUM(tivd.QUANTIDADE) AS 'Quantidade',
@@ -147,6 +149,9 @@ def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
     LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
       ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
       AND tvivpc.ID_CASA = tivd.FK_CASA
+    LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tivc.ID_ZIGPAY = tivd.PRODUCT_ID
+    LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc2.ID = tivc.FK_CATEGORIA 
+    LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivt.ID = tivc.FK_TIPO
     GROUP BY tivd.FK_CASA, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)
   ''')
 

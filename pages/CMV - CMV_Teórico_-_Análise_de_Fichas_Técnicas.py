@@ -143,11 +143,13 @@ def main():
     df_itens_vendidos_dia = df_itens_vendidos_dia[(df_itens_vendidos_dia['Data Venda'] >= data_inicio) & (df_itens_vendidos_dia['Data Venda'] <= data_fim)]
     df_itens_vendidos_dia = df_itens_vendidos_dia.sort_values(by=['ID Casa', 'Product ID'], ascending=False)
     df_itens_vendidos_dia = df_itens_vendidos_dia.groupby(
-        ['ID Casa', 'Casa', 'Product ID', 'ID Item Zig', 'Item Vendido Zig']).aggregate({
+        ['ID Casa', 'Casa', 'Product ID', 'ID Item Zig', 'Item Vendido Zig', 'Categoria', 'Tipo']).aggregate({
             'ID Casa': 'first',
             'Casa': 'first',
             'Product ID': 'first',
             'ID Item Zig': 'first',
+            'Categoria': 'first',
+            'Tipo': 'first',
             'Item Vendido Zig': 'first',
             'Data Venda': 'first',
             'Valor Unitário': 'first',
@@ -167,7 +169,7 @@ def main():
     df_itens_vendidos_dia = df_itens_vendidos_dia.astype(tipos_dados_itens_vendidos_dia, errors='ignore')
 
     # Merge faturamento com custos das fichas (% CMV Unit.)
-    df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento Bruto', 'Faturamento Líquido']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
+    df_precos_itens_vendidos = pd.merge(df_precos_itens_vendidos, df_itens_vendidos_dia[['Categoria', 'Tipo', 'Valor Unitário', 'Quantidade', 'Desconto', 'Faturamento Bruto', 'Faturamento Líquido']], how='left', on=['ID Casa', 'Casa', 'ID Item Zig'])
     df_precos_itens_vendidos['% CMV Unit.'] = (df_precos_itens_vendidos['Custo Item'] / df_precos_itens_vendidos['Valor Unitário'])
     df_precos_itens_vendidos.sort_values(by=['% CMV Unit.'], ascending=False, inplace=True)
     
@@ -202,7 +204,7 @@ def main():
         st.write('')
         st.markdown(f'## CMV - Custo Itens Vendidos ({casa})')  
     
-    col3, col4 = st.columns([1, 1], vertical_alignment='bottom', gap='large')
+    col3, col4, col5 = st.columns([1, 1, 1], vertical_alignment='top', gap='large')
     # Filtros 
     opcoes_faixa_cmv = {
         'Bom': [0, 29],
@@ -229,12 +231,26 @@ def main():
                 filtro_faixa_cmv_final = filtro_faixa_cmv_final | condicao
             df_precos_itens_vendidos = df_precos_itens_vendidos[filtro_faixa_cmv_final]
     with col4:
+        lista_categorias_produto = df_precos_itens_vendidos['Categoria'].unique().tolist()
         categoria_produto = st.multiselect(
             label='Categoria de Produto',
-            options=[],
-            default=[],
+            options=lista_categorias_produto,
+            default=lista_categorias_produto,
             key='filtros_categoria_produto'
         )
+        df_precos_itens_vendidos = df_precos_itens_vendidos[df_precos_itens_vendidos['Categoria'].isin(categoria_produto)]
+    with col5:
+        lista_tipos_produto = df_precos_itens_vendidos['Tipo'].unique().tolist()
+        lista_tipos_produto = ['Todos os Tipos'] + lista_tipos_produto
+        tipo_produto = st.multiselect(
+            label='Tipo de Produto',
+            options=lista_tipos_produto,
+            default='Todos os Tipos',
+            key='filtros_tipo_produto'
+        )
+        if tipo_produto != ['Todos os Tipos']:
+            df_precos_itens_vendidos = df_precos_itens_vendidos[df_precos_itens_vendidos['Tipo'].isin(tipo_produto)]
+    st.write('')
     
     df_precos_itens_vendidos_download = df_precos_itens_vendidos.copy()
     
@@ -262,9 +278,12 @@ def main():
         col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='bottom', gap='large')
         with col2:
             # Filtro por prato
-            df_lista_produtos = pd.DataFrame(df_precos_itens_vendidos['ID Item Zig'].round(0).astype(int).unique())
+            df_lista_produtos = df_precos_itens_vendidos[['ID Item Zig', 'Item Vendido Zig']].copy()
+            df_lista_produtos['ID Item Zig'] = df_lista_produtos['ID Item Zig'].round(0).astype(int)
             df_lista_produtos['ID - Produto'] = df_precos_itens_vendidos['ID Item Zig'].round(0).astype(int).astype(str) + ' - ' + df_precos_itens_vendidos['Item Vendido Zig']
-            lista_produtos = [produto for produto in df_lista_produtos['ID - Produto'].unique().tolist() if pd.notna(produto)]
+            df_lista_produtos = df_lista_produtos.drop_duplicates(subset=['ID Item Zig']).reset_index(drop=True)
+
+            lista_produtos = df_lista_produtos['ID - Produto'].tolist()
             produto_selecionado = st.selectbox('Selecionar Produto', lista_produtos, key='selecionar_produto')
             id_produto_selecionado = int(float(produto_selecionado.split(' - ')[0]))
 
