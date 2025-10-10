@@ -745,7 +745,10 @@ with st.container(border=True):
 
         # Calcula saldo/fluxo de caixa
         st.subheader(":material/arrow_downward: Fluxo de Caixa")
-        st.write('O saldo de um mês é considerado no caixa do mês seguinte.')
+        st.markdown("""
+                    <h6>Receita ajustada = Receita total + Saldo do mês anterior</h6>
+                    """, unsafe_allow_html=True)
+        # st.write('O saldo de um mês é considerado no caixa do mês seguinte.')
 
         # Inicializa listas e saldo anterior
         df_saldo = df_fluxo_liquido.copy()
