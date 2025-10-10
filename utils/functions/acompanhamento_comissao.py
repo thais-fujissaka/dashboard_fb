@@ -11,15 +11,7 @@ def calcular_comissao_casa(row, orcamento_mes, meta_atingida):
     Calcula a comissão com base na meta atingida e no valor recebido, de acordo com a regra de cada casa.
     """
 
-    
-    if row['ID Casa'] in [122, 156, 115, 104, 114, 148, 105, 116, 160, 128, 145]: # Arcos, Girondino, Riviera, Orfeu, Bar Brahma - Centro, Bar Brahma - Granja, Jacaré, Bar Leo Centro, 
-        if meta_atingida:
-            percentual_comissao = 1.5
-            comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
-        else:
-            percentual_comissao = 1.0
-            comissao = round(row['Valor da Parcela'] * percentual_comissao / 100, 2)
-    elif row['ID Casa'] == 149: # Priceless
+    if row['ID Casa'] in [149, 122, 156, 115, 104, 114, 148, 105, 116, 160, 128, 145]: # Arcos, Girondino, Riviera, Orfeu, Bar Brahma - Centro, Bar Brahma - Granja, Jacaré, Bar Leo Centro, 
         if meta_atingida:
             percentual_comissao = row['Comissão Com Meta Atingida']
             comissao = round(row['Valor da Parcela'] * row['Comissão Com Meta Atingida'] / 100, 2)

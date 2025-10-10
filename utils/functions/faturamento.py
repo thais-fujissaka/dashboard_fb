@@ -96,8 +96,10 @@ def valores_labels_formatados(lista_valores):
 
 # Total de Eventos
 def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa):
+    df_parcelas = df_parcelas.copy()
+
     # Extrai mês e ano da coluna 'Data Vencimento'
-    df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month.copy()
+    df_parcelas['Mes'] = df_parcelas[tipo_data].dt.month
 
     # Agrupa os valores por mês
     df_parcelas_agrupado = df_parcelas.groupby('Mes')['Valor Parcela'].sum().reset_index()
