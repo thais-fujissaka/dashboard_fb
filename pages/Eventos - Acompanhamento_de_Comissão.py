@@ -55,12 +55,6 @@ def main():
 
     # Lista dos vendedores cujas comissões serão exibidas
     lista_vendedores_logado = df_acessos_comissoes['ID - Responsavel'].unique().tolist()
-    # print(lista_vendedores_logado)
-
-    # Recupera o cargo do usuário
-    # df_cargo_logado = df_acessos_comissoes[df_acessos_comissoes['E-mail'] == user]
-    # cargo_logado = df_cargo_logado['Cargo'].unique().tolist()[0]
-    # print(cargo_logado)
 
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
@@ -159,6 +153,8 @@ def main():
 
             # Formata valores monetários
             df_recebimentos['Valor da Parcela'] = df_recebimentos['Valor da Parcela'].astype(float)
+            df_recebimentos['Valor Total Evento'] = df_recebimentos['Valor Total Evento'].astype(float)
+            df_recebimentos['Valor Total Imposto'] = df_recebimentos['Valor Total Imposto'].astype(float)
             df_recebimentos['Comissão Com Meta Atingida'] = df_recebimentos['Comissão Com Meta Atingida'].astype(float)
             df_recebimentos['Comissão Sem Meta Atingida'] = df_recebimentos['Comissão Sem Meta Atingida'].astype(float)
             df_orcamentos['Valor'] = df_orcamentos['Valor'].astype(float)
@@ -237,7 +233,7 @@ def main():
                 vendedores = df_recebimentos['ID - Responsavel'].tolist()
                 vendedores = adiciona_gerentes(vendedores, vendedores_cargos)
                 vendedores = list(set(vendedores))
-                total_vendido = df_recebimentos['Valor da Parcela'].sum()
+                total_vendido = 0
                 altura_header = 318
                 altura_maxima_pagina = 1300
                 altura_atual = altura_header
@@ -265,13 +261,16 @@ def main():
                         df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_blue_note], ignore_index=True)
                         
                     if not df_vendedor.empty:
-                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão', 'Comissão']]
+
+                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', 'Dedução Imposto', '% Comissão', 'Comissão']]
 
                         # Drop comissoes iguais a zero
                         df_vendedor = df_vendedor[df_vendedor['Comissão'] != 0]
 
                         # Calcula valores totais para a linha de total
-                        total_vendido_vendedor = df_vendedor['Valor da Parcela'].sum()
+                        total_vendido_vendedor = df_vendedor['Valor da Parcela'].sum() - df_vendedor['Dedução Imposto'].sum()
+                        total_vendido += total_vendido_vendedor # para o card de total vendido no final
+                        total_deducao_imposto = df_vendedor['Dedução Imposto'].sum()
                         total_comissao = df_vendedor['Comissão'].sum()
                         comissao += total_comissao
 
@@ -299,6 +298,7 @@ def main():
                             'Nome Evento': [''],
                             'ID Parcela': [''],
                             'Valor da Parcela': [total_vendido_vendedor],
+                            'Dedução Imposto': [total_deducao_imposto],
                             'Data Vencimento': [''],
                             'Data Recebimento': [''],
                             'Categoria Parcela': [''],
@@ -313,8 +313,8 @@ def main():
                         altura_atual += altura_vendedor
 
                         # Formata as colunas
-                        df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', '% Comissão', 'Comissão'])
-                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', '% Comissão', 'Comissão']]
+                        df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', 'Dedução Imposto', '% Comissão', 'Comissão'])
+                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', 'Dedução Imposto', '% Comissão', 'Comissão']]
                         df_vendedor_styled = df_vendedor.style.apply(highlight_total_row, axis=1)
 
                         # Formata a página para impressao
