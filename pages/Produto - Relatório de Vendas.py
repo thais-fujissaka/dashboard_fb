@@ -10,7 +10,7 @@ from utils.user import logout
 st.set_page_config(
   layout = 'wide',
   page_title = 'Relatório de Vendas',
-  page_icon=':moneybag:',
+  page_icon='🛍️',
   initial_sidebar_state="collapsed"
 )
 
@@ -102,7 +102,7 @@ def main():
   config_sidebar()
   col, col2, col3 = st.columns([6, 1, 1])
   with col:
-    st.title('Relatório de Vendas')
+    st.title('🛍️ Relatório de Vendas')
   with col2:
     st.button(label="Atualizar", on_click = st.cache_data.clear)
   with col3:
