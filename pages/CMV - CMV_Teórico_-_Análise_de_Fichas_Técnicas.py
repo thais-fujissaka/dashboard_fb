@@ -50,6 +50,8 @@ def main():
     try:
         data_inicio = pd.to_datetime(periodo[0])
         data_fim = pd.to_datetime(periodo[1])
+        mes_data_inicio = data_inicio.month
+        ano_data_inicio = data_inicio.year
     except:
         st.warning('Selecione um período de datas.')
         st.stop()
@@ -212,12 +214,12 @@ def main():
     percentual_itens_cmv_critico = round(qtde_itens_cmv_critico / qtde_total_itens * 100, 2)
 
     df_cmv_orcado_AB = GET_CMV_ORCADO_AB()
-    cmv_orcado_AB = df_cmv_orcado_AB[(df_cmv_orcado_AB['Ano'] == ano) & (df_cmv_orcado_AB['Mês'] == mes) & (df_cmv_orcado_AB['ID Casa'] == id_casa)]['% CMV Orçado'].values[0]
+    cmv_orcado_AB = df_cmv_orcado_AB[(df_cmv_orcado_AB['Ano'] == ano_data_inicio) & (df_cmv_orcado_AB['Mês'] == mes_data_inicio) & (df_cmv_orcado_AB['ID Casa'] == id_casa)]['% CMV Orçado'].values[0]
     cmv_orcado_AB = format_brazilian(cmv_orcado_AB)
 
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1], vertical_alignment='center')
     with col1:
-        kpi_card_cmv_teorico('CMV Orçado', f'{cmv_orcado_AB} %', background_color="#FFFFFF", title_color="#333", value_color="#000")
+        kpi_card_cmv_teorico(f'CMV Orçado ({mes_data_inicio}/{ano_data_inicio})', f'{cmv_orcado_AB} %', background_color="#FFFFFF", title_color="#333", value_color="#000")
     with col2:
         kpi_card_cmv_teorico('Quantidade de Itens com CMV Unitário BOM', f'{qtde_itens_cmv_bom}', background_color="#FFFFFF", title_color="#333", value_color="#000", valor_percentual=percentual_itens_cmv_bom)
     with col3:
