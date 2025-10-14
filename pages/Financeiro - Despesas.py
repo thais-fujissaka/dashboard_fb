@@ -70,25 +70,34 @@ despesaDetalhadaConfig = config_despesas_detalhado(despesasDetalhadas)
 
 classificacoes1 = obter_valores_unicos_ordenados(despesaDetalhadaConfig, 'Class. Contábil 1')
 
+permissoes, user_name, email = config_permissoes_user()
+if 'Acesso Financeiro 2' in permissoes:
+  classificacoes1 = ['Custo Mercadoria Vendida', 'Utilidades', 'Manutenção']
+
 with tab2:
   with st.container(border=True):
     st.write("")
     col0, col1, col2 = st.columns([1, 15, 1])
     with col1:
-      col3, col4, col5, col6 = st.columns([2, 1, 1, 1], vertical_alignment='center')
+      col3, col4, col5, col6 = st.columns([1.5, 1, 1, 1], vertical_alignment='center')
       with col3:
         st.markdown("## Despesas Detalhadas")
       with col4:
-        classificacoes_1_selecionadas = st.multiselect(label='Selecione Classificação Contábil 1', options=classificacoes1)
-        despesaDetalhadaConfig = filtrar_por_classe_selecionada(despesaDetalhadaConfig, 'Class. Contábil 1', classificacoes_1_selecionadas)
+        if 'Acesso Financeiro 2' in permissoes:
+          classificacoes_1_selecionadas = st.multiselect(label='Selecione Classificação Contábil 1', options=classificacoes1, default=classificacoes1)
+        else:
+          classificacoes_1_selecionadas = st.multiselect(label='Selecione Classificação Contábil 1', options=classificacoes1)
+        
+      despesaDetalhadaConfig = filtrar_por_classe_selecionada(despesaDetalhadaConfig, 'Class. Contábil 1', classificacoes_1_selecionadas)
       with col5:
         classificacoes2 = obter_valores_unicos_ordenados(despesaDetalhadaConfig, 'Class. Contábil 2')
         classificacoes_2_selecionadas = st.multiselect(label='Selecione Classificação Contábil 2', options=classificacoes2)
-        despesaDetalhadaConfig = filtrar_por_classe_selecionada(despesaDetalhadaConfig, 'Class. Contábil 2', classificacoes_2_selecionadas)
+      despesaDetalhadaConfig = filtrar_por_classe_selecionada(despesaDetalhadaConfig, 'Class. Contábil 2', classificacoes_2_selecionadas)
       with col6:
         fornecedores = obter_valores_unicos_ordenados(despesaDetalhadaConfig, 'Fornecedor')
         fornecedores_selecionados = st.multiselect(label='Selecione Fornecedores', options=fornecedores)
-        despesaDetalhadaConfig = filtrar_por_classe_selecionada(despesaDetalhadaConfig, 'Fornecedor', fornecedores_selecionados)
+      despesaDetalhadaConfig = filtrar_por_classe_selecionada(despesaDetalhadaConfig, 'Fornecedor', fornecedores_selecionados)
+
       st.write("")
       valorTotal = despesaDetalhadaConfig['Valor'].sum()
       valorTotal = format_brazilian(valorTotal)
