@@ -55,12 +55,6 @@ def main():
 
     # Lista dos vendedores cujas comissões serão exibidas
     lista_vendedores_logado = df_acessos_comissoes['ID - Responsavel'].unique().tolist()
-    # print(lista_vendedores_logado)
-
-    # Recupera o cargo do usuário
-    # df_cargo_logado = df_acessos_comissoes[df_acessos_comissoes['E-mail'] == user]
-    # cargo_logado = df_cargo_logado['Cargo'].unique().tolist()[0]
-    # print(cargo_logado)
 
     # Formata tipos de dados do dataframe de eventos
     tipos_de_dados_eventos = {
@@ -155,10 +149,12 @@ def main():
             st.markdown("## Cálculo da Comissão de Eventos")
             st.divider()
             # Vendedores
-            df_vendedores = df_recebimentos[['ID - Responsavel', 'ID Responsavel', 'Comissão Com Meta Atingida', 'Comissão Sem Meta Atingida']].copy().drop_duplicates()
+            df_vendedores = df_recebimentos[['ID - Responsavel', 'ID Responsavel', 'Comissão Com Meta Atingida', 'Comissão Sem Meta Atingida', 'ID Casa']].copy().drop_duplicates()
 
             # Formata valores monetários
             df_recebimentos['Valor da Parcela'] = df_recebimentos['Valor da Parcela'].astype(float)
+            df_recebimentos['Valor Total Evento'] = df_recebimentos['Valor Total Evento'].astype(float)
+            df_recebimentos['Valor Total Imposto'] = df_recebimentos['Valor Total Imposto'].astype(float)
             df_recebimentos['Comissão Com Meta Atingida'] = df_recebimentos['Comissão Com Meta Atingida'].astype(float)
             df_recebimentos['Comissão Sem Meta Atingida'] = df_recebimentos['Comissão Sem Meta Atingida'].astype(float)
             df_orcamentos['Valor'] = df_orcamentos['Valor'].astype(float)
@@ -179,6 +175,8 @@ def main():
                     "Selecionar mês:", key="seletor_mes_kpi_comissao"
                 )
             with col3:
+                if id_casa != -1:
+                    df_vendedores = df_vendedores[df_vendedores['ID Casa'] == id_casa]
                 id_vendedor, nome_vendedor = seletor_vendedor_logado("Comercial Responsável:", df_vendedores, lista_vendedores_logado, "seletor_vendedor_kpi_comissao")
             st.divider()
 
@@ -204,10 +202,6 @@ def main():
 
             # Calcula o orcamento do mês
             orcamento_mes = df_orcamentos['Valor'].sum()
-
-            # Filtra por vendedor
-            if id_vendedor != -1:
-                df_recebimentos = df_recebimentos[df_recebimentos['ID Responsavel'] == id_vendedor]
 
             # Calcula o percentual de atingimento da meta
             if orcamento_mes > 0:
@@ -235,9 +229,10 @@ def main():
                 st.stop()
             else:
                 vendedores = df_recebimentos['ID - Responsavel'].tolist()
-                vendedores = adiciona_gerentes(vendedores, vendedores_cargos)
+                vendedores = adiciona_gerentes(vendedores, vendedores_cargos, id_casa)
                 vendedores = list(set(vendedores))
-                total_vendido = df_recebimentos['Valor da Parcela'].sum()
+                total_vendido = 0
+                total_liquido = 0
                 altura_header = 318
                 altura_maxima_pagina = 1300
                 altura_atual = altura_header
@@ -263,15 +258,22 @@ def main():
                         df_recebimentos_total_mes_outros_vendedores = df_recebimentos_total_mes[df_recebimentos_total_mes['ID Casa'] == 110].copy()
                         df_recebimentos_gerente_blue_note = calcular_comissao_gerente_blue_note(df_recebimentos_total_mes, vendedor, id_casa)
                         df_vendedor = pd.concat([df_vendedor, df_recebimentos_gerente_blue_note], ignore_index=True)
+
+                    df_vendedor['Valor Líquido'] = df_vendedor['Valor da Parcela'] - df_vendedor['Dedução Imposto']
                         
                     if not df_vendedor.empty:
-                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', '% Comissão', 'Comissão']]
+
+                        df_vendedor = df_vendedor[['ID Casa', 'Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Data Vencimento', 'Data Recebimento', 'Categoria Parcela', 'Valor da Parcela', 'Dedução Imposto', 'Valor Líquido', '% Comissão', 'Comissão']]
 
                         # Drop comissoes iguais a zero
                         df_vendedor = df_vendedor[df_vendedor['Comissão'] != 0]
 
                         # Calcula valores totais para a linha de total
                         total_vendido_vendedor = df_vendedor['Valor da Parcela'].sum()
+                        total_vendido += total_vendido_vendedor # para o card de total vendido no final
+                        total_liquido_vendedor = df_vendedor['Valor Líquido'].sum()
+                        total_liquido =+ total_liquido_vendedor
+                        total_deducao_imposto = df_vendedor['Dedução Imposto'].sum()
                         total_comissao = df_vendedor['Comissão'].sum()
                         comissao += total_comissao
 
@@ -299,6 +301,8 @@ def main():
                             'Nome Evento': [''],
                             'ID Parcela': [''],
                             'Valor da Parcela': [total_vendido_vendedor],
+                            'Dedução Imposto': [total_deducao_imposto],
+                            'Valor Líquido': [total_liquido_vendedor],
                             'Data Vencimento': [''],
                             'Data Recebimento': [''],
                             'Categoria Parcela': [''],
@@ -313,8 +317,8 @@ def main():
                         altura_atual += altura_vendedor
 
                         # Formata as colunas
-                        df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', '% Comissão', 'Comissão'])
-                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', '% Comissão', 'Comissão']]
+                        df_vendedor = format_columns_brazilian(df_vendedor, ['Valor da Parcela', 'Dedução Imposto', 'Valor Líquido', '% Comissão', 'Comissão'])
+                        df_vendedor = df_vendedor[['Casa', 'ID Evento', 'Nome Evento', 'ID Parcela', 'Categoria Parcela', 'Data Vencimento', 'Data Recebimento', 'Valor da Parcela', 'Dedução Imposto', 'Valor Líquido', '% Comissão', 'Comissão']]
                         df_vendedor_styled = df_vendedor.style.apply(highlight_total_row, axis=1)
 
                         # Formata a página para impressao
@@ -324,20 +328,21 @@ def main():
                         else:
                             altura_atual += altura_vendedor
 
-                        # Exibe a comissão do vendedor
-                        col1, col2 = st.columns([4, 1], vertical_alignment='center')
-                        with col1:
-                            st.markdown(f"#### {vendedor}")
-                        with col2:
-                            nome_arquivo = safe_sheet_name(f'comissao_{vendedor}')
-                            button_download(df_download_vendedor, nome_arquivo, f'download_comissao_{vendedor}')
+                        if f'{id_vendedor} - {nome_vendedor}' == '-1 - Todos os vendedores' or f'{id_vendedor} - {nome_vendedor}' == vendedor:
+                            # Exibe a comissão do vendedor
+                            col1, col2 = st.columns([4, 1], vertical_alignment='center')
+                            with col1:
+                                st.markdown(f"#### {vendedor}")
+                            with col2:
+                                nome_arquivo = safe_sheet_name(f'comissao_{vendedor}')
+                                button_download(df_download_vendedor, nome_arquivo, f'download_comissao_{vendedor}')
 
-                        st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
+                            st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
 
-                        with st.expander(f"Ver eventos correspondentes"):
-                            df_eventos_vendedor = df_eventos[df_eventos['ID Evento'].isin(lista_ids_eventos)]
-                            df_eventos_vendedor = format_columns_brazilian(df_eventos_vendedor, ['Valor Total', 'Valor AB', 'Valor Imposto'])
-                            st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], use_container_width=True, hide_index=True)
+                            with st.expander(f"Ver eventos correspondentes"):
+                                df_eventos_vendedor = df_eventos[df_eventos['ID Evento'].isin(lista_ids_eventos)]
+                                df_eventos_vendedor = format_columns_brazilian(df_eventos_vendedor, ['Valor Total', 'Valor AB', 'Valor Imposto'])
+                                st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], use_container_width=True, hide_index=True)
 
     st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
     with st.container(border=True):
@@ -351,11 +356,17 @@ def main():
             with col2:
                 kpi_card("Faturamento do Mês", f"R$ {format_brazilian(total_recebido_mes)}", "rgb(30, 58, 138)", "white", "white")
             with col3:
+                if id_casa == 110:
+                    meta_atingida = total_liquido >= orcamento_mes
+                    porcentagem_atingimento = (total_liquido / orcamento_mes) * 100
+                    
                 if meta_atingida:
                     kpi_card("Atingimento da Meta", f"{format_brazilian(porcentagem_atingimento)} %", "rgb(30, 58, 138)", "white", "rgb(0, 255, 100)")
                 else:
                     kpi_card("Atingimento da Meta", f"{format_brazilian(porcentagem_atingimento)} %", "rgb(30, 58, 138)", "white", "rgb(255, 30, 30)")
             with col4:
+                if id_casa == 110:
+                    total_vendido = total_liquido
                 kpi_card("Total Vendido/Recebido no Mês", f"R$ {format_brazilian(total_vendido)}", "rgb(30, 58, 138)", "white", "white")
             with col5:
                 kpi_card("Comissão", f"R$ {format_brazilian(comissao)}", "rgb(30, 58, 138)", "white", "white")
