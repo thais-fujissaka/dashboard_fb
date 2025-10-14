@@ -112,6 +112,9 @@ def config_despesas_detalhado(df):
     return df[cols]
 
 def exibir_despesas(despesasConfig, exibir_detalhamento=True, layout_impressao=False):
+
+    permissoes, user_name, email = config_permissoes_user()
+
     despesasConfig = despesasConfig[~((despesasConfig['Orçamento'] == 0) & (despesasConfig['Valor Realizado'] == 0))]
     lista_class_contabil_1 = despesasConfig['Class. Contábil 1'].dropna().unique().tolist()
     altura_linha = 35
@@ -120,15 +123,20 @@ def exibir_despesas(despesasConfig, exibir_detalhamento=True, layout_impressao=F
     altura_atual = altura_cabecalho
     altura_max_pagina = 1200
     for classe in lista_class_contabil_1:
+        if classe not in ['Utilidades', 'Manutenção'] and 'Acesso Financeiro 2' in permissoes:
+            continue
+        
         df_classe = despesasConfig[despesasConfig['Class. Contábil 1'] == classe]
         df_classe = df_classe.drop(columns=['Class. Contábil 1']).reset_index(drop=True)
         orcamento_total = df_classe['Orçamento'].sum()
         realizado_total = df_classe['Valor Realizado'].sum()
         orc_realiz_total = df_classe['Orçamento - Realiz.'].sum()
+
         if orcamento_total != 0:
             atingimento = (realizado_total / orcamento_total) * 100
         else:
             atingimento = "Não há orçamento"
+            
         linha_total = pd.DataFrame({
           "Class. Contábil 2": ["Total"],
           "Orçamento": [orcamento_total],

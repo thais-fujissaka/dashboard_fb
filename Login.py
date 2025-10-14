@@ -68,6 +68,7 @@ def main():
             "Acesso CMV 1": "pages/CMV - CMV_Real.py",
             "Acesso Compras 1": "pages/Compras - Análises.py",
             "Acesso Financeiro 1": "pages/Financeiro - Despesas.py",
+            "Acesso Financeiro 2": "pages/Financeiro - Despesas.py"
         }
 
         # Verifica a primeira permissão que existe no mapeamento
