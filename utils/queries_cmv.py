@@ -156,6 +156,56 @@ def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
   ''')
 
 
+def GET_CMV_ORCADO_AB():
+  return dataframe_query(f'''
+      WITH Orcamento_CMV AS (
+        SELECT 
+            te.ID,
+            te.NOME_FANTASIA,
+            t.MES,
+            t.ANO,
+            SUM(t.VALOR) AS Valor_Orcamento_CMV
+        FROM T_ORCAMENTOS t 
+        LEFT JOIN T_EMPRESAS te ON te.ID = t.FK_EMPRESA 
+        LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg ON tccg.ID = t.FK_CLASSIFICACAO_1
+        LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON tccg2.ID = t.FK_CLASSIFICACAO_2
+        WHERE tccg.ID IN (180, 236)
+          AND tccg2.ID IN (957, 958, 493, 494)
+        GROUP BY te.ID, te.NOME_FANTASIA, t.MES, t.ANO
+    ),
+    Orcamento_Faturamento AS (
+        SELECT
+            te.ID,
+            te.NOME_FANTASIA,
+            t.MES,
+            t.ANO,
+            SUM(t.VALOR) AS Valor_Orcamento_Faturamento
+        FROM T_ORCAMENTOS t 
+        LEFT JOIN T_EMPRESAS te ON te.ID = t.FK_EMPRESA 
+        LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg ON tccg.ID = t.FK_CLASSIFICACAO_1
+        LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON tccg2.ID = t.FK_CLASSIFICACAO_2
+        WHERE tccg.ID IN (178, 245)
+          AND tccg2.ID IN (442, 457, 899, 914)
+        GROUP BY te.ID, te.NOME_FANTASIA, t.MES, t.ANO
+    )
+    SELECT
+        f.ID AS 'ID Casa',
+        f.NOME_FANTASIA AS 'Casa',
+        f.MES AS 'Mês',
+        f.ANO AS 'Ano',
+        c.Valor_Orcamento_CMV AS 'Valor Orçamento CMV',
+        f.Valor_Orcamento_Faturamento AS 'Valor Orçamento Faturamento',
+        ROUND(c.Valor_Orcamento_CMV / f.Valor_Orcamento_Faturamento * 100, 2) AS '% CMV Orçado'
+    FROM Orcamento_Faturamento f
+    LEFT JOIN Orcamento_CMV c 
+        ON f.ID = c.ID 
+      AND f.MES = c.MES 
+      AND f.ANO = c.ANO
+    WHERE f.ANO >= 2025
+    ORDER BY f.NOME_FANTASIA, f.ANO, f.MES;
+  ''')
+
+
 ############################### CMV ###################################
 
 @st.cache_data
