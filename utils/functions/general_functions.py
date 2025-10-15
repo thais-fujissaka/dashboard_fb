@@ -236,6 +236,7 @@ def mostrar_menu_permissoes_compras(permissoes):
         st.sidebar.markdown("## Compras")
         st.sidebar.page_link("pages/Compras - Análises.py", label=":material/shelves: Análises")
         st.sidebar.page_link("pages/Compras - Processos.py", label=":material/cycle: Processos")
+        st.sidebar.page_link("pages/Compras - Curva_ABC.py", label=":material/abc: Curva ABC")
 
 
 def mostrar_menu_permissoes_produto(permissoes):
@@ -264,6 +265,9 @@ def mostrar_menu_permissoes_financeiro(permissoes):
         st.sidebar.markdown("## Financeiro")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Extraordinário.py", label=":dollar: Faturamento Extraordinário")
+        st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
+    if 'Acesso Financeiro 2' in permissoes:
+        st.sidebar.markdown("## Financeiro")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
 
 
