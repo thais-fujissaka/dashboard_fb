@@ -407,7 +407,7 @@ def format_percent_column(df, col):
     return df
 
 
-def format_date_column(df, col, fmt="%d/%m/%Y %H:%M"):
+def format_date_column(df, col, fmt="%d/%m/%Y"):
     if col in df.columns:
         df[col] = pd.to_datetime(df[col], errors="coerce").dt.strftime(fmt)
     return df
