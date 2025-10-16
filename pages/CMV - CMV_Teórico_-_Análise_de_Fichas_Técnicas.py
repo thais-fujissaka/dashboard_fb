@@ -361,6 +361,10 @@ def main():
             with col2:
                 button_download(df_fichas_insumos_de_estoque_download, f'estoq_{casa}'[:31], f'estoq_{casa}'[:31])
             st.dataframe(df_precos_insumos_de_estoque, use_container_width=True, hide_index=True)
+            st.markdown('Premissas do cálculo dos Custos dos Itens de estoque:')
+            st.markdown('- São utilizados no cálculo das fichas os preços de compra da casa no mês selecionado; \n'
+            '- Caso não haja compra do insumo na casa no mês selecionados, é utilizado o preço de compra na casa do mês anterior; \n'
+            '- Caso não haja compra do insumo na casa nomês selecionado nem no mês anterior, é utilizado o preço de compra mais recente de qualquer casa; \n')
 
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
