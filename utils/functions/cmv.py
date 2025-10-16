@@ -325,6 +325,19 @@ def config_variacao_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes
 
   return df_variacao_estoque, variacao_estoque_alimentos, variacao_estoque_bebidas
 
+
+def config_valoracao_estoque_valores(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior):
+  df_valoracao_estoque_atual['Valor_em_Estoque'] = df_valoracao_estoque_atual['Valor_em_Estoque'].astype(float)
+  df_valoracao_estoque_mes_anterior['Valor_em_Estoque'] = df_valoracao_estoque_mes_anterior['Valor_em_Estoque'].astype(float)
+
+  valoracao_estoque_atual_alimentos = df_valoracao_estoque_atual[df_valoracao_estoque_atual['Categoria'] == 'ALIMENTOS']['Valor_em_Estoque'].sum()
+  valoracao_estoque_atual_bebidas = df_valoracao_estoque_atual[df_valoracao_estoque_atual['Categoria'] == 'BEBIDAS']['Valor_em_Estoque'].sum()
+
+  valoracao_estoque_mes_anterior_alimentos = df_valoracao_estoque_mes_anterior[df_valoracao_estoque_mes_anterior['Categoria'] == 'ALIMENTOS']['Valor_em_Estoque'].sum()
+  valoracao_estoque_mes_anterior_bebidas = df_valoracao_estoque_mes_anterior[df_valoracao_estoque_mes_anterior['Categoria'] == 'BEBIDAS']['Valor_em_Estoque'].sum()
+
+  return valoracao_estoque_atual_alimentos, valoracao_estoque_atual_bebidas, valoracao_estoque_mes_anterior_alimentos, valoracao_estoque_mes_anterior_bebidas
+
 def config_faturamento_total(df_faturamento_delivery, df_faturamento_zig, df_faturamento_eventos):
   df_faturamento_eventos.rename(columns={'Valor': 'Faturamento_Eventos'})
 
@@ -455,3 +468,49 @@ def config_transferencias_detalhadas(data_inicio, data_fim, loja):
   df_entradas = format_columns_brazilian(df_entradas, ['Valor Transferência'])
   df_saidas = format_columns_brazilian(df_saidas, ['Valor Transferência'])
   return df_entradas, df_saidas
+
+
+def highlight_rows_cmv_dre(linha):
+
+  linhas_entrada = [
+    '(+) Estoque inicial Alimento',
+    '(+) Estoque inicial Bebida',
+    '(+) Estoque inicial Produção Alimentos',
+    '(+) Estoque inicial Produção Bebidas',
+    '(+) Compra de Alimento',
+    '(+) Compra de Bebida',
+    '(+) Entradas transferência Alimentos',
+    '(+) Entradas transferência Bebidas',
+  ]
+
+  linhas_saida = [
+    '(-) Saídas transferência Alimentos',
+    '(-) Saídas transferência Bebidas',
+    '(-) Quebras e perdas',
+    '(-) Estoque final Alimentos',
+    '(-) Estoque final Bebidas',
+    '(-) Fechamento Produção Alimentos',
+    '(-) Fechamento Produção Bebidas',
+  ]
+
+  linhas_amarelo = [
+    '(-) Consumo Funcionário',
+  ]
+
+  linhas_cinza = [
+    '(=) Custo Alimento Vendido',
+    '(=) Custo Bebida Vendida',
+    'Somatório de A&B',
+  ]
+
+  if linha['Descrição'] in linhas_cinza:
+    return ['background-color: #E6EAF1'] * len(linha)
+  elif linha['Descrição'] in linhas_amarelo:
+    return ['background-color: #FFFCE7'] * len(linha)
+  elif linha['Descrição'] in linhas_entrada:
+    return ['background-color: #E8F2FC'] * len(linha)
+  elif linha['Descrição'] in linhas_saida:
+    return ['background-color: #FFEDED'] * len(linha)
+  else:
+    return
+
