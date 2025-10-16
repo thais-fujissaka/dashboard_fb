@@ -361,10 +361,6 @@ def main():
             with col2:
                 button_download(df_fichas_insumos_de_estoque_download, f'estoq_{casa}'[:31], f'estoq_{casa}'[:31])
             st.dataframe(df_precos_insumos_de_estoque, use_container_width=True, hide_index=True)
-            st.markdown('Premissas do cálculo dos Custos dos Itens de estoque:')
-            st.markdown('- São utilizados no cálculo das fichas os preços de compra da casa no mês selecionado; \n'
-            '- Caso não haja compra do insumo na casa no mês selecionados, é utilizado o preço de compra na casa do mês anterior; \n'
-            '- Caso não haja compra do insumo na casa nomês selecionado nem no mês anterior, é utilizado o preço de compra mais recente de qualquer casa; \n')
 
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
@@ -401,7 +397,19 @@ def main():
             with col2:
                 button_download(df_precos_itens_com_fichas_duplicadas, f'fichas_duplicadas'[:31], f'fichas_duplicadas'[:31])
             dataframe_aggrid(df_precos_itens_com_fichas_duplicadas, 'df_fichas_duplicadas')
-
+    
+    with st.container(border=True):
+        col1, col2, col3 = st.columns([0.1, 3, 0.1], vertical_alignment='bottom', gap='large')
+        with col2:
+            st.markdown('## Premissas')
+            st.markdown('### Cálculo dos Custos dos Itens de Estoque:')
+            st.markdown('- São considerados no cálculo das fichas os preços de compra da casa no mês selecionado; \n'
+            '- Caso não haja compra do insumo na casa no mês selecionados, é considerado o preço de compra na casa do mês anterior; \n'
+            '- Caso não haja compra do insumo na casa nomês selecionado nem no mês anterior, é considerado o preço de compra mais recente de qualquer casa; \n')
+            
+            st.markdown('### Faturamento')
+            st.markdown('Os faturamentos são calculados a partir das fichas técnicas existentes da casa. Portanto, os valores de faturamento são correspondentes aos itens que possuem fichas técnicas cadastradas no sistema. Faturamentos de itens vendidos sem cadastro em fichas não entram na análise desta aba.')
+        st.write('')
         
 if __name__ == '__main__':
     main()
