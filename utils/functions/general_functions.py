@@ -256,9 +256,6 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.page_link("pages/Conciliação - Ajustes.py", label=":material/instant_mix: Ajustes")
         
 
-    
-
-
 def mostrar_menu_permissoes_financeiro(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Financeiro")
@@ -266,7 +263,6 @@ def mostrar_menu_permissoes_financeiro(permissoes):
         st.sidebar.page_link("pages/Financeiro - Faturamento_Extraordinário.py", label=":dollar: Faturamento Extraordinário")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
         st.sidebar.page_link("pages/Financeiro - Forecast.py", label=":material/event_upcoming: Forecast")
-
 
 
 def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):

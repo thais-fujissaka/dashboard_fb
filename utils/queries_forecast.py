@@ -1,16 +1,19 @@
 import streamlit as st
 import pandas as pd
 from utils.functions.general_functions import dataframe_query
+from utils.constants.general_constants import casas_validas
 
 
+# Garante que as casas estão corretamente formatadas no SQL
+casas_validas = [c for c in casas_validas if c != 'All bar']
+casas_str = "', '".join(casas_validas)  # vira: "Bar Brahma - Centro', 'Orfeu"
+casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
+
+
+# Faturamento da Zig por dia: alimentos, bebidas, delivery, couvert, etc
 @st.cache_data
-def GET_FATURAMENTO_AGREGADO(casas_validas):
-    # Garante que as casas estão corretamente formatadas no SQL
-    casas_validas = [c for c in casas_validas if c != 'All bar']
-    casas_str = "', '".join(casas_validas)  # vira: "Bar Brahma - Centro', 'Orfeu"
-    casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
-
-    df_faturamento_agregado = dataframe_query(f''' 
+def GET_FATURAMENTO_AGREGADO_DIA():
+    df_faturamento_agregado_diario = dataframe_query(f''' 
     SELECT
         te.ID AS ID_Casa,
         te.NOME_FANTASIA AS Casa,
@@ -18,8 +21,6 @@ def GET_FATURAMENTO_AGREGADO(casas_validas):
             WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
             ELSE tivc2.DESCRICAO 
         END AS Categoria,
-        -- cast(date_format(cast(tiv.EVENT_DATE as date), '%Y-%m-01') as date) AS Primeiro_Dia_Mes,
-        -- concat(year(cast(tiv.EVENT_DATE as date)), '-', month(cast(tiv.EVENT_DATE as date))) AS Ano_Mes,
         cast(tiv.EVENT_DATE as date) AS Data_Evento,
         SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
         SUM(tiv.DISCOUNT_VALUE) AS Desconto,
@@ -29,29 +30,33 @@ def GET_FATURAMENTO_AGREGADO(casas_validas):
     LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
     LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
     LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
-    WHERE YEAR(tiv.EVENT_DATE) > 2024 AND te.NOME_FANTASIA IN ({casas_str}) OR te.NOME_FANTASIA LIKE '%Delivery%'
+    WHERE 
+        YEAR(tiv.EVENT_DATE) > 2024 AND 
+        te.NOME_FANTASIA IN ({casas_str}) OR 
+        te.NOME_FANTASIA LIKE '%Delivery%'
     GROUP BY 
         ID_Casa,
         Categoria,
         Data_Evento
     ''')
 
+    # Mapeamento do Delivery
     mapeamento = {
     'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
     'Delivery Orfeu': ('Orfeu', 104),
     'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
     'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
+    'Delivery Jacaré': ('Jacaré', 105)
     }
 
     for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
-        mask = df_faturamento_agregado['Casa'] == nome_antigo
-        df_faturamento_agregado.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
+        mask = df_faturamento_agregado_diario['Casa'] == nome_antigo
+        df_faturamento_agregado_diario.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
     
-    # df_faturamento_agregado_casa = df_faturamento_agregado[df_faturamento_agregado['ID_Casa'] == id_casa]
-
-    return df_faturamento_agregado
+    return df_faturamento_agregado_diario
 
 
+# Faturamento de Eventos: Eventos A&B, Locações, Couvert
 @st.cache_data
 def GET_FATURAMENTO_EVENTOS():
     df_faturamento_eventos = dataframe_query(f'''
@@ -127,13 +132,9 @@ def GET_FATURAMENTO_EVENTOS():
     return df_eventos_final
 
 
+# Receitas Extraordinárias: 'Outras receitas'
 @st.cache_data
-def GET_PARCELAS_RECEIT_EXTR(casas_validas):
-    # Garante que as casas estão corretamente formatadas no SQL
-    casas_validas = [c for c in casas_validas if c != 'All bar']
-    casas_str = "', '".join(casas_validas)  # vira: "Bar Brahma - Centro', 'Orfeu"
-    casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
-
+def GET_PARCELAS_RECEIT_EXTR():
     df_parc_receit_extr = dataframe_query(f'''
         SELECT 
         te.ID as 'ID_Casa',
@@ -169,15 +170,17 @@ def GET_PARCELAS_RECEIT_EXTR(casas_validas):
     return df_parc_receit_extr, df_parc_receit_extr_dia
 
 
+# Concatena todos os tipos de faturamento
 @st.cache_data
-def GET_TODOS_FATURAMENTOS(casas_validas):
-    faturamento_agregado = GET_FATURAMENTO_AGREGADO(casas_validas)
+def GET_TODOS_FATURAMENTOS_DIA():
+    faturamento_agregado_diario = GET_FATURAMENTO_AGREGADO_DIA()
     faturamento_eventos = GET_FATURAMENTO_EVENTOS()
-    parc_receitas_extr, parc_receitas_extr_dia = GET_PARCELAS_RECEIT_EXTR(casas_validas) # parcelas com categorias específicas e parcelas agrupadas como 'Outras Receitas'
-    todos_faturamentos = pd.concat([faturamento_agregado, faturamento_eventos, parc_receitas_extr_dia])
+    parc_receitas_extr, parc_receitas_extr_dia = GET_PARCELAS_RECEIT_EXTR() # parcelas com categorias específicas e parcelas agrupadas como 'Outras Receitas'
+    todos_faturamentos = pd.concat([faturamento_agregado_diario, faturamento_eventos, parc_receitas_extr_dia])
     return todos_faturamentos, faturamento_eventos, parc_receitas_extr, parc_receitas_extr_dia
 
 
+# Orçamentos mensais
 @st.cache_data
 def GET_ORCAMENTOS():
     df_orcamentos =  dataframe_query(f'''
@@ -210,3 +213,83 @@ def GET_ORCAMENTOS():
         ANO;
     ''')
     return df_orcamentos
+
+
+@st.cache_data
+def GET_FATURAMENTO_AGREGADO_MES():
+    df_faturamento_agregado_mensal = dataframe_query(f'''
+        WITH empresas_normalizadas AS (
+            SELECT
+            ID             AS original_id,
+            CASE 
+                WHEN ID IN (161, 162) THEN 149 
+                ELSE ID 
+            END            AS id_casa_normalizada
+            FROM T_EMPRESAS
+        )
+        SELECT
+            en.id_casa_normalizada     AS ID_Casa,
+            te2.NOME_FANTASIA          AS Casa,
+            CASE 
+                WHEN en.id_casa_normalizada IN (103, 112, 118, 139, 169) THEN 'Delivery'
+                ELSE tivc.DESCRICAO 
+            END AS Categoria,                                  
+            -- tivc.DESCRICAO             AS Categoria,
+            tfa.ANO                    AS Ano,
+            tfa.MES                    AS Mes,
+            tfa.VALOR_BRUTO            AS Valor_Bruto,
+            tfa.DESCONTO               AS Desconto,
+            tfa.VALOR_LIQUIDO          AS Valor_Liquido
+        FROM T_FATURAMENTO_AGREGADO tfa
+        -- primeiro, linka ao CTE para saber a casa “normalizada”
+        LEFT JOIN empresas_normalizadas en
+            ON tfa.FK_EMPRESA = en.original_id
+        -- depois, puxa o nome da casa já normalizada
+        LEFT JOIN T_EMPRESAS te2
+            ON en.id_casa_normalizada = te2.ID
+        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc
+            ON tfa.FK_CATEGORIA = tivc.ID  
+        WHERE 
+            te2.NOME_FANTASIA IN ({casas_str}) OR 
+            te2.NOME_FANTASIA LIKE '%Delivery%'
+    ''')
+
+    # Mapeamento do Delivery
+    mapeamento = {
+    'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
+    'Delivery Orfeu': ('Orfeu', 104),
+    'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
+    'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
+    'Delivery Jacaré': ('Jacaré', 105)
+    }
+
+    for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
+        mask = df_faturamento_agregado_mensal['Casa'] == nome_antigo
+        df_faturamento_agregado_mensal.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
+
+    return df_faturamento_agregado_mensal
+
+
+@st.cache_data
+def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
+    df_faturamento_categoria_mensal = df_faturamento_categoria.copy() # Utiliza o mesmo df que já foi carregado na outra tab
+
+    # Zera a hora
+    df_faturamento_categoria_mensal['Data_Evento'] = pd.to_datetime(df_faturamento_categoria_mensal['Data_Evento'], errors='coerce').dt.normalize()
+    df_faturamento_categoria_mensal['Ano'] = df_faturamento_categoria_mensal['Data_Evento'].dt.year
+    df_faturamento_categoria_mensal['Mes'] = df_faturamento_categoria_mensal['Data_Evento'].dt.month
+    df_faturamento_categoria_mensal = df_faturamento_categoria_mensal[df_faturamento_categoria_mensal['Ano'] > 2024]
+    
+    # Agrupa para ter os valores por mês
+    df_faturamento_categoria_mensal = df_faturamento_categoria_mensal.groupby(['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mes'], as_index=False)[['Valor_Bruto', 'Desconto', 'Valor_Liquido']].sum()
+
+    return df_faturamento_categoria_mensal
+
+
+@st.cache_data
+def GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_eventos, df_parc_receit_extr_dia):
+    df_faturamento_agregado_mensal = GET_FATURAMENTO_AGREGADO_MES()
+    df_faturamento_eventos_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_eventos)
+    df_faturamento_receit_extr_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_parc_receit_extr_dia)
+    df_todos_faturamentos_mensal = pd.concat([df_faturamento_agregado_mensal, df_faturamento_eventos_mensal, df_faturamento_receit_extr_mensal])
+    return df_todos_faturamentos_mensal

@@ -7,10 +7,10 @@ from datetime import timedelta
 from utils.functions.forecast import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.general_functions_conciliacao import *
-from utils.constants.general_constants import casas_validas
 from utils.queries_conciliacao import GET_CASAS
 from utils.queries_forecast import *
 
+# Traduz nomes de meses e dias da semana
 locale.setlocale(locale.LC_TIME, 'Portuguese_Brazil.1252')
 
 st.set_page_config(
@@ -31,16 +31,15 @@ st.title(":material/event_upcoming: Forecast")
 st.divider()
 
 
-# Recuperando dados
+# Dados - Faturamento Diário
 df_casas = GET_CASAS()
-(df_faturamento_agregado, 
+(df_faturamento_agregado_dia, 
  df_faturamento_eventos, 
  df_parc_receitas_extr, 
- df_parc_receit_extr_dia) = GET_TODOS_FATURAMENTOS(casas_validas)
-df_orcamentos = GET_ORCAMENTOS()
+ df_parc_receit_extr_dia) = GET_TODOS_FATURAMENTOS_DIA()
 
 
-# Filtrando Data
+# Filtrando Datas
 today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 amanha = today + timedelta(days=1)
 
@@ -86,42 +85,12 @@ tab1, tab2 = st.tabs(['Mês corrente', 'Próximos meses'])
 with tab1:
     st.markdown(f'''
         <h4>Projeção de Faturamento - {casa} - {amanha.strftime('%d/%m/%Y')} a {fim_do_mes_atual.strftime('%d/%m/%Y')}</h4>
-        <p>Por dia da semana, é calculada a média de faturamento baseada nas das duas últimas semanas.</p>
+        <p><strong>Premissa</strong> (para todas as categorias de faturamento, exceto 'Eventos' e 'Outras Receitas'): por dia da semana, é calculada a média de faturamento baseada nas das duas últimas semanas.</p>
         ''', unsafe_allow_html=True)
     st.divider()
 
-    # Prepara df de faturamento agregado
-    df_faturamento_agregado_casa = df_faturamento_agregado[df_faturamento_agregado['ID_Casa'] == id_casa]
-    df_faturamento_agregado_casa['Data_Evento'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce')
-    df_faturamento_agregado_casa['Dia_Semana'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce').dt.strftime('%A')
-    df_faturamento_agregado_casa['Dia_Mes'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce').dt.day
-    # st.write(df_faturamento_agregado_casa)
-
-    # Filtra por casa e mês (apenas corrente) - para exibir
-    df_faturamento_agregado_mes_corrente = df_faturamento_agregado_casa[
-        (df_faturamento_agregado_casa['Data_Evento'] >= inicio_do_mes_atual) &
-        (df_faturamento_agregado_casa['Data_Evento'] <= today)]
-    
-    st.markdown(f'''
-        <h4>Dias anteriores - {inicio_do_mes_atual.strftime('%d/%m/%y')} a {today.strftime('%d/%m/%y')}</h4>
-    ''', unsafe_allow_html=True)
-
-    df_faturamento_dias_anteriores = df_faturamento_agregado_mes_corrente[['Categoria', 'Data_Evento', 'Dia_Semana', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
-    df_faturamento_dias_anteriores = df_faturamento_dias_anteriores.sort_values(by=['Categoria', 'Data_Evento'])
-    dataframe_aggrid(
-        df=df_faturamento_dias_anteriores,
-        name=f"Projeção - Faturamento Dias Anteriores",
-        num_columns=['Valor_Bruto', 'Desconto', 'Valor_Liquido'],     
-        date_columns=['Data_Evento'],
-        fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-        fit_columns_on_grid_load=True   
-    )
-    st.divider()
-
-    # Filtra por casa e mês (anterior e corrente) - para utilizar no cálculo de projeção
-    df_faturamento_agregado_mes_corrente = df_faturamento_agregado_casa[
-        (df_faturamento_agregado_casa['Data_Evento'] >= inicio_do_mes_anterior) &
-        (df_faturamento_agregado_casa['Data_Evento'] <= fim_do_mes_atual)]
+    # Prepara df de faturamento agregado diário para a casa selecionada
+    df_faturamento_agregado_mes_corrente = prepara_dados_faturam_agregado_diario(id_casa, df_faturamento_agregado_dia, inicio_do_mes_anterior, fim_do_mes_atual)
     
 
     # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x DIAS (mês anterior e corrente) ---
@@ -132,7 +101,6 @@ with tab1:
 
     # Gera projeção para prox dias do mês corrente por dia da semana
     df_dias_futuros_mes = cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_futuros_com_categorias, today)
-
 
     ## A&B
     exibe_categoria_faturamento('A&B', df_dias_futuros_mes, today)
@@ -149,9 +117,9 @@ with tab1:
     ## Eventos
     st.markdown(f'''
         <h4 style="color: #1f77b4;">Faturamento Eventos</h4>
+        <p><strong>Premissa:</strong> considerar o que está lançado para a competência nesse mês</p>        
     ''', unsafe_allow_html=True)
 
-    # exibe_categoria_faturamento('Eventos', df_dias_futuros_mes, today)
     df_faturamento_eventos_futuros = df_faturamento_eventos[
         (df_faturamento_eventos['ID_Casa'] == id_casa) &
         (df_faturamento_eventos['Data_Evento'] >= amanha) &
@@ -175,6 +143,7 @@ with tab1:
     ## Outras Receitas
     st.markdown(f'''
         <h4 style="color: #1f77b4;">Outras Receitas</h4>
+        <p><strong>Premissa:</strong> considerar o que está lançado para a competência nesse mês</p>
     ''', unsafe_allow_html=True)
 
     # Filtra por casa e dias futuros
@@ -212,20 +181,106 @@ with tab1:
         
     else:
         st.info(f'Não há informações de receitas extraordinárias para os próximos dias de {nome_mes_atual}.')
+    st.divider()
 
 
-    # Orçamentos
-    # df_orcamentos_filtrado = df_orcamentos[
-    #     (df_orcamentos['ID_Casa'] == id_casa) &
-    #     (df_orcamentos['Ano'] == ano_atual) & 
-    #     (df_orcamentos['Mes'] == mes_atual)]
-    # st.write(df_orcamentos_filtrado)
+    # Filtra para exibir dias anteriores do mês corrente - para comparação projeção/real
+    df_faturamento_dias_anteriores = df_dias_futuros_mes[
+        (df_dias_futuros_mes['Data_Evento'] >= inicio_do_mes_atual) &
+        (df_dias_futuros_mes['Data_Evento'] <= today)]
+    
+    # Organiza colunas
+    df_faturamento_dias_anteriores = df_faturamento_dias_anteriores[['Categoria', 'Data_Evento', 'Dia Semana', 'Projecao', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
+    df_faturamento_dias_anteriores = df_faturamento_dias_anteriores.sort_values(by=['Categoria', 'Data_Evento'])
+    df_faturamento_dias_anteriores = df_faturamento_dias_anteriores.rename(
+        columns={'Projecao':'Faturamento Projetado', 
+                 'Valor_Bruto':'Faturamento Real',
+                 'Valor_Liquido':'Faturamento Liquido'})
+
+    st.markdown(f'''
+        <h4>Dias anteriores - {inicio_do_mes_atual.strftime('%d/%m/%y')} a {today.strftime('%d/%m/%y')}</h4>
+        <h5>Comparação: Faturamento Projetado e Faturamento Real</h5>
+    ''', unsafe_allow_html=True)
+
+    dataframe_aggrid(
+        df=df_faturamento_dias_anteriores,
+        name=f"Projeção - Faturamento Dias Anteriores",
+        num_columns=['Faturamento Projetado', 'Faturamento Real', 'Desconto', 'Faturamento Liquido'],     
+        date_columns=['Data_Evento'],
+        fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+        fit_columns_on_grid_load=True   
+    )
 
 
 # Projeção de Faturamento - Próximos meses
 with tab2:
+    # Dados - Faturamento e Orçamento Mensal
+    df_orcamentos = GET_ORCAMENTOS()
+    df_faturamento_agregado_mes = GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_eventos, df_parc_receit_extr_dia)
+
     st.markdown(f'''
         <h4>Projeção de Faturamento - {casa} - Próximos meses</h4>
-        <p>Média do % de atingimento do Faturamento Real dos últimos dois meses x Orçamento.</p>
+        <p><strong>Premissa</strong> (para todas as categorias de faturamento): média do percentual (%) de atingimento do Faturamento Real dos últimos dois meses x Orçamento.</p>
         ''', unsafe_allow_html=True)
     st.divider()
+
+    # Prepara df de faturamento agregado mensal para a casa selecionada
+    df_faturamento_mes_casa, df_faturamento_orcamento = prepara_dados_faturamento_orcamentos_mensais(id_casa, df_orcamentos, df_faturamento_agregado_mes, ano_passado, ano_atual)
+
+
+    # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x MESES (ano corrente) ---
+    df_meses_futuros_com_categorias = lista_meses_ano(df_faturamento_mes_casa, ano_atual, ano_passado)
+
+
+    # Gera projeção para prox meses do ano
+    df_faturamento_meses_futuros = cria_projecao_meses_seguintes(df_faturamento_orcamento, df_meses_futuros_com_categorias, ano_atual)
+
+    ## A&B
+    exibe_categoria_faturamento_prox_meses('A&B', df_faturamento_meses_futuros, ano_atual, mes_atual)
+
+    ## Gifts
+    exibe_categoria_faturamento_prox_meses('Gifts', df_faturamento_meses_futuros, ano_atual, mes_atual)
+
+    ## Delivery
+    exibe_categoria_faturamento_prox_meses('Delivery', df_faturamento_meses_futuros, ano_atual, mes_atual)
+
+    ## Artístico - Couvert
+    exibe_categoria_faturamento_prox_meses('Couvert', df_faturamento_meses_futuros, ano_atual, mes_atual)
+
+    ## Eventos
+    exibe_categoria_faturamento_prox_meses('Eventos', df_faturamento_meses_futuros, ano_atual, mes_atual)
+
+    ## Outras Receitas
+    exibe_categoria_faturamento_prox_meses('Outras Receitas', df_faturamento_meses_futuros, ano_atual, mes_atual)
+   
+
+    # Exibie meses anteriores do ano - para comparação projeção/real
+    st.markdown(f'''
+            <h4>Meses anteriores</h4>
+            <h5>Comparação: Atingimento Projetado e Atingimento Real</h5>
+        ''', unsafe_allow_html=True)
+    
+    df_faturamento_meses_anteriores = df_faturamento_meses_futuros.copy()
+    df_faturamento_meses_anteriores = df_faturamento_meses_anteriores[
+        (df_faturamento_meses_anteriores['Ano'] == ano_atual) &
+        (df_faturamento_meses_anteriores['Mes'] <= mes_atual)
+    ]
+
+    df_faturamento_meses_anteriores = df_faturamento_meses_anteriores[['Categoria', 'Mes', 'Orcamento_Faturamento', 'Valor_Bruto', 'Atingimento Real (%)', 'Projecao_Atingimento (%)', 'Valor Projetado']]
+    df_faturamento_meses_anteriores = df_faturamento_meses_anteriores.rename(columns={
+        'Mes':'Mês',
+        'Orcamento_Faturamento':'Orçamento',
+        'Valor_Bruto':'Faturamento Real',
+        'Projecao_Atingimento (%)':'Atingimento Projetado (%)',
+        'Valor Projetado':'Faturamento Projetado'
+    })
+    df_faturamento_meses_anteriores = df_faturamento_meses_anteriores.sort_values(by=['Categoria', 'Mês'])
+
+    dataframe_aggrid(
+        df=df_faturamento_meses_anteriores,
+        name=f"Projeção - Faturamento Meses Anteriores",
+        num_columns=['Orçamento', 'Faturamento Real', 'Faturamento Projetado'],     
+        percent_columns=['Atingimento Real (%)', 'Atingimento Projetado (%)'],
+        fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+        fit_columns_on_grid_load=True   
+    )
