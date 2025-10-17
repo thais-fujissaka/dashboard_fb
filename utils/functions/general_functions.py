@@ -219,6 +219,7 @@ def mostrar_menu_permissoes_eventos(permissoes):
 def mostrar_menu_permissoes_cmv(permissoes):
     if "Dev Dash FB" in permissoes:
         st.sidebar.markdown("## CMV")
+        st.sidebar.page_link('pages/CMV - Painel_CMV.py', label=":bar_chart: Painel de CMV")
         st.sidebar.page_link("pages/CMV - CMV_Real.py", label="⚖ CMV Real")
         st.sidebar.page_link("pages/CMV - CMV_Teórico_-_Análise_de_Fichas_Técnicas.py", label=":material/rubric: CMV Teórico - Análise de Fichas Técnicas")
     if "Acesso CMV 1" in permissoes:
