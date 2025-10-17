@@ -256,11 +256,11 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.page_link("pages/Conciliação - Conciliações.py", label=":material/money_bag: Conciliação por casa")
         st.sidebar.page_link("pages/Conciliação - Farol_de_Conciliação.py", label=":material/finance: Farol de Conciliação")
         st.sidebar.page_link("pages/Conciliação - Ajustes.py", label=":material/instant_mix: Ajustes")
-        
+    if "Acesso Conciliação Casa" in permissoes:
+        st.sidebar.markdown("## Conciliação Financeira")
+        st.sidebar.page_link("pages/Conciliação - Conciliações.py", label=":material/money_bag: Conciliação por casa")
 
     
-
-
 def mostrar_menu_permissoes_financeiro(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Financeiro")
