@@ -9,30 +9,6 @@ from utils.functions.fluxo_realizado import total_valores_filtrados
 from utils.components import dataframe_aggrid
 
 
-def calcular_datas():
-    """Define as datas importantes para filtros e análises."""
-    today = datetime.datetime.now()
-    last_year = today.year - 1
-    jan_last_year = datetime.datetime(last_year, 1, 1)
-    jan_this_year = datetime.datetime(today.year, 1, 1)
-    dec_this_year = datetime.datetime(today.year, 12, 31)
-    ultimo_dia_mes_anterior = today.replace(day=1) - timedelta(days=1)
-
-    # Calculando datas para o próximo mês até fim do ano
-    next_month = today.replace(day=1) + timedelta(days=32)
-    next_month = next_month.replace(day=1)
-    end_of_year = datetime.datetime(today.year, 12, 31)
-
-    return {
-        'jan_last_year': jan_last_year,
-        'jan_this_year': jan_this_year,
-        'ultimo_dia_mes_anterior': ultimo_dia_mes_anterior,
-        'dec_this_year': dec_this_year,
-        'next_month': next_month,
-        'end_of_year': end_of_year,
-    }
-
-
 def exibe_orcamentos_e_faturamento(
         df_orcamentos, 
         df_faturamento_agregado, df_eventos_faturam_agregado, 
