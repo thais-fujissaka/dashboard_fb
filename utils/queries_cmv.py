@@ -8,44 +8,72 @@ from utils.functions.general_functions import dataframe_query, execute_query
 def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_INSUMOS_ESTOQUE():
     return dataframe_query(f'''
         SELECT
-            VIVC.ID_CASA AS 'ID Casa',
-            VIVC.CASA AS 'Casa',
-            VIVC.ID_ITEM_VENDIDO AS 'ID Item Zig',
-            VIVC.ITEM_VENDIDO AS 'Item Vendido Zig',
-            FT.ID AS 'ID Ficha Técnica',
-            IE.ID AS 'ID Insumo Estoque',
-            IE.DESCRICAO AS 'Insumo Estoque',
-            AIFT.QUANTIDADE_POR_FICHA AS 'Quantidade na Ficha',
-            UM.UNIDADE_MEDIDA AS 'Unidade Medida',
-            0 AS 'Produção?'
-        FROM T_FICHAS_TECNICAS FT
-        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA VIVC ON FT.FK_ITEM_VENDIDO_POR_CASA = VIVC.ID
-        LEFT JOIN T_ASSOCIATIVA_INSUMOS_FICHA_TECNICA AIFT ON AIFT.FK_FICHA_TECNICA = FT.ID
-        LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON AIFT.FK_UNIDADE_MEDIDA = UM.ID
-        INNER JOIN T_INSUMOS_ESTOQUE IE ON AIFT.FK_ITEM_ESTOQUE = IE.ID
-        GROUP BY VIVC.ID_CASA, FT.ID, IE.ID
+          CASE
+              WHEN VIVC.ID_CASA = 118 THEN 114
+              WHEN VIVC.ID_CASA = 103 THEN 116
+              WHEN VIVC.ID_CASA = 169 THEN 148
+              WHEN VIVC.ID_CASA = 139 THEN 105
+              WHEN VIVC.ID_CASA = 112 THEN 104
+              ELSE VIVC.ID_CASA
+          END AS `ID Casa`,
+          CASE
+              WHEN VIVC.ID_CASA = 118 THEN 'Bar Brahma - Centro'
+              WHEN VIVC.ID_CASA = 103 THEN 'Bar Léo - Centro'
+              WHEN VIVC.ID_CASA = 169 THEN 'Bar Brahma - Granja'
+              WHEN VIVC.ID_CASA = 139 THEN 'Jacaré'
+              WHEN VIVC.ID_CASA = 112 THEN 'Orfeu'
+              ELSE VIVC.CASA 
+          END AS 'Casa',
+          VIVC.ID_ITEM_VENDIDO AS 'ID Item Zig',
+          VIVC.ITEM_VENDIDO AS 'Item Vendido Zig',
+          FT.ID AS 'ID Ficha Técnica',
+          IE.ID AS 'ID Insumo Estoque',
+          IE.DESCRICAO AS 'Insumo Estoque',
+          AIFT.QUANTIDADE_POR_FICHA AS 'Quantidade na Ficha',
+          UM.UNIDADE_MEDIDA AS 'Unidade Medida',
+          0 AS 'Produção?'
+      FROM T_FICHAS_TECNICAS FT
+      LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA VIVC ON FT.FK_ITEM_VENDIDO_POR_CASA = VIVC.ID
+      LEFT JOIN T_ASSOCIATIVA_INSUMOS_FICHA_TECNICA AIFT ON AIFT.FK_FICHA_TECNICA = FT.ID
+      LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON AIFT.FK_UNIDADE_MEDIDA = UM.ID
+      INNER JOIN T_INSUMOS_ESTOQUE IE ON AIFT.FK_ITEM_ESTOQUE = IE.ID
+      GROUP BY `ID Casa`, FT.ID, IE.ID;
     ''')
 
 
 def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_ITENS_PRODUCAO():
     return dataframe_query(f'''
         SELECT
-            VIVC.ID_CASA AS 'ID Casa',
-            VIVC.CASA AS 'Casa',
-            VIVC.ID_ITEM_VENDIDO AS 'ID Item Zig',
-            VIVC.ITEM_VENDIDO AS 'Item Vendido Zig',
-            FT.ID AS 'ID Ficha Técnica',
-            IP.ID AS 'ID Insumo Produção',
-            IP.NOME_ITEM_PRODUZIDO AS 'Insumo Produção',
-            AIPFT.QUANTIDADE AS 'Quantidade na Ficha',
-            UM.UNIDADE_MEDIDA AS 'Unidade Medida',
-            1 AS 'Produção?'
+          CASE
+            WHEN VIVC.ID_CASA = 118 THEN 114
+            WHEN VIVC.ID_CASA = 103 THEN 116
+            WHEN VIVC.ID_CASA = 169 THEN 148
+            WHEN VIVC.ID_CASA = 139 THEN 105
+            WHEN VIVC.ID_CASA = 112 THEN 104
+            ELSE VIVC.ID_CASA
+            END AS `ID Casa`,
+          CASE
+              WHEN VIVC.ID_CASA = 118 THEN 'Bar Brahma - Centro'
+              WHEN VIVC.ID_CASA = 103 THEN 'Bar Léo - Centro'
+              WHEN VIVC.ID_CASA = 169 THEN 'Bar Brahma - Granja'
+              WHEN VIVC.ID_CASA = 139 THEN 'Jacaré'
+              WHEN VIVC.ID_CASA = 112 THEN 'Orfeu'
+              ELSE VIVC.CASA 
+          END AS 'Casa',
+          VIVC.ID_ITEM_VENDIDO AS 'ID Item Zig',
+          VIVC.ITEM_VENDIDO AS 'Item Vendido Zig',
+          FT.ID AS 'ID Ficha Técnica',
+          IP.ID AS 'ID Insumo Produção',
+          IP.NOME_ITEM_PRODUZIDO AS 'Insumo Produção',
+          AIPFT.QUANTIDADE AS 'Quantidade na Ficha',
+          UM.UNIDADE_MEDIDA AS 'Unidade Medida',
+          1 AS 'Produção?'
         FROM T_FICHAS_TECNICAS FT
-        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA VIVC ON FT.FK_ITEM_VENDIDO_POR_CASA = VIVC.ID
-        LEFT JOIN T_ASSOCIATIVA_ITENS_PRODUCAO_FICHA_TECNICA AIPFT ON AIPFT.FK_FICHA_TECNICA = FT.ID
-        LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON AIPFT.FK_UNIDADE_MEDIDA = UM.ID
-        INNER JOIN T_ITENS_PRODUCAO IP ON AIPFT.FK_ITEM_PRODUCAO = IP.ID
-        GROUP BY VIVC.ID_CASA, FT.ID, IP.ID
+          LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA VIVC ON FT.FK_ITEM_VENDIDO_POR_CASA = VIVC.ID
+          LEFT JOIN T_ASSOCIATIVA_ITENS_PRODUCAO_FICHA_TECNICA AIPFT ON AIPFT.FK_FICHA_TECNICA = FT.ID
+          LEFT JOIN T_UNIDADES_DE_MEDIDAS UM ON AIPFT.FK_UNIDADE_MEDIDA = UM.ID
+          INNER JOIN T_ITENS_PRODUCAO IP ON AIPFT.FK_ITEM_PRODUCAO = IP.ID
+        GROUP BY `ID Casa`, FT.ID, IP.ID
     ''')
 
 
@@ -132,28 +160,42 @@ def GET_CASAS_ITENS_PRODUCAO():
 def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
   return dataframe_query(f'''
     SELECT 
-      tivd.FK_CASA AS 'ID Casa',
-      te.NOME_FANTASIA AS 'Casa',
-      tvivpc.ID_ITEM_VENDIDO AS 'ID Item Zig',
-      tvivpc.ID_ZIG_ITEM_VENDIDO AS 'Product ID',
-      tivd.PRODUCT_NAME AS 'Item Vendido Zig',
-      tivc2.DESCRICAO AS 'Categoria',
-      tivt.DESCRICAO AS 'Tipo',
-      DATE(tivd.EVENT_DATE) AS 'Data Venda',
-      SUM(QUANTIDADE * VALOR_UNITARIO) / SUM(QUANTIDADE) AS 'Valor Unitário',
-      SUM(tivd.QUANTIDADE) AS 'Quantidade',
-      SUM(tivd.DESCONTO) AS 'Desconto',
-      COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0) AS 'Faturamento Bruto',
-      COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0) AS 'Faturamento Líquido'
-    FROM T_ITENS_VENDIDOS_DIA tivd
-    LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
-    LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
-      ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
-      AND tvivpc.ID_CASA = tivd.FK_CASA
-    LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tivc.ID_ZIGPAY = tivd.PRODUCT_ID
-    LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc2.ID = tivc.FK_CATEGORIA 
-    LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivt.ID = tivc.FK_TIPO
-    GROUP BY tivd.FK_CASA, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)
+      CASE
+        WHEN tivd.FK_CASA = 118 THEN 114
+        WHEN tivd.FK_CASA = 103 THEN 116
+        WHEN tivd.FK_CASA = 169 THEN 148
+        WHEN tivd.FK_CASA = 139 THEN 105
+        WHEN tivd.FK_CASA = 112 THEN 104
+        ELSE tivd.FK_CASA
+      END AS `ID Casa`,
+      CASE
+        WHEN tivd.FK_CASA = 118 THEN 'Bar Brahma - Centro'
+        WHEN tivd.FK_CASA = 103 THEN 'Bar Léo - Centro'
+        WHEN tivd.FK_CASA = 169 THEN 'Bar Brahma - Granja'
+        WHEN tivd.FK_CASA = 139 THEN 'Jacaré'
+        WHEN tivd.FK_CASA = 112 THEN 'Orfeu'
+        ELSE te.NOME_FANTASIA
+      END AS 'Casa',
+          tvivpc.ID_ITEM_VENDIDO AS 'ID Item Zig',
+          tvivpc.ID_ZIG_ITEM_VENDIDO AS 'Product ID',
+          tivd.PRODUCT_NAME AS 'Item Vendido Zig',
+          tivc2.DESCRICAO AS 'Categoria',
+          tivt.DESCRICAO AS 'Tipo',
+          DATE(tivd.EVENT_DATE) AS 'Data Venda',
+          SUM(QUANTIDADE * VALOR_UNITARIO) / SUM(QUANTIDADE) AS 'Valor Unitário',
+          SUM(tivd.QUANTIDADE) AS 'Quantidade',
+          SUM(tivd.DESCONTO) AS 'Desconto',
+          COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0) AS 'Faturamento Bruto',
+          COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0) AS 'Faturamento Líquido'
+        FROM T_ITENS_VENDIDOS_DIA tivd
+        LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
+        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
+          ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
+          AND tvivpc.ID_CASA = tivd.FK_CASA
+        LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tivc.ID_ZIGPAY = tivd.PRODUCT_ID
+        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc2.ID = tivc.FK_CATEGORIA 
+        LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivt.ID = tivc.FK_TIPO
+        GROUP BY `ID Casa`, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)
   ''')
 
 
