@@ -7,13 +7,51 @@ from utils.components import dataframe_aggrid
 from st_aggrid import ColumnsAutoSizeMode
 
 
+# Traduz dia da semana ou mês
+def traduz_semana_mes(item, tipo):
+    meses = {
+        'January': 'Janeiro',
+        'February': 'Fevereiro',
+        'March': 'Março',
+        'April': 'Abril',
+        'May': 'Maio',
+        'June': 'Junho',
+        'July': 'Julho',
+        'August': 'Agosto',
+        'September': 'Setembro',
+        'October': 'Outubro',
+        'November': 'Novembro',
+        'December': 'Dezembro'
+    }
+
+    dias_semana = {
+        'Sunday': 'Domingo',
+        'Monday': 'Segunda-feira',
+        'Tuesday': 'Terça-feira',
+        'Wednesday': 'Quarta-feira',
+        'Thursday': 'Quinta-feira',
+        'Friday': 'Sexta-feira',
+        'Saturday': 'Sábado'
+    }
+
+    if tipo == 'mes':
+        return meses.get(item, item)  # Retorna o nome traduzido ou o original se não achar
+    if tipo == 'dia semana':
+        return dias_semana.get(item, item) 
+
+
 # Prepara df de faturamento agregado diário para a casa selecionada
 def prepara_dados_faturam_agregado_diario(id_casa, df_faturamento_agregado_dia, inicio_do_mes_anterior, fim_do_mes_atual):
     df_faturamento_agregado_casa = df_faturamento_agregado_dia[df_faturamento_agregado_dia['ID_Casa'] == id_casa]
     df_faturamento_agregado_casa['Data_Evento'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce')
-    df_faturamento_agregado_casa['Dia Semana'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce').dt.strftime('%A')
+    
+    # Traduz dia da semana para português
+    df_faturamento_agregado_casa['Dia Semana'] = df_faturamento_agregado_casa['Data_Evento'].dt.strftime('%A')
+    df_faturamento_agregado_casa['Dia Semana'] = df_faturamento_agregado_casa['Dia Semana'].apply(
+        lambda x: traduz_semana_mes(x, 'dia semana')
+    )
+    
     df_faturamento_agregado_casa['Dia_Mes'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce').dt.day
-    # st.write(df_faturamento_agregado_dia)
 
     # Filtra por casa e mês (anterior e corrente) - para utilizar no cálculo de projeção
     df_faturamento_agregado_mes_corrente = df_faturamento_agregado_casa[
@@ -42,7 +80,12 @@ def lista_dias_mes_anterior_atual(ano_atual, mes_atual, ultimo_dia_mes_atual,
         'month': mes_anterior,
         'day': df_dias_mes_anterior['Dia_Mes']
     })
-    df_dias_mes_anterior['Dia Semana'] = df_dias_mes_anterior['Data_Evento'].dt.strftime('%A')
+
+    # Traduz dia da semana para português
+    df_dias_mes_anterior['Dia Semana'] = df_dias_mes_anterior['Data_Evento'].dt.strftime('%A') 
+    df_dias_mes_anterior['Dia Semana'] = df_dias_mes_anterior['Dia Semana'].apply(
+        lambda x: traduz_semana_mes(x, 'dia semana')
+    )
 
     # Cria DataFrame para o mês atual
     df_dias_mes_corrente = pd.DataFrame({'Dia_Mes': lista_dias_mes_corrente})
@@ -51,7 +94,12 @@ def lista_dias_mes_anterior_atual(ano_atual, mes_atual, ultimo_dia_mes_atual,
         'month': mes_atual,
         'day': df_dias_mes_corrente['Dia_Mes']
     })
+
+    # Traduz dia da semana para português usando sua função
     df_dias_mes_corrente['Dia Semana'] = df_dias_mes_corrente['Data_Evento'].dt.strftime('%A')
+    df_dias_mes_corrente['Dia Semana'] = df_dias_mes_corrente['Dia Semana'].apply(
+        lambda x: traduz_semana_mes(x, 'dia semana')
+    )
 
     # Junta os dois meses
     df_dias_mes = pd.concat([df_dias_mes_anterior, df_dias_mes_corrente], ignore_index=True)
@@ -320,7 +368,7 @@ def exibe_categoria_faturamento_prox_meses(categoria, df_meses_futuros, ano_atua
             df=df_projecao_faturamento_categoria_prox_meses,
             name=f"Projeção próximos meses - {titulo}",
             num_columns=['Orçamento', 'Valor Projetado'],     
-            percent_columns=['Projecao_Atingimento (%)'],
+            percent_columns=['Projeção Atingimento (%)'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
             fit_columns_on_grid_load=True   
         )

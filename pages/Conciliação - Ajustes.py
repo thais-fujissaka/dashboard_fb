@@ -24,13 +24,18 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/instant_mix: Ajustes")
+col1, col2 = st.columns([5, 1], vertical_alignment='center')
+with col1:
+  st.title(":material/instant_mix: Ajustes")
+with col2:
+  st.button(label='Atualizar dados', key='atualizar_forecast', on_click=st.cache_data.clear)
 st.divider()
 
 # Recuperando dados
 df_casas = GET_CASAS()
 
 # Filtrando por casa e ano
+datas = calcular_datas()
 col1, col2 = st.columns(2)
 
 # Seletor de casa
@@ -53,7 +58,7 @@ with col1:
 
 # Seletor de ano
 with col2:
-  ano_atual = datetime.datetime.now().year 
+  ano_atual = datas['ano_atual'] 
   anos = list(range(2024, ano_atual+1))
   index_padrao = anos.index(ano_atual)
   ano = st.selectbox("Selecione um ano:", anos, index=index_padrao)

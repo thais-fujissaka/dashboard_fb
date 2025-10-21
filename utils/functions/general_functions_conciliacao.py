@@ -1,19 +1,107 @@
 import streamlit as st
+import datetime
+from datetime import timedelta
+import calendar
 import pandas as pd
 import numpy as np
+import os
+import re
+import io
+from utils.functions.forecast import traduz_semana_mes
+from utils.constants.general_constants import *
 from pandas.api.types import is_numeric_dtype
-# from utils.queries import *
 from utils.user import *
 import openpyxl
-import os
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
 from st_aggrid.shared import StAggridTheme
 import streamlit.components.v1 as components
 from rapidfuzz import fuzz
-import re
-from utils.constants.general_constants import *
-import io
+
+
+# Define as datas importantes para filtros e análises
+def calcular_datas():
+    today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    amanha = today + timedelta(days=1)
+    mes_atual = today.month # numero
+    nome_mes_atual_pt = traduz_semana_mes(datetime.datetime.now().strftime('%B'), 'mes') # nome em português
+    ano_atual = today.year
+    ano_passado = today.year - 1
+
+    # Lógica para forecast
+    if mes_atual == 1:
+        mes_anterior = 12
+        ano_anterior = ano_atual - 1
+
+    else:
+        mes_anterior = mes_atual - 1
+        ano_anterior = ano_atual
+
+
+    jan_ano_atual = datetime.datetime(today.year, 1, 1)
+    jan_ano_passado = datetime.datetime(ano_passado, 1, 1)
+    ultimo_dia_mes_atual = calendar.monthrange(today.year, today.month)[1] # numero
+    inicio_do_mes_atual = datetime.datetime(today.year, today.month, 1)
+    fim_do_mes_atual = datetime.datetime(today.year, today.month, ultimo_dia_mes_atual) 
+
+    inicio_do_mes_anterior = datetime.datetime(ano_anterior, mes_anterior, 1)
+    ultimo_dia_mes_anterior = today.replace(day=1) - timedelta(days=1)
+
+    dez_ano_atual = datetime.datetime(today.year, 12, 31)
+
+    # Calculando datas para o próximo mês até fim do ano
+    mes_seguinte = today.replace(day=1) + timedelta(days=32)
+    mes_seguinte = mes_seguinte.replace(day=1)
+    ultimo_dia_ano = datetime.datetime(today.year, 12, 31)
+
+    return {
+        'today': today,
+        'amanha': amanha,
+        'jan_ano_passado': jan_ano_passado,
+        'jan_ano_atual': jan_ano_atual,
+        'ultimo_dia_mes_anterior': ultimo_dia_mes_anterior,
+        'ultimo_dia_mes_atual': ultimo_dia_mes_atual,
+        'dez_ano_atual': dez_ano_atual,
+        'mes_seguinte': mes_seguinte,
+        'ultimo_dia_ano': ultimo_dia_ano,
+        'fim_mes_atual': fim_do_mes_atual,
+        'mes_atual': mes_atual,
+        'ano_atual': ano_atual,
+        'mes_anterior': mes_anterior,
+        'ano_anterior': ano_anterior,
+        'ano_passado': ano_passado,
+        'nome_mes_atual_pt': nome_mes_atual_pt,
+        'inicio_mes_anterior': inicio_do_mes_anterior,
+        'inicio_mes_atual': inicio_do_mes_atual,
+    }
+
+
+# Define datas usadas em componentes e filtragens
+def define_datas():
+    today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    amanha = today + timedelta(days=1)
+
+    mes_atual = today.month # numero
+    nome_mes_atual_eng = datetime.datetime.now().strftime('%B')
+    nome_mes_atual_pt = traduz_semana_mes(nome_mes_atual_eng, 'mes') # nome em português
+
+    ano_atual = today.year
+    ano_passado = today.year - 1
+
+    jan_ano_atual = datetime.datetime(today.year, 1, 1)
+    ultimo_dia_mes_atual = calendar.monthrange(today.year, today.month)[1] # numero
+    inicio_do_mes_atual = datetime.datetime(today.year, today.month, 1)
+    fim_do_mes_atual = datetime.datetime(today.year, today.month, ultimo_dia_mes_atual)
+
+    if mes_atual == 1:
+        mes_anterior = 12
+        ano_anterior = ano_atual - 1
+
+    else:
+        mes_anterior = mes_atual - 1
+        ano_anterior = ano_atual
+
+    inicio_do_mes_anterior = datetime.datetime(ano_anterior, mes_anterior, 1)
 
 
 # Formata valores numéricos e datas 
@@ -34,7 +122,7 @@ def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date):
     
     # Aplica formatação brasileira em colunas de data 
     for col in df_formatado.select_dtypes(include='datetime').columns: 
-        df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y %H:%M') 
+        df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y') 
     return df_filtrado, df_formatado
 
 # Recebe df filtrado e só formata campos numéricos e de data
@@ -280,18 +368,6 @@ def merge_com_fuzzy(df_custos, df_extratos, left_on, right_on, principal,
                 df_tmp.sort_values(by='similaridade', ascending=False)
                     .drop_duplicates(subset=['ID_Extrato_Bancario'], keep='first')
             )
-
-        # remove duplicatas do extrato que não encontraram correspondência com alguma despesa
-        # mask_sem_extrato = df_tmp['ID_Despesa'].isna()
-        # if 'ID_Extrato_Bancario' in df_tmp.columns:  
-        #     df_tmp_sem_extrato = (
-        #         df_tmp[mask_sem_extrato]
-        #         .drop_duplicates(subset=['ID_Extrato_Bancario'])
-        #     )
-        #     df_tmp = pd.concat([
-        #         df_tmp[~mask_sem_extrato],
-        #         df_tmp_sem_extrato
-        #     ], ignore_index=True)
 
     return df_tmp
 
