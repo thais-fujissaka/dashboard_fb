@@ -27,11 +27,19 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/finance: Farol de conciliação")
+col1, col2 = st.columns([5, 1], vertical_alignment='center')
+with col1:
+    st.title(":material/finance: Farol de conciliação")
+with col2:
+    st.button(label='Atualizar dados', key='atualizar_forecast', on_click=st.cache_data.clear)
 st.divider()
 
 # Recuperando dados
 df_casas = GET_CASAS()
+
+# Filtrando Datas
+datas = calcular_datas()
+
 
 # Filtrando por casa e ano
 col1, col2 = st.columns(2)
@@ -43,7 +51,7 @@ with col1:
 
 # Seletor de ano
 with col2:
-    ano_atual = datetime.datetime.now().year 
+    ano_atual = datas['ano_atual'] 
     anos = list(range(2024, ano_atual+1))
     index_padrao = anos.index(ano_atual)
     ano_farol = st.selectbox("Selecione um ano:", anos, index=index_padrao)
@@ -51,14 +59,7 @@ with col2:
 st.divider()
 
 # Conciliação completa (2024 -- atual)
-today = datetime.datetime.now()
-last_year = today.year - 1
-jan_last_year = datetime.datetime(last_year, 1, 1)
-dec_this_year = datetime.datetime(today.year, 12, 31)
-mes_atual = datetime.datetime.now().month
-ano_atual = datetime.datetime.now().year
-
-datas_completas = pd.date_range(start=jan_last_year, end=dec_this_year)
+datas_completas = pd.date_range(start=datas['jan_ano_passado'], end=datas['dez_ano_atual'])
 df_conciliacao_farol = pd.DataFrame()
 df_conciliacao_farol['Data'] = datas_completas
 
@@ -91,7 +92,7 @@ df_dias_trimestre = df_trimestres.groupby(['Trimestre'])['Qtd_dias'].sum().reset
 df_trimestres = df_trimestres.merge(df_dias_trimestre, right_on='Trimestre', left_on='Trimestre', how='inner')
 
 # Lista: porcentagem de dias não conciliados por mês de cada casa usando list comprehension
-lista_casas_mes = [lista_dias_nao_conciliados_casa(df_conciliacao_casa, ano_farol, df_meses, mes_atual) for df_conciliacao_casa in lista_conciliacao_casas]
+lista_casas_mes = [lista_dias_nao_conciliados_casa(df_conciliacao_casa, ano_farol, df_meses, datas['mes_atual']) for df_conciliacao_casa in lista_conciliacao_casas]
 
 # Lista: porcentagem de dias não conciliados por trimestre de cada casa usando list comprehension
 lista_casas_trim = [lista_dias_nao_conciliados_casa_trim(df_conciliacao_casa, ano_farol, df_trimestres, mes_farol) for df_conciliacao_casa in lista_conciliacao_casas]
@@ -115,11 +116,11 @@ df_farol_conciliacao = pd.DataFrame()
 df_farol_conciliacao['Casa'] = casas_validas
 
 # Função que cria a coluna de cada mês da tabela
-df_farol_conciliacao = df_farol_conciliacao_mes(lista_casas_mes, df_farol_conciliacao, ano_farol, mes_atual)
+df_farol_conciliacao = df_farol_conciliacao_mes(lista_casas_mes, df_farol_conciliacao, ano_farol, datas['mes_atual'])
 
 # Pinta as células de acordo com a porcentagem
 df_farol_conciliacao_estilo = df_farol_conciliacao.style.map(
-    lambda val: estilos_celulas(val, ano_atual, ano_farol, mes_atual, mes_farol)
+    lambda val: estilos_celulas(val, ano_atual, ano_farol, datas['mes_atual'], mes_farol)
     )
 
 if mes_farol == 'Todos os meses':

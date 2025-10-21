@@ -40,25 +40,8 @@ df_custos_blueme_sem_parcelam = GET_CUSTOS_BLUEME_SEM_PARC()
 df_custos_blueme_com_parcelam = GET_CUSTOS_BLUEME_COM_PARC()
 
 
-# Filtrando Data
-today = datetime.datetime.now()
-last_year = today.year - 1
-jan_last_year = datetime.datetime(last_year, 1, 1)
-jan_this_year = datetime.datetime(today.year, 1, 1)
-last_day_of_month = calendar.monthrange(today.year, today.month)[1]
-this_month_this_year = datetime.datetime(today.year, today.month, last_day_of_month)
-dec_this_year = datetime.datetime(today.year, 12, 31)
-
-## 5 meses atras
-month_sub_3 = today.month - 3
-year = today.year
-
-if month_sub_3 <= 0:
-    # Se o mês resultante for menor ou igual a 0, ajustamos o ano e corrigimos o mês
-    month_sub_3 += 12
-    year -= 1
-
-start_of_three_months_ago = datetime.datetime(year, month_sub_3, 1)
+# Filtrando Datas
+datas = calcular_datas()
 
 
 # Filtrando por casa(s) e data
@@ -113,7 +96,7 @@ for casa in casas_selecionadas:
         ids_casas_selecionadas.append(mapeamento_lojas[casa])
 
 # Usando session_state se disponível, senão usa o valor padrão
-default_value = st.session_state.get('date_input', (jan_this_year, this_month_this_year))
+default_value = st.session_state.get('date_input', (datas['jan_ano_atual'], datas['fim_mes_atual']))
 
 # Campos de seleção de data
 col1, col2 = st.columns(2)
@@ -121,16 +104,16 @@ col1, col2 = st.columns(2)
 with col1:
     start_date = st.date_input(
         "Data de início", 
-        value=jan_this_year, 
-        min_value=jan_last_year, 
-        max_value=dec_this_year, 
+        value=datas['jan_ano_atual'], 
+        min_value=datas['jan_ano_passado'], 
+        max_value=datas['dez_ano_atual'], 
         format="DD/MM/YYYY")
 with col2:
     end_date = st.date_input(
         "Data de fim", 
-        value=this_month_this_year, 
-        min_value=jan_last_year, 
-        max_value=dec_this_year, 
+        value=datas['fim_mes_atual'], 
+        min_value=datas['jan_ano_passado'], 
+        max_value=datas['dez_ano_atual'], 
         format="DD/MM/YYYY")
 
 start_date = pd.to_datetime(start_date)

@@ -22,39 +22,27 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/money_bag: Conciliação por casa")
+col1, col2 = st.columns([5, 1], vertical_alignment='center')
+with col1:
+    st.title(":material/money_bag: Conciliação por casa")
+with col2:
+    st.button(label='Atualizar dados', key='atualizar_forecast', on_click=st.cache_data.clear)
 st.divider()
 
 # Recuperando dados
 df_casas = GET_CASAS()
 
-# Filtrando Data
-today = datetime.datetime.now()
-last_year = today.year - 1
-jan_last_year = datetime.datetime(last_year, 1, 1)
-jan_this_year = datetime.datetime(today.year, 1, 1)
-last_day_of_month = calendar.monthrange(today.year, today.month)[1]
-this_month_this_year = datetime.datetime(today.year, today.month, last_day_of_month)
-dec_this_year = datetime.datetime(today.year, 12, 31)
+# Filtrando Datas
+datas = calcular_datas()
 
-## 5 meses atras
-month_sub_3 = today.month - 3
-year = today.year
-
-if month_sub_3 <= 0:
-    # Se o mês resultante for menor ou igual a 0, ajustamos o ano e corrigimos o mês
-    month_sub_3 += 12
-    year -= 1
-
-start_of_three_months_ago = datetime.datetime(year, month_sub_3, 1)
 
 # Campos de seleção de data
 col1, col2 = st.columns(2)
 
 with col1:
-    d_inicial = st.date_input("Data de início", value=jan_this_year, min_value=jan_last_year, max_value=dec_this_year, format="DD/MM/YYYY")
+    d_inicial = st.date_input("Data de início", value=datas['jan_ano_atual'], min_value=datas['jan_ano_passado'], max_value=datas['dez_ano_atual'], format="DD/MM/YYYY")
 with col2:
-    d_final = st.date_input("Data de fim", value=this_month_this_year, min_value=jan_last_year, max_value=dec_this_year, format="DD/MM/YYYY")
+    d_final = st.date_input("Data de fim", value=datas['fim_mes_atual'], min_value=datas['jan_ano_passado'], max_value=datas['dez_ano_atual'], format="DD/MM/YYYY")
 
 # Convertendo as datas dos inputs para datetime
 start_date = pd.to_datetime(d_inicial)

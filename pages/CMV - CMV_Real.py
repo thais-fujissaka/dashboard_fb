@@ -20,6 +20,55 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
   st.switch_page('Login.py')
 
 
+def highlight_rows_cmv_dre(linha):
+  linhas = [
+    'CMV Alimentos',
+    'CMV Bebidas',
+    'CMV Geral'
+  ]
+
+  linhas_entrada = [
+    '(+) Estoque inicial Alimento',
+    '(+) Estoque inicial Bebida',
+    '(+) Estoque inicial Produção Alimentos',
+    '(+) Estoque inicial Produção Bebidas',
+    '(+) Compra de Alimento',
+    '(+) Compra de Bebida',
+    '(+) Entradas transferência Alimentos',
+    '(+) Entradas transferência Bebidas',
+  ]
+
+  linhas_saida = [
+    '(-) Saídas transferência Alimentos',
+    '(-) Saídas transferência Bebidas',
+    '(-) Quebras e perdas',
+    '(-) Estoque final Alimentos',
+    '(-) Estoque final Bebidas',
+    '(-) Fechamento Produção Alimentos',
+    '(-) Fechamento Produção Bebidas',
+  ]
+
+  linhas_amarelo = [
+    '(-) Consumo Funcionário',
+  ]
+
+  linhas_cinza = [
+    '(=) Custo Alimento Vendido',
+    '(=) Custo Bebida Vendida',
+    'Somatório de A&B',
+  ]
+
+  if linha['Descrição'] in linhas_cinza:
+    return ['background-color: #E6EAF1'] * len(linha)
+  elif linha['Descrição'] in linhas_amarelo:
+    return ['background-color: #FFFCE7'] * len(linha)
+  elif linha['Descrição'] in linhas_entrada:
+    return ['background-color: #E8F2FC'] * len(linha)
+  elif linha['Descrição'] in linhas_saida:
+    return ['background-color: #FFEDED'] * len(linha)
+  else:
+    return
+
 config_sidebar()
 col, col2, col3 = st.columns([6, 1, 1])
 with col:
@@ -72,6 +121,10 @@ df_diferenca_producao_alimentos = config_diferenca_producao(df_producao_alimento
 df_diferenca_producao_bebidas = config_diferenca_producao(df_producao_bebidas, df_producao_bebidas_mes_anterior)
 df_producao_total = config_producao_agregada(df_producao_alimentos, df_producao_bebidas, df_producao_alimentos_mes_anterior, df_producao_bebidas_mes_anterior)
 
+# Layout DRE
+valoracao_estoque_atual_alimentos, valoracao_estoque_atual_bebidas, valoracao_estoque_mes_anterior_alimentos, valoracao_estoque_mes_anterior_bebidas = config_valoracao_estoque_valores(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior)
+
+
 df_producao_alimentos.drop(columns=['ID_Loja', 'Loja'], inplace=True)
 df_producao_bebidas.drop(columns=['ID_Loja', 'Loja'], inplace=True)
 df_valoracao_estoque_atual.drop(columns=['ID_Loja', 'Loja'], inplace=True)
@@ -87,6 +140,7 @@ diferenca_producao_bebidas = valor_producao_bebidas - valor_producao_bebidas_mes
 
 cmv_alimentos = compras_alimentos - variacao_estoque_alimentos - saida_alimentos + entrada_alimentos - consumo_interno - diferenca_producao_alimentos
 cmv_bebidas = compras_bebidas - variacao_estoque_bebidas - saida_bebidas + entrada_bebidas - diferenca_producao_bebidas
+cmv_alimentos_e_bebidas = cmv_alimentos + cmv_bebidas
 faturamento_total_alimentos = faturamento_bruto_alimentos + faturamento_alimentos_delivery + faturamento_alimentos_eventos
 faturamento_total_bebidas = faturamento_bruto_bebidas + faturamento_bebidas_delivery + faturamento_bebidas_eventos
 
@@ -98,6 +152,36 @@ else:
   cmv_percentual_alim = 0
   cmv_percentual_bebidas = 0
   cmv_percentual_geral = 0
+
+df_cmv_dre_download = pd.DataFrame({
+  '(+) Estoque inicial Alimento': [valoracao_estoque_mes_anterior_alimentos],
+  '(+) Estoque inicial Bebida': [valoracao_estoque_mes_anterior_bebidas],
+  '(+) Estoque inicial Produção Alimentos': [valor_producao_alimentos_mes_anterior],
+  '(+) Estoque inicial Produção Bebidas': [valor_producao_bebidas_mes_anterior],
+  '(+) Compra de Alimento': [compras_alimentos],
+  '(+) Compra de Bebida': [compras_bebidas],
+  '(+) Entradas transferência Alimentos': [entrada_alimentos],
+  '(+) Entradas transferência Bebidas': [entrada_bebidas],
+  '(-) Saídas transferência Alimentos': [saida_alimentos],
+  '(-) Saídas transferência Bebidas': [saida_bebidas],
+  '(-) Consumo Funcionário': [consumo_interno],
+  '(-) Quebras e perdas': [quebras_e_perdas],
+  '(-) Estoque final Alimentos': [valoracao_estoque_atual_alimentos],
+  '(-) Estoque final Bebidas': [valoracao_estoque_atual_bebidas],
+  '(-) Fechamento Produção Alimentos': [valor_producao_alimentos],
+  '(-) Fechamento Produção Bebidas': [valor_producao_bebidas],
+  '(=) Custo Alimento Vendido': [cmv_alimentos],
+  '(=) Custo Bebida Vendida': [cmv_bebidas],
+  'Somatório de A&B': [cmv_alimentos_e_bebidas],
+  'CMV Alimentos': [f'{cmv_percentual_alim} %'],
+  'CMV Bebidas': [f'{cmv_percentual_bebidas} %'],
+  'CMV Geral': [f'{cmv_percentual_geral} %']
+})
+
+# Transpor o DataFrame
+df_cmv_dre_download = df_cmv_dre_download.T.reset_index()
+df_cmv_dre_download = df_cmv_dre_download.copy()
+df_cmv_dre_download.columns = ['Descrição', 'Valor']
 
 faturamento_bruto_alimentos = format_brazilian(faturamento_bruto_alimentos)
 faturamento_bruto_bebidas = format_brazilian(faturamento_bruto_bebidas)
@@ -111,6 +195,7 @@ variacao_estoque_alimentos = format_brazilian(variacao_estoque_alimentos)
 variacao_estoque_bebidas = format_brazilian(variacao_estoque_bebidas) 
 cmv_alimentos = format_brazilian(cmv_alimentos)
 cmv_bebidas = format_brazilian(cmv_bebidas)
+cmv_alimentos_e_bebidas = format_brazilian(cmv_alimentos_e_bebidas)
 cmv_percentual_alim = format_brazilian(cmv_percentual_alim)
 cmv_percentual_bebidas = format_brazilian(cmv_percentual_bebidas)
 cmv_percentual_geral = format_brazilian(cmv_percentual_geral)
@@ -121,6 +206,16 @@ saida_bebidas = format_brazilian(saida_bebidas)
 consumo_interno = format_brazilian(consumo_interno)
 diferenca_producao_alimentos = format_brazilian(diferenca_producao_alimentos)
 diferenca_producao_bebidas = format_brazilian(diferenca_producao_bebidas)
+
+quebras_e_perdas = format_brazilian(quebras_e_perdas)
+valoracao_estoque_mes_anterior_alimentos = format_brazilian(valoracao_estoque_mes_anterior_alimentos)
+valoracao_estoque_mes_anterior_bebidas = format_brazilian(valoracao_estoque_mes_anterior_bebidas)
+valoracao_estoque_atual_alimentos = format_brazilian(valoracao_estoque_atual_alimentos)
+valoracao_estoque_atual_bebidas = format_brazilian(valoracao_estoque_atual_bebidas)
+valor_producao_alimentos = format_brazilian(valor_producao_alimentos)
+valor_producao_bebidas = format_brazilian(valor_producao_bebidas)
+valor_producao_alimentos_mes_anterior = format_brazilian(valor_producao_alimentos_mes_anterior)
+valor_producao_bebidas_mes_anterior = format_brazilian(valor_producao_bebidas_mes_anterior)
 
 colA, colB = st.columns([1, 6])
   
@@ -199,6 +294,48 @@ with colB:
 
 st.divider()
 st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
+
+
+# Layout Novo - Parecido com a DRE
+df_cmv_dre = pd.DataFrame({
+  '(+) Estoque inicial Alimento': [valoracao_estoque_mes_anterior_alimentos],
+  '(+) Estoque inicial Bebida': [valoracao_estoque_mes_anterior_bebidas],
+  '(+) Estoque inicial Produção Alimentos': [valor_producao_alimentos_mes_anterior],
+  '(+) Estoque inicial Produção Bebidas': [valor_producao_bebidas_mes_anterior],
+  '(+) Compra de Alimento': [compras_alimentos],
+  '(+) Compra de Bebida': [compras_bebidas],
+  '(+) Entradas transferência Alimentos': [entrada_alimentos],
+  '(+) Entradas transferência Bebidas': [entrada_bebidas],
+  '(-) Saídas transferência Alimentos': [saida_alimentos],
+  '(-) Saídas transferência Bebidas': [saida_bebidas],
+  '(-) Consumo Funcionário': [consumo_interno],
+  '(-) Quebras e perdas': [quebras_e_perdas],
+  '(-) Estoque final Alimentos': [valoracao_estoque_atual_alimentos],
+  '(-) Estoque final Bebidas': [valoracao_estoque_atual_bebidas],
+  '(-) Fechamento Produção Alimentos': [valor_producao_alimentos],
+  '(-) Fechamento Produção Bebidas': [valor_producao_bebidas],
+  '(=) Custo Alimento Vendido': [cmv_alimentos],
+  '(=) Custo Bebida Vendida': [cmv_bebidas],
+  'Somatório de A&B': [cmv_alimentos_e_bebidas],
+  'CMV Alimentos': [f'{cmv_percentual_alim} %'],
+  'CMV Bebidas': [f'{cmv_percentual_bebidas} %'],
+  'CMV Geral': [f'{cmv_percentual_geral} %']
+})
+# Transpor o DataFrame
+df_cmv_dre = df_cmv_dre.T.reset_index()
+df_cmv_dre.columns = ['Descrição', 'Valor']
+
+# Calcula a altura do dataframe
+num_linhas = len(df_cmv_dre)
+altura_cmv_dre = 35 * num_linhas + 38
+
+# Aplica estilos no dataframe
+df_cmv_dre_styled = df_cmv_dre.style.apply(highlight_rows_cmv_dre, axis=1)
+col1, col2 = st.columns([6, 1], vertical_alignment="center")
+with col2:
+  button_download(df_cmv_dre_download, f"cmv_{format_date(data_inicio)}-{format_date(data_fim)}", key=f'download_{format_date(data_inicio)}-{format_date(data_fim)}')
+st.dataframe(df_cmv_dre_styled, height=altura_cmv_dre, hide_index=True, use_container_width=True)
+
 
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
