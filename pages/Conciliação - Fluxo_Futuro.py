@@ -95,17 +95,17 @@ col1, col2 = st.columns(2)
 with col1:
     start_date = st.date_input(
         "Data de início", 
-        value=datas['next_month'], 
-        min_value=datas['jan_last_year'], 
-        max_value=datas['dec_this_year'], 
+        value=datas['mes_seguinte'], 
+        min_value=datas['jan_ano_passado'], 
+        max_value=datas['dez_ano_atual'], 
         format="DD/MM/YYYY",
         key='start_date')
 with col2:
     end_date = st.date_input(
         "Data de fim", 
-        value=datas['end_of_year'], 
-        min_value=datas['jan_last_year'], 
-        max_value=datas['dec_this_year'], 
+        value=datas['ultimo_dia_ano'], 
+        min_value=datas['jan_ano_passado'], 
+        max_value=datas['dez_ano_atual'], 
         format="DD/MM/YYYY",
         key='end_date')
 
@@ -134,8 +134,8 @@ col1, col2 = st.columns(2)
 with col1:
     fator_ajuste_data_inicio = st.date_input(
         "Data de início para cálculo do fator de ajuste:",
-        value=datas['jan_this_year'],
-        min_value=datas['jan_last_year'],
+        value=datas['jan_ano_atual'],
+        min_value=datas['jan_ano_passado'],
         max_value=datas['ultimo_dia_mes_anterior'],
         format="DD/MM/YYYY",
         key="fator_ajuste_start_date_input_widget"    
@@ -145,7 +145,7 @@ with col2:
     fator_ajuste_data_fim = st.date_input(
         "Data de fim para cálculo do fator de ajuste:",
         value=datas['ultimo_dia_mes_anterior'],
-        min_value=datas['jan_last_year'],
+        min_value=datas['jan_ano_passado'],
         max_value=datas['ultimo_dia_mes_anterior'],
         format="DD/MM/YYYY",
         key="fator_ajuste_end_date_input_widget",

@@ -260,13 +260,13 @@ def mostrar_menu_permissoes_conciliacao(permissoes):
         st.sidebar.markdown("## Conciliação Financeira")
         st.sidebar.page_link("pages/Conciliação - Conciliações.py", label=":material/money_bag: Conciliação por casa")
 
-    
 def mostrar_menu_permissoes_financeiro(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Financeiro")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Extraordinário.py", label=":dollar: Faturamento Extraordinário")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
+        st.sidebar.page_link("pages/Financeiro - Forecast.py", label=":material/event_upcoming: Forecast")
     if 'Acesso Financeiro 2' in permissoes:
         st.sidebar.markdown("## Financeiro")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Despesas")
