@@ -76,34 +76,6 @@ def calcular_datas():
     }
 
 
-# Define datas usadas em componentes e filtragens
-def define_datas():
-    today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    amanha = today + timedelta(days=1)
-
-    mes_atual = today.month # numero
-    nome_mes_atual_eng = datetime.datetime.now().strftime('%B')
-    nome_mes_atual_pt = traduz_semana_mes(nome_mes_atual_eng, 'mes') # nome em português
-
-    ano_atual = today.year
-    ano_passado = today.year - 1
-
-    jan_ano_atual = datetime.datetime(today.year, 1, 1)
-    ultimo_dia_mes_atual = calendar.monthrange(today.year, today.month)[1] # numero
-    inicio_do_mes_atual = datetime.datetime(today.year, today.month, 1)
-    fim_do_mes_atual = datetime.datetime(today.year, today.month, ultimo_dia_mes_atual)
-
-    if mes_atual == 1:
-        mes_anterior = 12
-        ano_anterior = ano_atual - 1
-
-    else:
-        mes_anterior = mes_atual - 1
-        ano_anterior = ano_atual
-
-    inicio_do_mes_anterior = datetime.datetime(ano_anterior, mes_anterior, 1)
-
-
 # Formata valores numéricos e datas 
 def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date):
     if id_casa != 157: 

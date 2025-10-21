@@ -1,7 +1,5 @@
 import streamlit as st
-import datetime
-import calendar
-from datetime import timedelta
+from utils.functions.cmv import *
 from utils.functions.forecast import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.general_functions_conciliacao import *
@@ -58,7 +56,7 @@ mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
 id_casa = mapeamento_casas[casa]
 
 
-tab1, tab2 = st.tabs(['Mês corrente', 'Próximos meses'])
+tab1, tab2, tab3 = st.tabs(['Faturamento - Mês corrente', 'Faturamento - Próximos meses', 'CMV - Próximos meses'])
 
 # Projeção de Faturamento - Mês corrente
 with tab1:
