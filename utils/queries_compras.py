@@ -196,31 +196,32 @@ def assoc_expense_items(day,day2):
 @st.cache_data
 def GET_COMPRAS_PRODUTOS_QUANTIA_NOME_COMPRA():
   return dataframe_query(f'''
-  SELECT
-  	tin4.ID AS 'ID Produto Nivel 4',
-    tin5.ID AS 'ID Produto Nivel 5',
-  	tin5.DESCRICAO AS 'Nome Produto',	
-  	te.NOME_FANTASIA AS 'Loja', 
-  	tf.FANTASY_NAME AS 'Fornecedor',
-	  tin.DESCRICAO AS 'Categoria',
-  	CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)) AS 'Quantidade',
-  	tdri.UNIDADE_MEDIDA AS 'Unidade de Medida',
-  	tdri.VALOR AS 'Valor Total', 
-    (tdri.VALOR / (CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)))) AS 'Valor Unitário',
-  	tdr.COMPETENCIA AS 'Data Compra',
-  	1 AS 'Fator de Proporção'
-  FROM T_DESPESA_RAPIDA_ITEM tdri
-  LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID
-  LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID 
-  LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID 
-  LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID 
-  LEFT JOIN T_INSUMOS_NIVEL_1 tin ON tin2.FK_INSUMOS_NIVEL_1 = tin.id
-  LEFT JOIN T_DESPESA_RAPIDA tdr ON tdri.FK_DESPESA_RAPIDA = tdr.ID 
-  LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID 
-  LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID 
-  WHERE tdr.COMPETENCIA > '2024-01-01'
-''')
-  
+    SELECT
+      tin4.ID AS 'ID Produto Nivel 4',
+      tin5.ID AS 'ID Produto Nivel 5',
+      tin5.DESCRICAO AS 'Nome Produto',	
+      te.NOME_FANTASIA AS 'Loja', 
+      tf.FANTASY_NAME AS 'Fornecedor',
+        tin.DESCRICAO AS 'Categoria',
+      CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)) AS 'Quantidade',
+      tdri.UNIDADE_MEDIDA AS 'Unidade de Medida',
+      tdri.VALOR AS 'Valor Total', 
+      (tdri.VALOR / (CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)))) AS 'Valor Unitário',
+      tdr.COMPETENCIA AS 'Data Compra',
+      1 AS 'Fator de Proporção'
+    FROM T_DESPESA_RAPIDA_ITEM tdri
+      LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID
+      LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID 
+      LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID 
+      LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID 
+      LEFT JOIN T_INSUMOS_NIVEL_1 tin ON tin2.FK_INSUMOS_NIVEL_1 = tin.id
+      LEFT JOIN T_DESPESA_RAPIDA tdr ON tdri.FK_DESPESA_RAPIDA = tdr.ID 
+      LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID 
+      LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID 
+    WHERE tdr.COMPETENCIA > '2024-01-01'
+      AND tdr.BIT_CANCELADA = 0
+  ''')
+    
 
 
 def GET_COMPRAS_PRODUTOS_COM_RECEBIMENTO(data_inicio, data_fim, categoria):
