@@ -226,37 +226,38 @@ def GET_COMPRAS_PRODUTOS_QUANTIA_NOME_COMPRA():
 
 def GET_COMPRAS_PRODUTOS_COM_RECEBIMENTO(data_inicio, data_fim, categoria):
   return dataframe_query(f'''
-  SELECT 	
-  	tin5.ID AS 'ID Produto Nivel 5',
-  	tin5.DESCRICAO AS 'Nome Produto', 
-	  tin.DESCRICAO AS 'Categoria',
-  	te.NOME_FANTASIA AS 'Loja', 
-  	tf.FANTASY_NAME AS 'Fornecedor', 
-  	tdr.COMPETENCIA AS 'Data Compra',
-  	CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)) AS 'Quantidade',
-  	tdri.UNIDADE_MEDIDA AS 'Unidade de Medida',
-  	tdri.VALOR AS 'Valor Total', 
-    (tdri.VALOR / (CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)))) AS 'Valor Unitário',
-  	tps.DATA AS 'Data_Recebida'
-  FROM T_DESPESA_RAPIDA_ITEM tdri
-  LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID
-  LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID 
-  LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID 
-  LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID 
-  LEFT JOIN T_INSUMOS_NIVEL_1 tin ON tin2.FK_INSUMOS_NIVEL_1 = tin.id
-  LEFT JOIN T_DESPESA_RAPIDA tdr ON tdri.FK_DESPESA_RAPIDA = tdr.ID 
-  LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID 
-  LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID 
-  LEFT JOIN T_PEDIDOS tp ON tp.ID = tdr.FK_PEDIDO
-  LEFT JOIN T_PEDIDO_STATUS tps ON tps.FK_PEDIDO = tp.ID
-  WHERE tdr.COMPETENCIA >= '{data_inicio}'
-    AND tdr.COMPETENCIA <= '{data_fim}'
-    AND tin.DESCRICAO = '{categoria}'
-  GROUP BY 
-    tin5.ID,
-    te.ID,
-    tf.ID,
-    tdr.COMPETENCIA
-  ORDER BY
-    tdr.COMPETENCIA DESC
+    SELECT 	
+      tin5.ID AS 'ID Produto Nivel 5',
+      tin5.DESCRICAO AS 'Nome Produto', 
+      tin.DESCRICAO AS 'Categoria',
+      te.NOME_FANTASIA AS 'Loja', 
+      tf.FANTASY_NAME AS 'Fornecedor', 
+      tdr.COMPETENCIA AS 'Data Compra',
+      CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)) AS 'Quantidade',
+      tdri.UNIDADE_MEDIDA AS 'Unidade de Medida',
+      tdri.VALOR AS 'Valor Total', 
+      (tdri.VALOR / (CAST(REPLACE(tdri.QUANTIDADE, ',', '.') AS DECIMAL(10, 2)))) AS 'Valor Unitário',
+      tps.DATA AS 'Data_Recebida'
+    FROM T_DESPESA_RAPIDA_ITEM tdri
+    LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID
+    LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID 
+    LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID 
+    LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID 
+    LEFT JOIN T_INSUMOS_NIVEL_1 tin ON tin2.FK_INSUMOS_NIVEL_1 = tin.id
+    LEFT JOIN T_DESPESA_RAPIDA tdr ON tdri.FK_DESPESA_RAPIDA = tdr.ID 
+    LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID 
+    LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID 
+    LEFT JOIN T_PEDIDOS tp ON tp.ID = tdr.FK_PEDIDO
+    LEFT JOIN T_PEDIDO_STATUS tps ON tps.FK_PEDIDO = tp.ID
+    WHERE tdr.COMPETENCIA >= '{data_inicio}'
+      AND tdr.COMPETENCIA <= '{data_fim}'
+      AND tin.DESCRICAO = '{categoria}'
+      AND tdr.BIT_CANCELADA = 0
+    GROUP BY 
+      tin5.ID,
+      te.ID,
+      tf.ID,
+      tdr.COMPETENCIA
+    ORDER BY
+      tdr.COMPETENCIA DESC
   ''')
