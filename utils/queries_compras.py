@@ -7,41 +7,42 @@ from utils.functions.general_functions import dataframe_query, execute_query
 def inputs_expenses(day,day2):
   return dataframe_query(f'''
     SELECT 
-    DRI.ID AS 'ID_zAssociac Despesa Item',
-    E.ID AS 'ID Casa',
-    E.NOME_FANTASIA AS 'Casa',
-    DR.ID AS 'ID Despesa',
-    F.ID AS 'ID Fornecedor',
-    LEFT(F.FANTASY_NAME, 23) AS 'Fornecedor',
-    STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') AS 'Data Competencia',
-    I5.ID AS 'ID Insumo',
-    I5.DESCRICAO AS 'Insumo',
-    I4.ID AS 'ID Nivel 4',
-    I4.DESCRICAO AS 'Nivel 4',
-    I3.ID AS 'ID Nivel 3',
-    I3.DESCRICAO AS 'Nivel 3',
-    I2.ID AS 'ID Nivel 2',
-    I2.DESCRICAO AS 'Nivel 2',
-    I1.ID AS 'ID Nivel 1',
-    I1.DESCRICAO AS 'Nivel 1',
-    ROUND(CAST(DRI.QUANTIDADE AS FLOAT), 3) AS 'Quantidade Insumo',
-    tudm.UNIDADE_MEDIDA_NAME AS 'Unidade Medida',
-    ROUND(CAST(DRI.VALOR AS FLOAT), 2) AS 'Valor Insumo'
+      DRI.ID AS 'ID_zAssociac Despesa Item',
+      E.ID AS 'ID Casa',
+      E.NOME_FANTASIA AS 'Casa',
+      DR.ID AS 'ID Despesa',
+      F.ID AS 'ID Fornecedor',
+      LEFT(F.FANTASY_NAME, 23) AS 'Fornecedor',
+      STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') AS 'Data Competencia',
+      I5.ID AS 'ID Insumo',
+      I5.DESCRICAO AS 'Insumo',
+      I4.ID AS 'ID Nivel 4',
+      I4.DESCRICAO AS 'Nivel 4',
+      I3.ID AS 'ID Nivel 3',
+      I3.DESCRICAO AS 'Nivel 3',
+      I2.ID AS 'ID Nivel 2',
+      I2.DESCRICAO AS 'Nivel 2',
+      I1.ID AS 'ID Nivel 1',
+      I1.DESCRICAO AS 'Nivel 1',
+      ROUND(CAST(DRI.QUANTIDADE AS FLOAT), 3) AS 'Quantidade Insumo',
+      tudm.UNIDADE_MEDIDA_NAME AS 'Unidade Medida',
+      ROUND(CAST(DRI.VALOR AS FLOAT), 2) AS 'Valor Insumo'
     FROM T_DESPESA_RAPIDA_ITEM DRI 
-    INNER JOIN T_INSUMOS_NIVEL_5 I5 ON (DRI.FK_INSUMO = I5.ID)
-    INNER JOIN T_INSUMOS_NIVEL_4 I4 ON (I5.FK_INSUMOS_NIVEL_4 = I4.ID)
-    INNER JOIN T_INSUMOS_NIVEL_3 I3 ON (I4.FK_INSUMOS_NIVEL_3 = I3.ID)
-    INNER JOIN T_INSUMOS_NIVEL_2 I2 ON (I3.FK_INSUMOS_NIVEL_2 = I2.ID)
-    INNER JOIN T_INSUMOS_NIVEL_1 I1 ON (I2.FK_INSUMOS_NIVEL_1 = I1.ID)
-    INNER JOIN ADMIN_USERS au ON (DRI.LAST_USER = au.ID)
-    INNER JOIN T_DESPESA_RAPIDA DR ON (DRI.FK_DESPESA_RAPIDA = DR.ID)
-    INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
-    INNER JOIN T_FORNECEDOR F ON (DR.FK_FORNECEDOR = F.ID)
-    LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm ON (I5.FK_UNIDADE_MEDIDA = tudm.ID)
+        INNER JOIN T_INSUMOS_NIVEL_5 I5 ON (DRI.FK_INSUMO = I5.ID)
+        INNER JOIN T_INSUMOS_NIVEL_4 I4 ON (I5.FK_INSUMOS_NIVEL_4 = I4.ID)
+        INNER JOIN T_INSUMOS_NIVEL_3 I3 ON (I4.FK_INSUMOS_NIVEL_3 = I3.ID)
+        INNER JOIN T_INSUMOS_NIVEL_2 I2 ON (I3.FK_INSUMOS_NIVEL_2 = I2.ID)
+        INNER JOIN T_INSUMOS_NIVEL_1 I1 ON (I2.FK_INSUMOS_NIVEL_1 = I1.ID)
+        INNER JOIN ADMIN_USERS au ON (DRI.LAST_USER = au.ID)
+        INNER JOIN T_DESPESA_RAPIDA DR ON (DRI.FK_DESPESA_RAPIDA = DR.ID)
+        INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
+        INNER JOIN T_FORNECEDOR F ON (DR.FK_FORNECEDOR = F.ID)
+        LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm ON (I5.FK_UNIDADE_MEDIDA = tudm.ID)
     WHERE STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') >= '{day}'
-    AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') <= '{day2}'
-    AND I1.ID IN (100,101)
-    AND E.FK_GRUPO_EMPRESA = 100
+      AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') <= '{day2}'
+      AND DR.BIT_CANCELADA = 0
+      AND I1.ID IN (100,101)
+      AND E.FK_GRUPO_EMPRESA = 100
     ORDER BY DR.ID
   ''')
 
