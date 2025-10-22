@@ -152,14 +152,14 @@ def calcular_repasses_gazit_parcelas(df_parcelas, df_eventos):
 	mask = df_parcelas['Categoria Parcela'] == 'Locação'
 
 	# Calcula todas as colunas de uma vez, apenas nas linhas filtradas
-	df_parcelas.loc[mask, 'Repasse Gazit Liquido'] = (df_parcelas.loc[mask, 'Repasse_Gazit_Bruto'] * 0.8547).round(2)
+	df_parcelas.loc[mask, 'Repasse_Gazit_Liquido'] = (df_parcelas.loc[mask, 'Repasse_Gazit_Bruto'] * 0.8547).round(2)
 	df_parcelas.loc[mask, 'Repasse Gazit Liquido Aroos'] = (df_parcelas.loc[mask, 'Repasse Gazit Bruto Aroos'] * 0.8547).round(2)
 	df_parcelas.loc[mask, 'Repasse Gazit Liquido Anexo'] = (df_parcelas.loc[mask, 'Repasse Gazit Bruto Anexo'] * 0.8547).round(2)
 
 	cols_float = [
 		'Repasse Gazit Liquido Anexo',
 		'Repasse Gazit Liquido Aroos',
-		'Repasse Gazit Liquido'
+		'Repasse_Gazit_Liquido'
 	]
 	df_parcelas[cols_float] = df_parcelas[cols_float].astype(float)
 	return df_parcelas
