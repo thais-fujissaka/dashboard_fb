@@ -98,14 +98,15 @@ def blueme_with_order(day,day2):
 def companies(day,day2):
   return dataframe_query(f'''
     SELECT DISTINCT 
-    E.ID as 'ID_Casa',
-    E.NOME_FANTASIA as 'Casa'
+      E.ID as 'ID_Casa',
+      E.NOME_FANTASIA as 'Casa'
     FROM T_DESPESA_RAPIDA DR 
-    LEFT JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
+      LEFT JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
     WHERE E.FK_GRUPO_EMPRESA = 100
-    AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') >= '{day}'
-    AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') <= '{day2}'
-    AND E.ID NOT IN (127,165,166,167,117,101,162,129,161,142,143,130,111,131)
+      AND DR.BIT_CANCELADA = 0
+      AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') >= '{day}'
+      AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') <= '{day2}'
+      AND E.ID NOT IN (127,165,166,167,117,101,162,129,161,142,143,130,111,131)
     ORDER BY E.NOME_FANTASIA 
   ''')
 
