@@ -50,24 +50,24 @@ def inputs_expenses(day,day2):
 @st.cache_data
 def supplier_expense_n5(day,day2):
   return dataframe_query(f"""
-SELECT 
-		F.ID AS 'ID Fornecedor',
-		F.FANTASY_NAME AS 'Fornecedor',
-    E.NOME_FANTASIA AS 'Casa',
-    N5.ID AS 'ID Nivel 5',
-    N5.DESCRICAO AS 'INSUMO N5',
-    SUM(DRI.QUANTIDADE) AS 'Quantidade Insumo',
-    SUM(DRI.VALOR) AS 'Valor Insumo',
-    SUM(DRI.VALOR) / SUM(DRI.QUANTIDADE) AS 'Valor Med Por Insumo'                                
+    SELECT 
+      F.ID AS 'ID Fornecedor',
+      F.FANTASY_NAME AS 'Fornecedor',
+        E.NOME_FANTASIA AS 'Casa',
+        N5.ID AS 'ID Nivel 5',
+        N5.DESCRICAO AS 'INSUMO N5',
+        SUM(DRI.QUANTIDADE) AS 'Quantidade Insumo',
+        SUM(DRI.VALOR) AS 'Valor Insumo',
+        SUM(DRI.VALOR) / SUM(DRI.QUANTIDADE) AS 'Valor Med Por Insumo'                                
     FROM T_DESPESA_RAPIDA_ITEM DRI 
-    INNER JOIN T_INSUMOS_NIVEL_5 N5 ON (DRI.FK_INSUMO = N5.ID)
-    INNER JOIN T_DESPESA_RAPIDA DR ON (DRI.FK_DESPESA_RAPIDA = DR.ID)
-    INNER JOIN T_FORNECEDOR F ON (DR.FK_FORNECEDOR = F.ID)
-    INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
+        INNER JOIN T_INSUMOS_NIVEL_5 N5 ON (DRI.FK_INSUMO = N5.ID)
+        INNER JOIN T_DESPESA_RAPIDA DR ON (DRI.FK_DESPESA_RAPIDA = DR.ID)
+        INNER JOIN T_FORNECEDOR F ON (DR.FK_FORNECEDOR = F.ID)
+        INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
     WHERE DR.COMPETENCIA >= '{day}'
-    AND DR.COMPETENCIA <= '{day2}'
-
-		GROUP BY F.ID, N5.ID
+        AND DR.COMPETENCIA <= '{day2}'
+        AND DR.BIT_CANCELADA = 0
+    GROUP BY F.ID, N5.ID
     ORDER BY F.FANTASY_NAME, N5.DESCRICAO
 """)
 
