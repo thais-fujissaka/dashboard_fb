@@ -268,6 +268,7 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
   WHERE tdp.ID is NULL 
     AND tc.DATA >= {dataStr}
     AND tc.DATA <= {datafimstr}
+    AND tdr.BIT_CANCELADA = 0
   UNION ALL
   SELECT
     DATE_FORMAT(tc.DATA, '%Y-%m-%d') as 'Previsao_Pgto',
@@ -290,6 +291,7 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
   WHERE tdp.ID is NOT NULL 
     AND tc.DATA >= {dataStr}
     AND tc.DATA <= {datafimstr}
+    AND tdr.BIT_CANCELADA = 0
 ''')
 
 
