@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import calendar
 from datetime import timedelta
+from utils.queries_cmv import *
+from utils.queries_forecast import GET_VALORACAO_ESTOQUE, GET_VALORACAO_PRODUCAO
 from utils.components import dataframe_aggrid
 from st_aggrid import ColumnsAutoSizeMode
 
@@ -375,4 +377,251 @@ def exibe_categoria_faturamento_prox_meses(categoria, df_meses_futuros, ano_atua
     
     st.divider()
     
+
+########################### Funções - CMV ###########################
+def config_faturamento_bruto_zig(df, data_inicio, data_fim, casa):
+    df['Valor_Bruto'] = df['Valor_Bruto'].astype(float)
+    df['Data_Evento'] = pd.to_datetime(df['Data_Evento'], errors='coerce')
+    df['Mes_Ano'] = df['Data_Evento'].dt.strftime('%Y-%m')
+    df = df[
+        df['Categoria'].isin(['Alimentos', 'Bebidas', 'Delivery']) &
+        (df['Casa'] == casa) &
+        (df['Data_Evento'] >= data_inicio) &
+        (df['Data_Evento'] <= data_fim)
+    ]
+
+    df = df.groupby(['ID_Casa', 'Casa', 'Mes_Ano', 'Categoria']).agg({
+        'Valor_Bruto': 'sum',
+        'Desconto': 'sum',
+        'Valor_Liquido': 'sum',
+        'Data_Evento': 'first'
+    }).reset_index()
+
+    faturamento_bruto_alimentos = df[(df['Categoria'] == 'Alimentos')]['Valor_Bruto'].sum()
+    faturamento_bruto_bebidas = df[(df['Categoria'] == 'Bebidas')]['Valor_Bruto'].sum()
+    faturamento_delivery = df[(df['Categoria'] == 'Delivery')]['Valor_Bruto'].sum()
+
+    return df, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery
+
+
+def config_compras(data_inicio, data_fim, loja):
+    df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
+    df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
+
+    df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
+
+    #   df_compras = substituicao_ids(df_compras, 'Loja', 'ID_Loja')
+    df_compras['Primeiro_Dia_Mes'] = pd.to_datetime(df_compras['Primeiro_Dia_Mes'], errors='coerce')
+    df_compras['Mes_Ano'] = df_compras['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
+    df_compras = df_compras[
+        (df_compras['Loja'] == loja) &
+        (df_compras['Primeiro_Dia_Mes'] >= data_inicio) &
+        (df_compras['Primeiro_Dia_Mes'] <= data_fim)
+        ]
+
     
+    df_compras = df_compras.groupby(['ID_Loja', 'Loja', 'Mes_Ano']).agg(
+        {'BlueMe_Sem_Pedido_Alimentos': 'sum', 
+        'BlueMe_Sem_Pedido_Bebidas': 'sum', 
+        'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'sum', 
+        'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum'}).reset_index()
+
+    #   df_compras = filtrar_por_datas(df_compras, data_inicio, data_fim, 'Primeiro_Dia_Mes')
+
+    Compras_Alimentos = df_compras['BlueMe_Sem_Pedido_Alimentos'].sum() + df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'].sum()
+    Compras_Bebidas = df_compras['BlueMe_Sem_Pedido_Bebidas'].sum() + df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'].sum()
+
+    Compras_Alimentos = float(Compras_Alimentos)
+    Compras_Bebidas = float(Compras_Bebidas)
+
+    #   df_compras = primeiro_dia_mes_para_mes_ano(df_compras)
+
+    df_compras['Compras Alimentos'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'] + df_compras['BlueMe_Sem_Pedido_Alimentos']
+    df_compras['Compras Bebidas'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'] + df_compras['BlueMe_Sem_Pedido_Bebidas']
+    df_compras = df_compras.rename(columns={'ID_Loja': 'ID_Casa', 'Loja': 'Casa', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas', 'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.', 'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'})
+
+    df_compras = df_compras[['ID_Casa', 'Casa', 'Mes_Ano', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
+    
+    # columns = ['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']
+    #   df_compras = format_columns_brazilian(df_compras, columns)
+
+    return df_compras, Compras_Alimentos, Compras_Bebidas
+
+
+def processar_transferencias(df, casa_col, loja, data_inicio, data_fim):
+    # Filtrar pelo nome da loja e pelo intervalo de datas
+    df['Data_Transferencia'] = pd.to_datetime(df['Data_Transferencia'], errors='coerce')
+    df['Mes_Ano'] = df['Data_Transferencia'].dt.strftime('%Y-%m')
+    df = df[
+        (df[casa_col] == loja) &
+        (df['Data_Transferencia'] >= data_inicio) &
+        (df['Data_Transferencia'] <= data_fim)
+    ]
+    # df = filtrar_por_datas(df, data_inicio, data_fim, 'Data_Transferencia')
+    
+    # Agrupar por casa e categoria, somando os valores
+    df_grouped = df.groupby([casa_col, 'Categoria', 'Mes_Ano']).agg({
+        'Valor_Transferencia': 'sum'
+    }).reset_index()
+    
+    # Ajustar categoria para formato capitalizado
+    df_grouped['Categoria'] = df_grouped['Categoria'].str.capitalize()
+    
+    # Pivotar para transformar categorias em colunas
+    df_pivot = df_grouped.pivot_table(
+        index=[casa_col, 'Mes_Ano'],
+        columns='Categoria',
+        values='Valor_Transferencia',
+        fill_value=0
+    ).reset_index()
+    
+    # Renomear colunas para refletir o tipo de operação
+    operacao = 'Entrada' if casa_col == 'Casa_Entrada' else 'Saída'
+    df_pivot.columns = [
+        'Loja' if col == casa_col else col if col == 'Mes_Ano' else f'{operacao} {col}'
+        for col in df_pivot.columns
+    ]    
+    return df_pivot
+
+def config_transferencias_gastos(data_inicio, data_fim, loja):
+    df_transf_estoque = GET_TRANSF_ESTOQUE()
+    df_entradas_pivot = processar_transferencias(df_transf_estoque, 'Casa_Entrada', loja, data_inicio, data_fim)
+    df_saidas_pivot = processar_transferencias(df_transf_estoque, 'Casa_Saida', loja, data_inicio, data_fim)
+    
+    df_perdas_e_consumo = GET_PERDAS_E_CONSUMO_AGRUPADOS()
+    df_perdas_e_consumo['Primeiro_Dia_Mes'] = pd.to_datetime(df_perdas_e_consumo['Primeiro_Dia_Mes'], errors='coerce')
+    df_perdas_e_consumo['Mes_Ano'] = df_perdas_e_consumo['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
+    df_perdas_e_consumo = df_perdas_e_consumo[
+        (df_perdas_e_consumo['Loja'] == loja) &
+        (df_perdas_e_consumo['Primeiro_Dia_Mes'] >= data_inicio) &
+        (df_perdas_e_consumo['Primeiro_Dia_Mes'] <= data_fim)
+    ]
+    df_perdas_e_consumo.fillna(0, inplace=True)
+
+    df_transf_e_gastos = pd.merge(df_entradas_pivot, df_saidas_pivot, on=['Loja', 'Mes_Ano'], how='outer')
+    df_transf_e_gastos = pd.merge(df_transf_e_gastos, df_perdas_e_consumo, on=['Loja', 'Mes_Ano'], how='outer')
+    df_transf_e_gastos = df_transf_e_gastos.rename(columns={
+        'ID_Loja': 'ID_Casa',
+        'Loja': 'Casa',
+        'Consumo_Interno': 'Consumo Interno',
+        'Quebras_e_Perdas': 'Quebras e Perdas'
+    })
+    cols = ['ID_Casa', 'Casa', 'Mes_Ano', 'Entrada Alimentos', 'Entrada Bebidas', 'Saída Alimentos', 'Saída Bebidas', 'Consumo Interno', 'Quebras e Perdas']
+    for col in cols:
+        if col not in df_transf_e_gastos.columns:
+            df_transf_e_gastos[col] = 0
+
+    df_transf_e_gastos = df_transf_e_gastos[cols]
+
+    # Conversão para float para evitar erros de tipo
+    saida_alimentos = float(df_saidas_pivot['Saída Alimentos'].iloc[0]) if not df_saidas_pivot.empty and 'Saída Alimentos' in df_saidas_pivot.columns else 0.0
+    saida_bebidas = float(df_saidas_pivot['Saída Bebidas'].iloc[0]) if not df_saidas_pivot.empty and 'Saída Bebidas' in df_saidas_pivot.columns else 0.0
+    entrada_alimentos = float(df_entradas_pivot['Entrada Alimentos'].iloc[0]) if not df_entradas_pivot.empty and 'Entrada Alimentos' in df_entradas_pivot.columns else 0.0
+    entrada_bebidas = float(df_entradas_pivot['Entrada Bebidas'].iloc[0]) if not df_entradas_pivot.empty and 'Entrada Bebidas' in df_entradas_pivot.columns else 0.0
+    consumo_interno = float(df_transf_e_gastos['Consumo Interno'].iloc[0]) if not df_perdas_e_consumo.empty and 'Consumo Interno' in df_transf_e_gastos.columns else 0.0
+    quebras_e_perdas = float(df_transf_e_gastos['Quebras e Perdas'].iloc[0]) if not df_perdas_e_consumo.empty and 'Quebras e Perdas' in df_transf_e_gastos.columns else 0.0
+
+    # df_transf_e_gastos = format_columns_brazilian(df_transf_e_gastos, ['Entrada Alimentos', 'Entrada Bebidas', 'Saída Alimentos', 'Saída Bebidas', 'Consumo Interno', 'Quebras e Perdas'])
+
+    return df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas
+
+
+def config_valoracao_estoque_ou_producao(tipo, data_inicio, data_fim, loja):
+    # Pega os dados
+    if tipo == 'estoque':
+        df_valoracao = GET_VALORACAO_ESTOQUE(data_inicio, data_fim)
+        col_data = 'DATA_CONTAGEM'
+        col_valor = 'Valor_em_Estoque'
+    if tipo == 'producao':
+        df_valoracao = GET_VALORACAO_PRODUCAO(data_inicio, data_fim)
+        col_data = 'Data_Contagem'
+        col_valor = 'Valor_Total'
+    
+    df_valoracao = df_valoracao[df_valoracao['Loja'] == loja]
+    
+    # Agrupar por mês, loja e categoria
+    df_valoracao = (
+        df_valoracao
+        .groupby(['Loja', 'Categoria', col_data], as_index=False)
+        .agg({col_valor: 'sum'})
+    )
+    
+    # Criar todas as datas do período
+    todas_datas = pd.date_range(start=data_inicio, end=data_fim, freq='MS')
+    
+    # Todas combinações de Loja, Categoria e DATA_CONTAGEM
+    lojas_categorias = df_valoracao[['Loja', 'Categoria']].drop_duplicates()
+    todas_combinacoes = (
+        lojas_categorias
+        .merge(pd.DataFrame({col_data: todas_datas}), how='cross')
+    )
+    
+    # Merge com o dataframe real
+    df_valoracao = todas_combinacoes.merge(
+        df_valoracao,
+        on=['Loja', 'Categoria', col_data],
+        how='left'
+    )
+    
+    # Preencher valores ausentes com 0
+    df_valoracao[col_valor] = df_valoracao[col_valor].fillna(0)
+    
+    # Calcular variação mensal
+    df_valoracao['Variação_Mensal'] = (
+        df_valoracao
+        .groupby(['Loja', 'Categoria'])[col_valor]
+        .diff()
+        .fillna(0)
+    )
+    
+    # Coluna DATA_MES_ANTERIOR
+    df_valoracao['DATA_MES_ANTERIOR'] = df_valoracao[col_data] - pd.DateOffset(months=1)
+    
+    return df_valoracao
+
+
+# def config_valoracao_producao(data_inicio, data_fim, loja):
+#     df_valoracao_producao = GET_VALORACAO_PRODUCAO(data_inicio, data_fim)
+
+#     df_valoracao_producao = df_valoracao_producao[df_valoracao_producao['Loja'] == loja]
+   
+#     # Agrupar por mês, loja e categoria
+#     df_valoracao_producao = (
+#         df_valoracao_producao
+#         .groupby(['Loja', 'Categoria', 'Data_Contagem'], as_index=False)
+#         .agg({'Valor_Total': 'sum'})
+#     )
+    
+#     # Criar todas as datas do período
+#     todas_datas = pd.date_range(start=data_inicio, end=data_fim, freq='MS')
+    
+#     # Todas combinações de Loja, Categoria e DATA_CONTAGEM
+#     lojas_categorias = df_valoracao_producao[['Loja', 'Categoria']].drop_duplicates()
+#     todas_combinacoes = (
+#         lojas_categorias
+#         .merge(pd.DataFrame({'Data_Contagem': todas_datas}), how='cross')
+#     )
+    
+#     # Merge com o dataframe real
+#     df_valoracao_producao = todas_combinacoes.merge(
+#         df_valoracao_producao,
+#         on=['Loja', 'Categoria', 'Data_Contagem'],
+#         how='left'
+#     )
+    
+#     # Preencher valores ausentes com 0
+#     df_valoracao_producao['Valor_Total'] = df_valoracao_producao['Valor_Total'].fillna(0)
+    
+#     # Calcular variação mensal
+#     df_valoracao_producao['Variação_Mensal'] = (
+#         df_valoracao_producao
+#         .groupby(['Loja', 'Categoria'])['Valor_Total']
+#         .diff()
+#         .fillna(0)
+#     )
+    
+#     # Coluna DATA_MES_ANTERIOR
+#     df_valoracao_producao['DATA_MES_ANTERIOR'] = df_valoracao_producao['Data_Contagem'] - pd.DateOffset(months=1)
+    
+#     return df_valoracao_producao
+

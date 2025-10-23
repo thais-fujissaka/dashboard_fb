@@ -1,5 +1,4 @@
 import streamlit as st
-from utils.functions.cmv import *
 from utils.functions.forecast import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.general_functions_conciliacao import *
@@ -261,3 +260,41 @@ with tab2:
         fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
         fit_columns_on_grid_load=True   
     )
+
+
+# Projeção de CMV - Próximos meses
+with tab3:
+    # st.markdown(f'''
+    #     <h4>Projeção de CMV - {casa} - {datas['amanha'].strftime('%d/%m/%Y')} a {datas['fim_mes_atual'].strftime('%d/%m/%Y')}</h4>
+    #     <p><strong>Premissa</strong></p>
+    #     ''', unsafe_allow_html=True)
+    st.divider()
+
+    df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery = config_faturamento_bruto_zig(df_faturamento_agregado_dia, datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+    # NAO OK df_faturamento_eventos, faturamento_alimentos_eventos, faturamento_bebidas_eventos = config_faturamento_eventos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
+    
+    df_compras, compras_alimentos, compras_bebidas = config_compras(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+    
+    df_valoracao_estoque = config_valoracao_estoque_ou_producao('estoque', datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+    # OK df_valoracao_estoque_mes_anterior = config_valoracao_estoque(datas['inicio_mes_anterior'], datas['ultimo_dia_mes_anterior'], casa)
+    # OK df_variacao_estoque, variacao_estoque_alimentos, variacao_estoque_bebidas = config_variacao_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior)
+    
+    df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas = config_transferencias_gastos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+    
+    df_valoracao_producao = config_valoracao_estoque_ou_producao('producao', datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+    # OK df_producao_alimentos_mes_anterior, df_producao_bebidas_mes_anterior, valor_producao_alimentos_mes_anterior, valor_producao_bebidas_mes_anterior = config_valoracao_producao(datas['inicio_mes_anterior'], casa)
+    # OK df_diferenca_producao_alimentos = config_diferenca_producao(df_producao_alimentos, df_producao_alimentos_mes_anterior)
+    # OK df_diferenca_producao_bebidas = config_diferenca_producao(df_producao_bebidas, df_producao_bebidas_mes_anterior)
+
+    # # Cálculos
+    # diferenca_producao_alimentos = valor_producao_alimentos - valor_producao_alimentos_mes_anterior
+    # diferenca_producao_bebidas = valor_producao_bebidas - valor_producao_bebidas_mes_anterior
+
+    # cmv_alimentos = compras_alimentos - variacao_estoque_alimentos - saida_alimentos + entrada_alimentos - consumo_interno - diferenca_producao_alimentos
+    # cmv_bebidas = compras_bebidas - variacao_estoque_bebidas - saida_bebidas + entrada_bebidas - diferenca_producao_bebidas
+    # cmv_alimentos_e_bebidas = cmv_alimentos + cmv_bebidas
+    
+    # faturamento_total_alimentos = faturamento_bruto_alimentos + faturamento_alimentos_delivery + faturamento_alimentos_eventos
+    # faturamento_total_bebidas = faturamento_bruto_bebidas + faturamento_bebidas_delivery + faturamento_bebidas_eventos
+
+    # st.write(df_valoracao_estoque)

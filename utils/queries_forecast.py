@@ -293,3 +293,59 @@ def GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_eventos, df_parc_receit_extr_di
     df_faturamento_receit_extr_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_parc_receit_extr_dia)
     df_todos_faturamentos_mensal = pd.concat([df_faturamento_agregado_mensal, df_faturamento_eventos_mensal, df_faturamento_receit_extr_mensal])
     return df_todos_faturamentos_mensal
+
+
+######################################## CMV ########################################
+@st.cache_data
+def GET_VALORACAO_ESTOQUE(data_inicio, data_fim):
+  return dataframe_query(f'''
+  SELECT 
+  	te.ID AS 'ID_Loja',
+  	te.NOME_FANTASIA AS 'Loja',
+  	tin5.ID AS 'ID_Insumo',
+  	REPLACE(tin5.DESCRICAO, ',', '.') AS 'Insumo',
+  	tci.QUANTIDADE_INSUMO AS 'Quantidade',
+  	tin5.FK_INSUMOS_NIVEL_4 AS 'ID_Nivel_4',
+  	tudm.UNIDADE_MEDIDA_NAME AS 'Unidade_Medida',
+    tin.DESCRICAO AS 'Categoria',
+  	tve.VALOR_EM_ESTOQUE AS 'Valor_em_Estoque',
+  	tci.DATA_CONTAGEM
+  FROM T_VALORACAO_ESTOQUE tve 
+  LEFT JOIN T_CONTAGEM_INSUMOS tci ON tve.FK_CONTAGEM = tci.ID 
+  LEFT JOIN T_EMPRESAS te ON tci.FK_EMPRESA = te.ID 
+  LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tci.FK_INSUMO = tin5.ID
+  LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID 
+  LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID 
+  LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID
+  LEFT JOIN T_INSUMOS_NIVEL_1 tin ON tin2.FK_INSUMOS_NIVEL_1 = tin.ID
+  LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm ON tin5.FK_UNIDADE_MEDIDA = tudm.ID
+  WHERE tci.QUANTIDADE_INSUMO != 0
+    AND tci.DATA_CONTAGEM >= '{data_inicio}'
+    AND tci.DATA_CONTAGEM <= '{data_fim}'
+  ORDER BY DATA_CONTAGEM DESC
+  ''')
+
+
+@st.cache_data
+def GET_VALORACAO_PRODUCAO(data_inicio, data_fim):
+  return dataframe_query(f'''
+  SELECT
+    te.ID as 'ID_Loja',
+    te.NOME_FANTASIA as 'Loja',
+    tipc.DATA_CONTAGEM as 'Data_Contagem',
+    DATE_FORMAT(DATE_SUB(tipc.DATA_CONTAGEM, INTERVAL 1 MONTH), '%m/%Y') AS 'Mes_Texto',
+    tip.NOME_ITEM_PRODUZIDO as 'Item_Produzido',
+    tudm.UNIDADE_MEDIDA_NAME as 'Unidade_Medida',
+    tipc.QUANTIDADE_INSUMO as 'Quantidade',
+    tin.DESCRICAO as 'Categoria',
+    tipv.VALOR as 'Valor_Unidade_Medida',
+    ROUND(tipc.QUANTIDADE_INSUMO * tipv.VALOR, 2) as 'Valor_Total'
+  FROM T_ITENS_PRODUCAO_CONTAGEM tipc
+  LEFT JOIN T_ITENS_PRODUCAO_VALORACAO tipv ON (tipc.FK_ITEM_PRODUZIDO = tipv.FK_ITEM_PRODUZIDO) AND (DATE_FORMAT(tipc.DATA_CONTAGEM, '%m/%Y') = DATE_FORMAT(tipv.DATA_VALORACAO, '%m/%Y'))
+  LEFT JOIN T_ITENS_PRODUCAO tip ON (tipv.FK_ITEM_PRODUZIDO = tip.ID)
+  LEFT JOIN T_EMPRESAS te ON (tip.FK_EMPRESA = te.ID)
+  LEFT JOIN T_INSUMOS_NIVEL_1 tin ON (tip.FK_INSUMO_NIVEL_1 = tin.ID)
+  LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm ON (tip.FK_UNIDADE_MEDIDA = tudm.ID)
+  WHERE tipc.DATA_CONTAGEM >= '{data_inicio}'
+  AND tipc.DATA_CONTAGEM <= '{data_fim}'
+  ''')
