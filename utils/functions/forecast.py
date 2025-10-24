@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 import calendar
 from datetime import timedelta
-from utils.queries_cmv import *
-from utils.queries_forecast import GET_VALORACAO_ESTOQUE, GET_VALORACAO_PRODUCAO
+from utils.queries_cmv import GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO, GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO, GET_TRANSF_ESTOQUE, GET_PERDAS_E_CONSUMO_AGRUPADOS
+from utils.queries_forecast import GET_VALORACAO_ESTOQUE, GET_VALORACAO_PRODUCAO, GET_EVENTOS_CMV
 from utils.components import dataframe_aggrid
 from st_aggrid import ColumnsAutoSizeMode
 
@@ -191,7 +191,7 @@ def exibe_categoria_faturamento(categoria, df_dias_futuros_mes, today):
 
     # Exibe titulo
     st.markdown(f'''
-            <h4 style="color: #1f77b4;">Faturamento {titulo}</h4>
+            <h4 style="color: #1f77b4;">{titulo}</h4>
         ''', unsafe_allow_html=True)
     
     if df_projecao_faturamento_categoria.empty:
@@ -225,6 +225,8 @@ def prepara_dados_faturamento_orcamentos_mensais(id_casa, df_orcamentos, df_fatu
         (df_faturamento_agregado_mes['Ano'] >= ano_passado) &
         (df_faturamento_agregado_mes['Ano'] <= ano_atual)
     ]
+
+    df_faturamento_mes_casa = df_faturamento_mes_casa.groupby(['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mes'], as_index=False)[['Valor_Bruto', 'Desconto', 'Valor_Liquido']].sum()
 
     # Merge para calcular faturamento/orçamento
     df_faturamento_orcamento = pd.merge(
@@ -264,7 +266,7 @@ def lista_meses_ano(df_faturamento_agregado, ano_atual, ano_passado):
         'month': df_meses_futuros_com_categorias['Meses_Ano'],
         'day': 1
     })
-
+    
     return df_meses_futuros_com_categorias
 
 
@@ -359,7 +361,7 @@ def exibe_categoria_faturamento_prox_meses(categoria, df_meses_futuros, ano_atua
 
     # Exibe titulo
     st.markdown(f'''
-            <h4 style="color: #1f77b4;">Faturamento {titulo}</h4>
+            <h4 style="color: #1f77b4;">{titulo}</h4>
         ''', unsafe_allow_html=True)
     
     if df_projecao_faturamento_categoria_prox_meses.empty:
@@ -375,7 +377,8 @@ def exibe_categoria_faturamento_prox_meses(categoria, df_meses_futuros, ano_atua
             fit_columns_on_grid_load=True   
         )
     
-    st.divider()
+    if titulo != 'Outras Receitas':
+        st.divider()
     
 
 ########################### Funções - CMV ###########################
@@ -410,7 +413,6 @@ def config_compras(data_inicio, data_fim, loja):
 
     df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
 
-    #   df_compras = substituicao_ids(df_compras, 'Loja', 'ID_Loja')
     df_compras['Primeiro_Dia_Mes'] = pd.to_datetime(df_compras['Primeiro_Dia_Mes'], errors='coerce')
     df_compras['Mes_Ano'] = df_compras['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
     df_compras = df_compras[
@@ -426,15 +428,11 @@ def config_compras(data_inicio, data_fim, loja):
         'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'sum', 
         'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum'}).reset_index()
 
-    #   df_compras = filtrar_por_datas(df_compras, data_inicio, data_fim, 'Primeiro_Dia_Mes')
-
     Compras_Alimentos = df_compras['BlueMe_Sem_Pedido_Alimentos'].sum() + df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'].sum()
     Compras_Bebidas = df_compras['BlueMe_Sem_Pedido_Bebidas'].sum() + df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'].sum()
 
     Compras_Alimentos = float(Compras_Alimentos)
     Compras_Bebidas = float(Compras_Bebidas)
-
-    #   df_compras = primeiro_dia_mes_para_mes_ano(df_compras)
 
     df_compras['Compras Alimentos'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'] + df_compras['BlueMe_Sem_Pedido_Alimentos']
     df_compras['Compras Bebidas'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'] + df_compras['BlueMe_Sem_Pedido_Bebidas']
@@ -442,9 +440,6 @@ def config_compras(data_inicio, data_fim, loja):
 
     df_compras = df_compras[['ID_Casa', 'Casa', 'Mes_Ano', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
     
-    # columns = ['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']
-    #   df_compras = format_columns_brazilian(df_compras, columns)
-
     return df_compras, Compras_Alimentos, Compras_Bebidas
 
 
@@ -457,7 +452,6 @@ def processar_transferencias(df, casa_col, loja, data_inicio, data_fim):
         (df['Data_Transferencia'] >= data_inicio) &
         (df['Data_Transferencia'] <= data_fim)
     ]
-    # df = filtrar_por_datas(df, data_inicio, data_fim, 'Data_Transferencia')
     
     # Agrupar por casa e categoria, somando os valores
     df_grouped = df.groupby([casa_col, 'Categoria', 'Mes_Ano']).agg({
@@ -521,8 +515,6 @@ def config_transferencias_gastos(data_inicio, data_fim, loja):
     consumo_interno = float(df_transf_e_gastos['Consumo Interno'].iloc[0]) if not df_perdas_e_consumo.empty and 'Consumo Interno' in df_transf_e_gastos.columns else 0.0
     quebras_e_perdas = float(df_transf_e_gastos['Quebras e Perdas'].iloc[0]) if not df_perdas_e_consumo.empty and 'Quebras e Perdas' in df_transf_e_gastos.columns else 0.0
 
-    # df_transf_e_gastos = format_columns_brazilian(df_transf_e_gastos, ['Entrada Alimentos', 'Entrada Bebidas', 'Saída Alimentos', 'Saída Bebidas', 'Consumo Interno', 'Quebras e Perdas'])
-
     return df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas
 
 
@@ -537,7 +529,10 @@ def config_valoracao_estoque_ou_producao(tipo, data_inicio, data_fim, loja):
         col_data = 'Data_Contagem'
         col_valor = 'Valor_Total'
     
-    df_valoracao = df_valoracao[df_valoracao['Loja'] == loja]
+    df_valoracao = df_valoracao[
+       (df_valoracao['Loja'] == loja) &
+       (df_valoracao['Categoria'].isin(['ALIMENTOS', 'BEBIDAS']))
+    ]
     
     # Agrupar por mês, loja e categoria
     df_valoracao = (
@@ -576,52 +571,153 @@ def config_valoracao_estoque_ou_producao(tipo, data_inicio, data_fim, loja):
     
     # Coluna DATA_MES_ANTERIOR
     df_valoracao['DATA_MES_ANTERIOR'] = df_valoracao[col_data] - pd.DateOffset(months=1)
-    
+    df_valoracao['Mes_Ano'] = df_valoracao['DATA_MES_ANTERIOR'].dt.strftime("%Y-%m")
+    df_valoracao = df_valoracao.rename(columns={'Loja': 'Casa'})
+
     return df_valoracao
 
 
-# def config_valoracao_producao(data_inicio, data_fim, loja):
-#     df_valoracao_producao = GET_VALORACAO_PRODUCAO(data_inicio, data_fim)
+def config_faturamento_eventos(data_inicio, data_fim, loja, faturamento_bruto_alimentos, faturamento_bruto_bebidas):
+    df_eventos = GET_EVENTOS_CMV(data_inicio=data_inicio, data_fim=data_fim)
+    
+    df_eventos = df_eventos[df_eventos['Loja'] == loja]
+    df_eventos['Valor_AB'] = df_eventos['Valor_AB'].astype(float)
+    df_eventos['Mes_Ano'] = df_eventos['Data'].dt.strftime('%Y-%m')
+    df_eventos = df_eventos.rename(columns={'ID_Loja': 'ID_Casa', 'Loja': 'Casa'})
 
-#     df_valoracao_producao = df_valoracao_producao[df_valoracao_producao['Loja'] == loja]
-   
-#     # Agrupar por mês, loja e categoria
-#     df_valoracao_producao = (
-#         df_valoracao_producao
-#         .groupby(['Loja', 'Categoria', 'Data_Contagem'], as_index=False)
-#         .agg({'Valor_Total': 'sum'})
-#     )
-    
-#     # Criar todas as datas do período
-#     todas_datas = pd.date_range(start=data_inicio, end=data_fim, freq='MS')
-    
-#     # Todas combinações de Loja, Categoria e DATA_CONTAGEM
-#     lojas_categorias = df_valoracao_producao[['Loja', 'Categoria']].drop_duplicates()
-#     todas_combinacoes = (
-#         lojas_categorias
-#         .merge(pd.DataFrame({'Data_Contagem': todas_datas}), how='cross')
-#     )
-    
-#     # Merge com o dataframe real
-#     df_valoracao_producao = todas_combinacoes.merge(
-#         df_valoracao_producao,
-#         on=['Loja', 'Categoria', 'Data_Contagem'],
-#         how='left'
-#     )
-    
-#     # Preencher valores ausentes com 0
-#     df_valoracao_producao['Valor_Total'] = df_valoracao_producao['Valor_Total'].fillna(0)
-    
-#     # Calcular variação mensal
-#     df_valoracao_producao['Variação_Mensal'] = (
-#         df_valoracao_producao
-#         .groupby(['Loja', 'Categoria'])['Valor_Total']
-#         .diff()
-#         .fillna(0)
-#     )
-    
-#     # Coluna DATA_MES_ANTERIOR
-#     df_valoracao_producao['DATA_MES_ANTERIOR'] = df_valoracao_producao['Data_Contagem'] - pd.DateOffset(months=1)
-    
-#     return df_valoracao_producao
+    # faturmento_total_zig = faturamento_bruto_alimentos + faturamento_bruto_bebidas
+    # faturamento_total_eventos = df['Valor_AB'].sum()
 
+    # faturamento_alimentos_eventos = (faturamento_bruto_alimentos * faturamento_total_eventos) / faturmento_total_zig
+    # faturamento_bebidas_eventos = (faturamento_bruto_bebidas * faturamento_total_eventos) / faturmento_total_zig
+
+    return df_eventos
+
+
+def merge_e_calculo_para_cmv(df_faturamento_zig, df_compras, df_valoracao_estoque, df_transf_e_gastos, df_valoracao_producao, df_faturamento_eventos):
+    # Faturamento Bruto (alimentos + bebidas + delivery) mensal
+    df_faturamento_zig_geral = df_faturamento_zig.copy()
+    df_faturamento_zig_geral = df_faturamento_zig_geral.groupby(['ID_Casa', 'Casa', 'Mes_Ano'], as_index=False)['Valor_Bruto'].sum()
+    df_faturamento_zig_geral = df_faturamento_zig_geral.rename(columns={'Valor_Bruto':'Faturamento Bruto'})
+
+    # Compras (alimentos + bebidas) mensais
+    df_compras_geral = df_compras.copy()
+    df_compras_geral['Compras Geral'] = df_compras_geral['Compras Alimentos'] + df_compras_geral['Compras Bebidas']
+    df_compras_geral = df_compras_geral[['ID_Casa', 'Casa', 'Mes_Ano', 'Compras Geral']]
+
+    # Valoração estoque (alimentos + bebidas) mensal
+    df_valoracao_estoque_geral = df_valoracao_estoque.copy()
+    df_valoracao_estoque_geral = df_valoracao_estoque_geral.groupby(['Casa', 'Mes_Ano'], as_index=False)['Variação_Mensal'].sum()
+
+    # Transferências e gastos (entrada alimentos + bebidas, saidas alimentos + bebidas, consumo interno, quebras e perdas)
+    df_transf_e_gastos_geral = df_transf_e_gastos.copy()
+    df_transf_e_gastos_geral['Entradas Geral'] = df_transf_e_gastos_geral['Entrada Alimentos'] + df_transf_e_gastos_geral['Entrada Bebidas']
+    df_transf_e_gastos_geral['Saídas Geral'] = df_transf_e_gastos_geral['Saída Alimentos'] + df_transf_e_gastos_geral['Saída Bebidas']
+    df_transf_e_gastos_geral = df_transf_e_gastos_geral[['ID_Casa', 'Casa', 'Mes_Ano', 'Entradas Geral', 'Saídas Geral', 'Consumo Interno', 'Quebras e Perdas']]
+
+    # Valoração produção (alimentos + bebidas) mensal
+    df_valoracao_producao_geral = df_valoracao_producao.copy()
+    df_valoracao_producao_geral = df_valoracao_producao_geral.groupby(['Casa', 'Mes_Ano'], as_index=False)['Variação_Mensal'].sum()
+
+    # Faturamento eventos (A&B) mensal
+    df_faturamento_eventos_geral = df_faturamento_eventos.copy()
+    df_faturamento_eventos_geral = df_faturamento_eventos_geral.groupby(['ID_Casa', 'Casa', 'Mes_Ano'], as_index=False)['Valor_AB'].sum()
+
+    # Merge passo a passo para cálculo do cmv
+    df_cmv = (
+        df_compras_geral
+            .merge(df_valoracao_estoque_geral, on=['Casa', 'Mes_Ano'], how='left')
+            .merge(df_transf_e_gastos_geral, on=['Casa', 'Mes_Ano'], how='left')
+            .merge(df_valoracao_producao_geral, on=['Casa', 'Mes_Ano'], how='left')
+    ).fillna(0)
+    df_cmv = df_cmv.rename(columns={'Variação_Mensal_x':'Variacao_Estoque', 'Variação_Mensal_y':'Variacao_Producao'})
+    
+    # Fauramento geral (bruto + eventos)
+    df_merge_faturamento = df_faturamento_zig_geral.merge(
+        df_faturamento_eventos_geral,
+        on=['Casa', 'Mes_Ano'],
+        how='left'
+    ).fillna(0)
+    df_merge_faturamento['Faturamento_Geral'] = df_merge_faturamento['Faturamento Bruto'] + df_merge_faturamento['Valor_AB']
+    
+    df_merge_cmv = pd.merge(
+        df_cmv[['Casa', 'Mes_Ano', 'Compras Geral', 'Variacao_Estoque', 'Entradas Geral', 'Saídas Geral', 'Consumo Interno', 'Quebras e Perdas', 'Variacao_Producao']],
+        df_merge_faturamento[['Casa', 'Mes_Ano', 'Faturamento_Geral']],
+        on=['Casa', 'Mes_Ano'],
+        how='left'
+    )
+
+    # Cálculo do cmv e porcentagem cmv
+    df_calculo_cmv = df_merge_cmv.copy()
+    df_calculo_cmv['Compras Geral'] = df_calculo_cmv['Compras Geral'].astype(float)
+    df_calculo_cmv['Variacao_Estoque'] = df_calculo_cmv['Variacao_Estoque'].astype(float)
+    df_calculo_cmv['Entradas Geral'] = df_calculo_cmv['Entradas Geral'].astype(float)
+    df_calculo_cmv['Saídas Geral'] = df_calculo_cmv['Saídas Geral'].astype(float)
+    df_calculo_cmv['Consumo Interno'] = df_calculo_cmv['Consumo Interno'].astype(float)
+    df_calculo_cmv['Variacao_Producao'] = df_calculo_cmv['Variacao_Producao'].astype(float)
+
+    df_calculo_cmv['CMV (R$)'] = df_calculo_cmv['Compras Geral'] - df_calculo_cmv['Variacao_Estoque'] + df_calculo_cmv['Entradas Geral'] - df_calculo_cmv['Saídas Geral'] - df_calculo_cmv['Consumo Interno'] - df_calculo_cmv['Variacao_Producao']
+    df_calculo_cmv['CMV Percentual (%)'] = (df_calculo_cmv['CMV (R$)'] / df_calculo_cmv['Faturamento_Geral']) * 100
+    df_calculo_cmv = df_calculo_cmv[['Casa', 'Mes_Ano', 'Faturamento_Geral', 'CMV (R$)', 'CMV Percentual (%)']]
+
+    return df_calculo_cmv
+
+
+# Utiliza o df de faturamento projetado criado anteriormente (para projetar o cmv para os prox meses)
+def calcula_cmv_proximos_meses(df_faturamento_meses_futuros, datas, df_calculo_cmv):
+    df_resgata_faturamento_meses_futuros = df_faturamento_meses_futuros[
+        (df_faturamento_meses_futuros['Ano'] == datas['ano_atual']) &
+        (df_faturamento_meses_futuros['Categoria'].isin(['Alimentos', 'Bebidas', 'Delivery', 'Eventos A&B']))
+    ]
+
+    df_resgata_faturamento_meses_futuros = df_resgata_faturamento_meses_futuros.groupby(['Ano', 'Mes'], as_index=False)[['Valor_Bruto', 'Valor Projetado']].sum()
+    df_resgata_faturamento_meses_futuros['Mes'] = df_resgata_faturamento_meses_futuros['Mes'].astype(int)
+    df_resgata_faturamento_meses_futuros['Mes_Ano'] = df_resgata_faturamento_meses_futuros['Ano'].astype(str) + '-' + df_resgata_faturamento_meses_futuros['Mes'].astype(str).str.zfill(2)
+    
+    df_merge_meses_anteriores_seguintes = pd.merge(
+        df_calculo_cmv,
+        df_resgata_faturamento_meses_futuros[['Ano', 'Mes', 'Mes_Ano', 'Valor Projetado']],
+        on='Mes_Ano',
+        how='right'
+    )
+
+    # Cria coluna para CMV projetado de cada mês
+    df_merge_meses_anteriores_seguintes['Data'] = pd.to_datetime(df_merge_meses_anteriores_seguintes['Mes_Ano'], format='%Y-%m')
+    df_merge_meses_anteriores_seguintes['CMV Percentual Projetado (%)'] = None
+    df_merge_meses_anteriores_seguintes['CMV Projetado (R$)'] = None
+
+    # 
+    for mes_ano in df_merge_meses_anteriores_seguintes['Mes_Ano'].unique():
+        df_mes_ano = df_merge_meses_anteriores_seguintes[df_merge_meses_anteriores_seguintes['Mes_Ano'] == mes_ano]
+        data = df_mes_ano['Data'].iloc[0]
+
+        # pega histórico dos dois meses atrás
+        dois_meses_atras = data - pd.DateOffset(months=2)
+
+        historico = df_merge_meses_anteriores_seguintes[
+            (df_merge_meses_anteriores_seguintes['Data'] >= dois_meses_atras) &
+            (df_merge_meses_anteriores_seguintes['Data'] < data)
+        ]
+
+        # usa o Atingimento (real) quando existir, senão a Projecao (que pode vir de meses anteriores)
+        #valores_para_media = historico['Atingimento Real (%)'].fillna(historico['Projecao_Atingimento (%)']).astype(float)
+
+
+        # Faz Projecao = (CMV1 + CMV2) / (Faturamento_Geral1 + Faturamento_Geral2)
+        valores_para_soma_cmvs = historico['CMV (R$)'].fillna(historico['CMV Projetado (R$)']).astype(float)
+        valores_para_soma_faturamento = historico['Faturamento_Geral'].fillna(historico['Valor Projetado']).astype(float)
+
+        soma_cmvs = valores_para_soma_cmvs.sum()
+        soma_faturamentos = valores_para_soma_faturamento.sum()
+        cmv_projetado = (soma_cmvs / soma_faturamentos) * 100
+
+        # Atribui o valor à coluna correta
+        df_merge_meses_anteriores_seguintes.loc[
+            df_merge_meses_anteriores_seguintes['Mes_Ano'] == mes_ano, 
+            'CMV Percentual Projetado (%)'
+        ] = cmv_projetado
+
+        # Define valor de CMV Projetado em Reais
+        df_merge_meses_anteriores_seguintes['CMV Projetado (R$)'] = (df_merge_meses_anteriores_seguintes['CMV Percentual Projetado (%)'] / 100) * df_merge_meses_anteriores_seguintes['Valor Projetado']
+
+    return df_merge_meses_anteriores_seguintes
