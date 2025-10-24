@@ -62,8 +62,9 @@ def selecionar_precos_mes_casa(df_precos_insumos_estoque, df_insumos_estoque_nec
     # Cria coluna de data usando ano e mês
     df_precos_insumos_estoque = df_precos_insumos_estoque.assign(
         data_compra = pd.to_datetime(
-            df_precos_insumos_estoque['Ano Compra'].astype(str) + '-' +
-            df_precos_insumos_estoque['Mês Compra'].astype(str) + '-01')
+            df_precos_insumos_estoque['Ano Compra'].astype(int).astype(str) + '-' +
+            df_precos_insumos_estoque['Mês Compra'].astype(int).astype(str).str.zfill(2) + '-01'
+        )
     )
     # Ordena por ID Insumo e data mais recente
     df_precos_insumos_estoque = df_precos_insumos_estoque.sort_values(by=['ID Insumo Estoque', 'data_compra'], ascending=[True, False])
