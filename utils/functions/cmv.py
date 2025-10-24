@@ -12,6 +12,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.pdfgen import canvas
 import io
 
+pd.set_option('future.no_silent_downcasting', True)
+
 def substituicao_ids(df, colNome, colID):
   substituicoesIds = {
     103: 116,
@@ -109,8 +111,12 @@ def config_faturamento_eventos(data_inicio, data_fim, loja, faturamento_bruto_al
   faturmento_total_zig = faturamento_bruto_alimentos + faturamento_bruto_bebidas
   faturamento_total_eventos = df['Valor'].sum()
 
-  faturamento_alimentos_eventos = (faturamento_bruto_alimentos * faturamento_total_eventos) / faturmento_total_zig
-  faturamento_bebidas_eventos = (faturamento_bruto_bebidas * faturamento_total_eventos) / faturmento_total_zig
+  if faturmento_total_zig > 0:
+    faturamento_alimentos_eventos = (faturamento_bruto_alimentos * faturamento_total_eventos) / faturmento_total_zig
+    faturamento_bebidas_eventos = (faturamento_bruto_bebidas * faturamento_total_eventos) / faturmento_total_zig
+  else:
+    faturamento_alimentos_eventos = 0
+    faturamento_bebidas_eventos = 0
 
   return df, faturamento_alimentos_eventos, faturamento_bebidas_eventos
 

@@ -4,7 +4,7 @@ from utils.functions.general_functions import dataframe_query, execute_query
 
 
 # CMV Teórico - Análise de Fichas Técnicas
-
+@st.cache_data
 def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_INSUMOS_ESTOQUE():
     return dataframe_query(f'''
         SELECT
@@ -40,7 +40,7 @@ def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_INSUMOS_ESTOQUE():
       GROUP BY `ID Casa`, FT.ID, IE.ID;
     ''')
 
-
+@st.cache_data
 def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_ITENS_PRODUCAO():
     return dataframe_query(f'''
         SELECT
@@ -76,7 +76,7 @@ def GET_FICHAS_TECNICAS_DE_ITENS_VENDIDOS_PARA_ITENS_PRODUCAO():
         GROUP BY `ID Casa`, FT.ID, IP.ID
     ''')
 
-
+@st.cache_data
 def GET_FICHAS_TECNICAS_DE_INSUMOS_PRODUCAO():
     return dataframe_query(f'''
         SELECT
@@ -199,7 +199,7 @@ def GET_FATURAMENTO_ITENS_VENDIDOS_DIA():
         GROUP BY `ID Casa`, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)
   ''')
 
-
+@st.cache_data
 def GET_CMV_ORCADO_AB():
   return dataframe_query(f'''
       WITH Orcamento_CMV AS (
@@ -283,6 +283,8 @@ def GET_FATURAM_ZIG_ALIM_BEB_MENSAL(data_inicio, data_fim):
     Primeiro_Dia_Mes;
 ''')
 
+
+@st.cache_data
 def GET_VALORACAO_ESTOQUE(loja, data_contagem):
   return dataframe_query(f'''
   SELECT 
@@ -310,7 +312,6 @@ def GET_VALORACAO_ESTOQUE(loja, data_contagem):
     AND te.NOME_FANTASIA = '{loja}'
   ORDER BY DATA_CONTAGEM DESC
   ''')
-
 
 
 @st.cache_data
@@ -580,7 +581,7 @@ def GET_INSUMOS_BLUE_ME_SEM_PEDIDO():
 ''')
 
 
-
+@st.cache_data
 def GET_VALORACAO_PRODUCAO(data):
   return dataframe_query(f'''
   SELECT
