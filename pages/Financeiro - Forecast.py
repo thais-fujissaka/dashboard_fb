@@ -57,7 +57,8 @@ id_casa = mapeamento_casas[casa]
 
 tab1, tab2 = st.tabs(['Projeções - Mês corrente', 'Projeções - Próximos meses'])
 
-# Projeção de Faturamento - Mês corrente
+
+###################### PROJEÇÃO DE FATURAMENTO - MÊS CORRENTE ###################### 
 with tab1:
     st.markdown(f'''
         <h3>Projeções - {casa} - {datas['amanha'].strftime('%d/%m/%Y')} a {datas['fim_mes_atual'].strftime('%d/%m/%Y')}</h>
@@ -66,17 +67,16 @@ with tab1:
 
     # Prepara df de faturamento agregado diário para a casa selecionada
     df_faturamento_agregado_mes_corrente = prepara_dados_faturam_agregado_diario(id_casa, df_faturamento_agregado_dia, datas['inicio_mes_anterior'], datas['fim_mes_atual'])
-    
 
     # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x DIAS (mês anterior e corrente) ---
     df_dias_futuros_com_categorias = lista_dias_mes_anterior_atual(datas['ano_atual'], datas['mes_atual'], datas['ultimo_dia_mes_atual'], 
     datas['ano_anterior'], datas['mes_anterior'],
     df_faturamento_agregado_mes_corrente)
 
-
     # Gera projeção para prox dias do mês corrente por dia da semana
     df_dias_futuros_mes = cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_futuros_com_categorias, datas['today'])
 
+    # Container que exibe projeção dos prox dias do mês corrente
     with st.container(border=True):
         st.markdown(f'''
             <h4>Faturamentos por categoria</h4>
@@ -84,119 +84,31 @@ with tab1:
             ''', unsafe_allow_html=True)
 
         ## A&B
-        exibe_categoria_faturamento('A&B', df_dias_futuros_mes, datas['today'])
+        exibe_faturamento_categoria('A&B', df_dias_futuros_mes, datas['today'])
 
         ## Gifts
-        exibe_categoria_faturamento('Gifts', df_dias_futuros_mes, datas['today'])
+        exibe_faturamento_categoria('Gifts', df_dias_futuros_mes, datas['today'])
 
         ## Delivery
-        exibe_categoria_faturamento('Delivery', df_dias_futuros_mes, datas['today'])
+        exibe_faturamento_categoria('Delivery', df_dias_futuros_mes, datas['today'])
 
         ## Artístico - Couvert
-        exibe_categoria_faturamento('Couvert', df_dias_futuros_mes, datas['today'])
+        exibe_faturamento_categoria('Couvert', df_dias_futuros_mes, datas['today'])
 
         ## Eventos
-        st.markdown(f'''
-            <h4 style="color: #1f77b4;">Eventos</h4>
-            <p><strong>Premissa:</strong> considerar o que está lançado para a competência nesse mês</p>        
-        ''', unsafe_allow_html=True)
-
-        df_faturamento_eventos_futuros = df_faturamento_eventos[
-            (df_faturamento_eventos['ID_Casa'] == id_casa) &
-            (df_faturamento_eventos['Data_Evento'] >= datas['amanha']) &
-            (df_faturamento_eventos['Data_Evento'] <= datas['fim_mes_atual']) 
-        ]
-
-        df_faturamento_eventos_futuros = df_faturamento_eventos_futuros[['Categoria', 'Data_Evento', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
-        if not df_faturamento_eventos_futuros.empty:
-            dataframe_aggrid(
-                df=df_faturamento_eventos_futuros,
-                name=f"Projeção - Faturamento Eventos",
-                num_columns=['Valor_Bruto', 'Desconto', 'Valor_Liquido'],     
-                date_columns=['Data_Evento'],
-                fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-                fit_columns_on_grid_load=True   
-            )
-        else:
-            st.info(f"Não há informações de eventos para os próximos dias de {datas['nome_mes_atual_pt']}.")
-        st.divider()
+        exibe_faturamento_eventos(df_faturamento_eventos, id_casa, datas)
 
         ## Outras Receitas
-        st.markdown(f'''
-            <h4 style="color: #1f77b4;">Outras Receitas</h4>
-            <p><strong>Premissa:</strong> considerar o que está lançado para a competência nesse mês</p>
-        ''', unsafe_allow_html=True)
+        exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_extr, id_casa, datas)
 
-        # Filtra por casa e dias futuros
-        df_parc_receitas_extr_futuras = df_parc_receit_extr_dia[
-            (df_parc_receit_extr_dia['ID_Casa'] == id_casa) &
-            (df_parc_receit_extr_dia['Data_Evento'] >= datas['amanha']) &
-            (df_parc_receit_extr_dia['Data_Evento'] <= datas['fim_mes_atual']) 
-        ]
-
-        if not df_parc_receitas_extr_futuras.empty:
-            # Merge para exibir categorias específicas no expander
-            df_detalha_outras_receitas = df_parc_receitas_extr_futuras.merge(
-                df_parc_receitas_extr,
-                how='left',
-                left_on=['Casa', 'Data_Evento'],
-                right_on=['Casa', 'Data_Ocorrencia']
-            )
-            df_detalha_outras_receitas = df_detalha_outras_receitas[['Categoria_x', 'Data_Ocorrencia', 'Categoria_y', 'Valor_Parcela']]
-            df_detalha_outras_receitas = df_detalha_outras_receitas.rename(columns={'Categoria_y':'Classificacao_Receita', 'Categoria_x':'Categoria'})
-
-            # Exibe df de 'Outras Receitas'
-            df_parc_receitas_extr_futuras = df_parc_receitas_extr_futuras[['Categoria', 'Data_Evento', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
-            dataframe_aggrid(
-                    df=df_parc_receitas_extr_futuras,
-                    name=f"Projeção - Faturamento Outras Receitas",
-                    num_columns=['Valor_Bruto', 'Desconto', 'Valor_Liquido'],     
-                    date_columns=['Data_Evento'],
-                    fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-                    fit_columns_on_grid_load=True   
-                )
-
-            with st.expander('Detalhamento', icon=":material/chevron_right:"):
-                df_detalha_outras_receitas_fmt = formata_df(df_detalha_outras_receitas)
-                st.dataframe(df_detalha_outras_receitas_fmt, hide_index=True)
-            
-        else:
-            st.info(f"Não há informações de receitas extraordinárias para os próximos dias de {datas['nome_mes_atual_pt']}.")
-    
     st.divider()
-
-    with st.container(border=True):
-        # Filtra para exibir dias anteriores do mês corrente - para comparação projeção/real
-        df_faturamento_dias_anteriores = df_dias_futuros_mes[
-            (df_dias_futuros_mes['Data_Evento'] >= datas['inicio_mes_atual']) &
-            (df_dias_futuros_mes['Data_Evento'] <= datas['today']) &
-            (df_dias_futuros_mes['Categoria'] != 'Serviço')
-        ]
         
-        # Organiza colunas
-        df_faturamento_dias_anteriores = df_faturamento_dias_anteriores[['Categoria', 'Data_Evento', 'Dia Semana', 'Projecao', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
-        df_faturamento_dias_anteriores = df_faturamento_dias_anteriores.sort_values(by=['Categoria', 'Data_Evento'])
-        df_faturamento_dias_anteriores = df_faturamento_dias_anteriores.rename(
-            columns={'Projecao':'Faturamento Projetado', 
-                    'Valor_Bruto':'Faturamento Real',
-                    'Valor_Liquido':'Faturamento Liquido'})
-
-        st.markdown(f'''
-            <h4>Dias anteriores - {datas['inicio_mes_atual'].strftime('%d/%m/%y')} a {datas['today'].strftime('%d/%m/%y')}</h4>
-            <h5>Comparação: Faturamento Projetado e Faturamento Real</h5>
-        ''', unsafe_allow_html=True)
-
-        dataframe_aggrid(
-            df=df_faturamento_dias_anteriores,
-            name=f"Projeção - Faturamento Dias Anteriores",
-            num_columns=['Faturamento Projetado', 'Faturamento Real', 'Desconto', 'Faturamento Liquido'],     
-            date_columns=['Data_Evento'],
-            # fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-            # fit_columns_on_grid_load=True   
-        )
+    # Container que exibe faturamento real e projetado dos dias anteriores do mês corrente
+    with st.container(border=True):
+        exibe_faturamento_dias_anteriores(df_dias_futuros_mes, datas)
 
 
-# Projeção de Faturamento - Próximos meses
+###################### PROJEÇÃO DE FATURAMENTO - PRÓXIMOS MESES ###################### 
 with tab2:
     # Dados - Faturamento e Orçamento Mensal
     df_orcamentos = GET_ORCAMENTOS()
@@ -216,6 +128,7 @@ with tab2:
     # Gera projeção para prox meses do ano
     df_faturamento_meses_futuros = cria_projecao_meses_seguintes(df_faturamento_orcamento, df_meses_futuros_com_categorias, datas['ano_atual'])
 
+    # Container que exibe projeção dos prox meses
     with st.container(border=True):
         st.markdown(f'''
             <h4>Faturamentos por categoria</h4>
@@ -261,7 +174,7 @@ with tab2:
     )
     
     df_cmv_meses_anteriores_seguintes = calcula_cmv_proximos_meses(df_faturamento_meses_futuros, datas, df_calculo_cmv)
-    
+    # st.write(df_cmv_meses_anteriores_seguintes)
     # Prepara para exibir CMV prox meses
     df_cmv_meses_seguintes = df_cmv_meses_anteriores_seguintes[df_cmv_meses_anteriores_seguintes['Mes'] > datas['mes_atual']]
     df_cmv_meses_seguintes = df_cmv_meses_seguintes[['Mes', 'Valor Projetado', 'CMV Projetado (R$)', 'CMV Percentual Projetado (%)']]
@@ -284,39 +197,9 @@ with tab2:
 
     st.divider()
    
+   # Container que exibe faturamento real e projetado dos meses anteriores
     with st.container(border=True):
-        # Exibe meses anteriores do ano - para comparação projeção/real
-        st.markdown(f'''
-                <h4>Meses anteriores</h4>
-                <h5>Comparação Faturamento: Atingimento Projetado e Atingimento Real</h5>
-            ''', unsafe_allow_html=True)
-        
-        df_faturamento_meses_anteriores = df_faturamento_meses_futuros.copy()
-        df_faturamento_meses_anteriores = df_faturamento_meses_anteriores[
-            (df_faturamento_meses_anteriores['Ano'] == datas['ano_atual']) &
-            (df_faturamento_meses_anteriores['Mes'] <= datas['mes_atual']) &
-            (df_faturamento_meses_anteriores['Categoria'] != 'Serviço')
-        ]
-
-        df_faturamento_meses_anteriores = df_faturamento_meses_anteriores[['Categoria', 'Mes', 'Orcamento_Faturamento', 'Valor_Bruto', 'Atingimento Real (%)', 'Projecao_Atingimento (%)', 'Valor Projetado']]
-        df_faturamento_meses_anteriores = df_faturamento_meses_anteriores.rename(columns={
-            'Mes':'Mês',
-            'Orcamento_Faturamento':'Orçamento (R$)',
-            'Valor_Bruto':'Faturamento Real (R$)',
-            'Projecao_Atingimento (%)':'Atingimento Projetado (%)',
-            'Valor Projetado':'Faturamento Projetado (R$)'
-        })
-        df_faturamento_meses_anteriores = df_faturamento_meses_anteriores.sort_values(by=['Categoria', 'Mês'])
-
-        dataframe_aggrid(
-            df=df_faturamento_meses_anteriores,
-            name=f"Projeção - Faturamento Meses Anteriores",
-            num_columns=['Orçamento (R$)', 'Faturamento Real (R$)', 'Faturamento Projetado (R$)'],     
-            percent_columns=['Atingimento Real (%)', 'Atingimento Projetado (%)'],
-            # fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-            # fit_columns_on_grid_load=True   
-        )
-        st.divider()
+        exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, datas)
 
         # Prepara para exibir CMV dos meses anteriores para comparação
         df_cmv_meses_anteriores = df_cmv_meses_anteriores_seguintes[df_cmv_meses_anteriores_seguintes['Mes'] <= datas['mes_atual']]
@@ -338,6 +221,6 @@ with tab2:
             name=f"Projeção - CMV Meses Anteriores",
             num_columns=['Faturamento Real (R$)', 'CMV Real (R$)', 'Faturamento Projetado (R$)', 'CMV Projetado (R$)'],     
             percent_columns=['CMV Real Percentual (%)', 'CMV Percentual Projetado (%)'],
-            # fit_columns=ColumnsAutoSizeMode.FIT_CONTENTS,
-            # fit_columns_on_grid_load = False 
+            fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
+            fit_columns_on_grid_load=True 
         )
