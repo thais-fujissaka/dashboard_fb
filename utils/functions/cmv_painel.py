@@ -184,9 +184,9 @@ def calcular_cmv_teorico_ano(ano, mes_atual, id_casa, df_fichas_itens_vendidos, 
 
 
 def grafico_cmv_teorico(df_cmv_teorico):
-    dados_cmv_teorico_em_reais = df_cmv_teorico['CMV Teórico (R$)'].astype(float).tolist()
-    dados_cmv_teorico_bruto_porcentagem = df_cmv_teorico['CMV Teórico (% Venda Bruta)'].astype(float).tolist()
-    dados_cmv_teorico_liquido_porcentagem = df_cmv_teorico['CMV Teórico (% Venda Líquida)'].astype(float).tolist()
+    dados_cmv_teorico_em_reais = df_cmv_teorico['CMV Teórico (R$)'].astype(float).round(2).tolist()
+    dados_cmv_teorico_bruto_porcentagem = df_cmv_teorico['CMV Teórico (% Venda Bruta)'].astype(float).round(2).tolist()
+    dados_cmv_teorico_liquido_porcentagem = df_cmv_teorico['CMV Teórico (% Venda Líquida)'].astype(float).round(2).tolist()
     dict_meses = {
         1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
         7: 'Jul', 8: 'Ago', 9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
@@ -348,8 +348,8 @@ def calcula_cmv_real_ano_paralelo(ano, mes_atual, casa):
 
 def grafico_cmv_real(df_cmv_real):
 
-    dados_cmv_real_em_reais = df_cmv_real['CMV Real (R$)'].astype(float).tolist()
-    dados_cmv_real_porcentagem = df_cmv_real['CMV Real (%)'].astype(float).tolist()
+    dados_cmv_real_em_reais = df_cmv_real['CMV Real (R$)'].astype(float).round(2).tolist()
+    dados_cmv_real_porcentagem = df_cmv_real['CMV Real (%)'].astype(float).round(2).tolist()
 
     dict_meses = {
         1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr', 5: 'Mai', 6: 'Jun',
