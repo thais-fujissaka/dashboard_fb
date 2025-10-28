@@ -409,6 +409,7 @@ def main():
             
             st.markdown('### Faturamento')
             st.markdown('Os faturamentos são calculados a partir das fichas técnicas existentes da casa. Portanto, os valores de faturamento são correspondentes aos itens que possuem fichas técnicas cadastradas no sistema. Faturamentos de itens vendidos sem cadastro em fichas não entram na análise desta aba.')
+            st.markdown('Desconsidera os descontos de pacotes de eventos')
         st.write('')
         
 if __name__ == '__main__':
