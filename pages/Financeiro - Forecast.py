@@ -177,14 +177,23 @@ with tab2:
     # st.write(df_cmv_meses_anteriores_seguintes)
     # Prepara para exibir CMV prox meses
     df_cmv_meses_seguintes = df_cmv_meses_anteriores_seguintes[df_cmv_meses_anteriores_seguintes['Mes'] > datas['mes_atual']]
-    df_cmv_meses_seguintes = df_cmv_meses_seguintes[['Mes', 'Valor Projetado', 'CMV Projetado (R$)', 'CMV Percentual Projetado (%)']]
+    df_cmv_meses_seguintes = df_cmv_meses_seguintes[['Mes', 'Valor Projetado', 'CMV Percentual Projetado (%)', 'CMV Projetado (R$)']]
     df_cmv_meses_seguintes = df_cmv_meses_seguintes.rename(columns={'Mes':'Mês', 'Valor Projetado':'Faturamento Projetado (R$)'})
     
     with st.container(border=True):
         st.markdown(f'''
             <h3>CMV</h3>
             <p><strong>Premissa:</strong> Média do % da despesa em relação ao Faturamento Real (A&B) dos últimos 2 meses x o valor estimado de Faturamento para o mês.</p>
-            ''', unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
+        
+        st.latex(r'''
+            \\[0.5cm]
+            \text{CMV Percentual Projetado} = \frac{CMV_1 + CMV_2}{Faturamento\ A\&B_1 + Faturamento\ A\&B_2}
+            \\[0.5cm]
+            \text{CMV Projetado} = \text{Faturamento Projetado} \times \text{CMV Percentual Projetado}
+            \\[0.5cm]
+        ''')
+
     
         dataframe_aggrid(
             df=df_cmv_meses_seguintes,
@@ -197,14 +206,14 @@ with tab2:
 
     st.divider()
    
-   # Container que exibe faturamento real e projetado dos meses anteriores
+    # Container que exibe faturamento  e CMV real e projetado dos meses anteriores 
     with st.container(border=True):
         exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, datas)
 
         # Prepara para exibir CMV dos meses anteriores para comparação
         df_cmv_meses_anteriores = df_cmv_meses_anteriores_seguintes[df_cmv_meses_anteriores_seguintes['Mes'] <= datas['mes_atual']]
         df_cmv_meses_anteriores = df_cmv_meses_anteriores.fillna(0)
-        df_cmv_meses_anteriores = df_cmv_meses_anteriores[['Mes', 'Faturamento_Geral', 'CMV (R$)', 'CMV Percentual (%)', 'Valor Projetado', 'CMV Projetado (R$)', 'CMV Percentual Projetado (%)']]
+        df_cmv_meses_anteriores = df_cmv_meses_anteriores[['Mes', 'Faturamento_Geral', 'CMV (R$)', 'CMV Percentual (%)', 'Valor Projetado', 'CMV Percentual Projetado (%)', 'CMV Projetado (R$)']]
         df_cmv_meses_anteriores = df_cmv_meses_anteriores.rename(columns={
             'Mes':'Mês', 
             'Faturamento_Geral':'Faturamento Real (R$)', 

@@ -14,38 +14,38 @@ casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
 @st.cache_data
 def GET_FATURAMENTO_AGREGADO_DIA():
     df_faturamento_agregado_diario = dataframe_query(f''' 
-    SELECT
-        CASE
-            WHEN te.ID IN (161, 162) THEN 149
-            ELSE te.ID    
-        END AS ID_Casa,                                                                                                                      
-        CASE
-            WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
-            ELSE te.NOME_FANTASIA    
-        END AS Casa,  
-        CASE 
-            WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
-            ELSE tivc2.DESCRICAO 
-        END AS Categoria,
-        cast(tiv.EVENT_DATE as date) AS Data_Evento,
-        SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
-        SUM(tiv.DISCOUNT_VALUE) AS Desconto,
-        SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
-    FROM T_ITENS_VENDIDOS tiv
-    LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
-    LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
-    LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
-    LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
-    WHERE 
-        YEAR(tiv.EVENT_DATE) > 2024 AND 
-        (te.NOME_FANTASIA IN ({casas_str}) OR 
-        te.NOME_FANTASIA LIKE '%Delivery%' OR
-        te.NOME_FANTASIA LIKE '%Priceless%')
-    GROUP BY 
-        ID_Casa,
-        Casa,
-        Categoria,
-        Data_Evento
+        SELECT
+            CASE
+                WHEN te.ID IN (161, 162) THEN 149
+                ELSE te.ID    
+            END AS ID_Casa,                                                                                                                      
+            CASE
+                WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
+                ELSE te.NOME_FANTASIA    
+            END AS Casa,  
+            CASE 
+                WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
+                ELSE tivc2.DESCRICAO 
+            END AS Categoria,
+            cast(tiv.EVENT_DATE as date) AS Data_Evento,
+            SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
+            SUM(tiv.DISCOUNT_VALUE) AS Desconto,
+            SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
+        FROM T_ITENS_VENDIDOS tiv
+        LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
+        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
+        LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
+        LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
+        WHERE 
+            YEAR(tiv.EVENT_DATE) > 2024 AND 
+            (te.NOME_FANTASIA IN ({casas_str}) OR 
+            te.NOME_FANTASIA LIKE '%Delivery%' OR
+            te.NOME_FANTASIA LIKE '%Priceless%')
+        GROUP BY 
+            ID_Casa,
+            Casa,
+            Categoria,
+            Data_Evento
     ''')
 
     # Mapeamento do Delivery

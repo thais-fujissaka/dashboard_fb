@@ -175,7 +175,7 @@ def exibe_faturamento_categoria(categoria, df_dias_futuros_mes, today):
             num_columns=["Valor Projetado (R$)", 'Valor Real', 'Desconto', 'Valor_Liquido'],     
             date_columns=['Data'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-            fit_columns_on_grid_load=True   
+            fit_columns_on_grid_load=True,
         )
     
     st.divider()
@@ -207,9 +207,9 @@ def exibe_faturamento_eventos(df_faturamento_eventos, id_casa, datas):
             df=df_faturamento_eventos_futuros,
             name=f"Projeção - Faturamento Eventos",
             num_columns=['Valor Bruto (R$)', 'Desconto (R$)', 'Valor Liquido (R$)'],     
-            date_columns=['Data_Evento'],
+            date_columns=['Data Evento'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-            fit_columns_on_grid_load=True   
+            fit_columns_on_grid_load=True,
         )
     else:
         st.info(f"Não há informações de eventos para os próximos dias de {datas['nome_mes_atual_pt']}.")
@@ -256,7 +256,7 @@ def exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_
             num_columns=['Valor Bruto (R$)', 'Desconto (R$)', 'Valor Liquido (R$)'],     
             date_columns=['Data_Evento'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-            fit_columns_on_grid_load=True   
+            fit_columns_on_grid_load=True,   
         )
 
         with st.expander('Detalhamento', icon=":material/chevron_right:"):
@@ -269,6 +269,7 @@ def exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_
 
 # Exibe dias anteriores do mês corrente - para comparação projeção/real
 def exibe_faturamento_dias_anteriores(df_dias_futuros_mes, datas):
+ 
     # Filtra para exibir dias anteriores do mês corrente - para comparação projeção/real
     df_faturamento_dias_anteriores = df_dias_futuros_mes[
         (df_dias_futuros_mes['Data_Evento'] >= datas['inicio_mes_atual']) &
@@ -297,7 +298,7 @@ def exibe_faturamento_dias_anteriores(df_dias_futuros_mes, datas):
         num_columns=['Faturamento Projetado (R$)', 'Faturamento Real (R$)', 'Desconto (R$)', 'Faturamento Liquido (R$)'],     
         date_columns=['Data Evento'],
         fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-        fit_columns_on_grid_load=True   
+        fit_columns_on_grid_load=True,
     )
 
 ############################################ PROJEÇÕES PRÓXIMOS MESES ############################################
@@ -467,7 +468,7 @@ def exibe_categoria_faturamento_prox_meses(categoria, df_meses_futuros, ano_atua
             num_columns=['Orçamento (R$)', 'Valor Projetado (R$)'],     
             percent_columns=['Projeção Atingimento (%)'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-            fit_columns_on_grid_load=True   
+            fit_columns_on_grid_load=True,
         )
     
     if titulo != 'Outras Receitas':
@@ -504,7 +505,7 @@ def exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, datas):
         num_columns=['Orçamento (R$)', 'Faturamento Real (R$)', 'Faturamento Projetado (R$)'],     
         percent_columns=['Atingimento Real (%)', 'Atingimento Projetado (%)'],
         fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
-        fit_columns_on_grid_load=True   
+        fit_columns_on_grid_load=True,
     )
     st.divider()
     
@@ -828,11 +829,25 @@ def calcula_cmv_proximos_meses(df_faturamento_meses_futuros, datas, df_calculo_c
         ]
 
         # Faz Projecao = (CMV1 + CMV2) / (Faturamento_Geral1 + Faturamento_Geral2)
-        valores_para_soma_cmvs = historico['CMV (R$)'].fillna(historico['CMV Projetado (R$)']).astype(float)
-        valores_para_soma_faturamento = historico['Faturamento_Geral'].fillna(historico['Valor Projetado']).astype(float)
+        # Define colunas auxiliares conforme o mês
+        historico["CMV_Usado"] = np.where(
+            historico["Mes"] >= datas["mes_atual"],
+            historico["CMV Projetado (R$)"],       # usa o projetado se mês >= atual
+            historico["CMV (R$)"]                  # senão usa o real
+        )
+
+        historico["Faturamento_Usado"] = np.where(
+            historico["Mes"] >= datas["mes_atual"],
+            historico["Valor Projetado"],          # usa o projetado se mês >= atual
+            historico["Faturamento_Geral"]         # senão usa o real
+        )
+
+        valores_para_soma_cmvs = historico['CMV_Usado'].fillna(historico['CMV Projetado (R$)']).astype(float)
+        valores_para_soma_faturamento = historico['Faturamento_Usado'].fillna(historico['Valor Projetado']).astype(float)
 
         soma_cmvs = valores_para_soma_cmvs.sum()
         soma_faturamentos = valores_para_soma_faturamento.sum()
+        
         if soma_faturamentos and not pd.isna(soma_faturamentos) and soma_faturamentos != 0:
             cmv_projetado = (soma_cmvs / soma_faturamentos) * 100
         else:
