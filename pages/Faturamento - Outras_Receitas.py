@@ -8,8 +8,8 @@ from utils.user import logout
 
 st.set_page_config(
   layout = 'wide',
-  page_title = 'Faturamento Extraordinário',
-  page_icon='💎',
+  page_title = 'Faturamento - Outras Receitas',  
+  page_icon=':dollar:',
   initial_sidebar_state="collapsed"
 )
 
@@ -19,7 +19,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 col, col2, col3 = st.columns([6, 1, 1])
 with col:
-  st.title('RECEITAS EXTRAORDINÁRIAS')
+  st.title(':dollar: Faturamento - Outras Receitas')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
 with col3:
@@ -42,9 +42,13 @@ df_agrupado.rename(columns={'ID': 'Quantidade de Eventos'}, inplace=True)
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 10, 1])
   with col1:
-    st.subheader("Faturamento Receitas Extaordinárias:")
+    col1, col2 = st.columns([3, 1], vertical_alignment='bottom')
+    with col1:
+      st.subheader("Faturamento Receitas Extraordinárias*:")
+    with col2:
+      st.write("*Receitas de Eventos até 09/2025")
     st.dataframe(FaturamReceitExtraord, use_container_width=True, hide_index=True)
-    st.write("Faturamento Extraordinário Total:")
+    st.write("**Faturamento Extraordinário Total:**")
     st.dataframe(Totais, use_container_width=True, hide_index=True)
 
 

@@ -149,15 +149,15 @@ def main():
     }).reset_index()
     st.write('')
 
-    st.subheader("Faturamento de Bebidas por Tipo:")
+    st.subheader("Curva de Faturamento por Tipo de Produto")
     grafico_linhas_faturamento_tipos(FaturamentoZigClasse, 'Valor Bruto Venda', 'grafico_linhas_faturamento_tipos')
     st.write('')
-    st.subheader("Número de Vendas de Bebidas por Tipo:")
+    st.subheader("Número de Vendas de Bebidas por Tipo")
     grafico_linhas_faturamento_tipos(FaturamentoZigClasse, 'Quantia comprada', 'grafico_linhas_quantias_tipos')
 
     col1, col2 = st.columns([4, 1], vertical_alignment = "center")
     with col1:
-        st.markdown('### Itens Vendidos Detalhado')
+        st.markdown('### Itens Vendidos Detalhado por Transação')
     with col2:
         button_download(FaturamentoZigClasse, f'itens', f'download_itens')
     FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasse, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])
@@ -166,7 +166,7 @@ def main():
 
     col1, col2 = st.columns([4, 1], vertical_alignment = "center")
     with col1:
-        st.markdown('### Itens Vendidos Agrupados')
+        st.markdown('### Itens Vendidos Agrupados por Data')
     with col2:
         button_download(FaturamentoZigClasseAgrupado, f'itens_agrupados', f'download_itens_agrupados')
     FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasseAgrupado, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])

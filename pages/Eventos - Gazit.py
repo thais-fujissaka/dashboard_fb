@@ -16,7 +16,8 @@ import math
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
-	page_title="Gazit",
+	page_title="Auditoria Externa - Gazit - Shopping Light",
+	page_icon="🛍️",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -85,7 +86,7 @@ def main():
 
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
-		st.title(":shopping_bags: Gazit")
+		st.title(":shopping_bags: Auditoria Externa - Gazit - Shopping Light")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
 	with col3:

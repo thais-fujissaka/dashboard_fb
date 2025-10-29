@@ -8,8 +8,8 @@ from utils.queries_compras import *
 from datetime import date, datetime, timedelta
 
 st.set_page_config(
-	page_icon=":material/shelves:",
-	page_title="Compras - Análises",
+	page_icon="📦",
+	page_title="Relatório de Insumos - Suprimentos",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -23,7 +23,7 @@ def main():
 	config_sidebar()
 	col1, col2, col3 = st.columns([6, 1, 1])
 	with col1:
-		st.title(":material/shelves: Compras - Análises")
+		st.title("📦 Relatório de Insumos - Suprimentos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
 	with col3:

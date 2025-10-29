@@ -90,7 +90,7 @@ dfComparacaoAggStyled = dfComparacaoAgg.style.map(highlight_values, subset=['Dif
 with st.container(border=True):
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
-    st.subheader('Previsão e Faturamento Real:')
+    st.subheader('Previsão de Faturamento x Realizado')
   col, col1, col2 = st.columns([3, 8, 3])
   with col1:
     st.dataframe(dfComparacaoStyled, width=700, hide_index=True)
@@ -100,7 +100,7 @@ with st.container(border=True):
 with st.container(border=True):
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
-    st.subheader('Agrupamento Pelo Período Selecionado:')
+    st.subheader('Faturamento Acumulado do Período')
   col, col1, col2 = st.columns([3, 8, 3])
   with col1:
     st.dataframe(dfComparacaoAggStyled, width=700, hide_index=True)
@@ -167,7 +167,7 @@ def grafico_previsao_faturamento(df):
 with st.container(border=True):
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
-    st.subheader('Valores Projetado vs Faturado por Dia:')
+    st.subheader('Valores Projetado vs Faturado por Dia')
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
     grafico_previsao_faturamento(dfComparacao2)
