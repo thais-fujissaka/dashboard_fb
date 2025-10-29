@@ -17,6 +17,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 st.set_page_config(
 	page_title="Auditoria Externa - Gazit - Shopping Light",
+	page_icon="🛍️",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
