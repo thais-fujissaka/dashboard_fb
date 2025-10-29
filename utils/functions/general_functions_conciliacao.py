@@ -7,7 +7,6 @@ import numpy as np
 import os
 import re
 import io
-from utils.functions.forecast import traduz_semana_mes
 from utils.constants.general_constants import *
 from pandas.api.types import is_numeric_dtype
 from utils.user import *
@@ -17,6 +16,39 @@ from st_aggrid import AgGrid, GridOptionsBuilder, JsCode, GridUpdateMode
 from st_aggrid.shared import StAggridTheme
 import streamlit.components.v1 as components
 from rapidfuzz import fuzz
+
+
+# Traduz dia da semana ou mês
+def traduz_semana_mes(item, tipo):
+    meses = {
+        'January': 'Janeiro',
+        'February': 'Fevereiro',
+        'March': 'Março',
+        'April': 'Abril',
+        'May': 'Maio',
+        'June': 'Junho',
+        'July': 'Julho',
+        'August': 'Agosto',
+        'September': 'Setembro',
+        'October': 'Outubro',
+        'November': 'Novembro',
+        'December': 'Dezembro'
+    }
+
+    dias_semana = {
+        'Sunday': 'Domingo',
+        'Monday': 'Segunda-feira',
+        'Tuesday': 'Terça-feira',
+        'Wednesday': 'Quarta-feira',
+        'Thursday': 'Quinta-feira',
+        'Friday': 'Sexta-feira',
+        'Saturday': 'Sábado'
+    }
+
+    if tipo == 'mes':
+        return meses.get(item, item)  # Retorna o nome traduzido ou o original se não achar
+    if tipo == 'dia semana':
+        return dias_semana.get(item, item) 
 
 
 # Define as datas importantes para filtros e análises
