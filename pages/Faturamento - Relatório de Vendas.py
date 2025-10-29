@@ -137,7 +137,6 @@ def main():
       categoria = st.selectbox(label='Selecione Categoria', options=categorias_desejadas)
     FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZig, 'Categoria', [categoria])
     classificacoes = obter_valores_unicos_ordenados(FaturamentoZigClasse, 'Tipo')
-    st.dataframe(FaturamentoZigClasse)
     with col2:
       classificacoes_selecionadas = st.multiselect(label='Selecione Tipos', options=classificacoes)
     FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZigClasse, 'Tipo', classificacoes_selecionadas)
