@@ -8,7 +8,7 @@ from utils.user import logout
 
 st.set_page_config(
   layout = 'wide',
-  page_title = 'Despesas',
+  page_title = 'Controle de Despesas Gerais',
   page_icon=':money_with_wings:',
   initial_sidebar_state="collapsed"
 )
@@ -21,7 +21,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 col, col2, col3 = st.columns([6, 1, 1])
 with col:
-  st.title('DESPESAS')
+  st.title('Controle de Despesas Gerais')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
 with col3:
@@ -47,7 +47,7 @@ Despesas = filtrar_por_datas(Despesas, data_inicio, data_fim, 'Data_Emissao')
 Despesas = filtrar_por_classe_selecionada(Despesas, 'Loja', lojas_selecionadas)
 despesasConfig = config_despesas_por_classe(Despesas)
 
-tab1, tab2 = st.tabs(['Despesas', 'Despesas Detalhadas'])
+tab1, tab2 = st.tabs(['Despesas Gerais', 'Despesas Detalhadas'])
 
 with tab1:
     with st.container(border=True):
@@ -57,7 +57,7 @@ with tab1:
             col1, col2= st.columns([4, 1], vertical_alignment='center')
             with col1:
               st.write("")
-              st.markdown("## Despesas")
+              st.markdown("## Despesas Gerais")
               st.write("")
             with col2:
               exibir_detalhamento = st.toggle(label='Exibir Detalhamento', key='toggle_despesas', value=True)

@@ -54,20 +54,20 @@ def main():
 
         # Mapeamento de permissões para página inicial
         permissoes_pagina_inicial = {
-            "Dev Dash FB": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Admin Eventos": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Eventos 1": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Eventos 2": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Eventos 3": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Eventos 4": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Eventos 5": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Liderança Eventos": "pages/Eventos - Calendário_de_Eventos.py",
-            "Acesso Admin Priceless Eventos": "pages/Eventos - Calendário_de_Eventos.py",
+            "Dev Dash FB": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Admin Eventos": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Eventos 1": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Eventos 2": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Eventos 3": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Eventos 4": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Eventos 5": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Liderança Eventos": "pages/Eventos - Calendário_Geral_de_Eventos.py",
+            "Acesso Admin Priceless Eventos": "pages/Eventos - Calendário_Geral_de_Eventos.py",
             "Gazit": "pages/Eventos - Gazit.py",
             "Acesso Conciliação": "pages/Conciliação - Conciliações.py",
             "Acesso Conciliação Casa": "pages/Conciliação - Conciliações.py",
             "Acesso CMV 1": "pages/CMV - CMV_Real.py",
-            "Acesso Compras 1": "pages/Compras - Análises.py",
+            "Acesso Compras 1": "pages/Suprimentos - Relatório_de_Insumos.py",
             "Acesso Financeiro 1": "pages/Financeiro - Despesas.py",
             "Acesso Financeiro 2": "pages/Financeiro - Despesas.py"
         }

@@ -10,7 +10,7 @@ from utils.functions.calendario_de_eventos import *
 
 st.set_page_config(
 	page_icon=":calendar:",
-	page_title="Calendário de Eventos",
+	page_title="Calendário Geral de Eventos",
 	layout="wide",
 	initial_sidebar_state="collapsed"
 )
@@ -36,7 +36,7 @@ def main():
     st.markdown("<div style='margin-top: 30px'></div>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([6, 1, 1])
     with col1:
-        st.title("📅 Calendário de Eventos")
+        st.title("📅 Calendário Geral de Eventos")
     with col2:
         st.button(label='Atualizar', key='atualizar_calendario', on_click=st.cache_data.clear)
     with col3:

@@ -8,7 +8,7 @@ from utils.user import logout
 
 st.set_page_config(
   layout = 'wide',
-  page_title = 'Faturamento Zig',
+  page_title = 'Faturamento Zigpay',
   page_icon=':moneybag:',
   initial_sidebar_state="collapsed"
 )
@@ -20,7 +20,7 @@ def main():
   config_sidebar()
   col, col2, col3 = st.columns([6, 1, 1])
   with col:
-    st.title('FATURAMENTO ZIGPAY')
+    st.title(':moneybag: Faturamento Zigpay')
   with col2:
     st.button(label="Atualizar", on_click = st.cache_data.clear)
   with col3:
@@ -47,13 +47,17 @@ def main():
   with st.container(border=True):
     col0, col1, col2 = st.columns([1, 10, 7])
     with col1:
-      st.subheader("Faturamento Agregado:")
+      st.subheader("Faturamento Bruto")
       orcamfatformatadoStyled = orcamfatformatado.style.map(highlight_values, subset=['Faturam - Orçamento'])
       st.dataframe(orcamfatformatadoStyled, width=700, hide_index=True)
-      st.write(f"Soma dos Valores Brutos de Alimentos, Bebidas, Couvert e Gifts: {soma_valor_bruto}")
     with col2:
       st.subheader("Valores Líquidos:")
       Grafico_Donut(OrcamentoFaturamento)
+
+    col0, col1 = st.columns([1, 17])
+    with col1:
+      st.write(f"Produtos vendidos na Zigpay. \n"
+               f"Soma dos Valores Brutos de Alimentos, Bebidas, Couvert e Gifts: **R$ {soma_valor_bruto}**")
   
   st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
 
@@ -67,7 +71,7 @@ def main():
     with col1:
       col1, col2 = st.columns([6, 1], vertical_alignment='bottom')
       with col1:
-        st.subheader("Top 10 Alimentos:")
+        st.subheader("Top 10 Alimentos Vendidos:")
       with col2:
         st.markdown("*Sem delivery")
       top_dez(FaturamentoZig, 'Alimentos', key='top10alimentos')
@@ -77,7 +81,7 @@ def main():
     with col1:
       col1, col2 = st.columns([6, 1], vertical_alignment='bottom')
       with col1:
-        st.subheader("Top 10 Bebidas:")
+        st.subheader("Top 10 Bebidas Vendidas:")
       with col2:
         st.markdown("*Sem delivery")
       top_dez(FaturamentoZig, 'Bebidas', key='top10bebidas')
