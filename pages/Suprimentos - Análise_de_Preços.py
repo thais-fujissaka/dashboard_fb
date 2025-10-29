@@ -8,7 +8,7 @@ from utils.components import *
 st.set_page_config(
   layout = 'wide',
   page_title = 'Análise de Preços',
-  page_icon=':material/abc:',
+  page_icon=':heavy_dollar_sign:',
   initial_sidebar_state="collapsed"
 )
 
