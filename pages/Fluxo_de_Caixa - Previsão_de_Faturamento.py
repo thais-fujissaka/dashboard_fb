@@ -67,6 +67,9 @@ dfComparacao['Valor Projetado'] = dfComparacao['Valor Projetado'] * multiplicado
 
 dfComparacao['Diferença'] = dfComparacao['Valor Faturado'] - dfComparacao['Valor Projetado']
 
+dfComparacao['Atingimento do Projetado'] = (dfComparacao['Valor Faturado'] / dfComparacao['Valor Projetado'])
+dfComparacao['Atingimento do Projetado'] = dfComparacao['Atingimento do Projetado']
+
 
 dfComparacao2 = dfComparacao.copy()
 
@@ -82,6 +85,7 @@ dfComparacao = df_format_date_brazilian(dfComparacao, 'Data')
 dfComparacao = format_columns_brazilian(dfComparacao, ['Valor Projetado', 'Valor Faturado', 'Diferença'])
 dfComparacaoStyled = dfComparacao.style.map(highlight_values, subset=['Diferença'])
 dfComparacaoAgg = format_columns_brazilian(dfComparacaoAgg, ['Valor Projetado', 'Valor Faturado', 'Diferença'])
+altura_dfComparacaoAgg = len(dfComparacaoAgg)
 dfComparacaoAggStyled = dfComparacaoAgg.style.map(highlight_values, subset=['Diferença'])
 
 
@@ -91,9 +95,18 @@ with st.container(border=True):
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
     st.subheader('Previsão de Faturamento x Realizado')
-  col, col1, col2 = st.columns([3, 8, 3])
-  with col1:
-    st.dataframe(dfComparacaoStyled, width=700, hide_index=True)
+    st.dataframe(
+        dfComparacaoStyled,
+        column_config={
+            'Atingimento do Projetado': st.column_config.ProgressColumn(
+                "Atingimento do Projetado",
+                format='percent',
+                min_value=0,
+                max_value=1,
+            )
+        },
+        hide_index=True
+    )
 
 
 
@@ -101,9 +114,7 @@ with st.container(border=True):
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
     st.subheader('Faturamento Acumulado do Período')
-  col, col1, col2 = st.columns([3, 8, 3])
-  with col1:
-    st.dataframe(dfComparacaoAggStyled, width=700, hide_index=True)
+    st.dataframe(dfComparacaoAggStyled, use_container_width=True, hide_index=True, height= altura_dfComparacaoAgg * 35 + 35)
     
 
 
