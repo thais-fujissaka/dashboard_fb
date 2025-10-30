@@ -127,15 +127,18 @@ def main():
   st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
 
   FaturamentoZig = config_Faturamento_zig(lojas_selecionadas, data_inicio, data_fim)
-  FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZig, 'Categoria', ['Bebidas'])
-
-  classificacoes = obter_valores_unicos_ordenados(FaturamentoZigClasse, 'Tipo')
 
 
   col0, col1, col2 = st.columns([0.1, 2.6, 0.1])
   with col1:
-    
-    classificacoes_selecionadas = st.multiselect(label='Selecione Tipos', options=classificacoes)
+    # Filtro por categoria desejada
+    col1, col2 = st.columns([1, 1])
+    with col1:
+      categoria = st.selectbox(label='Selecione Categoria', options=categorias_desejadas)
+    FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZig, 'Categoria', [categoria])
+    classificacoes = obter_valores_unicos_ordenados(FaturamentoZigClasse, 'Tipo')
+    with col2:
+      classificacoes_selecionadas = st.multiselect(label='Selecione Tipos', options=classificacoes)
     FaturamentoZigClasse = filtrar_por_classe_selecionada(FaturamentoZigClasse, 'Tipo', classificacoes_selecionadas)
     FaturamentoZigClasseAgrupado = FaturamentoZigClasse.copy().groupby(['Data_Evento', 'ID Produto', 'Nome Produto']).agg({
       'Loja': 'first',
@@ -152,7 +155,7 @@ def main():
     st.subheader("Curva de Faturamento por Tipo de Produto")
     grafico_linhas_faturamento_tipos(FaturamentoZigClasse, 'Valor Bruto Venda', 'grafico_linhas_faturamento_tipos')
     st.write('')
-    st.subheader("Número de Vendas de Bebidas por Tipo")
+    st.subheader(f"Número de Vendas de {categoria} por Tipo")
     grafico_linhas_faturamento_tipos(FaturamentoZigClasse, 'Quantia comprada', 'grafico_linhas_quantias_tipos')
 
     col1, col2 = st.columns([4, 1], vertical_alignment = "center")

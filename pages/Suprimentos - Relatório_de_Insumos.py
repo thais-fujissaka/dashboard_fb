@@ -6,6 +6,7 @@ from utils.user import *
 from utils.functions.cmv_teorico_fichas_tecnicas import *
 from utils.queries_compras import *
 from datetime import date, datetime, timedelta
+from utils.functions.suprimentos_relatorio_insumos import *
 
 st.set_page_config(
 	page_icon="📦",
@@ -31,8 +32,17 @@ def main():
 			logout()
 	st.divider()
 	
+	inputs_expenses_base = inputs_expenses()
+
 	# Seletores
-	periodo = input_periodo_datas(key='data_inicio')
+	col1, col2 = st.columns(2)
+	# Periodo
+	with col1:
+		periodo = input_periodo_datas(key='data_inicio')
+	
+	if not periodo or len(periodo) < 2 or not periodo[0] or not periodo[1]:
+		st.warning("Selecione um período válido antes de continuar.")
+		st.stop()
 	data_inicio = periodo[0]
 	data_fim = periodo[1]
 	
@@ -40,21 +50,22 @@ def main():
 	if data_inicio > data_fim:
 		st.warning('📅 Data Inicio deve ser menor que Data Final')
 	else:
-		inputsExpenses = inputs_expenses(data_inicio, data_fim)
-		
-		# Filtro de Casas
-		row_companies = st.columns([1, 1, 1])
-		with row_companies[1]:
+		inputsExpenses = inputs_expenses_base.copy()
+		inputsExpenses = inputsExpenses[inputsExpenses['Data Competencia'].between(data_inicio, data_fim)]
+		# Casas
+		with col2:
 			companies_filtered = st.multiselect(
 				'Selecione a(s) Casa(s):',
 				options=sorted(inputsExpenses['Casa'].dropna().unique()),
 				placeholder='Casas'
 			)
+		st.divider()
 		# Caso nenhum esteja selecionado mostra todos
 		if not companies_filtered:
 			companies_filtered = inputsExpenses['Casa'].dropna().unique()
 
 		inputsExpenses_filtered = inputsExpenses[inputsExpenses['Casa'].isin(companies_filtered)]
+		inputs_expenses_base_casa = inputs_expenses_base[inputs_expenses_base['Casa'].isin(companies_filtered)]
 
 		# Agrupa por Casa e Categoria
 		inputsExpenses_n2 = (
@@ -72,31 +83,34 @@ def main():
 		)
 		categoryN2_grafic['Percentual'] = (categoryN2_grafic['Valor Insumo'] / categoryN2_grafic['Valor Insumo'].sum() * 100).round(1)
 		categoryN2_grafic['Label'] = categoryN2_grafic.apply(lambda x: f"{x['Nivel 2']} ({x['Percentual']}%)", axis=1)
-
-		row = st.columns([2, 1, 2])
-		with row[1]:
-			if st.session_state.get("base_theme") == "dark":
-				color_back = "#222"
-				color_font = "#ffffff"
-			else:
-				color_back = "#ffffff"
-				color_font = "#000000"
-			st.write(f"""
-				<div style='background: {color_back};border-radius: 20px;border: 1px solid #8B0000;
-				padding: 15px 0;margin: 8px 0;text-align: center;font-family: "Segoe UI", "Arial", sans-serif;'>
-				<div style='font-size: 13px; color: #D14D4D; font-weight: 500;'>💰 Valor Total dos Insumos</div>
-				<div style='font-size: 18px; color: {color_font}; font-weight: bold; margin-top: 2px;'>{input_total_value}</div>
-				</div>
-			""", unsafe_allow_html=True)
-
-		col1, col2 = st.columns([1, 0.8])
-		with col1:
-			st.markdown('### Insumos por Casa e Categoria')
-			dataframe_aggrid(inputsExpenses_n2, 'Insumos por Casa e Categoria')
+			
+		col2, col3 = st.columns([2, 3], vertical_alignment='top')
 		with col2:
-			st.markdown('### Gastos por Categoria')
-			component_plotPizzaChart(categoryN2_grafic['Label'], categoryN2_grafic['Valor Insumo'], 'Gastos por Categoria', 19)
+			with st.container(border=True, height=578):
+				col21, col22, col23 = st.columns([1, 5, 1])
+				with col22:
+					st.markdown('#### Compra de Insumos - Categoria')
+				dataframe_aggrid(inputsExpenses_n2, 'Insumos por Casa e Categoria', height=500)
+		with col3:
+			kpi_card_cmv_teorico('💰 Valor Total dos Insumos', input_total_value, background_color="#FFFFFF", title_color="#333", value_color="#000")
+			st.write('')
+			with st.container(border=True):
+				col31, col32, col33 = st.columns([1, 5, 1])
+				with col32:
+					st.markdown(f'#### Gastos por Categoria - {data_inicio} a {data_fim}')
+				component_plotPizzaChart(categoryN2_grafic['Label'], categoryN2_grafic['Valor Insumo'], 'Gastos por Categoria', 19)
+		
 
+		inputs_expenses_base_casa = (
+			inputs_expenses_base_casa.groupby(['Casa', 'Nivel 2', 'Mês', 'Ano'])[['Valor Insumo']]
+			.sum().reset_index().sort_values(by=['Casa', 'Ano', 'Mês'], ascending=[True, True, True])
+		)
+		ano_filtro_grafico = data_inicio.year
+		inputs_expenses_base_casa_ano = inputs_expenses_base_casa[inputs_expenses_base_casa['Ano'] == ano_filtro_grafico]
+		
+		
+		with st.container(border=True):
+			grafico_valor_insumos_temporal(inputs_expenses_base_casa_ano, ano_filtro_grafico)
 		st.markdown('---')
 
 		# Filtro por categoria N2
@@ -178,10 +192,11 @@ def main():
 		categoryN2_inputs = categoryN2_inputs.sort_values(by='Valor Insumo', ascending=False)
 
 		# Calcula preço médio mês anterior
-		last_day_last_month = datetime.today().replace(day=1) - pd.Timedelta(days=1)
+		last_day_last_month = (datetime.today().replace(day=1) - pd.Timedelta(days=1)).date()
 		first_day_last_month = last_day_last_month.replace(day=1)
 
-		categoryN2_inputs_last_month = inputs_expenses(first_day_last_month.strftime('%Y-%m-%d'), last_day_last_month.strftime('%Y-%m-%d'))
+		inputsExpenses2 = inputs_expenses_base.copy()
+		categoryN2_inputs_last_month = inputsExpenses2[inputsExpenses2['Data Competencia'].between(first_day_last_month, last_day_last_month)]
 		categoryN2_inputs_last_month = (
 			categoryN2_inputs_last_month.groupby('Insumo')[['Valor Insumo', 'Quantidade Insumo']]
 			.sum().reset_index()
