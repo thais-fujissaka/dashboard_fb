@@ -91,7 +91,7 @@ def main():
 
 		col1, col2 = st.columns([1, 0.8])
 		with col1:
-			st.markdown('### Insumos por Casa e Categoria')
+			st.markdown('### Compra de Insumos - Categoria')
 			dataframe_aggrid(inputsExpenses_n2, 'Insumos por Casa e Categoria')
 		with col2:
 			st.markdown('### Gastos por Categoria')
