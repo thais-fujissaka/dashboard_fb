@@ -284,6 +284,13 @@ def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):
         st.sidebar.page_link("pages/Conciliação - Fluxo_Realizado.py", label=":material/currency_exchange: Fluxo Realizado")
         st.sidebar.page_link("pages/Conciliação - Fluxo_Futuro.py", label=":material/event_upcoming: Fluxo Futuro")
 
+
+def mostrar_menu_permissoes_auditoria(permissoes):
+    if 'Dev Dash FB' in permissoes:
+        st.sidebar.markdown("## Auditoria")
+        st.sidebar.page_link("pages/Auditoria - Descontos.py", label="Descontos")
+        
+
 def config_sidebar():
 
     permissoes, user_name, email = config_permissoes_user()
@@ -296,6 +303,7 @@ def config_sidebar():
         mostrar_menu_permissoes_compras(permissoes)
         mostrar_menu_permissoes_produto(permissoes)
         mostrar_menu_permissoes_conciliacao(permissoes)
+        mostrar_menu_permissoes_auditoria(permissoes)
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 
