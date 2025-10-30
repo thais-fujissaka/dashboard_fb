@@ -4,7 +4,7 @@ from utils.functions.general_functions import dataframe_query, execute_query
 
 
 @st.cache_data
-def inputs_expenses(day,day2):
+def inputs_expenses():
   return dataframe_query(f'''
     SELECT 
       DRI.ID AS 'ID_zAssociac Despesa Item',
@@ -26,7 +26,9 @@ def inputs_expenses(day,day2):
       I1.DESCRICAO AS 'Nivel 1',
       ROUND(CAST(DRI.QUANTIDADE AS FLOAT), 3) AS 'Quantidade Insumo',
       tudm.UNIDADE_MEDIDA_NAME AS 'Unidade Medida',
-      ROUND(CAST(DRI.VALOR AS FLOAT), 2) AS 'Valor Insumo'
+      ROUND(CAST(DRI.VALOR AS FLOAT), 2) AS 'Valor Insumo',
+      MONTH(DR.COMPETENCIA) AS 'Mês',
+      YEAR(DR.COMPETENCIA) AS 'Ano'
     FROM T_DESPESA_RAPIDA_ITEM DRI 
         INNER JOIN T_INSUMOS_NIVEL_5 I5 ON (DRI.FK_INSUMO = I5.ID)
         INNER JOIN T_INSUMOS_NIVEL_4 I4 ON (I5.FK_INSUMOS_NIVEL_4 = I4.ID)
@@ -38,8 +40,7 @@ def inputs_expenses(day,day2):
         INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)
         INNER JOIN T_FORNECEDOR F ON (DR.FK_FORNECEDOR = F.ID)
         LEFT JOIN T_UNIDADES_DE_MEDIDAS tudm ON (I5.FK_UNIDADE_MEDIDA = tudm.ID)
-    WHERE STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') >= '{day}'
-      AND STR_TO_DATE(DR.COMPETENCIA, '%Y-%m-%d') <= '{day2}'
+    WHERE DR.COMPETENCIA >= '2024-01-01'
       AND DR.BIT_CANCELADA = 0
       AND I1.ID IN (100,101)
       AND E.FK_GRUPO_EMPRESA = 100

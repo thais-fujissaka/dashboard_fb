@@ -642,15 +642,15 @@ def component_plotPizzaChart(labels, sizes, name, max_columns=8):
             "formatter": "{b}: {c} ({d}%)"
         },
         "legend": {
-        "orient": "vertical",
-        "right": 55,
-        "top": "middle",
-        "type": "scroll",  # Adiciona rolagem se muitos itens
-        "height": 200,
-        "textStyle": {
-            "fontWeight": "normal",
-            "fontSize": 10,
-            "color": "#444"
+            "orient": "vertical",
+            "left": "65%",
+            "top": "middle",
+            "type": "scroll",  # Adiciona rolagem se muitos itens
+            "height": 200,
+            "textStyle": {
+                "fontWeight": "normal",
+                "fontSize": 10,
+                "color": "#444"
         }
     },
         "grid": {  
