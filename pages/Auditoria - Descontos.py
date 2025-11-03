@@ -37,18 +37,18 @@ config_sidebar()
 st.title("Descontos")
 
 # Seletor de casa
-casas = ['Abaru - Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Girondino', 'Girondino - CCBB']
+casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edifício Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Riviera']
 casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
 st.divider()
 
-if casa == 'Abaru - Priceless':
+if casa == 'Notiê - Priceless':
     regras_categoria = {
         'funcionario|funcionário|funcionaria|funcionária': "COLABORADOR (30%)",
         'gerência|gerencia|coord': 'CONSUMO GERENCIAL',
-        'mastercard': 'CONVÊNIO',
-        'taxa rolha| taxa de rolha': 'CORTESIA',
+        'master|mastecard|mastetcard': 'CONVÊNIO',
+        'taxa rolha|taxa de rolha': 'CORTESIA',
         'marketing': 'MARKETING',
-        'ajuste': 'OPERACIONAL',
+        # 'ajuste': 'OPERACIONAL',
         'surpreend|surreend': 'PROMOÇÃO'
     }
 
@@ -60,21 +60,22 @@ if casa == 'Arcos':
         "16": "CONSUMO GERENCIAL",
         "10": "CONTA ASSINADA",
         "19": "EVENTOS",
-        "12|mkt|marketing": "MARKETING",
+        "11|12": "MARKETING",
         "18": "MÚSICOS",
         "20": "PROMOÇÃO",
-        "14": "REUNIÃO - OPERAÇÕES"
+        'teste': 'TESTE',
+        '14': None
     }
 
 if casa == 'Bar Brahma - Centro':
     regras_categoria = {
-        "gerencial|gerente|garçonete|garconete|gerencia|coord|vitorino|tia luiza|tua luiza|técnico|tecnico|tec|almoço robson|almoço jéssica|chef|israel": "CONSUMO GERENCIAL",
+        "gerencial|gerente|garçonete|garconete|gerencia|coord|vitorino|tia luiza|tua luiza|técnico|tecnico|almoço robson|almoço jéssica|chef|israel": "CONSUMO GERENCIAL",
         "aoas": "CONTA ASSINADA", 
-        "evento": "EVENTO",
-        "market|marketing": "MARKETING",
-        "voucher|cantor|dj|banda|musico|músico|naninha|samba|criole": "MÚSICOS",
+        "evento": "EVENTOS",
+        "market|marketing|mkt": "MARKETING",
+        "voucher|vaucher|cantor|dj|banda|musico|músico|música|naninha|samba|criole|mágicos": "MÚSICOS",
         "troco|serviço|operac": "OPERACIONAL",
-        "policiais|polícia|pm|policia": "OUTROS",
+        "polícia|pm|policia": "OUTROS",
         "dois por um|2x1|2por1|2 por 1|2por 1|gourmet": "PROMOÇÃO",
         "reunião ti": "REUNIÃO - TI",
         "treinamento": "TREINAMENTO"
@@ -83,13 +84,14 @@ if casa == 'Bar Brahma - Centro':
 if casa == 'Bar Brahma - Granja':
     regras_categoria = {
         'funcionário|funcionario': 'COLABORADOR (30%)',
-        'refeição|coord|cordenador|maicon|dupla jornada': 'CONSUMO GERENCIAL',
-        'musico|dj|música|thais': 'MÚSICOS',
+        'refeição|coord|cordenador|maicon|técnico som|dupla jornada': 'CONSUMO GERENCIAL',
+        'musico|dj|música|thais|técnico de som': 'MÚSICOS',
         'logista|logísta|nilsem|nielsemm|nilsemm|nilsennm|lojista|lojistq|santander|cadastro|meta|flar': 'CONVÊNIO',
         'niver': 'CORTESIA',
-        'marketing': 'MARKETING',
-        'permuta': 'PERMUTA',
-        '2por 1|2 por 1|2x1|2,por 1': 'PROMOÇÃO',
+        # 'marketing': 'MARKETING',
+        'permuta|permura': 'PERMUTA',
+        '2por 1|2 por 1|2x1|2,por 1|voucher': 'PROMOÇÃO',
+        'teste': 'TESTE',
         'treinamento':  'TREINAMENTO'
     }
 
@@ -101,6 +103,22 @@ if casa == 'Bar Léo - Centro':
         'dois por um|2p1|gumer|gulmer|kumer|goume|cps': 'PROMOÇÃO'
     }
 
+if casa == 'Blue Note' or casa == 'BNSP':
+    regras_categoria = {
+        'consumo coordenação|consumo gerência|consumo gerencia|consumos gerencia|coordenacao|coordenação|coordenador|chef|consumo mkt|alimentação mkt|gerente|alimentação gerencia': 'CONSUMO GERENCIAL',
+        'socio|sócio': 'CONTA ASSINADA',
+        'porto|azul|membro|mix|safra|inter|itaú|itau|convênio|convenio|condômino|condomínio|fiserv|sul america|sul ameruca': 'CONVÊNIO',
+        'niver|cortesia|cheescake|torta belga':' CORTESIA',
+        'artístico|artistico|dj|banda|músico|musico': 'MÚSICOS',
+        'retirou serviço|correção': 'OPERACIONAL',
+        'coworking|coworkimg|permuta': 'PERMUTA',
+        'retorno almoço|voucher': 'PROMOÇÃO', 
+        'treinamento': 'TREINAMENTO',
+        'evento': 'EVENTOS',
+        'reunião eventos': 'REUNIÃO - EVENTOS',
+        'reunião t.i': 'REUNIÃO - TI'
+    }
+
 if casa == 'Girondino':
     regras_categoria = {
         'funcionário|funcionario|funcionário da casa|funcionario da casa|desconto funcionário|desconto funcionario|desconto funça|staff da casa|estaff': 'COLABORADOR (30%)',
@@ -110,16 +128,65 @@ if casa == 'Girondino':
         'serviço': 'OPERACIONAL'
     }
 
-# if casa == 'Girondino - CCBB': # PROBLEMA
-#     regras_categoria = {
-#         'colaborador|fb|volaboradpr': 'COLABORADOR (30%)',
-#         'colaborador fb- ccbb|colaborador fb - ccbb|colaborador fb-ccbb|consumo|socio': 'CONSUMO GERENCIAL',
-#         'ourocard|desconto colaborador': 'CONVÊNIO',
-#         'mkt': 'MARKETING'
-#     }
+if casa == 'Girondino - CCBB': 
+    regras_categoria = {
+        'ourocard|scolaboradorbb|colaboraforbb|bb|cbb|colaboraorbb|colaborado rbb|colabiradorbb': 'CONVÊNIO',
+        'colaboradorfb|colabrador fb|volaboradpr': 'COLABORADOR (30%)',
+        'colaborador fb- ccbb|colaborador fb - ccbb|colaborador fb-ccbb|consumo|socio': 'CONSUMO GERENCIAL',
+        'mkt': 'MARKETING'
+    }
+
+if casa == 'Jacaré':
+    regras_categoria = {
+        'suchef|subchef|gerente|coordenador|chef|sub': 'CONSUMO GERENCIAL',
+        'alvaro': 'CONTA ASSINADA',
+        'bto': 'CONVÊNIO',
+        'niver|anivesario': 'CORTESIA',
+        'consumo musico|integrantes': 'MÚSICOS',
+        "2 por 1|2 por1|2por 1|2 po 1|fidelidade|mastercard|mastecard|mastcard": 'PROMOÇÃO',
+    }
+
+if casa == 'Love Cabaret':
+    regras_categoria = {
+        '1|cod 1': 'MÚSICOS',
+        '2|cod 5': 'CONSUMO GERENCIAL',
+        'cod 4': 'CONTA ASSINADA',
+        'cod 8|cod 15': 'CONVÊNIO',
+        'cod 3|cod 10': 'CORTESIA',
+        'cod 11|cod 12': 'MARKETING',
+        'cod 9|cod 09': 'OPERACIONAL',
+        'cod 14': 'TESTE'
+    }
+
+if casa == 'Edifício Rolim':
+    regras_categoria = {
+        'funcionario|desconto fb|ator': 'COLABORADOR (30%)',
+        'niver': 'CORTESIA',
+        'mkt': 'MARKETING'
+    }
+
+if casa == 'Orfeu':
+    regras_categoria = {
+        'colaborador fb': 'COLABORADOR (30%)',
+        'coordenação|coordenacao|coordenador|gerente|gerência': 'CONSUMO GERENCIAL',
+        'niver|níver': 'CORTESIA',
+        'sem troco': 'OPERACIONAL',
+        'permuta': 'PERMUTA'
+    }
+
+if casa == 'Riviera':
+    regras_categoria = {
+        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma': 'COLABORADOR (30%)',
+        'consumo|alimentacao -|alimentação -|coordenacao|oordenacao|coordenação|coordenacai|chef|gerente|lideranca|liderança|luderanca|gerencia|coirdenaxao|coorfenacao|ciordenacao|coirfenacao|coordenaçao|consumação': 'CONSUMO GERENCIAL',
+        'morador|convênio|convenio': 'CONVÊNIO',
+        'niver|nuver|cortesia|anibersariante|anovetsatio|anivetsario|ani etsatio': 'CORTESIA',
+        'evento': 'EVENTOS',
+        'marketing|mkt': 'MARKETING',
+        'troco|troci|ajuste': 'OPERACIONAL'
+    }
 
 
-# Teste: dar upload na planilha de descontos
+# Dar upload na planilha de descontos da zig
 uploaded_file = st.file_uploader("Selecione um arquivo .xlsx do seu computador:", type="xlsx")
 
 if not uploaded_file:
@@ -131,11 +198,21 @@ else:
     df = pd.read_excel(uploaded_file, skiprows=3)
     st.divider()
     st.subheader('Tabela original')
-    st.dataframe(df)
+    st.dataframe(df, hide_index=True)
     st.divider()
 
     # Categorizando
     df_categorizado = df.copy()
+
+    # Problema das planilhas que vem com a justificativa na coluna de categoria (zig)
+    if casa == 'Girondino - CCBB' or casa == 'Blue Note' or casa == 'BNSP' or casa == 'Riviera':
+        mascara = (
+            df_categorizado['Justificativa'].isna() |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('h') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('g')
+        )
+
+        df_categorizado.loc[mascara, 'Justificativa'] = df_categorizado.loc[mascara, 'Categoria']
 
     # Garante que a coluna existe
     if "Categoria" not in df_categorizado.columns:
@@ -147,12 +224,12 @@ else:
 
     # Aplica as regras uma a uma
     for padrao, categoria in regras_categoria.items():
-        if 'banda' in padrao or 'criole' in padrao or 'musico' in padrao or 'músico' in padrao:
+        if 'banda' in padrao or 'criole' in padrao or 'musico' in padrao or 'músico' in padrao: # Bar Brahma - Centro
             condicao = (
                 df_categorizado["cliente_minusculo"].str.contains(padrao, na=False) |
                 df_categorizado["justificativa_minusculo"].str.contains(padrao, na=False) 
             )
-        elif 'aoas' in padrao:
+        elif 'aoas' in padrao: # Bar Brahma - Centro
             condicao = df_categorizado["cliente_minusculo"].str.contains(padrao, na=False)
         
         else:
@@ -164,15 +241,12 @@ else:
     df_categorizado.drop(columns=["justificativa_minusculo", "cliente_minusculo"], inplace=True)
 
     # Mostra o resultado
-    st.divider()
     col1, col2 = st.columns([4, 1])
     with col1:
         st.subheader('Descontos categorizados') 
     with col2:
         button_download(df_categorizado, f"Descontos - {casa}", f"Descontos - {casa}")
 
-    # if casa == 'Bar Brahma - Centro':
-    #     st.warning('As categorias COLABORADOR (30%) e CORTESIA não foram mapeadas.')
-    st.info('Atenção para as células com categoria vazia.')
-    st.dataframe(df_categorizado)
+    st.info('Atenção para as células com categoria vazia, caso haja.')
+    st.dataframe(df_categorizado, hide_index=True)
     
