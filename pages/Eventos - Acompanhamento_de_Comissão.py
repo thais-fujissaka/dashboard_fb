@@ -168,6 +168,7 @@ def main():
                 if id_casa != -1:
                     df_recebimentos = df_recebimentos[df_recebimentos['ID Casa'] == id_casa]
                     df_orcamentos = df_orcamentos[df_orcamentos['ID Casa'] == id_casa]
+                    lista_vendedores_logado = df_acessos_comissoes[df_acessos_comissoes['ID Casa'] == id_casa]['ID - Responsavel'].tolist()
             with col1:
                 ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_comissao")
             with col2:
