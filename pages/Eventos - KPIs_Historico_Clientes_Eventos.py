@@ -103,7 +103,7 @@ def main():
         with col1:
             st.markdown("## Recorrência de Clientes")
         with col2:
-            periodo = input_periodo_datas(key='data_inicio')
+            periodo = input_periodo_datas(key='data_inicio', label='Período de Competência do Evento')
         st.divider()  
         
         if periodo and len(periodo) == 2:
@@ -129,9 +129,10 @@ def main():
                 'Valor Total Evento': 'Valor Total Eventos',
                 'Data Evento': 'Data Último Evento',
             })
+            
+            df_numero_clientes_periodo = df_numero_clientes_periodo.sort_values(by='N° Eventos', ascending=False).reset_index(drop=True)
             df_numero_clientes_periodo_formatado = df_format_date_columns_brazilian(df_numero_clientes_periodo, ['Data Último Evento'])
             df_numero_clientes_periodo_formatado = format_columns_brazilian(df_numero_clientes_periodo_formatado, ['Valor Total Eventos'])
-            df_numero_clientes_periodo = df_numero_clientes_periodo.sort_values(by='N° Eventos', ascending=True).reset_index(drop=True)
 
             with st.container(border=True):
                 col1, col2, col3 = st.columns([0.1, 3, 0.1], gap="large", vertical_alignment="top")
@@ -143,13 +144,13 @@ def main():
             with st.container(border=True):
                 col1, col2, col3 = st.columns([0.1, 3, 0.1], gap="large", vertical_alignment="top")
                 with col2:
-                    st.markdown("### Número de Eventos por Cliente")
+                    st.markdown("### Top 10 Clientes em Nº de Eventos")
                     grafico_ranking_clientes_por_num_eventos(df_numero_clientes_periodo, key=f'ranking_clientes_num_{casa}')
 
             with st.container(border=True):
                 col1, col2, col3 = st.columns([0.1, 3, 0.1], gap="large", vertical_alignment="top")
                 with col2:
-                    st.markdown("### Valor de Eventos por Cliente")
+                    st.markdown("### Top 10 Clientes em Valor de Eventos")
                     df_numero_clientes_periodo = df_numero_clientes_periodo.sort_values(by='Valor Total Eventos', ascending=True).reset_index(drop=True)
                     grafico_ranking_clientes_por_valor_eventos(df_numero_clientes_periodo, key=f'ranking_clientes_valor_{casa}')
 
