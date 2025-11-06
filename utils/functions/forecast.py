@@ -254,7 +254,7 @@ def exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_
             df=df_parc_receitas_extr_futuras,
             name=f"Projeção - Faturamento Outras Receitas",
             num_columns=['Valor Bruto (R$)', 'Desconto (R$)', 'Valor Liquido (R$)'],     
-            date_columns=['Data_Evento'],
+            date_columns=['Data Evento'],
             fit_columns=ColumnsAutoSizeMode.FIT_ALL_COLUMNS_TO_VIEW,
             fit_columns_on_grid_load=True,   
         )
