@@ -213,8 +213,7 @@ def GET_ORCAMENTOS():
     JOIN
         T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg ON to2.FK_CLASSIFICACAO_2 = tccg.ID
     WHERE
-        to2.FK_CLASSIFICACAO_1 IN (178, 245)
-        -- tccg.DESCRICAO NOT IN ('SERVICO', 'Serviço', 'Eventos Rebate Fornecedores')                             
+        to2.FK_CLASSIFICACAO_1 IN (178, 245)                           
     ORDER BY
         ID_Casa,
         MES,
@@ -278,7 +277,7 @@ def GET_ORCAMENTOS():
 #     return df_faturamento_agregado_mensal
 
 
-# Para eventos e receitas extraordinárias mensais
+# Para obter faturamentos mensais (zig, eventos e receitas extraordinárias)
 @st.cache_data
 def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
     df_faturamento_categoria_mensal = df_faturamento_categoria.copy() # Utiliza o mesmo df que já foi carregado na outra tab
@@ -372,4 +371,34 @@ def GET_EVENTOS_CMV(data_inicio, data_fim):
         FROM T_EVENTOS_CMV tec 
         LEFT JOIN T_EMPRESAS te ON tec.FK_EMPRESA = te.ID 
         WHERE tec.DATA BETWEEN '{data_inicio}' AND '{data_fim}'
+    ''')
+
+
+######################################## Custos Artístico Geral ########################################
+@st.cache_data
+def GET_CUSTOS_CLASS_CONT_GERAL():
+    return dataframe_query(f'''
+        SELECT 
+        te.NOME_FANTASIA AS Casa,
+        STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d') AS Data_Competencia,
+        STR_TO_DATE(tdr.VENCIMENTO, '%Y-%m-%d') AS Data_Vencimento,
+        tdr.OBSERVACAO AS Descricao,
+        tdr.VALOR_LIQUIDO AS Valor_Liquido,
+        tccg2.DESCRICAO AS Classificacao_Contabil_2,
+        tccg1.DESCRICAO AS Classificacao_Contabil_1
+    --     CASE 
+    --       WHEN tdr.FK_Status = 'Provisionado' THEN 'Provisionado'
+    --       ELSE 'Real'
+    --     END AS Status
+    FROM T_DESPESA_RAPIDA tdr
+    LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+    LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON tdr.FK_CLASSIFICACAO_CONTABIL_GRUPO_2 = tccg2.ID
+    LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg1 ON tccg2.FK_GRUPO_1 = tccg1.ID
+    WHERE tccg1.FK_VERSAO_PLANO_CONTABIL = 103 
+        AND tdr.BIT_CANCELADA = 0
+        AND YEAR(tdr.COMPETENCIA) > 2024
+        AND NOT EXISTS (
+        SELECT 1
+        FROM T_DESPESA_RAPIDA_ITEM tdri
+        WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID)
     ''')
