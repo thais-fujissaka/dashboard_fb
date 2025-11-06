@@ -168,6 +168,7 @@ def main():
                 if id_casa != -1:
                     df_recebimentos = df_recebimentos[df_recebimentos['ID Casa'] == id_casa]
                     df_orcamentos = df_orcamentos[df_orcamentos['ID Casa'] == id_casa]
+                    lista_vendedores_logado = df_acessos_comissoes[df_acessos_comissoes['ID Casa'] == id_casa]['ID - Responsavel'].tolist()
             with col1:
                 ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_comissao")
             with col2:
@@ -240,7 +241,7 @@ def main():
                 altura_linha = 35
                 altura_expander = 86
                 
-                for vendedor in lista_vendedores_logado:
+                for vendedor in list(set(lista_vendedores_logado)):
                     df_vendedor = df_comissoes_por_meta[df_comissoes_por_meta['ID - Responsavel'] == vendedor].copy()
                     cargo_vendedor = vendedores_cargos[vendedores_cargos['ID - Responsavel'] == vendedor]['Cargo'].values[0]
                     ids_casas_vendedor = df_acessos_comissoes[df_acessos_comissoes['ID - Responsavel'] == vendedor]['ID Casa'].unique().tolist()

@@ -4,6 +4,10 @@ from utils.functions.general_functions import *
 
 
 def grafico_ranking_clientes_por_num_eventos(df, key):
+    df = df.sort_values('N° Eventos', ascending=True)
+    # Limita aos top 10 clientes
+    df = df.tail(10)
+
     clientes_data = df['Cliente'].to_list()
     num_eventos_data = df['N° Eventos'].to_list()
     option = {
@@ -29,6 +33,9 @@ def grafico_ranking_clientes_por_num_eventos(df, key):
     st_echarts(options=option, height="500px", key=f'{key}')
 
 def grafico_ranking_clientes_por_valor_eventos(df, key):
+    df = df.sort_values('Valor Total Eventos', ascending=True)
+    # Limita aos top 10 clientes
+    df = df.tail(10)
     # Cria series de dados para o gráfico
     clientes = df['Cliente'].to_list()
     valores = df['Valor Total Eventos'].astype(float).to_list()
