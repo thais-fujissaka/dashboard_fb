@@ -21,8 +21,8 @@ RGB.__set__ = __rgb_set_fixed__
 
 
 st.set_page_config(
-    page_title="Forecast",
-    page_icon=":material/event_upcoming:",
+    page_title="Categorização de descontos",
+    page_icon=":material/list:",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -34,7 +34,8 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title("Descontos")
+st.title(":material/list: Categorização - Descontos")
+st.divider()
 
 # Seletor de casa
 casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edifício Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Riviera']

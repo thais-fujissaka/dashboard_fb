@@ -288,7 +288,7 @@ def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):
 def mostrar_menu_permissoes_auditoria(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Auditoria")
-        st.sidebar.page_link("pages/Auditoria - Descontos.py", label="Descontos")
+        st.sidebar.page_link("pages/Auditoria - Descontos.py", label=":material/list: Categorização - Descontos")
         
 
 def config_sidebar():
