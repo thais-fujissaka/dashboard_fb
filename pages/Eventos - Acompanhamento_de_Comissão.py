@@ -368,6 +368,8 @@ def main():
             with col4:
                 if id_casa == 110:
                     total_vendido = total_liquido
+                else:
+                    total_vendido = total_recebido_mes
                 kpi_card("Total Vendido/Recebido no Mês", f"R$ {format_brazilian(total_vendido)}", "rgb(30, 58, 138)", "white", "white")
             with col5:
                 kpi_card("Comissão", f"R$ {format_brazilian(comissao)}", "rgb(30, 58, 138)", "white", "white")
