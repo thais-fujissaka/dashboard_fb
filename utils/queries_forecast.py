@@ -383,13 +383,9 @@ def GET_CUSTOS_CLASS_CONT_GERAL():
         STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d') AS Data_Competencia,
         STR_TO_DATE(tdr.VENCIMENTO, '%Y-%m-%d') AS Data_Vencimento,
         tdr.OBSERVACAO AS Descricao,
-        tdr.VALOR_LIQUIDO AS Valor_Liquido,
+        tdr.VALOR_PAGAMENTO AS Valor_Pagamento,
         tccg2.DESCRICAO AS Classificacao_Contabil_2,
         tccg1.DESCRICAO AS Classificacao_Contabil_1
-    --     CASE 
-    --       WHEN tdr.FK_Status = 'Provisionado' THEN 'Provisionado'
-    --       ELSE 'Real'
-    --     END AS Status
     FROM T_DESPESA_RAPIDA tdr
     LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
     LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON tdr.FK_CLASSIFICACAO_CONTABIL_GRUPO_2 = tccg2.ID

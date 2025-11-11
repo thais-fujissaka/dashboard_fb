@@ -53,8 +53,7 @@ mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
 # Obtendo o ID da casa selecionada
 id_casa = mapeamento_casas[casa]
 
-tab1, tab2, tab3 = st.tabs(['Projeções - Mês corrente', 'Projeções - Próximos meses', 'Custos Artístico Geral'])
-
+tab1, tab2, tab3 = st.tabs(['Projeção Faturamento - Mês corrente', 'Projeção Faturamento - Próximos meses', 'Projeção - Despesas'])
 
 ###################### PROJEÇÃO DE FATURAMENTO - MÊS CORRENTE ###################### 
 with tab1:
@@ -130,8 +129,23 @@ with tab2:
         exibe_categoria_faturamento_prox_meses('Outras Receitas', df_faturamento_meses_futuros, datas['ano_atual'], datas['mes_atual'])
 
     st.divider()
+   
+    # Container que exibe faturamento e CMV real e projetado dos meses anteriores 
+    with st.container(border=True):
+        exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, datas['ano_atual'], datas['mes_atual'])
 
-    # Projeção de CMV 
+###################### CUSTOS - PRÓXIMOS MESES ###################### 
+with tab3:
+    df_custos_gerais = GET_CUSTOS_CLASS_CONT_GERAL()
+    df_teste = df_custos_gerais[(df_custos_gerais['Casa'] == casa) & (df_custos_gerais['Classificacao_Contabil_1'] == 'Deduções sobre Venda')]
+    # st.write(df_custos_gerais)
+
+    st.markdown(f'''
+        <h3>Projeções - {casa} - Próximos meses</h3>
+        ''', unsafe_allow_html=True)
+    st.divider()
+
+    # CMV 
     df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery = config_faturamento_bruto_zig(df_faturamento_agregado_dia, datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
     df_faturamento_eventos = config_faturamento_eventos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
     df_compras, compras_alimentos, compras_bebidas = config_compras(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
@@ -150,63 +164,91 @@ with tab2:
     )
     
     df_cmv_meses_anteriores_seguintes = calcula_cmv_proximos_meses(df_faturamento_meses_futuros, df_calculo_cmv, datas['ano_atual'], datas['mes_atual'])
-    
-    # Prepara para exibir CMV prox meses
-    with st.container(border=True):
-        st.markdown(f'''
-            <h3>CMV</h3>
-            <p><strong>Premissa:</strong> Média do % da despesa em relação ao Faturamento Real (A&B) dos últimos 2 meses x o valor estimado de Faturamento para o mês.</p>
-        ''', unsafe_allow_html=True)
-        
-        # st.latex(r'''
-        #     \\[0.5cm]
-        #     \text{CMV Percentual Projetado} = \frac{CMV_1 + CMV_2}{Faturamento\ A\&B_1 + Faturamento\ A\&B_2}
-        #     \\[0.5cm]
-        #     \text{CMV Projetado} = \text{Faturamento Projetado} \times \text{CMV Percentual Projetado}
-        #     \\[0.5cm]
-        # ''')
 
-        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'])
+    # Custos Artístico Geral
+    df_custos_artistico_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa, 'Custos Artístico Geral')
+    df_projecao_custos_artistico_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_artistico_faturamentos_mensais_passados, 'Custos Artístico Geral', datas['ano_atual'], datas['mes_atual'])
+    # st.write(df_projecao_custos_artistico_meses_anteriores_seguintes)
 
-    st.divider()
-   
-    # Container que exibe faturamento e CMV real e projetado dos meses anteriores 
-    with st.container(border=True):
-        exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, datas['ano_atual'], datas['mes_atual'])
+    # Custos Eventos
+    df_custos_eventos_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa, 'Custos de Eventos')
+    df_projecao_custos_eventos_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_eventos_faturamentos_mensais_passados, 'Custos Eventos', datas['ano_atual'], datas['mes_atual'])
+    # st.write(df_projecao_custos_eventos_meses_anteriores_seguintes)
 
-        # Prepara para exibir CMV dos meses anteriores para comparação
-        st.markdown(f'''
-                <h5>Comparação CMV: CMV Projetado e CMV Real</h5>
-            ''', unsafe_allow_html=True)
-        
-        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses anteriores', datas['mes_atual'])
+    # Deduções sobre Venda
+    df_deducoes_venda_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa, 'Deduções sobre Venda')
+    df_projecao_deducoes_venda_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_deducoes_venda_faturamentos_mensais_passados, 'Deduções sobre Venda', datas['ano_atual'], datas['mes_atual'])
+    # st.write(df_projecao_deducoes_venda_meses_anteriores_seguintes)
 
+    # PJ
+    df_custos_pj_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - PJ')
+    df_projecao_custos_pj_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_pj_faturamentos_mensais_passados, 'PJ', datas['ano_atual'], datas['mes_atual'])
+    # st.write(df_projecao_custos_pj_meses_anteriores_seguintes)
 
-###################### CUSTOS ARTÍSTICO GERAL - PRÓXIMOS MESES ###################### 
-with tab3:
-    df_custos_gerais = GET_CUSTOS_CLASS_CONT_GERAL()
-    
-    df_custos_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa)
-    
-    df_projecao_custos_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_faturamentos_mensais_passados, datas['ano_atual'], datas['mes_atual'])
-    # st.write(df_projecao_custos_meses_anteriores_seguintes)
+    # Salários
+    df_custos_salarios_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - Salários')
+    df_projecao_custos_salarios_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_salarios_faturamentos_mensais_passados, 'Salários', datas['ano_atual'], datas['mes_atual'])
+    # st.write(df_projecao_custos_salarios_meses_anteriores_seguintes)
 
-    st.markdown(f'''
-        <h3>Projeções - {casa} - Próximos meses</h3>
-        <h4>Custos Artístico Geral</h4>
-        ''', unsafe_allow_html=True)
-    st.divider()
+    # E-Staff
+    df_custos_estaff_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - Extra')
+    df_projecao_custos_estaff_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_estaff_faturamentos_mensais_passados, 'Mão de Obra - Extra', datas['ano_atual'], datas['mes_atual'])
+    # st.write(df_projecao_custos_estaff_meses_anteriores_seguintes)
 
     # Prepara para exibir projeção de custos dos prox meses
-    exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_meses_anteriores_seguintes, 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
-    
-    st.divider()
-    
-    st.markdown(f'''
-            <h4>Meses anteriores</h4>
-            <h5>Comparação: Custos Projetados e Custos Reais</h5>
+    with st.container(border=True):
+        st.markdown(f'''
+            <h4>Despesas por categoria</h4>
+            <p><strong>Premissa:</strong> Média do % da despesa em relação ao Faturamento Real (A&B) dos últimos 2 meses x o valor estimado de Faturamento para o mês.</p>
         ''', unsafe_allow_html=True)
-    
+            
+        # CMV
+        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'])
+        
+        # Custos Artístico Geral
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_artistico_meses_anteriores_seguintes, 'Custos Artístico Geral', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
+
+        # Custos Eventos
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_eventos_meses_anteriores_seguintes, 'Custos de Eventos', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
+
+        # Deduções sobre Venda
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_deducoes_venda_meses_anteriores_seguintes, 'Deduções sobre Venda', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
+
+        # PJ
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_pj_meses_anteriores_seguintes, 'Mão de Obra - PJ', 'meses seguintes', datas['ano_atual'], datas['mes_atual'], pj_salarios=True)
+
+        # Salários
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_salarios_meses_anteriores_seguintes, 'Mão de Obra - Salários', 'meses seguintes', datas['ano_atual'], datas['mes_atual'], pj_salarios=True)
+        
+        # E-Staff
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_estaff_meses_anteriores_seguintes, 'E-Staff', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
+
+    st.divider()
+
     # Prepara para exibir a projeção de custos dos meses anteriores - comparação
-    exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_meses_anteriores_seguintes, 'meses anteriores', datas['ano_atual'], datas['mes_atual'])
+    with st.container(border=True):
+        st.markdown(f'''
+                <h4>Meses anteriores - Comparação: Custos Projetados e Custos Reais</h4>
+            ''', unsafe_allow_html=True)
+        
+        # CMV
+        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses anteriores', datas['mes_atual'])
+        
+        # Custos Artístico Geral
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_artistico_meses_anteriores_seguintes, 'Custos Artístico Geral', 'meses anteriores', datas['ano_atual'], datas['mes_atual'])
+
+        # Custos Eventos
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_eventos_meses_anteriores_seguintes, 'Custos de Eventos', 'meses anteriores', datas['ano_atual'], datas['mes_atual'])
+
+        # Deduções sobre Venda
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_deducoes_venda_meses_anteriores_seguintes, 'Deduções sobre Venda', 'meses anteriores', datas['ano_atual'], datas['mes_atual'])
+
+        # PJ
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_pj_meses_anteriores_seguintes, 'Mão de Obra - PJ', 'meses anteriores', datas['ano_atual'], datas['mes_atual'], pj_salarios=True)
+
+        # Salários
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_salarios_meses_anteriores_seguintes, 'Mão de Obra - Salários', 'meses anteriores', datas['ano_atual'], datas['mes_atual'], pj_salarios=True)
+
+        # E-Staff
+        exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_estaff_meses_anteriores_seguintes, 'E-Staff', 'meses anteriores', datas['ano_atual'], datas['mes_atual'])
 
