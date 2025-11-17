@@ -10,7 +10,7 @@ from utils.functions.farol_conciliacao import *
 from utils.queries_conciliacao import *
 
 
-casas_validas = [c for c in casas_validas if c != "All bar"]
+# casas_validas = [c for c in casas_validas if c != "All bar"]
 nomes_meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 st.set_page_config(

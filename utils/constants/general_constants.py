@@ -1,5 +1,5 @@
-casas_validas = ['All bar', 
-                 'Arcos', 
+# Todas as casas de df_casas menos 'All bar'
+casas_validas = ['Arcos', 
                  'Bar Brahma - Centro', 
                  'Bar Brahma - Granja', 
                  'Bar Brahma Paulista', 

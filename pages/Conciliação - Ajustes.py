@@ -8,7 +8,7 @@ from utils.queries_conciliacao import *
 import datetime
 
 
-casas_validas = [c for c in casas_validas if c != "All bar"]
+# casas_validas = [c for c in casas_validas if c != "All bar"]
 
 st.set_page_config(
   page_title="Conciliação FB - Ajustes",
