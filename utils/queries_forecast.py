@@ -5,7 +5,7 @@ from utils.constants.general_constants import casas_validas
 
 
 # Garante que as casas estão corretamente formatadas no SQL
-casas_validas = [c for c in casas_validas if c != 'All bar']
+# casas_validas = [c for c in casas_validas if c != 'All bar']
 casas_str = "', '".join(casas_validas)  # vira: "Bar Brahma - Centro', 'Orfeu"
 casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
 
@@ -84,8 +84,8 @@ def GET_FATURAMENTO_EVENTOS():
         tep.VALOR_LOCACAO_UTENSILIOS AS VALOR_LOCACAO_UTENSILIOS,   
         tep.VALOR_LOCACAO_ESPACO AS VALOR_LOCACAO_ESPACO,
         tep.VALOR_CONTRATACAO_ARTISTICO AS Couvert                                                                                                                                                                                                                            
-    FROM T_EVENTOS_PRICELESS AS tep
-    LEFT JOIN T_EMPRESAS AS te ON (tep.FK_EMPRESA = te.ID)  
+    FROM T_EVENTOS_PRICELESS tep
+    LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)  
     ORDER BY tep.DATA_EVENTO                                                                           
     '''
     )
@@ -222,62 +222,7 @@ def GET_ORCAMENTOS():
     return df_orcamentos
 
 
-# @st.cache_data
-# def GET_FATURAMENTO_AGREGADO_MES():
-#     df_faturamento_agregado_mensal = dataframe_query(f'''
-#         WITH empresas_normalizadas AS (
-#             SELECT
-#             ID             AS original_id,
-#             CASE 
-#                 WHEN ID IN (161, 162) THEN 149 
-#                 ELSE ID 
-#             END            AS id_casa_normalizada
-#             FROM T_EMPRESAS
-#         )
-#         SELECT
-#             en.id_casa_normalizada     AS ID_Casa,
-#             te2.NOME_FANTASIA          AS Casa,
-#             CASE 
-#                 WHEN en.id_casa_normalizada IN (103, 112, 118, 139, 169) THEN 'Delivery'
-#                 ELSE tivc.DESCRICAO 
-#             END AS Categoria,                                  
-#             -- tivc.DESCRICAO             AS Categoria,
-#             tfa.ANO                    AS Ano,
-#             tfa.MES                    AS Mes,
-#             tfa.VALOR_BRUTO            AS Valor_Bruto,
-#             tfa.DESCONTO               AS Desconto,
-#             tfa.VALOR_LIQUIDO          AS Valor_Liquido
-#         FROM T_FATURAMENTO_AGREGADO tfa
-#         -- primeiro, linka ao CTE para saber a casa “normalizada”
-#         LEFT JOIN empresas_normalizadas en
-#             ON tfa.FK_EMPRESA = en.original_id
-#         -- depois, puxa o nome da casa já normalizada
-#         LEFT JOIN T_EMPRESAS te2
-#             ON en.id_casa_normalizada = te2.ID
-#         LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc
-#             ON tfa.FK_CATEGORIA = tivc.ID  
-#         WHERE 
-#             te2.NOME_FANTASIA IN ({casas_str}) OR 
-#             te2.NOME_FANTASIA LIKE '%Delivery%'
-#     ''')
-
-#     # Mapeamento do Delivery
-#     mapeamento = {
-#     'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
-#     'Delivery Orfeu': ('Orfeu', 104),
-#     'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
-#     'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
-#     'Delivery Jacaré': ('Jacaré', 105)
-#     }
-
-#     for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
-#         mask = df_faturamento_agregado_mensal['Casa'] == nome_antigo
-#         df_faturamento_agregado_mensal.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
-
-#     return df_faturamento_agregado_mensal
-
-
-# Para obter faturamentos mensais (zig, eventos e receitas extraordinárias)
+# Para obter faturamentos mensais 
 @st.cache_data
 def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
     df_faturamento_categoria_mensal = df_faturamento_categoria.copy() # Utiliza o mesmo df que já foi carregado na outra tab
@@ -295,12 +240,12 @@ def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
 
 
 @st.cache_data
-def GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_agregado_dia, df_faturamento_eventos, df_parc_receit_extr_dia):
+def GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_agregado_dia):
     df_faturamento_agregado_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_agregado_dia)
-    df_faturamento_eventos_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_eventos)
-    df_faturamento_receit_extr_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_parc_receit_extr_dia)
-    df_todos_faturamentos_mensal = pd.concat([df_faturamento_agregado_mensal, df_faturamento_eventos_mensal, df_faturamento_receit_extr_mensal])
-    return df_faturamento_agregado_mensal, df_todos_faturamentos_mensal
+    # df_faturamento_eventos_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_eventos)
+    # df_faturamento_receit_extr_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_parc_receit_extr_dia)
+    # df_todos_faturamentos_mensal = pd.concat([df_faturamento_agregado_mensal, df_faturamento_receit_extr_mensal])
+    return df_faturamento_agregado_mensal
 
 
 ######################################## CMV ########################################
@@ -374,9 +319,9 @@ def GET_EVENTOS_CMV(data_inicio, data_fim):
     ''')
 
 
-######################################## Custos Artístico Geral ########################################
+######################################## Despesas ########################################
 @st.cache_data
-def GET_CUSTOS_CLASS_CONT_GERAL():
+def GET_DESPESAS_RAPIDAS():
     return dataframe_query(f'''
         SELECT 
         te.NOME_FANTASIA AS Casa,
@@ -384,6 +329,7 @@ def GET_CUSTOS_CLASS_CONT_GERAL():
         STR_TO_DATE(tdr.VENCIMENTO, '%Y-%m-%d') AS Data_Vencimento,
         tdr.OBSERVACAO AS Descricao,
         tdr.VALOR_PAGAMENTO AS Valor_Pagamento,
+        tdr.VALOR_LIQUIDO AS Valor_Liquido,
         tccg2.DESCRICAO AS Classificacao_Contabil_2,
         tccg1.DESCRICAO AS Classificacao_Contabil_1
     FROM T_DESPESA_RAPIDA tdr
@@ -397,4 +343,32 @@ def GET_CUSTOS_CLASS_CONT_GERAL():
         SELECT 1
         FROM T_DESPESA_RAPIDA_ITEM tdri
         WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID)
+    ''')
+
+
+@st.cache_data
+def GET_AUT_BLUE_ME_COM_PEDIDO():
+    return dataframe_query(f'''
+        SELECT
+    --     vbmcp.tdr_ID AS tdr_ID,
+    --     vbmcp.ID_Loja AS ID_Loja,
+        vbmcp.Loja AS Casa,
+        vbmcp.Fornecedor AS Fornecedor,
+    --     vbmcp.Doc_Serie AS Doc_Serie,
+        STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d') AS Data_Emissao,
+    --     STR_TO_DATE(vbmcp.Data_Vencimento, '%Y-%m-%d') AS Data_Vencimento,
+        vbmcp.Valor_Liquido AS Valor_Liquido,
+        vbmcp.Valor_Insumos AS Valor_Cotacao,
+        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Alimentos / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
+        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Bebidas / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Bebidas,
+        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Descartaveis_Higiene_Limpeza / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
+        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Gelo_Gas_Carvao_Velas / virapc.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
+        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Utensilios / virapc.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
+        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Outros / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
+    --     DATE_FORMAT(STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d'), '%m/%Y') AS Mes_Texto
+    FROM View_BlueMe_Com_Pedido vbmcp
+    LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON vbmcp.tdr_ID = virapc.tdr_ID
+    WHERE YEAR(Data_Emissao) > 2024
+    --   WHERE vbmcp.ID_Loja = 114
+    --   ORDER BY tdr_ID DESC
     ''')
