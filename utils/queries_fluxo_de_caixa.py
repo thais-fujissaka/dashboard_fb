@@ -1,7 +1,6 @@
 import streamlit as st
 from utils.functions.general_functions import dataframe_query
 
-
 #################################### FLUXO DE CAIXA ########################################
 
 @st.cache_data

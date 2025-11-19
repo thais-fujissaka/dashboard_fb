@@ -7,7 +7,6 @@ from utils.constants.general_constants import lojasAgrupadas
 from datetime import datetime
 from utils.user import logout
 from utils.components import button_download
-from utils.queries_conciliacao import GET_CASAS
 
 
 st.set_page_config(
@@ -324,9 +323,10 @@ with st.container(border=True):
     df = df[['Empresa', 'ID_Receita_Extraordinária', 'Data_Vencimento_Parcela', 'Valor_Parcela', 'Classificação', 'Nome_Cliente', 'Observações']]
     df = df.rename(columns={
         "Empresa": "Casa",
-        "ID_Receita_Extraodinária": "ID Receita Extraodinária",
+        "ID_Receita_Extraordinária": "ID Receita Extraodinária",
         "Data_Vencimento_Parcela": "Data Vencimento Parcela",
-        "Valor_Parcela": "Valor Parcela",        
+        "Valor_Parcela": "Valor Parcela", 
+        "Nome_Cliente": "Nome Cliente"       
     })
 
     st.dataframe(df, use_container_width=True, hide_index=True)
@@ -384,7 +384,8 @@ with st.container(border=True):
         "Empresa": "Casa",
         "ID_Evento": "ID Evento",
         "Data_Vencimento_Parcela": "Data Vencimento Parcela",
-        "Valor_Parcela": "Valor Parcela",        
+        "Valor_Parcela": "Valor Parcela",     
+        "Nome_Cliente": "Nome Cliente"   
     })
 
     st.dataframe(df, use_container_width=True, hide_index=True)
