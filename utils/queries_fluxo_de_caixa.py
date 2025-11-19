@@ -1,11 +1,10 @@
 import streamlit as st
-import pandas as pd
 from utils.functions.general_functions import dataframe_query
 
 
 #################################### FLUXO DE CAIXA ########################################
 
-
+@st.cache_data
 def GET_SALDOS_BANCARIOS():
   return dataframe_query(f"""
 SELECT * FROM View_Saldos_Bancarios
@@ -16,6 +15,7 @@ ORDER BY Data ASC
 """)
 
 
+@st.cache_data
 def GET_VALOR_LIQUIDO_RECEBIDO():
   return dataframe_query(f'''
 SELECT
@@ -34,9 +34,11 @@ WHERE tc.DATA >= CURDATE()
 GROUP BY
   te.NOME_FANTASIA,
   tc.DATA
-ORDER BY tc.DATA ASC;
+ORDER BY tc.DATA ASC
 ''')
 
+
+@st.cache_data
 def GET_PROJECAO_ZIG():
   return dataframe_query(f'''
 SELECT * FROM View_Projecao_Zig_Agrupadas
@@ -47,7 +49,7 @@ ORDER BY Data ASC
 ''')
 
 
-
+@st.cache_data
 def GET_RECEITAS_EXTRAORD_FLUXO_CAIXA():
   return dataframe_query(f'''
     SELECT
@@ -70,10 +72,11 @@ def GET_RECEITAS_EXTRAORD_FLUXO_CAIXA():
     ORDER BY
       te.NOME_FANTASIA,
       vpa.DATA_VENCIMENTO,
-      Data ASC;
+      Data ASC
 ''')
 
 
+@st.cache_data
 def GET_EVENTOS_FLUXO_CAIXA():
   return dataframe_query('''
     SELECT
@@ -107,10 +110,12 @@ def GET_EVENTOS_FLUXO_CAIXA():
     ORDER BY
         te.NOME_FANTASIA,
         parcelas.DATA_VENCIMENTO,
-        Data ASC;
+        Data ASC
 ''')
 
-def GET_RECEITAS_EXTRAORD_DO_DIA(data):
+
+@st.cache_data
+def GET_RECEITAS_EXTRAORD_DO_DIA():
   return dataframe_query(f'''
     WITH vpa AS 
     (SELECT
@@ -191,7 +196,8 @@ def GET_RECEITAS_EXTRAORD_DO_DIA(data):
 ''')
 
 
-def GET_RECEITAS_EVENTOS_DO_DIA(data):
+@st.cache_data
+def GET_RECEITAS_EVENTOS_DO_DIA():
   return dataframe_query(f'''
     SELECT 
       tep.ID AS ID_Evento,
@@ -212,6 +218,7 @@ def GET_RECEITAS_EVENTOS_DO_DIA(data):
   ''')
 
 
+@st.cache_data
 def GET_DESPESAS_APROVADAS():
   return dataframe_query(f'''
 SELECT
@@ -226,6 +233,8 @@ GROUP BY Data, Empresa
 ORDER BY Data ASC
 ''')
 
+
+@st.cache_data
 def GET_DESPESAS_PAGAS():
   return dataframe_query(f'''
 SELECT
@@ -241,11 +250,13 @@ ORDER BY Data ASC
 ''')
 
 
+@st.cache_data
 def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
   # Formatando as datas para o formato de string com aspas simples
   dataStr = f"'{dataInicio.strftime('%Y-%m-%d %H:%M:%S')}'"
   datafimstr = f"'{dataFim.strftime('%Y-%m-%d %H:%M:%S')}'"
-######### NA PARTE DAS DESPESAS PARCELADAS, HÁ NA VIEW DO GABS UMA APROVAÇÃO DA DIRETORIA QUE PODE DAR DIFERENÇA #########
+
+  ######### NA PARTE DAS DESPESAS PARCELADAS, HÁ NA VIEW DO GABS UMA APROVAÇÃO DA DIRETORIA QUE PODE DAR DIFERENÇA #########
   return dataframe_query(f'''
   SELECT
     DATE_FORMAT(tc.DATA, '%Y-%m-%d') as 'Previsao_Pgto',
@@ -297,7 +308,7 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
 
 ###########################  Previsão Faturamento  #############################
 
-
+@st.cache_data
 def GET_PREVISOES_ZIG_AGRUPADAS():
   return dataframe_query(f'''
   SELECT
@@ -319,7 +330,7 @@ def GET_PREVISOES_ZIG_AGRUPADAS():
 ''')
 
 
-
+@st.cache_data
 def GET_FATURAMENTO_REAL():
   return dataframe_query(f'''
   SELECT
