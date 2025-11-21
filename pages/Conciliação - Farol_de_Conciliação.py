@@ -135,7 +135,7 @@ if mes_farol == 'Todos os meses':
     st.subheader(":material/arrow_downward: Visualizar dias não conciliados")
 
     casas = df_casas['Casa'].tolist()
-    casas.remove("All bar")
+    # casas.remove("All bar")
 
     casa_selecionada = st.selectbox("Selecione uma casa:", casas, index=None, placeholder='Selecione uma casa', label_visibility='hidden')
 
