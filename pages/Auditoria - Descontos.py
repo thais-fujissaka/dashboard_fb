@@ -241,12 +241,25 @@ else:
     # Remove a coluna auxiliar
     df_categorizado.drop(columns=["justificativa_minusculo", "cliente_minusculo"], inplace=True)
 
+    # Renomeando colunas para download em excel e importação na UDF
+    df_download = df_categorizado.copy()
+    df_download = df_download.rename(columns={
+        'Funcionário': 'FUNCIONARIO',
+        'Data': 'DATA',
+        'Clientes': 'CLIENTES',
+        'Justificativa': 'JUSTIFICATIVA',
+        'Categoria': 'CATEGORIA',
+        'Produtos': 'PRODUTOS',
+        'Porcentagem': 'PORCENTAGEM',
+        'Desconto': 'DESCONTO'
+    })
+
     # Mostra o resultado
     col1, col2 = st.columns([4, 1])
     with col1:
         st.subheader('Descontos categorizados') 
     with col2:
-        button_download(df_categorizado, f"Descontos - {casa}", f"Descontos - {casa}")
+        button_download(df_download, f"Descontos - {casa}", f"Descontos - {casa}")
 
     st.info('Atenção para as células com categoria vazia, caso haja.')
     st.dataframe(df_categorizado, hide_index=True)
