@@ -269,7 +269,7 @@ def mostrar_menu_permissoes_kpis_resultado_operacional(permissoes):
 def mostrar_menu_permissoes_fluxo_de_caixa(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Fluxo de Caixa")
-        st.sidebar.page_link("pages/Fluxo_de_Caixa - Projeção.py", label=":material/chart_data: Projeção - Despesas Aprovadas")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Projeção.py", label=":material/chart_data: Projeção - Despesas")
         st.sidebar.page_link("pages/Conciliação - Fluxo_Realizado.py", label=":material/currency_exchange: Fluxo Realizado")
         st.sidebar.page_link("pages/Conciliação - Fluxo_Futuro.py", label=":material/event_upcoming: Fluxo Futuro")
     elif 'Acesso Conciliação' in permissoes:

@@ -279,6 +279,7 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
     AND tc.DATA >= {dataStr}
     AND tc.DATA <= {datafimstr}
     AND tdr.BIT_CANCELADA = 0
+    AND tdr.FK_APROVACAO_DIRETORIA = 101
   UNION ALL
   SELECT
     DATE_FORMAT(tc.DATA, '%Y-%m-%d') as 'Previsao_Pgto',
@@ -302,6 +303,7 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
     AND tc.DATA >= {dataStr}
     AND tc.DATA <= {datafimstr}
     AND tdr.BIT_CANCELADA = 0
+    AND tdr.FK_APROVACAO_DIRETORIA = 101
 ''')
 
 

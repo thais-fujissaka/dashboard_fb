@@ -10,7 +10,7 @@ from utils.components import button_download
 
 
 st.set_page_config(
-    page_title="Projeção", 
+    page_title="Projeção - Despesas", 
     page_icon=":material/chart_data:", 
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -23,7 +23,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 
 col, col2, col3 = st.columns([6, 1, 1])
 with col:
-    st.title(":material/chart_data: Projeção - Despesas Aprovadas")
+    st.title(":material/chart_data: Projeção - Despesas")
 with col2:
     st.button(label="Atualizar dados", on_click=st.cache_data.clear)
 with col3:
@@ -258,7 +258,7 @@ with st.container(border=True):
     df = format_columns_brazilian(despesas_pendentes_pagas, ["Valor"])
     df = df_format_date_brazilian(df, 'Previsao_Pgto')
     df = df_format_date_brazilian(df, 'Data_Vencimento')
-    df = df.sort_values(by=["Loja"])
+    df = df.sort_values(by=["Loja", "Previsao_Pgto"])
 
     # Organiza colunas
     df = df[['Loja', 'Previsao_Pgto', 'Data_Vencimento', 'Parcelamento', 'ID_Despesa', 'ID_Parcela', 'Valor', 'Status_Pgto', 'Fornecedor']]
