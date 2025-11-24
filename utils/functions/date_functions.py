@@ -53,7 +53,7 @@ def get_first_and_last_day_of_month():
 
 def df_format_date_brazilian(df, date_column):
   df = df.copy()
-  df[date_column] = pd.to_datetime(df[date_column], format="%d-%m-%Y", errors="coerce")
+  df[date_column] = pd.to_datetime(df[date_column], errors="coerce")
   df[date_column] = df[date_column].dt.strftime('%d-%m-%Y')
   return df
 

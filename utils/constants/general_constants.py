@@ -1,3 +1,25 @@
+# Lojas agrupadas da aba de projeção
+lojasAgrupadas = ["Bar Brahma - Centro",
+                  "Bar Brahma - Granja",
+                  "Bar Brahma Paulista",
+                  "Brahma - Ribeirão",
+                  "Bar Léo - Centro",
+                  "Bar Brasilia - Aeroporto",
+                  "Delivery Bar Leo Centro",
+                  "Delivery Fabrica de Bares",
+                  "Delivery Orfeu",
+                  "Edificio Rolim",
+                  "Escritório Fabrica de Bares",
+                  "Girondino - CCBB",
+                  "Girondino ", 
+                  "Hotel Maraba",
+                  "Jacaré",
+                  "Orfeu",
+                  "Priceless",  
+                  "Riviera Bar",
+                  "Tempus",
+            ]
+
 # Todas as casas de df_casas menos 'All bar'
 casas_validas = ['Arcos', 
                  'Bar Brahma - Centro', 
@@ -17,7 +39,8 @@ casas_validas = ['Arcos',
                  'Riviera Bar', 
                  'Sanduiche comunicação LTDA ', 
                  'Tempus Fugit  Ltda ', 
-                 'Ultra Evil Premium Ltda ']
+                 'Ultra Evil Premium Ltda '
+            ]
 
 
 cores_casas = [
