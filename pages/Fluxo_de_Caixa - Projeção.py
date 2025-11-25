@@ -21,14 +21,23 @@ config_sidebar()
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 	st.switch_page('Login.py')
 
-col, col2, col3 = st.columns([6, 1, 1])
-with col:
+col1, col2, col3 = st.columns([6, 1, 1], vertical_alignment='center')
+with col1:
     st.title(":material/chart_data: Projeção - Despesas")
 with col2:
     st.button(label="Atualizar dados", on_click=st.cache_data.clear)
 with col3:
     if st.button("Logout"):
         logout()
+
+st.write("")
+seletor_status_despesa = st.segmented_control(
+    label="Selecione o Status das Despesas:",
+    options=["Apenas Aprovadas", "Todas Previstas"],
+    selection_mode="single",
+    default="Apenas Aprovadas",
+    help='"Previstas" envolve as despesas aprovadas e pendentes'
+)
 st.divider()
 
 
@@ -46,8 +55,15 @@ df_valor_liquido = GET_VALOR_LIQUIDO_RECEBIDO()                 # valor liquido 
 df_projecao_zig = GET_PROJECAO_ZIG()                            # projecao faturamento da zig de cada casa para a semana
 df_receitas_extraord_proj = GET_RECEITAS_EXTRAORD_FLUXO_CAIXA() # receit. extr. lançadas de cada casa para duas semanas
 df_receitas_eventos_proj = GET_EVENTOS_FLUXO_CAIXA()            # eventos lançados de cada casa para duas semanas
-df_despesas_aprovadas = GET_DESPESAS_APROVADAS()                # despesas aprovadas e pendentes de pagamento
-df_despesas_pagas = GET_DESPESAS_PAGAS()                        # despesas pagas no período
+# df_despesas_aprovadas = GET_DESPESAS_APROVADAS()              # despesas aprovadas e pendentes de pagamento
+# df_despesas_pagas = GET_DESPESAS_PAGAS()                      # despesas pagas no período
+
+df_despesas_aprovadas_previstas_pendentes = GET_DESPESAS_PENDENTES() # despesas pendentes (aprovadas ou não)
+df_despesas_pagas_previstas_pendentes = GET_DESPESAS_PAGAS()         # despesas pagas (aprovadas ou não)
+
+# Filtra de acordo com o seletor (aprovadas/previstas)
+df_categoria_despesas_pendentes = filtra_categoria_despesas(df_despesas_aprovadas_previstas_pendentes, seletor_status_despesa, 'pendentes')
+df_categoria_despesas_pagas = filtra_categoria_despesas(df_despesas_pagas_previstas_pendentes, seletor_status_despesa, 'pagas')
 
 df_projecao_bares_geral = config_projecao_bares(
     df_saldos_bancarios, 
@@ -55,8 +71,8 @@ df_projecao_bares_geral = config_projecao_bares(
     df_projecao_zig, 
     df_receitas_extraord_proj,
     df_receitas_eventos_proj,  
-    df_despesas_aprovadas, 
-    df_despesas_pagas,
+    df_categoria_despesas_pendentes, 
+    df_categoria_despesas_pagas,
 )
 
 
@@ -64,7 +80,7 @@ df_projecao_bares_geral = config_projecao_bares(
 with st.container(border=True):
     col1, col2, col3 = st.columns([3, 1, 1])
     with col1:
-        st.subheader("Projeção de bares agrupados")
+        st.subheader(f"Projeção de bares agrupados - {seletor_status_despesa}")
     with col2:
         data_fim2 = seletor_data_fim_padrao(key='date_input2') # Data de fim padrão dos seletores: uma semana à frente do dia atual
     with col3:
@@ -74,8 +90,7 @@ with st.container(border=True):
         """*Bar Brahma - Centro, Bar Brahma - Granja, Bar Brahma Paulista, Brahma Ribeirão, Bar Léo - Centro, Bar Brasília - Aeroporto, 
             Delivery Bar Léo Centro, Delivery Fábrica de Bares, Delivery Orfeu, Edifício Rolim, Escritório Fábrica de Bares, 
             Girondino, Girondino - CCBB, Hotel Marabá, Jacaré, Orfeu, Priceless, Riviera, Tempus*
-    """
-    )
+    """)
 
     df_projecao_bares = df_projecao_bares_geral
 
@@ -86,17 +101,7 @@ with st.container(border=True):
     df_projecao_grouped = config_grouped_projecao(df_projecao_bares, lojasAgrupadas)
     df_projecao_grouped_com_soma = somar_total(df_projecao_grouped)
 
-    df_projecao_grouped_com_soma = df_projecao_grouped_com_soma[[
-        "Data",
-        "Saldo_Inicio_Dia",
-        "Valor_Liquido_Recebido",
-        "Valor_Projetado_Zig",
-        "Receita_Projetada_Extraord",
-        "Receita_Projetada_Eventos",
-        "Despesas_Aprovadas_Pendentes",
-        "Despesas_Pagas",
-        "Saldo_Final"
-    ]]
+    df_projecao_grouped_com_soma = df_projecao_grouped_com_soma[["Data", "Saldo_Inicio_Dia", "Valor_Liquido_Recebido", "Valor_Projetado_Zig", "Receita_Projetada_Extraord", "Receita_Projetada_Eventos", "Despesas_Aprovadas_Pendentes", "Despesas_Pagas", "Saldo_Final"]]
 
     df_projecao_grouped_com_soma = format_columns_brazilian(
         df_projecao_grouped_com_soma,
@@ -118,7 +123,7 @@ with st.container(border=True):
         "Valor_Projetado_Zig": "Valor Zig Projetado",
         "Receita_Projetada_Extraord": "Receitas Extr Projetadas",
         "Receita_Projetada_Eventos": "Receitas Eventos Projetadas",
-        "Despesas_Aprovadas_Pendentes": "Despesas Aprovadas Pendentes",
+        "Despesas_Aprovadas_Pendentes": "Despesas Pendentes",
         "Despesas_Pagas": "Despesas Pagas",
         "Saldo_Final": "Saldo Final"
     })
@@ -130,7 +135,7 @@ st.divider()
 
 # Projeção casa a casa (selecionadas)
 with st.container(border=True):
-    st.subheader("Projeção casa a casa")
+    st.subheader(f"Projeção casa a casa - {seletor_status_despesa}")
     col1, col2, col3 = st.columns([3, 1, 1])
 
     # Adiciona seletores
@@ -143,6 +148,12 @@ with st.container(border=True):
         multiplicador = st.number_input(
             "Selecione um multiplicador", value=1.0, key="multiplicador_input"
         )
+
+    # Mensagem de aviso - Delivery
+    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Fabrica de Bares" no campo acima.')
+    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Bar Leo Centro" no campo acima.')
+    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Jacaré" no campo acima.')
+    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Orfeu" no campo acima.')
 
     df_projecao_bares = df_projecao_bares_geral
 
@@ -161,18 +172,7 @@ with st.container(border=True):
     df_projecao_bar_com_soma = somar_total(df_projecao_bar)
     
     # Organiza colunas
-    df_projecao_bar_com_soma = df_projecao_bar_com_soma[[
-        "Empresa",
-        "Data",
-        "Saldo_Inicio_Dia",
-        "Valor_Liquido_Recebido",
-        "Valor_Projetado_Zig",
-        "Receita_Projetada_Extraord",
-        "Receita_Projetada_Eventos",
-        "Despesas_Aprovadas_Pendentes",
-        "Despesas_Pagas",
-        "Saldo_Final",
-    ]]
+    df_projecao_bar_com_soma = df_projecao_bar_com_soma[["Empresa", "Data", "Saldo_Inicio_Dia", "Valor_Liquido_Recebido", "Valor_Projetado_Zig", "Receita_Projetada_Extraord", "Receita_Projetada_Eventos", "Despesas_Aprovadas_Pendentes", "Despesas_Pagas", "Saldo_Final"]]
     
     df_projecao_bar_com_soma = format_columns_brazilian(
         df_projecao_bar_com_soma,
@@ -195,7 +195,7 @@ with st.container(border=True):
         "Valor_Projetado_Zig": "Valor Zig Projetado",
         "Receita_Projetada_Extraord": "Receitas Extr Projetadas",
         "Receita_Projetada_Eventos": "Receitas Eventos Projetadas",
-        "Despesas_Aprovadas_Pendentes": "Despesas Aprovadas Pendentes",
+        "Despesas_Aprovadas_Pendentes": "Despesas Pendentes",
         "Despesas_Pagas": "Despesas Pagas",
         "Saldo_Final": "Saldo Final"
     })
@@ -206,7 +206,7 @@ with st.container(border=True):
 st.divider()
 
 with st.container(border=True):
-    st.subheader("Despesas do dia")
+    st.subheader(f"Despesas do dia - {seletor_status_despesa}")
     col1, col2, col3, col4 = st.columns([5, 3, 4, 4], vertical_alignment='center')
 
     # Adiciona seletores
@@ -236,37 +236,45 @@ with st.container(border=True):
             format="DD/MM/YYYY",
         )
 
+    # Mensagem de aviso - Delivery
+    if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Fabrica de Bares" no campo acima.')
+    if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Bar Leo Centro" no campo acima.')
+    if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Jacaré" no campo acima.')
+    if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Orfeu" no campo acima.')
+
     data_inicio = pd.to_datetime(dataSelecionada)
     data_fim = pd.to_datetime(dataSelecionada2)
 
-    despesas_pendentes_pagas = GET_DESPESAS_PENDENTES(dataInicio=data_inicio, dataFim=data_fim)
-    
+    despesas_pendentes_pagas = GET_DETALHES_DESPESAS_PENDENTES()
+    df_despesas_pendentes_pagas = filtra_detalhes_despesas(seletor_status_despesa, despesas_pendentes_pagas, data_inicio, data_fim)
+
     # Filtra para as casas selecionadas
     if 'Todas as casas' in lojasSelecionadas:  
-        despesas_pendentes_pagas = filtrar_por_classe_selecionada(despesas_pendentes_pagas, 'Loja', lojasComDados)
+        df_despesas_pendentes_pagas = filtrar_por_classe_selecionada(df_despesas_pendentes_pagas, 'Loja', lojasComDados)
     else:
-        despesas_pendentes_pagas = filtrar_por_classe_selecionada(despesas_pendentes_pagas, 'Loja', lojasSelecionadas)
+        df_despesas_pendentes_pagas = filtrar_por_classe_selecionada(df_despesas_pendentes_pagas, 'Loja', lojasSelecionadas)
 
     if checkbox2:
-        despesas_pendentes_pagas = filtrar_por_classe_selecionada(despesas_pendentes_pagas, "Status_Pgto", ["Pendente"])
+        df_despesas_pendentes_pagas = filtrar_por_classe_selecionada(df_despesas_pendentes_pagas, "Status_Pgto", ["Pendente"])
     if checkbox3:
-        despesas_pendentes_pagas = filtrar_por_classe_selecionada(despesas_pendentes_pagas, "Status_Pgto", ["Pago"])
+        df_despesas_pendentes_pagas = filtrar_por_classe_selecionada(df_despesas_pendentes_pagas, "Status_Pgto", ["Pago"])
 
     # Formata exibição
-    valorTotal = despesas_pendentes_pagas["Valor"].sum()
+    valorTotal = df_despesas_pendentes_pagas["Valor"].sum()
     valorTotal = format_brazilian(valorTotal)
-    df = format_columns_brazilian(despesas_pendentes_pagas, ["Valor"])
+    df = format_columns_brazilian(df_despesas_pendentes_pagas, ["Valor"])
     df = df_format_date_brazilian(df, 'Previsao_Pgto')
     df = df_format_date_brazilian(df, 'Data_Vencimento')
     df = df.sort_values(by=["Loja", "Previsao_Pgto"])
 
     # Organiza colunas
-    df = df[['Loja', 'Previsao_Pgto', 'Data_Vencimento', 'Parcelamento', 'ID_Despesa', 'ID_Parcela', 'Valor', 'Status_Pgto', 'Fornecedor']]
+    df = df[['Loja', 'Previsao_Pgto', 'Data_Vencimento', 'ID_Despesa', 'Status_Aprovacao_Diretoria', 'Parcelamento', 'ID_Parcela', 'Valor', 'Status_Pgto', 'Fornecedor']]
     df = df.rename(columns={
         "Loja": "Casa",
         "Previsao_Pgto": "Previsão Pgto",
         "Data_Vencimento": "Data Vencimento",
         "ID_Despesa": "ID Despesa",
+        "Status_Aprovacao_Diretoria": "Status Aprovação Diretoria",
         "ID_Parcela": "ID Parcela",        
         "Status_Pgto": "Status Pgto",
     })

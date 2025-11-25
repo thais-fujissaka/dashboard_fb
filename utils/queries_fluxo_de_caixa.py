@@ -1,7 +1,7 @@
 import streamlit as st
 from utils.functions.general_functions import dataframe_query
 
-#################################### FLUXO DE CAIXA ########################################
+#################################### PROJEÇÃO ########################################
 
 @st.cache_data
 def GET_SALDOS_BANCARIOS():
@@ -217,19 +217,77 @@ def GET_RECEITAS_EVENTOS_DO_DIA():
   ''')
 
 
+# @st.cache_data
+# def GET_DESPESAS_APROVADAS():
+#   return dataframe_query(f'''
+# SELECT
+# vvap.Empresa as 'Empresa',
+# vvap.Data as 'Data',
+# SUM(vvap.Valores_Aprovados_Previsao) as 'Despesas_Aprovadas_Pendentes' 
+# FROM View_Valores_Aprovados_Previsao vvap
+# WHERE Data >= CURDATE() 
+# AND Data < DATE_ADD(CURDATE(), INTERVAL 14 DAY)
+# AND Empresa IS NOT NULL
+# GROUP BY Data, Empresa  
+# ORDER BY Data ASC
+# ''')
+
+
+# @st.cache_data
+# def GET_DESPESAS_PAGAS():
+#   return dataframe_query(f'''
+# SELECT
+# vvap.Empresa as 'Empresa',
+# vvap.Data as 'Data',
+# SUM(vvap.Valores_Pagos) as 'Despesas_Pagas' 
+# FROM View_Valores_Pagos_por_Previsao vvap
+# WHERE Data >= CURDATE() 
+# AND Data < DATE_ADD(CURDATE(), INTERVAL 14 DAY)
+# AND Empresa IS NOT NULL
+# GROUP BY Data, Empresa  
+# ORDER BY Data ASC
+# ''')
+
+
 @st.cache_data
-def GET_DESPESAS_APROVADAS():
+def GET_DESPESAS_PENDENTES():
   return dataframe_query(f'''
 SELECT
-vvap.Empresa as 'Empresa',
-vvap.Data as 'Data',
-SUM(vvap.Valores_Aprovados_Previsao) as 'Despesas_Aprovadas_Pendentes' 
-FROM View_Valores_Aprovados_Previsao vvap
-WHERE Data >= CURDATE() 
-AND Data < DATE_ADD(CURDATE(), INTERVAL 14 DAY)
-AND Empresa IS NOT NULL
-GROUP BY Data, Empresa  
-ORDER BY Data ASC
+    tc.DATA AS Previsao_Pgto,
+    tdr.VENCIMENTO AS Data_Vencimento,
+    te.NOME_FANTASIA AS Empresa,
+    tdr.FK_APROVACAO_DIRETORIA AS Status_Diretoria,
+    tdr.VALOR_LIQUIDO AS Valor_Liquido
+FROM
+    T_DESPESA_RAPIDA tdr
+    JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+    LEFT JOIN T_DEPESA_PARCELAS tdp ON tdp.FK_DESPESA = tdr.ID
+    LEFT JOIN T_CALENDARIO tc ON tdr.PREVISAO_PAGAMENTO = tc.ID
+WHERE
+    (tdr.FK_APROVACAO_DIRETORIA IS NULL OR tdr.FK_APROVACAO_DIRETORIA IN (100, 101))
+    AND (tdr.FK_STATUS_PGTO IS NULL OR tdr.FK_STATUS_PGTO IN (100, 108))
+    AND tdp.FK_DESPESA IS NULL
+    AND tdr.BIT_CANCELADA = 0
+                         
+UNION ALL
+                         
+SELECT
+    tc.DATA AS Previsao_Pgto,
+    tdr.VENCIMENTO AS Data_Vencimento,
+    te.NOME_FANTASIA AS Empresa,
+    tdr.FK_APROVACAO_DIRETORIA AS Status_Diretoria,
+    tdp.VALOR AS Valor_Liquido
+FROM
+    T_DESPESA_RAPIDA tdr
+    JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+    LEFT JOIN T_DEPESA_PARCELAS tdp ON tdp.FK_DESPESA = tdr.ID
+    LEFT JOIN T_CALENDARIO tc ON tdp.FK_PREVISAO_PGTO = tc.ID
+WHERE
+    (tdr.FK_APROVACAO_DIRETORIA IS NULL OR tdr.FK_APROVACAO_DIRETORIA IN (100, 101))
+    AND tdp.FK_DESPESA IS NOT NULL
+    AND (tdp.PARCELA_PAGA IS NULL OR tdp.PARCELA_PAGA = 0)
+    -- AND tc.DATA IS NOT NULL
+    AND tdr.BIT_CANCELADA = 0    
 ''')
 
 
@@ -237,23 +295,45 @@ ORDER BY Data ASC
 def GET_DESPESAS_PAGAS():
   return dataframe_query(f'''
 SELECT
-vvap.Empresa as 'Empresa',
-vvap.Data as 'Data',
-SUM(vvap.Valores_Pagos) as 'Despesas_Pagas' 
-FROM View_Valores_Pagos_por_Previsao vvap
-WHERE Data >= CURDATE() 
-AND Data < DATE_ADD(CURDATE(), INTERVAL 14 DAY)
-AND Empresa IS NOT NULL
-GROUP BY Data, Empresa  
-ORDER BY Data ASC
+    tc.DATA AS Previsao_Pgto,
+    tdr.VENCIMENTO AS Data_Vencimento,
+    te.NOME_FANTASIA AS Empresa,
+    tdr.FK_APROVACAO_DIRETORIA AS Status_Diretoria,
+    tdr.VALOR_LIQUIDO AS Valor_Liquido
+FROM T_DESPESA_RAPIDA tdr
+JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+LEFT JOIN T_DEPESA_PARCELAS tdp ON tdp.FK_DESPESA = tdr.ID
+LEFT JOIN T_CALENDARIO tc ON tdr.PREVISAO_PAGAMENTO = tc.ID
+WHERE
+    (tdr.FK_APROVACAO_DIRETORIA IS NULL OR tdr.FK_APROVACAO_DIRETORIA IN (100, 101))
+    AND tdr.FK_STATUS_PGTO = 103
+    AND tdp.FK_DESPESA IS NULL
+
+UNION ALL
+                         
+SELECT
+    tc.DATA AS Previsao_Pgto,
+    tdr.VENCIMENTO AS Data_Vencimento,
+    te.NOME_FANTASIA AS Empresa,
+    tdr.FK_APROVACAO_DIRETORIA AS Status_Diretoria,
+    tdp.VALOR AS Valor_Liquido
+FROM T_DESPESA_RAPIDA tdr
+JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+LEFT JOIN T_DEPESA_PARCELAS tdp ON tdp.FK_DESPESA = tdr.ID
+LEFT JOIN T_CALENDARIO tc ON tdp.FK_PREVISAO_PGTO = tc.ID
+WHERE
+    (tdr.FK_APROVACAO_DIRETORIA IS NULL OR tdr.FK_APROVACAO_DIRETORIA IN (100, 101))
+    AND tdp.FK_DESPESA IS NOT NULL
+    AND tdp.PARCELA_PAGA = 1
+    AND tc.DATA IS NOT NULL
 ''')
 
 
 @st.cache_data
-def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
+def GET_DETALHES_DESPESAS_PENDENTES():
   # Formatando as datas para o formato de string com aspas simples
-  dataStr = f"'{dataInicio.strftime('%Y-%m-%d %H:%M:%S')}'"
-  datafimstr = f"'{dataFim.strftime('%Y-%m-%d %H:%M:%S')}'"
+  # dataStr = f"'{dataInicio.strftime('%Y-%m-%d %H:%M:%S')}'"
+  # datafimstr = f"'{dataFim.strftime('%Y-%m-%d %H:%M:%S')}'"
 
   ######### NA PARTE DAS DESPESAS PARCELADAS, HÁ NA VIEW DO GABS UMA APROVAÇÃO DA DIRETORIA QUE PODE DAR DIFERENÇA #########
   return dataframe_query(f'''
@@ -261,6 +341,8 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
     DATE_FORMAT(tc.DATA, '%Y-%m-%d') as 'Previsao_Pgto',
     tdr.VENCIMENTO AS 'Data_Vencimento',
     tdr.ID as 'ID_Despesa',
+    tdr.FK_APROVACAO_DIRETORIA AS FK_Aprovacao_Diretoria,
+    tsad.DESCRICAO AS Status_Aprovacao_Diretoria,
     "Nulo" as 'ID_Parcela',
     te.NOME_FANTASIA as 'Loja',
     tf.FANTASY_NAME as 'Fornecedor',
@@ -275,16 +357,17 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
   INNER JOIN T_FORNECEDOR tf ON (tdr.FK_FORNECEDOR = tf.ID)
   LEFT JOIN T_CALENDARIO tc ON (tdr.PREVISAO_PAGAMENTO = tc.ID)
   LEFT JOIN T_DEPESA_PARCELAS tdp ON (tdp.FK_DESPESA = tdr.ID)
+  LEFT JOIN T_STATUS_APROVACAO_DIRETORIA tsad ON (tdr.FK_APROVACAO_DIRETORIA = tsad.ID)
   WHERE tdp.ID is NULL 
-    AND tc.DATA >= {dataStr}
-    AND tc.DATA <= {datafimstr}
     AND tdr.BIT_CANCELADA = 0
-    AND tdr.FK_APROVACAO_DIRETORIA = 101
+   	AND (tdr.FK_APROVACAO_DIRETORIA IS NULL OR tdr.FK_APROVACAO_DIRETORIA IN (100, 101))
   UNION ALL
   SELECT
     DATE_FORMAT(tc.DATA, '%Y-%m-%d') as 'Previsao_Pgto',
     tdr.VENCIMENTO AS 'Data_Vencimento',
     tdr.ID as 'ID_Despesa',
+    tdr.FK_APROVACAO_DIRETORIA AS FK_Aprovacao_Diretoria,
+    tsad.DESCRICAO AS Status_Aprovacao_Diretoria,
     tdp.ID as 'ID_Parcela',
     te.NOME_FANTASIA as 'Loja',
     tf.FANTASY_NAME as 'Fornecedor',
@@ -299,13 +382,11 @@ def GET_DESPESAS_PENDENTES(dataInicio, dataFim):
   LEFT JOIN T_FORNECEDOR tf ON (tdr.FK_FORNECEDOR = tf.ID)
   LEFT JOIN T_DEPESA_PARCELAS tdp ON (tdp.FK_DESPESA = tdr.ID)
   LEFT JOIN T_CALENDARIO tc ON (tdp.FK_PREVISAO_PGTO = tc.ID)
+  LEFT JOIN T_STATUS_APROVACAO_DIRETORIA tsad ON (tdr.FK_APROVACAO_DIRETORIA = tsad.ID)
   WHERE tdp.ID is NOT NULL 
-    AND tc.DATA >= {dataStr}
-    AND tc.DATA <= {datafimstr}
     AND tdr.BIT_CANCELADA = 0
-    AND tdr.FK_APROVACAO_DIRETORIA = 101
+    AND (tdr.FK_APROVACAO_DIRETORIA IS NULL OR tdr.FK_APROVACAO_DIRETORIA IN (100, 101))
 ''')
-
 
 ###########################  Previsão Faturamento  #############################
 
