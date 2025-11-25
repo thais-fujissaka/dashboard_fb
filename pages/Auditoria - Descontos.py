@@ -38,16 +38,16 @@ st.title(":material/list: Categorização - Descontos")
 st.divider()
 
 # Seletor de casa
-casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edifício Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Riviera']
+casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edifício Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Terraço Notiê', 'Orfeu', 'Riviera']
 casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
 st.divider()
 
-if casa == 'Notiê - Priceless':
+if casa == 'Notiê - Priceless' or casa == 'Terraço Notiê':
     regras_categoria = {
         'funcionario|funcionário|funcionaria|funcionária': "COLABORADOR (30%)",
         'gerência|gerencia|coord': 'CONSUMO GERENCIAL',
         'master|mastecard|mastetcard': 'CONVÊNIO',
-        'taxa rolha|taxa de rolha': 'CORTESIA',
+        'taxa rolha|taxa de rolha|rolha': 'CORTESIA',
         'marketing': 'MARKETING',
         # 'ajuste': 'OPERACIONAL',
         'surpreend|surreend': 'PROMOÇÃO'
@@ -206,7 +206,7 @@ else:
     df_categorizado = df.copy()
 
     # Problema das planilhas que vem com a justificativa na coluna de categoria (zig)
-    if casa == 'Girondino - CCBB' or casa == 'Blue Note' or casa == 'BNSP' or casa == 'Riviera':
+    if casa == 'Girondino - CCBB' or casa == 'Blue Note' or casa == 'BNSP' or casa == 'Riviera' or casa == 'Terraço Notiê':
         mascara = (
             df_categorizado['Justificativa'].isna() |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('h') |
@@ -243,7 +243,10 @@ else:
 
     # Renomeando colunas para download em excel e importação na UDF
     df_download = df_categorizado.copy()
+    df_download['Empresa'] = casa
+    df_download = df_download[['Empresa', 'Funcionário', 'Data', 'Clientes', 'Justificativa', 'Categoria', 'Produtos', 'Porcentagem', 'Desconto']]
     df_download = df_download.rename(columns={
+        'Empresa': 'EMPRESA',
         'Funcionário': 'FUNCIONARIO',
         'Data': 'DATA',
         'Clientes': 'CLIENTES',
@@ -253,7 +256,7 @@ else:
         'Porcentagem': 'PORCENTAGEM',
         'Desconto': 'DESCONTO'
     })
-
+    
     # Mostra o resultado
     col1, col2 = st.columns([4, 1])
     with col1:
