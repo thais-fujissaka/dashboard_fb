@@ -74,8 +74,7 @@ def config_projecao_bares(df_saldos_bancarios, df_valor_liquido, df_projecao_zig
   # Preenchendo valores nulos com 0 e renomeando colunas
   merged_df = merged_df.fillna(0)
   merged_df = merged_df.rename(columns={'Valor_Projetado': 'Valor_Projetado_Zig'})
-  merged_df = merged_df.sort_values(by='Data').reset_index(drop=True)
-
+ 
   # Ajustando formatação
   cols = ['Saldo_Inicio_Dia', 'Valor_Liquido_Recebido', 'Valor_Projetado_Zig', 'Receita_Projetada_Extraord', 'Receita_Projetada_Eventos', 'Despesas_Aprovadas_Pendentes', 'Despesas_Pagas']
   merged_df[cols] = merged_df[cols].astype(float).round(2)
@@ -83,6 +82,7 @@ def config_projecao_bares(df_saldos_bancarios, df_valor_liquido, df_projecao_zig
   return merged_df
 
 
+# Função que filtra por data, aplica o multiplicador e faz a soma do 'Total' nos df
 def filtra_soma_saldo_final(merged_df, data_fim, multiplicador):
   # Filtrando por data de fim
   merged_df_filtrado = filtrar_data_fim(merged_df, data_fim, 'Data')
@@ -98,6 +98,19 @@ def filtra_soma_saldo_final(merged_df, data_fim, multiplicador):
   return merged_df_filtrado
 
 
+# Ordena df por data
+def ordena_por_data(df):
+  df['Data'] = pd.to_datetime(df['Data'], format="%d-%m-%Y", errors="coerce")
+  if 'Casa' in df.columns:
+    df = df.sort_values(by=["Casa", "Data"])
+  else:
+    df = df.sort_values(by=["Data"])
+  
+  # Reverte para string mantendo o Total no final
+  df['Data'] = (df['Data'].dt.strftime("%d-%m-%Y").fillna("Total"))
+  return df
+
+
 def is_in_group(empresa, houses_to_group):
   return any(house in empresa for house in houses_to_group)
 
@@ -106,6 +119,69 @@ def config_grouped_projecao(df_projecao_bares, lojas_agrupadas):
   grouped_df = df_projecao_bares[df_projecao_bares['Empresa'].apply(lambda x: is_in_group(x, lojas_agrupadas))]
   grouped_df = grouped_df.groupby(['Data']).sum().reset_index()
   return grouped_df
+
+
+# Filtra as despesas pendentes e pagas de acordo com a opção do seletor (aprovadas/previstas)
+def filtra_categoria_despesas(df_despesas_aprovadas_previstas, seletor_status_despesa, tipo):
+  hoje = pd.Timestamp.today().normalize()
+  duas_semanas = hoje + pd.Timedelta(days=14)
+
+  # 1) Filtra apenas despesas aprovadas pela diretoria
+  if seletor_status_despesa == 'Apenas Aprovadas':
+    df_categoria = df_despesas_aprovadas_previstas[df_despesas_aprovadas_previstas['Status_Diretoria'] == 101].copy()
+    # df_categoria_agrupado = df_categoria.groupby(['Empresa', 'Previsao_Pgto'], as_index=False)['Valor_Liquido'].sum()
+
+  # 2) Filtra pelas despesas previstas (aprovadas, pendentes e nulas)
+  if seletor_status_despesa == 'Todas Previstas':
+    df_categoria = df_despesas_aprovadas_previstas[
+      (df_despesas_aprovadas_previstas['Status_Diretoria'] == 101) |
+      (df_despesas_aprovadas_previstas['Status_Diretoria'] == 100) |
+      (df_despesas_aprovadas_previstas['Status_Diretoria'].isna())
+    ].copy()
+
+  df_categoria['Previsao_Pgto'] = df_categoria['Previsao_Pgto'].fillna(df_categoria['Data_Vencimento'])
+  df_categoria_agrupado = df_categoria.groupby(['Empresa', 'Previsao_Pgto'], as_index=False)['Valor_Liquido'].sum()
+
+  # Filtra pela data de hoje até duas semanans a frente
+  df_categoria_agrupado['Previsao_Pgto'] = pd.to_datetime(df_categoria_agrupado['Previsao_Pgto'], errors='coerce')
+
+  df_categoria_agrupado = df_categoria_agrupado[
+    (df_categoria_agrupado['Previsao_Pgto'] >= hoje) &
+    (df_categoria_agrupado['Previsao_Pgto'] <= duas_semanas)
+  ].copy()
+
+  # Renomeia colunas
+  if tipo == 'pendentes':
+    df_categoria_agrupado = df_categoria_agrupado.rename(columns={'Previsao_Pgto':'Data', 'Valor_Liquido':'Despesas_Aprovadas_Pendentes'})
+
+  if tipo == 'pagas':
+    df_categoria_agrupado = df_categoria_agrupado.rename(columns={'Previsao_Pgto':'Data', 'Valor_Liquido':'Despesas_Pagas'})
+
+  return df_categoria_agrupado
+
+
+# Filtra o resultado da query de acordo com o seletor (aprovadas/previstas) e datas de inicio e fim
+def filtra_detalhes_despesas(seletor_status_despesa, despesas_pendentes_pagas, data_inicio, data_fim):
+  # Filtra de acordo com o seletor (aprovadas/previstas)
+    if seletor_status_despesa == 'Apenas Aprovadas':
+        df_despesas_pendentes_pagas = despesas_pendentes_pagas[despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 101].copy()
+    else:
+        df_despesas_pendentes_pagas = despesas_pendentes_pagas[
+            (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 101) |
+            (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 100) |
+            (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'].isna())
+        ].copy()
+    
+    df_despesas_pendentes_pagas['Previsao_Pgto'] = df_despesas_pendentes_pagas['Previsao_Pgto'].fillna(df_despesas_pendentes_pagas['Data_Vencimento'])
+        
+    # Filtra pelas datas de início e fim
+    df_despesas_pendentes_pagas['Previsao_Pgto'] = pd.to_datetime(df_despesas_pendentes_pagas['Previsao_Pgto'], errors='coerce')
+    df_despesas_pendentes_pagas = df_despesas_pendentes_pagas[
+        ((df_despesas_pendentes_pagas['Previsao_Pgto'] >= data_inicio) &
+        (df_despesas_pendentes_pagas['Previsao_Pgto'] <= data_fim))
+    ]
+
+    return df_despesas_pendentes_pagas
 
 
 def config_feriados():

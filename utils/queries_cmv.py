@@ -336,8 +336,15 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
     WITH subquery AS (
     SELECT
       tdr.ID AS tdr_ID,
-      te.ID AS ID_Loja,
-      te.NOME_FANTASIA AS Loja,
+      CASE
+        WHEN te.ID = 131 THEN 110
+        ELSE te.ID    
+      END AS ID_Loja,                                                                                                                      
+      CASE
+        WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+        ELSE te.NOME_FANTASIA    
+      END AS Loja,  
+      
       CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE), '%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
       tdr.VALOR_PAGAMENTO AS Valor,
       tccg2.DESCRICAO AS Class_Cont_Grupo_2
@@ -401,8 +408,16 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
 def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO():
   return dataframe_query(f'''
   select
-    vibmcp.ID_Loja AS ID_Loja,
-    vibmcp.Loja AS Loja,
+    CASE
+      WHEN vibmcp.ID_Loja = 131 THEN 110
+      ELSE vibmcp.ID_Loja
+    END AS ID_Loja,
+    CASE
+      WHEN vibmcp.Loja = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+      ELSE vibmcp.Loja
+    END AS Loja,
+    -- vibmcp.ID_Loja AS ID_Loja,
+    -- vibmcp.Loja AS Loja,
     vibmcp.Primeiro_Dia_Mes AS Primeiro_Dia_Mes,
     sum(vibmcp.Valor_Liquido) AS BlueMe_Com_Pedido_Valor_Liquido,
     sum(vibmcp.Valor_Insumos) AS BlueMe_Com_Pedido_Valor_Insumos,
@@ -417,7 +432,7 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO():
     vibmcp.Primeiro_Dia_Mes
   order by
     vibmcp.ID_Loja,
-    vibmcp.Primeiro_Dia_Mes;
+    vibmcp.Primeiro_Dia_Mes
 ''')
 
 
