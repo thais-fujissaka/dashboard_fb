@@ -74,8 +74,7 @@ def config_projecao_bares(df_saldos_bancarios, df_valor_liquido, df_projecao_zig
   # Preenchendo valores nulos com 0 e renomeando colunas
   merged_df = merged_df.fillna(0)
   merged_df = merged_df.rename(columns={'Valor_Projetado': 'Valor_Projetado_Zig'})
-  merged_df = merged_df.sort_values(by='Data').reset_index(drop=True)
-
+ 
   # Ajustando formatação
   cols = ['Saldo_Inicio_Dia', 'Valor_Liquido_Recebido', 'Valor_Projetado_Zig', 'Receita_Projetada_Extraord', 'Receita_Projetada_Eventos', 'Despesas_Aprovadas_Pendentes', 'Despesas_Pagas']
   merged_df[cols] = merged_df[cols].astype(float).round(2)
@@ -97,6 +96,19 @@ def filtra_soma_saldo_final(merged_df, data_fim, multiplicador):
   merged_df_filtrado = df_format_date_brazilian(merged_df_filtrado, 'Data')
 
   return merged_df_filtrado
+
+
+# Ordena df por data
+def ordena_por_data(df):
+  df['Data'] = pd.to_datetime(df['Data'], format="%d-%m-%Y", errors="coerce")
+  if 'Casa' in df.columns:
+    df = df.sort_values(by=["Casa", "Data"])
+  else:
+    df = df.sort_values(by=["Data"])
+  
+  # Reverte para string mantendo o Total no final
+  df['Data'] = (df['Data'].dt.strftime("%d-%m-%Y").fillna("Total"))
+  return df
 
 
 def is_in_group(empresa, houses_to_group):

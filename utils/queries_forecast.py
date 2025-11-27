@@ -17,10 +17,12 @@ def GET_FATURAMENTO_AGREGADO_DIA():
         SELECT
             CASE
                 WHEN te.ID IN (161, 162) THEN 149
+                WHEN te.ID = 131 THEN 110
                 ELSE te.ID    
             END AS ID_Casa,                                                                                                                      
             CASE
                 WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
+                WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
                 ELSE te.NOME_FANTASIA    
             END AS Casa,  
             CASE 
@@ -144,9 +146,17 @@ def GET_FATURAMENTO_EVENTOS():
 @st.cache_data
 def GET_PARCELAS_RECEIT_EXTR():
     df_parc_receit_extr = dataframe_query(f'''
-        SELECT 
-        te.ID as 'ID_Casa',
-        te.NOME_FANTASIA as 'Casa',
+    SELECT 
+        CASE
+            WHEN te.ID = 131 THEN 110
+            ELSE te.ID    
+        END AS ID_Casa,                                                                                                                      
+        CASE
+            WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+            ELSE te.NOME_FANTASIA    
+        END AS Casa,  
+        -- te.ID as 'ID_Casa',
+        -- te.NOME_FANTASIA as 'Casa',
         tre.DATA_OCORRENCIA as 'Data_Ocorrencia',
         vpa.VALOR_PARCELA as 'Valor_Parcela',
         trec2.CLASSIFICACAO as 'Categoria'
@@ -324,7 +334,15 @@ def GET_EVENTOS_CMV(data_inicio, data_fim):
 def GET_DESPESAS_RAPIDAS():
     return dataframe_query(f'''
         SELECT 
-        te.NOME_FANTASIA AS Casa,
+            CASE
+                WHEN te.ID = 131 THEN 110
+                ELSE te.ID    
+            END AS ID_Casa,                                                                                                                      
+            CASE
+                WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+                ELSE te.NOME_FANTASIA    
+            END AS Casa, 
+        -- te.NOME_FANTASIA AS Casa,
         STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d') AS Data_Competencia,
         STR_TO_DATE(tdr.VENCIMENTO, '%Y-%m-%d') AS Data_Vencimento,
         tdr.OBSERVACAO AS Descricao,

@@ -101,6 +101,7 @@ with st.container(border=True):
     df_projecao_grouped = config_grouped_projecao(df_projecao_bares, lojasAgrupadas)
     df_projecao_grouped_com_soma = somar_total(df_projecao_grouped)
 
+    # Organiza colunas
     df_projecao_grouped_com_soma = df_projecao_grouped_com_soma[["Data", "Saldo_Inicio_Dia", "Valor_Liquido_Recebido", "Valor_Projetado_Zig", "Receita_Projetada_Extraord", "Receita_Projetada_Eventos", "Despesas_Aprovadas_Pendentes", "Despesas_Pagas", "Saldo_Final"]]
 
     df_projecao_grouped_com_soma = format_columns_brazilian(
@@ -128,6 +129,8 @@ with st.container(border=True):
         "Saldo_Final": "Saldo Final"
     })
 
+    # Ordena por data
+    df_projecao_grouped_com_soma = ordena_por_data(df_projecao_grouped_com_soma)
     st.dataframe(df_projecao_grouped_com_soma, use_container_width=True, hide_index=True)
     button_download(df_projecao_grouped_com_soma, f"Projeção de bares agrupados", f"Projeção de bares agrupados")
 
@@ -167,8 +170,6 @@ with st.container(border=True):
         df_projecao_bar = filtrar_por_classe_selecionada(df_projecao_bares, "Empresa", bares_selecionados)
 
     # Formata exibição
-    df_projecao_bar = df_format_date_brazilian(df_projecao_bar, "Data")
-    df_projecao_bar = df_projecao_bar.sort_values(by=["Empresa", "Data"])
     df_projecao_bar_com_soma = somar_total(df_projecao_bar)
     
     # Organiza colunas
@@ -200,6 +201,7 @@ with st.container(border=True):
         "Saldo_Final": "Saldo Final"
     })
 
+    df_projecao_bar_com_soma = ordena_por_data(df_projecao_bar_com_soma)
     st.dataframe(df_projecao_bar_com_soma, use_container_width=True, hide_index=True)
     button_download(df_projecao_bar_com_soma, f"Projeção casa a casa", f"Projeção casa a casa")
 
