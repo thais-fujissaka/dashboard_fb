@@ -42,7 +42,7 @@ datas = calcular_datas()
 casas = df_casas['Casa'].tolist()
 
 # Troca o valor na lista
-casas = [c for c in casas if c not in ['All bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ']]
+casas = [c for c in casas if c not in ['All bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Blue Note SP (Novo)']]
 casa = st.selectbox("Selecione uma casa:", casas)
 st.divider()
 
@@ -137,7 +137,7 @@ with tab2:
 with tab3:
     df_despesas_gerais = GET_DESPESAS_RAPIDAS()
     df_teste = df_despesas_gerais[(df_despesas_gerais['Casa'] == casa) & (df_despesas_gerais['Classificacao_Contabil_1'] == 'Deduções sobre Venda')]
-    # st.write(df_despesas_gerais)
+    # st.write(df_teste)
 
     st.markdown(f'''
         <h3>Projeções - {casa} - Próximos meses</h3>
@@ -175,7 +175,7 @@ with tab3:
     # Deduções sobre Venda
     df_deducoes_venda_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Deduções sobre Venda')
     df_projecao_deducoes_venda_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_deducoes_venda_faturamentos_mensais_passados, 'Deduções sobre Venda', datas['ano_atual'], datas['mes_atual'])
-
+    
     # PJ
     df_custos_pj_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - PJ')
     df_projecao_custos_pj_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_pj_faturamentos_mensais_passados, 'PJ', datas['ano_atual'], datas['mes_atual'])

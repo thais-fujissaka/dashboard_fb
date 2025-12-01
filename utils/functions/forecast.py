@@ -541,17 +541,18 @@ def config_faturamento_bruto_zig(df, data_inicio, data_fim, casa):
 def config_compras(data_inicio, data_fim, loja):
     df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
     df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
-
+    df2 = df2.groupby(['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], as_index=False)[['BlueMe_Com_Pedido_Valor_Liquido', 'BlueMe_Com_Pedido_Valor_Insumos', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas', 'BlueMe_Com_Pedido_Valor_Liq_Descart_Hig_Limp', 'BlueMe_Com_Pedido_Valor_Liq_Outros']].sum()
+    
     df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
-
     df_compras['Primeiro_Dia_Mes'] = pd.to_datetime(df_compras['Primeiro_Dia_Mes'], errors='coerce')
     df_compras['Mes_Ano'] = df_compras['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
+    
     df_compras = df_compras[
         (df_compras['Loja'] == loja) &
         (df_compras['Primeiro_Dia_Mes'] >= data_inicio) &
         (df_compras['Primeiro_Dia_Mes'] <= data_fim)
-        ]
-
+    ]
+    
     df_compras = df_compras.groupby(['ID_Loja', 'Loja', 'Mes_Ano']).agg(
         {'BlueMe_Sem_Pedido_Alimentos': 'sum', 
         'BlueMe_Sem_Pedido_Bebidas': 'sum', 
@@ -940,7 +941,7 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
     df_custos_filtrado['Mes'] = df_custos_filtrado['Data_Competencia'].dt.month
     df_custos_filtrado_mensal = df_custos_filtrado.groupby(['Casa', 'Mes', 'Ano', 'Classificacao_Contabil_2'], as_index=False)[col_valor].sum()
     df_custos_filtrado_mensal = df_custos_filtrado_mensal.rename(columns={col_valor:'Custo Real'})
-
+    
     if class_cont == 'Utilidades':
         df_aut_filtrado = df_aut_blue_me_com_pedido[
             (df_aut_blue_me_com_pedido['Casa'] == casa)
@@ -989,7 +990,7 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
     df_resgata_faturamento_meses_futuros = df_faturamento_meses_futuros[df_faturamento_meses_futuros['Categoria'] != 'Serviço']
     df_resgata_faturamento_meses_futuros = df_resgata_faturamento_meses_futuros.groupby(['Ano', 'Mes'], as_index=False)[['Valor_Bruto', 'Valor Projetado']].sum()
     df_resgata_faturamento_meses_futuros = df_resgata_faturamento_meses_futuros.rename(columns={'Valor_Bruto':'Faturamento Real', 'Valor Projetado':'Faturamento Projetado'})
-
+    
     # Merge da tabela de custos passados com a de faturamentos - obter combinação de cada class. cont. 2 com todos os meses do ano para projetar
     df_custos = df_custos_filtrado_mensal.copy()
     df_fat = df_resgata_faturamento_meses_futuros.copy()
@@ -1007,6 +1008,7 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
         on=['Casa', 'Ano', 'Mes', 'Classificacao_Contabil_2'],
         how='left'
     )
+    
     return df_custos_faturamentos_mensais_passados
 
 
