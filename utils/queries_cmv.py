@@ -403,6 +403,33 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
     Primeiro_Dia_Mes;
 ''')
 
+def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio, data_fim, loja):
+  return dataframe_query(f'''
+  SELECT
+    vibmcp.ID_Loja AS ID_Loja,
+    vibmcp.Loja AS Loja,
+    vibmcp.Primeiro_Dia_Mes AS Primeiro_Dia_Mes,
+    SUM(vibmcp.Valor_Liquido) AS BlueMe_Com_Pedido_Valor_Liquido,
+    SUM(vibmcp.Valor_Insumos) AS BlueMe_Com_Pedido_Valor_Insumos,
+    SUM(vibmcp.Valor_Liq_Alimentos) AS BlueMe_Com_Pedido_Valor_Liq_Alimentos,
+    SUM(vibmcp.Valor_Liq_Bebidas) AS BlueMe_Com_Pedido_Valor_Liq_Bebidas,
+    SUM(vibmcp.Valor_Liq_Descart_Hig_Limp) AS BlueMe_Com_Pedido_Valor_Liq_Descart_Hig_Limp,
+    SUM(vibmcp.Valor_Liq_Outros) AS BlueMe_Com_Pedido_Valor_Liq_Outros
+  FROM
+    View_Insumos_BlueMe_Com_Pedido vibmcp
+  WHERE
+  	vibmcp.Primeiro_Dia_Mes >= '{data_inicio}' AND
+  	vibmcp.Primeiro_Dia_Mes <= '{data_fim}' AND
+  	vibmcp.Loja = '{loja}'
+  GROUP BY
+    vibmcp.ID_Loja,
+    vibmcp.Loja,
+    vibmcp.Primeiro_Dia_Mes
+  ORDER BY
+    vibmcp.ID_Loja,
+    vibmcp.Primeiro_Dia_Mes
+''')
+
 
 @st.cache_data
 def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO():
@@ -507,7 +534,7 @@ def GET_PERDAS_E_CONSUMO_AGRUPADOS():
   
 
 @st.cache_data
-def GET_INSUMOS_BLUE_ME_COM_PEDIDO():
+def GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja):
   return dataframe_query(f'''
   SELECT
     vbmcp.tdr_ID AS tdr_ID,
@@ -529,6 +556,8 @@ def GET_INSUMOS_BLUE_ME_COM_PEDIDO():
     View_BlueMe_Com_Pedido vbmcp
   LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON
     vbmcp.tdr_ID = virapc.tdr_ID
+  WHERE DATE(vbmcp.Data_Emissao) BETWEEN DATE('{data_inicio}') AND DATE('{data_fim}')
+    AND vbmcp.Loja = '{loja}'
 ''')
 
 
