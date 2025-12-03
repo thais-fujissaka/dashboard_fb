@@ -246,6 +246,7 @@ def mostrar_menu_permissoes_kpis_faturamento(permissoes):
         st.sidebar.page_link("pages/Faturamento - Análise de Consumo.py", label=":material/dining: Análise de Consumo")
     elif "Acesso Produtos 1" in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
+        st.sidebar.page_link("pages/Faturamento - Faturamento ZigPay - Média por dia da semana.py", label=":moneybag: Faturamento ZigPay - Média por dia da semana")
         st.sidebar.page_link("pages/Faturamento - Análise de Consumo.py", label=":material/dining: Análise de Consumo")
     elif 'Acesso Financeiro 3' in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
