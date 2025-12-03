@@ -59,6 +59,12 @@ def concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_
 
 # Calcula faturamento geral (junta todas as categorias da Zig) por dia da semana para cada mês
 def calcula_faturamento_medio(df_faturamento_todos_meses, detalhamento_categoria=False, categoria_selecionada=None):
+    # garante que é número
+    df_faturamento_todos_meses['Valor_Bruto'] = pd.to_numeric(
+        df_faturamento_todos_meses['Valor_Bruto'], 
+        errors='coerce'
+    )
+    
     # Calcula a média de faturamento de cada categoria por dia da semana
     df_faturamento_categoria_dia_semana = df_faturamento_todos_meses.groupby(['Categoria', 'Dia Semana', 'Mes_Ano', 'Nome Mes'], as_index=False)[['Valor_Bruto']].mean()
 
