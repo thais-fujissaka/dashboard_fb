@@ -38,7 +38,7 @@ st.title(":material/list: Categorização - Descontos")
 st.divider()
 
 # Seletor de casa
-casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edifício Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Terraço Notiê', 'Orfeu', 'Riviera']
+casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edifício Rolim', 'Girondino', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Terraço Notiê', 'The Cavern', 'Orfeu', 'Riviera']
 casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
 st.divider()
 
@@ -243,7 +243,15 @@ else:
 
     # Renomeando colunas para download em excel e importação na UDF
     df_download = df_categorizado.copy()
-    df_download['Empresa'] = casa
+    
+    # Adiciona coluna da casa para download
+    df_download['Empresa'] = casa 
+
+    # Resgata mes e ano dos dados para nomear excel
+    df_download['Mes_Ano'] = df_download['Data'].dt.strftime("%m%Y")
+    mes_ano = df_download['Mes_Ano'].unique().tolist()
+    mes_ano = mes_ano[0]
+    
     df_download = df_download[['Empresa', 'Funcionário', 'Data', 'Clientes', 'Justificativa', 'Categoria', 'Produtos', 'Porcentagem', 'Desconto']]
     df_download = df_download.rename(columns={
         'Empresa': 'EMPRESA',
@@ -262,7 +270,7 @@ else:
     with col1:
         st.subheader('Descontos categorizados') 
     with col2:
-        button_download(df_download, f"Descontos - {casa}", f"Descontos - {casa}")
+        button_download(df_download, f"Descontos - {casa} - {mes_ano}", f"Descontos - {casa}")
 
     st.info('Atenção para as células com categoria vazia, caso haja.')
     st.dataframe(df_categorizado, hide_index=True)
