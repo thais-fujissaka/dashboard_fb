@@ -239,12 +239,14 @@ def mostrar_menu_permissoes_kpis_faturamento(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
+        st.sidebar.page_link("pages/Faturamento - Faturamento ZigPay - Média por dia da semana.py", label=":moneybag: Faturamento ZigPay - Média por dia da semana")
         st.sidebar.page_link("pages/Faturamento - Outras_Receitas.py", label=":dollar: Faturamento - Outras Receitas")
         st.sidebar.page_link("pages/Fluxo_de_Caixa - Previsão_de_Faturamento.py", label="🪙 Previsão de Faturamento")
         st.sidebar.page_link("pages/Faturamento - Relatório de Vendas.py", label="🛍️ Relatório de Vendas")
         st.sidebar.page_link("pages/Faturamento - Análise de Consumo.py", label=":material/dining: Análise de Consumo")
     elif "Acesso Produtos 1" in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
+        st.sidebar.page_link("pages/Faturamento - Faturamento ZigPay - Média por dia da semana.py", label=":moneybag: Faturamento ZigPay - Média por dia da semana")
         st.sidebar.page_link("pages/Faturamento - Análise de Consumo.py", label=":material/dining: Análise de Consumo")
     elif 'Acesso Financeiro 3' in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
