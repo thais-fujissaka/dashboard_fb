@@ -338,12 +338,12 @@ def main():
                                 nome_arquivo = safe_sheet_name(f'comissao_{vendedor}')
                                 button_download(df_download_vendedor, nome_arquivo, f'download_comissao_{vendedor}')
 
-                            st.dataframe(df_vendedor_styled, use_container_width=True, hide_index=True)
+                            st.dataframe(df_vendedor_styled, width='stretch', hide_index=True)
 
                             with st.expander(f"Ver eventos correspondentes"):
                                 df_eventos_vendedor = df_eventos[df_eventos['ID Evento'].isin(lista_ids_eventos)]
                                 df_eventos_vendedor = format_columns_brazilian(df_eventos_vendedor, ['Valor Total', 'Valor AB', 'Valor Imposto'])
-                                st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], use_container_width=True, hide_index=True)
+                                st.dataframe(df_eventos_vendedor[['ID Evento', 'Casa', 'Nome Evento', 'Cliente', 'Data Contratacao', 'Data Evento', 'Valor Total', 'Valor AB', 'Valor Imposto', 'Status Evento']], width='stretch', hide_index=True)
 
     st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
     with st.container(border=True):
@@ -389,7 +389,7 @@ def main():
             if id_casa != -1:
                 df_eventos_sem_comercial = df_eventos_sem_comercial[df_eventos_sem_comercial['Casa'] == casa]
 
-            st.dataframe(df_eventos_sem_comercial[['Casa','ID Evento', 'Nome Evento', 'Comercial Responsável', 'Cliente', 'Data Contratação', 'Data Evento', 'Valor Total Evento', 'Valor AB', 'Valor Imposto', 'Status Evento', 'Motivo Declínio', 'Observações']], use_container_width=True, hide_index=True)
+            st.dataframe(df_eventos_sem_comercial[['Casa','ID Evento', 'Nome Evento', 'Comercial Responsável', 'Cliente', 'Data Contratação', 'Data Evento', 'Valor Total Evento', 'Valor AB', 'Valor Imposto', 'Status Evento', 'Motivo Declínio', 'Observações']], width='stretch', hide_index=True)
 
 if __name__ == "__main__":
     main()

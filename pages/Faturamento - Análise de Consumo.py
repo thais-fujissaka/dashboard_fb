@@ -152,29 +152,29 @@ with st.container(border=True):
 	st.markdown(
 		f"### Produtos mais comprados junto com {produto_selecionado}:"
 	)
-	st.dataframe(df_top_produtos_dia_e_periodo, use_container_width=True, hide_index=True)
+	st.dataframe(df_top_produtos_dia_e_periodo, width='stretch', hide_index=True)
 
 with st.container(border=True):
 	st.markdown(
 		f"### Produtos mais comprados no mesmo dia que {produto_selecionado} (podem ser em horários diferentes):"
 	)
-	st.dataframe(df_top_produtos_dia, use_container_width=True, hide_index=True)
+	st.dataframe(df_top_produtos_dia, width='stretch', hide_index=True)
 
 with st.expander(f"Produtos comprados na mesma refeição que {produto_selecionado}: {len(df_produtos_comprados_no_dia_e_periodo)}"):
 	st.write(r"\* Compras efetuadas dentro de um mesmo momento de consumo (Almoço, Jantar, Happy Hour, Madrugada etc)")
-	st.dataframe(df_produtos_comprados_no_dia_e_periodo, use_container_width=True, hide_index=True)
+	st.dataframe(df_produtos_comprados_no_dia_e_periodo, width='stretch', hide_index=True)
 
 with st.expander(
 	f"Produtos comprados no mesmo dia que {produto_selecionado}: {len(df_produtos_comprados_no_dia)}"):
-	st.dataframe(df_produtos_comprados_no_dia, use_container_width=True, hide_index=True)
+	st.dataframe(df_produtos_comprados_no_dia, width='stretch', hide_index=True)
 
 with st.expander(
 	f"Produtos comprados no mês pelos compradores de {produto_selecionado}: {len(df_produtos_comprador)}"
 ):
-	st.dataframe(df_produtos_comprador, use_container_width=True, hide_index=True)
+	st.dataframe(df_produtos_comprador, width='stretch', hide_index=True)
 
 with st.expander(
 	f"N.º de Transações com {produto_selecionado}: {len(df_produto_selecionado_compradores)}"
 ):
 	st.dataframe(
-		df_produto_selecionado_compradores[['Produto', 'userDocument', 'userName', 'Data Transacao', 'Periodo Dia']], use_container_width=True, hide_index=True)
+		df_produto_selecionado_compradores[['Produto', 'userDocument', 'userName', 'Data Transacao', 'Periodo Dia']], width='stretch', hide_index=True)

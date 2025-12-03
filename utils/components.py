@@ -185,7 +185,7 @@ def button_download(df, file_name, key):
         data=excel_data,
         file_name=f"{file_name}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        use_container_width=True,
+        width='stretch',
         type="tertiary",
         key=f'{key}'
     )

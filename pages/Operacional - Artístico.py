@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.queries_faturamento import *
+from utils.queries_operacional import *
 from utils.functions.general_functions import *
 from utils.components import *
 from utils.user import logout

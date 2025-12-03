@@ -47,9 +47,9 @@ with st.container(border=True):
       st.subheader("Faturamento Receitas Extraordinárias*:")
     with col2:
       st.write("*Receitas de Eventos até 09/2025")
-    st.dataframe(FaturamReceitExtraord, use_container_width=True, hide_index=True)
+    st.dataframe(FaturamReceitExtraord, width='stretch', hide_index=True)
     st.write("**Faturamento Extraordinário Total:**")
-    st.dataframe(Totais, use_container_width=True, hide_index=True)
+    st.dataframe(Totais, width='stretch', hide_index=True)
 
 
 st.markdown('<div style="page-break-before: always;"></div>', unsafe_allow_html=True)
@@ -66,5 +66,5 @@ with st.container(border=True):
       classificacoes_selecionadas = st.multiselect(label='Selecione Classificações', options=classificacoes)
     DfFiltrado = filtrar_por_classe_selecionada(ReceitExtraord, 'Classificação', classificacoes_selecionadas)
     DfFiltrado = format_columns_brazilian(DfFiltrado, ['Valor Total', 'Categ. AB', 'Categ. Aluguel', 'Categ. Artista', 'Categ. Couvert', 'Categ. Locação', 'Categ. Patrocínio', 'Categ. Taxa de serviço'])
-    st.dataframe(DfFiltrado, use_container_width=True, hide_index=True)
+    st.dataframe(DfFiltrado, width='stretch', hide_index=True)
 

@@ -243,7 +243,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
             df_parcelas_recebimento_styled = df_parcelas_recebimento.style.apply(colorir_parcelas_recebidas, axis=1)
             st.dataframe(df_parcelas_recebimento_styled,
                         height=35 * len(df_parcelas_recebimento) + 35,
-                        use_container_width=True, hide_index=True)
+                        width='stretch', hide_index=True)
 
             # Legenda de cores
             st.markdown("""
@@ -283,7 +283,7 @@ def grafico_barras_vencimento_x_recebimento(df_parcelas_recebimento, df_parcelas
             df_parcelas_vencimento_styled = df_parcelas_vencimento.style.apply(colorir_parcelas_vencidas, axis=1)
             st.dataframe(df_parcelas_vencimento_styled,
                         height=35 * len(df_parcelas_vencimento) + 35,
-                        use_container_width=True, hide_index=True)
+                        width='stretch', hide_index=True)
             
             # Legenda de cores
             st.markdown("""

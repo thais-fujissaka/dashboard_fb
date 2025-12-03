@@ -266,7 +266,7 @@ def pesquisa_por_produto(dfNomeCompras, key, data_fim, dfSemDataFiltrada, key_gr
       filtered_df = dfNomeCompras
       dfSemDataFiltrada = filtrar_por_classe_selecionada(dfSemDataFiltrada, 'Nome Produto', produto_mais_significativo)
   row1 = st.columns([1, 15, 1])
-  row1[1].dataframe(filtered_df, use_container_width=True,hide_index=True)
+  row1[1].dataframe(filtered_df, width='stretch',hide_index=True)
   col0, col, col1, col2 = st.columns([1.6, 15, 8, 2])
   with st.expander('Histórico de preço do produto selecionado'):
     config_historico_valores(dfSemDataFiltrada, data_fim, key_grafico)
@@ -292,7 +292,7 @@ def config_compras_insumos_detalhadas(categoria, key_data1, key_data2, keysearch
 
 
   row1 = st.columns([1, 15, 1])
-  row1[1].dataframe(filtered_df, use_container_width=True,hide_index=True)
+  row1[1].dataframe(filtered_df, width='stretch',hide_index=True)
 
 
 def create_columns_comparativo(df):
@@ -374,11 +374,11 @@ def comparativo_entre_lojas(df):
         col1, col2 = st.columns(2)
         with col1:
           st.subheader(f'{loja1}')
-          st.dataframe(df_loja1, use_container_width=True, hide_index=True)
+          st.dataframe(df_loja1, width='stretch', hide_index=True)
 
         with col2:
           st.subheader(f'{loja2}')
-          st.dataframe(df_loja2, use_container_width=True, hide_index=True)
+          st.dataframe(df_loja2, width='stretch', hide_index=True)
     else:
         st.info('Selecione um produto para visualizar os dados.')
 
@@ -439,5 +439,5 @@ def comparativo_valor_mais_baixo(df1):
     newdf = newdf.sort_values(by='Diferença Preços', ascending=False).reset_index(drop=True)
     newdf = newdf.rename(columns={'ID Produto Nivel 4': 'ID Prod.'})
     newdf = format_columns_brazilian(newdf, ['Valor Unitário', 'Menor V. Unit.', 'Diferença Preços'])
-    st.dataframe(newdf, use_container_width=True, hide_index=True)
+    st.dataframe(newdf, width='stretch', hide_index=True)
 

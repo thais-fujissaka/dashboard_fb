@@ -104,5 +104,5 @@ with tab2:
       despesaDetalhadaConfig = format_columns_brazilian(despesaDetalhadaConfig, ['Valor'])
       despesaDetalhadaConfig = despesaDetalhadaConfig.rename(columns={'Doc_Serie': 'Doc. Série'})
       despesaDetalhadaConfig = despesaDetalhadaConfig[['ID Despesa', 'Loja', 'Class. Contábil 1', 'Class. Contábil 2',  'Fornecedor', 'Doc. Série', 'Data Emissão', 'Data Vencimento', 'Descrição', 'Status',  'Valor' ]]
-      st.dataframe(despesaDetalhadaConfig, height=500, use_container_width=True, hide_index=True)
+      st.dataframe(despesaDetalhadaConfig, height=500, width='stretch', hide_index=True)
       st.markdown(f"**Valor Total = R$ {valorTotal}**")

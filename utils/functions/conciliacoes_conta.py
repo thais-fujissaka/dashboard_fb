@@ -55,7 +55,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_outras = df_blueme_outras.sort_values(by="Realizacao_Pgto", ascending=False)
             df_blueme_outras_fmt = formata_df(df_blueme_outras)
             df_blueme_outras_styled = df_blueme_outras_fmt.style.apply(colorir_linhas(df_blueme_outras, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_blueme_outras_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_blueme_outras_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
             st.write("")
 
@@ -101,7 +101,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc_outras = df_blueme_com_parc_outras.sort_values(by="Realiz_Parcela", ascending=False)
             df_blueme_com_parc_outras_fmt = formata_df(df_blueme_com_parc_outras)
             df_blueme_com_parc_outras_styled = df_blueme_com_parc_outras_fmt.style.apply(colorir_linhas(df_blueme_com_parc_outras, 'ID_Parcela', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_blueme_com_parc_outras_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_blueme_com_parc_outras_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
             st.write("")
 
@@ -143,7 +143,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_saidas_mutuos_outras = df_saidas_mutuos_outras.sort_values(by="Data_Mutuo", ascending=False)
             df_saidas_mutuos_outras_fmt = formata_df(df_saidas_mutuos_outras)
             df_saidas_mutuos_outras_styled = df_saidas_mutuos_outras_fmt.style.apply(colorir_linhas(df_saidas_mutuos_outras, 'Mutuo_ID', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_saidas_mutuos_outras_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_saidas_mutuos_outras_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
             st.write("")
 
@@ -224,7 +224,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_sem_parc = df_blueme_sem_parc.sort_values(by="Realizacao_Pgto", ascending=False)
             df_blueme_sem_parc_fmt = formata_df(df_blueme_sem_parc)
             df_blueme_sem_parc_styled = df_blueme_sem_parc_fmt.style.apply(colorir_linhas(df_blueme_sem_parc, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_blueme_sem_parc_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_blueme_sem_parc_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
             st.write("")
 
@@ -283,7 +283,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_blueme_com_parc = df_blueme_com_parc.sort_values(by="Realiz_Parcela", ascending=False)
             df_blueme_com_parc_fmt = formata_df(df_blueme_com_parc)
             df_blueme_com_parc_styled = df_blueme_com_parc_fmt.style.apply(colorir_linhas(df_blueme_com_parc, 'ID_Parcela', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_blueme_com_parc_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_blueme_com_parc_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
             st.write("")
 
@@ -327,7 +327,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_bloqueios_conta = df_bloqueios_conta.sort_values(by="Data_Bloqueio", ascending=False)
             df_bloqueios_conta_fmt = formata_df(df_bloqueios_conta)
             df_bloqueios_conta_styled = df_bloqueios_conta_fmt.style.apply(colorir_linhas(df_bloqueios_conta, 'ID_Bloqueio', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_bloqueios_conta_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_bloqueios_conta_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
             st.write("")
 
@@ -369,7 +369,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_saidas_mutuos_conta = df_saidas_mutuos_conta.sort_values(by="Data_Mutuo", ascending=False)
             df_saidas_mutuos_conta_fmt = formata_df(df_saidas_mutuos_conta)
             df_saidas_mutuos_conta_styled = df_saidas_mutuos_conta_fmt.style.apply(colorir_linhas(df_saidas_mutuos_conta, 'Mutuo_ID', 'Status_Conf_Document', 'Status_Aprov_Diret', 'despesa'), axis=1)
-            st.dataframe(df_saidas_mutuos_conta_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_saidas_mutuos_conta_styled, width='stretch', hide_index=True)
             exibir_legenda("contas")
 
             st.write("")
@@ -457,7 +457,7 @@ def itens_por_conta(id_casa, ids_outras, df_custos_blueme_sem_parc, df_custos_bl
             df_concat_merge = df_concat_merge.sort_values(by="Data_Transacao_Extrato", ascending=False)
             df_concat_merge_fmt = formata_df(df_concat_merge)
             df_concat_merge_styled = df_concat_merge_fmt.style.apply(colorir_linhas(df_concat_merge, 'ID_Despesa', 'Status_Conf_Document', 'Status_Aprov_Diret', 'extrato'), axis=1)
-            st.dataframe(df_concat_merge_styled, use_container_width=True, hide_index=True)
+            st.dataframe(df_concat_merge_styled, width='stretch', hide_index=True)
             exibir_legenda("extrato")
             
             st.write("")
@@ -686,27 +686,27 @@ def cria_tabs_contas(df_contas, id_casa, df_custos_blueme_sem_parc, df_custos_bl
 # Exibe itens do CONTAS A PAGAR em TODAS AS CONTAS
 def exibe_tabelas_contas_a_pagar(id_casa, df_custos_blueme_sem_parcelam_formatada, df_custos_blueme_com_parcelam_formatada, df_mutuos_formatada, df_bloqueios_judiciais_filtrada, df_extratos_bancarios_formatada):
     st.subheader("Despesas BlueMe Sem Parcelamento - Todas as contas")
-    st.dataframe(df_custos_blueme_sem_parcelam_formatada, use_container_width=True, hide_index=True)
+    st.dataframe(df_custos_blueme_sem_parcelam_formatada, width='stretch', hide_index=True)
     st.divider()
 
     st.subheader("Despesas BlueMe Com Parcelamento - Todas as contas")
-    st.dataframe(df_custos_blueme_com_parcelam_formatada, use_container_width=True, hide_index=True)
+    st.dataframe(df_custos_blueme_com_parcelam_formatada, width='stretch', hide_index=True)
     st.divider()
 
     st.subheader("Saídas Mútuos - Todas as contas")
     df_mutuos_formatada = df_mutuos_formatada[df_mutuos_formatada['ID_Casa_Saida'] == id_casa]
-    st.dataframe(df_mutuos_formatada, use_container_width=True, hide_index=True)
+    st.dataframe(df_mutuos_formatada, width='stretch', hide_index=True)
     st.divider()
 
     st.subheader("Bloqueios Judiciais - Todas as contas")
     df_bloqueios_judiciais_filtrada = df_bloqueios_judiciais_filtrada[df_bloqueios_judiciais_filtrada['Valor'] < 0]
     df_bloqueios_judiciais_formatada = formata_df(df_bloqueios_judiciais_filtrada)
-    st.dataframe(df_bloqueios_judiciais_formatada, use_container_width=True, hide_index=True)
+    st.dataframe(df_bloqueios_judiciais_formatada, width='stretch', hide_index=True)
     st.divider()
 
     st.subheader("Extratos Bancários (Débito) - Todas as contas")
     df_extratos_bancarios_formatada = df_extratos_bancarios_formatada[df_extratos_bancarios_formatada['Tipo_Credito_Debito'] == 'DEBITO']
-    st.dataframe(df_extratos_bancarios_formatada, use_container_width=True, hide_index=True)
+    st.dataframe(df_extratos_bancarios_formatada, width='stretch', hide_index=True)
     st.divider()
 
 

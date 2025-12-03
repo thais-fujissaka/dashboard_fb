@@ -225,7 +225,7 @@ def infos_evento(id_evento, df_eventos_aditivos_agrupados, df_eventos):
             'Valor Contratação Bilheteria/Couvert Artístico'
         ])
         evento_inicial = df_format_date_columns_brazilian(evento_inicial, ['Data Evento', 'Data Contratação'])
-        st.dataframe(evento_inicial, use_container_width=True, hide_index=True)    
+        st.dataframe(evento_inicial, width='stretch', hide_index=True)    
 
 
 def mostrar_aditivos(id_evento, df_aditivos):
@@ -238,7 +238,7 @@ def mostrar_aditivos(id_evento, df_aditivos):
         aditivos = df_format_date_columns_brazilian(aditivos, ['Data Evento', 'Data Contratação'])
         aditivos = format_columns_brazilian(aditivos, ['Valor Total Aditivo', 'Valor AB', 'Valor Total Locação', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Locação Espaço', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto'])
         st.markdown(f"#### Aditivos")
-        st.dataframe(aditivos, use_container_width=True, hide_index=True)
+        st.dataframe(aditivos, width='stretch', hide_index=True)
     return lista_aditivos
 
 def mostrar_parcelas(id_evento, df_parcelas, lista_aditivos):
@@ -252,4 +252,4 @@ def mostrar_parcelas(id_evento, df_parcelas, lista_aditivos):
         parcelas = format_columns_brazilian(parcelas, ['Valor Parcela'])
         parcelas = rename_colunas_parcelas(parcelas)
         st.markdown(f"#### Parcelas")
-        st.dataframe(parcelas, use_container_width=True, hide_index=True)
+        st.dataframe(parcelas, width='stretch', hide_index=True)
