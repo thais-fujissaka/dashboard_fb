@@ -126,7 +126,7 @@ def main():
 	df_logs_eventos_confirmados_styled = highlight_event_log_changes(df_logs_eventos_confirmados)
 
 	st.markdown('### Alterações de Eventos Confirmados')
-	st.dataframe(df_logs_eventos_confirmados_styled, use_container_width=True, hide_index=True)
+	st.dataframe(df_logs_eventos_confirmados_styled, width='stretch', hide_index=True)
 	st.write('')
 	st.markdown("""
 	<div style="margin-top: -24px; padding: 10px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; align-items: center;">
@@ -172,7 +172,7 @@ def main():
 	st.write('')
 
 	st.markdown('### Alterações de Parcelas de Eventos Confirmados')
-	st.dataframe(df_logs_parcelas_confirmados_styled, use_container_width=True, hide_index=True)
+	st.dataframe(df_logs_parcelas_confirmados_styled, width='stretch', hide_index=True)
 	st.write('')
 	st.markdown("""
 	<div style="margin-top: -24px; padding: 10px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e7eb; display: flex; align-items: center;">

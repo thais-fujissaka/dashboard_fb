@@ -302,7 +302,7 @@ def main():
             )
         },
         height=568,
-        use_container_width=True,
+        width='stretch',
         hide_index=True
     )
 
@@ -353,28 +353,28 @@ def main():
                 st.markdown(f'## Ficha Técnica - {produto_selecionado}')
             with col2:
                 button_download(df_fichas_itens_vendidos_download[ordem_col], f'fichas_{casa}'[:31], f'fichas_{casa}'[:31])
-            st.dataframe(df_fichas_itens_vendidos[ordem_col], use_container_width=True, hide_index=True)
+            st.dataframe(df_fichas_itens_vendidos[ordem_col], width='stretch', hide_index=True)
             
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown('### Custos Itens de Estoque')
             with col2:
                 button_download(df_fichas_insumos_de_estoque_download, f'estoq_{casa}'[:31], f'estoq_{casa}'[:31])
-            st.dataframe(df_precos_insumos_de_estoque, use_container_width=True, hide_index=True)
+            st.dataframe(df_precos_insumos_de_estoque, width='stretch', hide_index=True)
 
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown('### Custos Itens de Produção')
             with col2:
                 button_download(df_precos_itens_producao_completo_download, f'prod_{casa}'[:31], f'prod_{casa}'[:31])
-            st.dataframe(df_precos_itens_producao_completo, use_container_width=True, hide_index=True)
+            st.dataframe(df_precos_itens_producao_completo, width='stretch', hide_index=True)
 
             col1, col2 = st.columns([6, 1], vertical_alignment='bottom', gap='large')
             with col1:
                 st.markdown(f'## Fichas Técnicas - Itens de Produção - {produto_selecionado}')
             with col2:
                 button_download(df_precos_insumos_producao_download, f'fichas_prod{casa}'[:31], f'fichas_prod_{casa}'[:31])
-            st.dataframe(df_precos_insumos_producao, use_container_width=True, hide_index=True)
+            st.dataframe(df_precos_insumos_producao, width='stretch', hide_index=True)
 
             # Filtra compras dos insumos de estoque que vão no produto
             lista_ids_insumos_estoque_produto_selecionado = df_precos_insumos_de_estoque['ID Insumo Estoque'].unique().tolist() + df_precos_insumos_producao['ID Insumo Estoque'].unique().tolist()

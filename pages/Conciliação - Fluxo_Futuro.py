@@ -58,7 +58,7 @@ with col_botao:
     st.markdown("<br>", unsafe_allow_html=True)  # para alinhar o botão com os widgets
     if st.button("🏢 Sem Sócios Externos", 
                  help="Seleciona automaticamente todas as casas que não possuem sócios externos (Bit_Socios_Externos = 0)", 
-                 use_container_width=True):
+                 width='stretch'):
         
         # Filtrando casas sem sócios externos
         casas_sem_socios_externos = df_casas[df_casas['Bit_Socios_Externos'] == 0]['Casa'].tolist()

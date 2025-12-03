@@ -45,7 +45,7 @@ def main():
                     on_click=handle_login,
                     args=(user_email, password),
                     type="primary",
-                    use_container_width=True,
+                    width='stretch',
                 )
     else:
         permissao, Nomeuser, email = config_permissoes_user()

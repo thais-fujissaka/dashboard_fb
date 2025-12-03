@@ -96,47 +96,47 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
 
     if tab == 'Geral': # Exibe todos os dfs
         st.subheader("Extrato Zig")
-        st.dataframe(df_extrato_zig_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_extrato_zig_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Zig Faturamento")
-        st.dataframe(df_zig_faturam_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_zig_faturam_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Parcelas Receitas Extraordinárias")
-        st.dataframe(df_parc_receit_extr_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_parc_receit_extr_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Eventos")
-        st.dataframe(df_eventos_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_eventos_formatada, width='stretch', hide_index=True)
         st.divider()
         
         st.subheader("Despesas BlueMe Sem Parcelamento")
-        st.dataframe(df_custos_blueme_sem_parcelam_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_custos_blueme_sem_parcelam_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Despesas BlueMe Com Parcelamento")
-        st.dataframe(df_custos_blueme_com_parcelam_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_custos_blueme_com_parcelam_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Extratos Bancários")
-        st.dataframe(df_extratos_bancarios_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_extratos_bancarios_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Mútuos")
-        st.dataframe(df_mutuos_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_mutuos_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Tesouraria")
-        st.dataframe(df_tesouraria_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_tesouraria_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Ajustes Conciliação")
-        st.dataframe(df_ajustes_conciliacao_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_ajustes_conciliacao_formatada, width='stretch', hide_index=True)
         st.divider()
 
         st.subheader("Bloqueios Judiciais")
-        st.dataframe(df_bloqueios_judiciais_formatada, use_container_width=True, hide_index=True)
+        st.dataframe(df_bloqueios_judiciais_formatada, width='stretch', hide_index=True)
         st.divider()   
 
         
@@ -291,7 +291,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
 
         # Estiliza linhas não conciliadas e exibe df de conciliação
         df_styled = df_formatado.style.apply(colorir_conciliacao, axis=1)
-        st.dataframe(df_styled, use_container_width=True, hide_index=True)
+        st.dataframe(df_styled, width='stretch', hide_index=True)
         exibir_legenda("conciliacao")
         
         st.divider()

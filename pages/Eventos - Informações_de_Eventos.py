@@ -137,7 +137,7 @@ def main():
 
 		st.markdown("## Eventos")
 		st.dataframe(df_eventos, 
-			use_container_width=True,
+			width='stretch',
 			hide_index=True, 
 			column_config={
 				'Evento': st.column_config.Column(
@@ -151,14 +151,14 @@ def main():
 
 		st.markdown("## Aditivos")
 		if not df_aditivos.empty and df_aditivos is not None:
-			st.dataframe(df_aditivos, use_container_width=True, hide_index=True)
+			st.dataframe(df_aditivos, width='stretch', hide_index=True)
 		else:
 			st.warning("Nenhum aditivo encontrado.")
 
 		st.markdown("## Parcelas")
 		if df_parcelas is not None:
 			df_parcelas = df_parcelas.drop(columns=['ID Casa', 'Total Gazit Aroos', 'Total Gazit Anexo', 'Status Evento', 'Valor Total Locação', 'Total Gazit', 'Valor Locacao Total Aroos', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Repasse_Gazit_Bruto', 'Repasse_Gazit_Liquido', 'Repasse Gazit Bruto Aroos', 'Repasse Gazit Liquido Aroos', 'Repasse Gazit Bruto Anexo', 'Repasse Gazit Liquido Anexo'])
-			st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+			st.dataframe(df_parcelas, width='stretch', hide_index=True)
 		else:
 			st.warning("Nenhuma parcela encontrada.")
 		

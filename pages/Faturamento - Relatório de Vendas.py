@@ -164,7 +164,7 @@ def main():
     with col2:
         button_download(FaturamentoZigClasse, f'itens', f'download_itens')
     FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasse, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])
-    st.dataframe(FaturamentoZigClasse, use_container_width=True, hide_index=True)
+    st.dataframe(FaturamentoZigClasse, width='stretch', hide_index=True)
 
 
     col1, col2 = st.columns([4, 1], vertical_alignment = "center")
@@ -173,7 +173,7 @@ def main():
     with col2:
         button_download(FaturamentoZigClasseAgrupado, f'itens_agrupados', f'download_itens_agrupados')
     FaturamentoZigClasse = format_columns_brazilian(FaturamentoZigClasseAgrupado, ['Valor Bruto Venda', 'Valor Líquido Venda', 'Preço Unitário'])
-    st.dataframe(FaturamentoZigClasse, use_container_width=True, hide_index=True)
+    st.dataframe(FaturamentoZigClasse, width='stretch', hide_index=True)
 
 
 if __name__ == '__main__':

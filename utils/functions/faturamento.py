@@ -226,7 +226,7 @@ def grafico_barras_total_eventos(df_parcelas, tipo_data, df_orcamentos, id_casa)
                 total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação'])
         st.markdown("#### Parcelas")
-        st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+        st.dataframe(df_parcelas, width='stretch', hide_index=True)
         if df_parcelas is not None and not df_parcelas.empty:
             col1, col2 = st.columns([4, 1], vertical_alignment="center")
             with col1:
@@ -389,7 +389,7 @@ def grafico_barras_locacao_priceless(df_parcelas, df_eventos, tipo_data, espaco,
                 total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela', 'Valor Bruto Repasse Gazit', 'Total Locação', 'Valor Parcela Aroos', 'Valor Parcela Anexo', 'Valor Parcela Notiê', 'Valor Parcela Mirante'])
         st.markdown("#### Parcelas")
-        st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+        st.dataframe(df_parcelas, width='stretch', hide_index=True)
         if df_parcelas is not None and not df_parcelas.empty:
             col1, col2 = st.columns([4, 1], vertical_alignment="center")
             with col1:
@@ -540,7 +540,7 @@ def grafico_barras_faturamento_categoria_evento(df_parcelas, tipo_data, categori
                 total_parcelas_mes = format_brazilian(df_parcelas['Valor Parcela'].sum())
             df_parcelas = format_columns_brazilian(df_parcelas, ['Valor Parcela'])
         st.markdown("#### Parcelas")
-        st.dataframe(df_parcelas, use_container_width=True, hide_index=True)
+        st.dataframe(df_parcelas, width='stretch', hide_index=True)
         if df_parcelas is not None and not df_parcelas.empty:
             col1, col2 = st.columns([4, 1], vertical_alignment="center")
             with col1:

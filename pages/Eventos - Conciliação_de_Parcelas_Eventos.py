@@ -113,7 +113,7 @@ def main():
 				with col2:
 					button_download(df_farol_download, 'Parcelas_Atrasadas', 'parcelas_atrasadas')
 				
-				st.dataframe(df_farol, use_container_width=True, hide_index=True)
+				st.dataframe(df_farol, width='stretch', hide_index=True)
 				st.markdown("Todas as parcelas ainda sem pagamento após a Data de Vencimento.")
 		else:
 			with col2:

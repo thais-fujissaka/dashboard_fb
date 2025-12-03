@@ -179,7 +179,7 @@ def analise_orcado_realizado(
         )
         
         fig_comparacao.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
-        st.plotly_chart(fig_comparacao, use_container_width=True)
+        st.plotly_chart(fig_comparacao, width='stretch')
 
         st.divider()
 
@@ -440,7 +440,7 @@ def projecao_receitas_patrocinios(
         )
         
         fig_projecao.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
-        st.plotly_chart(fig_projecao, use_container_width=True)
+        st.plotly_chart(fig_projecao, width='stretch')
 
         st.divider()
         
@@ -795,7 +795,7 @@ def projecao_despesas_futuras(
         )
         
         fig_projecao_despesas_consolidadas.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
-        st.plotly_chart(fig_projecao_despesas_consolidadas, use_container_width=True)
+        st.plotly_chart(fig_projecao_despesas_consolidadas, width='stretch')
 
         st.divider()
         
@@ -1093,7 +1093,7 @@ def projecao_avancada_receitas_despesas(
             )
             
             fig_projecao_mensal.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
-            st.plotly_chart(fig_projecao_mensal, use_container_width=True)
+            st.plotly_chart(fig_projecao_mensal, width='stretch')
             
             st.divider()
 

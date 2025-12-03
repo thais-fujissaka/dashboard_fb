@@ -131,7 +131,7 @@ with st.container(border=True):
 
     # Ordena por data
     df_projecao_grouped_com_soma = ordena_por_data(df_projecao_grouped_com_soma)
-    st.dataframe(df_projecao_grouped_com_soma, use_container_width=True, hide_index=True)
+    st.dataframe(df_projecao_grouped_com_soma, width='stretch', hide_index=True)
     button_download(df_projecao_grouped_com_soma, f"Projeção de bares agrupados", f"Projeção de bares agrupados")
 
 st.divider()
@@ -202,7 +202,7 @@ with st.container(border=True):
     })
 
     df_projecao_bar_com_soma = ordena_por_data(df_projecao_bar_com_soma)
-    st.dataframe(df_projecao_bar_com_soma, use_container_width=True, hide_index=True)
+    st.dataframe(df_projecao_bar_com_soma, width='stretch', hide_index=True)
     button_download(df_projecao_bar_com_soma, f"Projeção casa a casa", f"Projeção casa a casa")
 
 st.divider()
@@ -281,7 +281,7 @@ with st.container(border=True):
         "Status_Pgto": "Status Pgto",
     })
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width='stretch', hide_index=True)
     col1, col2 = st.columns([5, 2], vertical_alignment='center')
     with col1:
         st.write(f"Valor total das despesas selecionadas = **R$ {valorTotal}**")
@@ -339,7 +339,7 @@ with st.container(border=True):
         "Nome_Cliente": "Nome Cliente"       
     })
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width='stretch', hide_index=True)
     col1, col2 = st.columns([5, 2], vertical_alignment='center')
     with col1:
         st.write(f"Valor total das receitas extraordinárias selecionadas = **R$ {valorTotal}**")
@@ -398,7 +398,7 @@ with st.container(border=True):
         "Nome_Cliente": "Nome Cliente"   
     })
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width='stretch', hide_index=True)
     col1, col2 = st.columns([5, 2], vertical_alignment='center')
     with col1:
         st.write(f"Valor total das receitas de eventos selecionadas = **R$ {valorTotal}**")

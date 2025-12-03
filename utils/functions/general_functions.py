@@ -24,29 +24,54 @@ def mysql_connection_fb():
 		)    
 	return conn_fb
 
+def mysql_connection_eshows():
+    mysql_config = st.secrets["mysql_eshows"]
+    # Create MySQL connection
+    conn = mysql.connector.connect(
+        host=mysql_config['host'],
+        port=mysql_config['port'],
+        database=mysql_config['database'],
+        user=mysql_config['username'],
+        password=mysql_config['password']
+    )    
+    return conn
 
-def execute_query(query):
+
+def execute_query(query, use_eshows=False):
+    conn = (
+        mysql_connection_fb() if use_eshows == False 
+        else mysql_connection_eshows()
+    )
+    cursor = conn.cursor()
     try:
-        conn = mysql_connection_fb()
-        cursor = conn.cursor()
         cursor.execute(query)
+        
+        # Verifique se cursor.description não é None
+        if cursor.description is None:
+            print("Descrição do cursor é None")
+            return None, None
 
         # Obter nomes das colunas
         column_names = [col[0] for col in cursor.description]
-  
         # Obter resultados
         result = cursor.fetchall()
-  
+        
+        if not result:
+            print("Nenhuma linha retornada pela consulta.")
+        
         cursor.close()
-        conn.close()  # Fechar a conexão
+        conn.close()
         return result, column_names
-    except mysql.connector.Error as err:
-        LOGGER.error(f"Erro ao executar query: {err}")
+    except Exception as e:
+        print(f"Erro ao executar a consulta: {e}")
         return None, None
+    finally:
+        cursor.close()
+        conn.close()
 
 
-def dataframe_query(query):
-	resultado, nomeColunas = execute_query(query)
+def dataframe_query(query, use_eshows=False):
+	resultado, nomeColunas = execute_query(query, use_eshows=use_eshows)
 	dataframe = pd.DataFrame(resultado, columns=nomeColunas)
 	return dataframe
 
@@ -261,6 +286,7 @@ def mostrar_menu_permissoes_kpis_resultado_operacional(permissoes):
         st.sidebar.page_link('pages/CMV - Painel_CMV.py', label=":bar_chart: Painel de CMV")
         st.sidebar.page_link("pages/CMV - CMV_Teórico_-_Análise_de_Fichas_Técnicas.py", label=":material/rubric: CMV Teórico - Análise de Fichas Técnicas")
         st.sidebar.page_link("pages/CMV - CMV_Real.py", label="⚖ CMV Real")
+        st.sidebar.page_link("pages/Operacional - Artístico.py", label='🎵 Artístico')
     elif 'Acesso Financeiro 2' in permissoes:
         st.sidebar.markdown("## KPI's de Resultado Operacional")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Controle de Despesas Gerais")

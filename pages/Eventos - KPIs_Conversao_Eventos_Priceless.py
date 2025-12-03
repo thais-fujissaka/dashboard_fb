@@ -205,7 +205,7 @@ def main():
                 df_filtrado_download = df_filtrado.copy()
                 df_filtrado = format_columns_brazilian(df_filtrado, ['Valor Total', 'Número de Pessoas', 'Valor AB', 'Valor Locação Total', 'Valor Imposto', 'Valor Locação Gerador', 'Valor Locação Mobiliário', 'Valor Locação Utensílios', 'Valor Mão de Obra Extra', 'Valor Taxa Administrativa', 'Valor Comissão BV', 'Valor Extras Gerais', 'Valor Taxa Serviço', 'Valor Acréscimo Forma de Pagamento', 'Valor Imposto', 'Valor Contratação Artístico', 'Valor Contratação Técnico de Som', 'Valor Contratação Bilheteria/Couvert Artístico'])
                 df_filtrado = df_filtrado.drop(columns=['Is Aditivo'])
-                st.dataframe(df_filtrado, use_container_width=True, hide_index=True)
+                st.dataframe(df_filtrado, width='stretch', hide_index=True)
                 col1, col2 = st.columns([4, 1], vertical_alignment = "center")
                 with col1:
                     st.markdown(mensagem)

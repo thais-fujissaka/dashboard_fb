@@ -107,7 +107,7 @@ def main():
 			if df_eventos_sem_parcelas.empty:
 				st.success("Nenhum evento sem parcelas lançadas.")
 			else:
-				st.dataframe(df_eventos_sem_parcelas, use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_sem_parcelas, width='stretch', hide_index=True)
 
 			st.markdown("### Farol - Eventos Confirmados sem Data de Envio da Proposta")
 			df_eventos_sem_data_envio_proposta = df_eventos_confirmados[df_eventos_confirmados['Data Envio Proposta'].isna()]
@@ -115,7 +115,7 @@ def main():
 			if df_eventos_sem_data_envio_proposta.empty:
 				st.success("Nenhum evento sem data de envio da proposta.")
 			else:
-				st.dataframe(df_eventos_sem_data_envio_proposta[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_sem_data_envio_proposta[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], width='stretch', hide_index=True)
 			
 			st.markdown("### Farol - Eventos Confirmados sem Data de Recebimento do Lead")
 			df_eventos_sem_data_recebimento_lead = df_eventos_confirmados[df_eventos_confirmados['Data Recebimento Lead'].isna()]
@@ -123,7 +123,7 @@ def main():
 			if df_eventos_sem_data_recebimento_lead.empty:
 				st.success("Nenhum evento sem data de recebimento do lead.")
 			else:
-				st.dataframe(df_eventos_sem_data_recebimento_lead[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_sem_data_recebimento_lead[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], width='stretch', hide_index=True)
 			
 			st.markdown("### Farol - Eventos Confirmados sem Data de Contratação")
 			df_eventos_sem_data_contratacao = df_eventos_confirmados[df_eventos_confirmados['Data Contratação'].isna()]
@@ -131,14 +131,14 @@ def main():
 			if df_eventos_sem_data_contratacao.empty:
 				st.success("Nenhum evento sem data de contratação.")
 			else:
-				st.dataframe(df_eventos_sem_data_contratacao[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_sem_data_contratacao[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], width='stretch', hide_index=True)
 
 			st.markdown("### Farol - Eventos Declinados sem Motivo de Declínio")
 			df_eventos_sem_motivo_declinio = df_eventos_declinados[df_eventos_declinados['Motivo Declínio'].isna()]
 			if df_eventos_sem_motivo_declinio.empty:
 				st.success("Nenhum evento sem motivo de declínio.")
 			else:
-				st.dataframe(df_eventos_sem_motivo_declinio[['ID Evento', 'Nome Evento', 'Casa', 'Cliente', 'Status', 'Motivo Declínio']], use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_sem_motivo_declinio[['ID Evento', 'Nome Evento', 'Casa', 'Cliente', 'Status', 'Motivo Declínio']], width='stretch', hide_index=True)
 
 			st.markdown("### Farol - Eventos Em negociação com Data do Evento passado")
 			df_eventos_em_negociacao_passados = df_eventos_em_negociacao[df_eventos_em_negociacao['Data Evento'] < datetime.datetime.today()]
@@ -146,7 +146,7 @@ def main():
 			if df_eventos_em_negociacao_passados.empty:
 				st.success("Nenhum evento em negociação com data do evento passada.")
 			else:
-				st.dataframe(df_eventos_em_negociacao_passados[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_em_negociacao_passados[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], width='stretch', hide_index=True)
 
 			st.markdown("### Farol - Eventos Em negociação com Data de Contratação")
 			df_eventos_em_negociacao_com_data_contratacao = df_eventos_em_negociacao[df_eventos_em_negociacao['Data Contratação'].notna()]
@@ -154,7 +154,7 @@ def main():
 			if df_eventos_em_negociacao_com_data_contratacao.empty:
 				st.success("Nenhum evento em negociação com data de contratação.")
 			else:
-				st.dataframe(df_eventos_em_negociacao_com_data_contratacao[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], use_container_width=True, hide_index=True)
+				st.dataframe(df_eventos_em_negociacao_com_data_contratacao[['ID Evento', 'Nome Evento', 'Casa', 'Status', 'Cliente', 'Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação']], width='stretch', hide_index=True)
 			
 			st.markdown("### Farol - Valor Total do Evento x Valor Total das Parcelas")
 			df_valor_total_parcelas = df_parcelas_eventos_confirmados.groupby('ID Evento')['Valor Parcela'].sum().reset_index().rename(columns={'Valor Parcela': 'Valor Total Parcelas'})
@@ -162,7 +162,7 @@ def main():
 			df_comparacao['Diferença'] = df_comparacao['Valor Total Evento'] - df_comparacao['Valor Total Parcelas']
 			df_comparacao = df_comparacao[df_comparacao['Diferença'] != 0]
 			df_comparacao = format_columns_brazilian(df_comparacao, ['Valor Total Evento', 'Valor Total Parcelas', 'Diferença'])
-			st.dataframe(df_comparacao, use_container_width=True, hide_index=True)
+			st.dataframe(df_comparacao, width='stretch', hide_index=True)
 
 	st.markdown("")
 if __name__ == '__main__':
