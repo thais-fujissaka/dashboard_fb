@@ -276,6 +276,9 @@ def mostrar_menu_permissoes_kpis_faturamento(permissoes):
     elif 'Acesso Financeiro 3' in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
+    elif 'Acesso Financeiro Central' in permissoes:
+        st.sidebar.markdown("## KPI's de Faturamento")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Previsão_de_Faturamento.py", label="🪙 Previsão de Faturamento")
 
 
 def mostrar_menu_permissoes_kpis_resultado_operacional(permissoes):
