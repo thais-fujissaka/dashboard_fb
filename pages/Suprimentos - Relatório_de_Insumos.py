@@ -222,7 +222,7 @@ def main():
 		categoryN2_inputs_merged_style = categoryN2_inputs_merged.style.map(function_highlight_percentage, subset=['Variação Percentual'], invert_color=True)
 		
 		st.markdown('### Detalhamento por Insumo')
-		st.dataframe(categoryN2_inputs_merged_style, hide_index=True, use_container_width=True)
+		st.dataframe(categoryN2_inputs_merged_style, hide_index=True, width='stretch')
 		function_copy_dataframe_as_tsv(categoryN2_inputs_merged)
 
 if __name__ == '__main__':

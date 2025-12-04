@@ -175,7 +175,7 @@ def exibir_despesas(despesasConfig, exibir_detalhamento=True, layout_impressao=F
         st.dataframe(
             df_despesas_styled,
             height=altura_linha * len(df_classe) + 35,
-            use_container_width=True,
+            width='stretch',
             hide_index=True
         )
         altura_atual += altura_secao

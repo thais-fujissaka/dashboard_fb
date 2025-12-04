@@ -92,7 +92,7 @@ def main():
                 df_eventos_realizados_cliente = df_eventos_realizados_cliente[df_eventos_realizados_cliente['ID Cliente'] == cliente['ID Cliente'].values[0]]
                 df_eventos_realizados_cliente = df_format_date_columns_brazilian(df_eventos_realizados_cliente, ['Data Evento', 'Data Recebimento Lead', 'Data Envio Proposta', 'Data Contratação'])
                 df_eventos_realizados_cliente = format_columns_brazilian(df_eventos_realizados_cliente, ['Valor Total Evento', 'Valor AB', 'Valor Locação Aroo 1', 'Valor Locação Aroo 2', 'Valor Locação Aroo 3', 'Valor Locação Anexo', 'Valor Locação Notie', 'Valor Locação Mirante', 'Valor Imposto'])
-                st.dataframe(df_eventos_realizados_cliente.drop(columns=['ID Cliente', 'Cliente', 'Documento', 'Email', 'Telefone', 'Pessoa de Contato', 'Endereço', 'CEP']), use_container_width=True, hide_index=True)
+                st.dataframe(df_eventos_realizados_cliente.drop(columns=['ID Cliente', 'Cliente', 'Documento', 'Email', 'Telefone', 'Pessoa de Contato', 'Endereço', 'CEP']), width='stretch', hide_index=True)
                 st.divider()
         else:
             st.warning("Selecione um cliente para visualizar as informações.")
@@ -138,7 +138,7 @@ def main():
                 col1, col2, col3 = st.columns([0.1, 3, 0.1], gap="large", vertical_alignment="top")
                 with col2:
                     st.markdown(f'### Clientes atendidos no período')
-                    st.dataframe(df_numero_clientes_periodo_formatado, use_container_width=True, hide_index=True)
+                    st.dataframe(df_numero_clientes_periodo_formatado, width='stretch', hide_index=True)
                     st.markdown(f'N° de Clientes Atendidos: {num_clientes_atendidos}')
 
             with st.container(border=True):

@@ -330,7 +330,7 @@ def grafico_total_ajustes_mes(df_ajustes_filtrado, lista_ajustes_pos_mes_fmt, li
         # Exibe df de ajustes do mês selecionado
         df_ajustes_formatado = df_ajustes_filtrado[df_ajustes_filtrado['Data_Ajuste'].dt.month == mes_selecionado]
         df_ajustes_final = formata_df(df_ajustes_formatado)
-        st.dataframe(df_ajustes_final, use_container_width=True, hide_index=True)
+        st.dataframe(df_ajustes_final, width='stretch', hide_index=True)
 
         st.divider()
 

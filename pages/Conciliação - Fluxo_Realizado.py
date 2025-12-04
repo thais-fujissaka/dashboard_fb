@@ -64,7 +64,7 @@ with col_botao:
     if st.button(
         "🏢 Sem Sócios Externos", 
         help="Seleciona automaticamente todas as casas que não possuem sócios externos (Bit_Socios_Externos = 0)", 
-        use_container_width=True):
+        width='stretch'):
         
         # Filtrando casas sem sócios externos
         casas_sem_socios_externos = df_casas[df_casas['Bit_Socios_Externos'] == 0]['Casa'].tolist()
@@ -481,7 +481,7 @@ with st.container(border=True):
                 fig.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
                 
                 # Exibindo o gráfico
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width='stretch')
             
             else:
                 st.warning("Não há dados disponíveis para o período e casas selecionadas.")
@@ -557,7 +557,7 @@ with st.container(border=True):
 
         fig_liquido.update_yaxes(tickformat=",.0f", tickprefix="R$ ")
 
-        st.plotly_chart(fig_liquido, use_container_width=True)
+        st.plotly_chart(fig_liquido, width='stretch')
 
         st.divider()
 

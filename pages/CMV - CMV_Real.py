@@ -334,7 +334,7 @@ df_cmv_dre_styled = df_cmv_dre.style.apply(highlight_rows_cmv_dre, axis=1)
 col1, col2 = st.columns([6, 1], vertical_alignment="center")
 with col2:
   button_download(df_cmv_dre_download, f"cmv_{format_date(data_inicio)}-{format_date(data_fim)}", key=f'download_{format_date(data_inicio)}-{format_date(data_fim)}')
-st.dataframe(df_cmv_dre_styled, height=altura_cmv_dre, hide_index=True, use_container_width=True)
+st.dataframe(df_cmv_dre_styled, height=altura_cmv_dre, hide_index=True, width='stretch')
 
 
 with st.container(border=True):
@@ -356,7 +356,7 @@ with st.container(border=True):
       valor_total = df_insumos_sem_pedido['Valor'].sum()
       df_insumos_sem_pedido = format_columns_brazilian(df_insumos_sem_pedido, ['Valor'])
       valor_total = format_brazilian(valor_total)
-      st.dataframe(df_insumos_sem_pedido, use_container_width=True, hide_index=True)
+      st.dataframe(df_insumos_sem_pedido, width='stretch', hide_index=True)
       st.write('Valor total = R$', valor_total)
     with st.expander("Detalhes Insumos BlueMe Com Pedido"):
       col3, col4, col5 = st.columns(3)
@@ -380,7 +380,7 @@ with st.container(border=True):
       valor_outros = format_brazilian(valor_outros)
       df_insumos_com_pedido = format_columns_brazilian(df_insumos_com_pedido, ['Valor Líquido', 'Valor Cotação', 'Insumos - V. Líq', 'Valor Líq. Alimentos','Valor Líq. Bebidas',
                                         'Valor Líq. Hig/Limp.', 'Valor Líq Gelo/Gas/Carvão/Velas', 'Valor Líq. Utensilios', 'Valor Líq. Outros'])
-      st.dataframe(df_insumos_com_pedido, use_container_width=True, hide_index=True)
+      st.dataframe(df_insumos_com_pedido, width='stretch', hide_index=True)
       st.write(
         f"Valor Total = R\\$ {valor_total_com_pedido},  \n"
         f"Valor Alimentos = R\\$ {valor_alimentos},  \n"
@@ -401,11 +401,11 @@ with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
     st.subheader('Valoração e Variação de Estoque')
-    st.dataframe(df_variacao_estoque, use_container_width=True, hide_index=True)
+    st.dataframe(df_variacao_estoque, width='stretch', hide_index=True)
     with st.expander("Detalhes Valoração Estoque Atual"):
-      st.dataframe(df_valoracao_estoque_atual, use_container_width=True, hide_index=True)
+      st.dataframe(df_valoracao_estoque_atual, width='stretch', hide_index=True)
     with st.expander("Diferença de Estoque"):
-      st.dataframe(df_diferenca_estoque, use_container_width=True, hide_index=True)
+      st.dataframe(df_diferenca_estoque, width='stretch', hide_index=True)
 
 df_producao_alimentos = df_producao_alimentos.rename(columns={
     'Item_Produzido': 'Item Produzido',
@@ -435,24 +435,24 @@ with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
     st.subheader('Inventário de Produção')
-    st.dataframe(df_producao_total, use_container_width=True, hide_index=True)
+    st.dataframe(df_producao_total, width='stretch', hide_index=True)
     with st.expander("Detalhes Valoração Estoque Atual"):
       st.subheader('Valoração de Produção Alimentos')
-      st.dataframe(df_producao_alimentos, use_container_width=True, hide_index=True)
+      st.dataframe(df_producao_alimentos, width='stretch', hide_index=True)
       st.subheader('Valoração de Produção Bebidas')
-      st.dataframe(df_producao_bebidas, use_container_width=True, hide_index=True)
+      st.dataframe(df_producao_bebidas, width='stretch', hide_index=True)
     with st.expander("Diferença de valoração de Produção"):
       st.subheader('Diferença de Produção Alimentos')
-      st.dataframe(df_diferenca_producao_alimentos, use_container_width=True, hide_index=True)
+      st.dataframe(df_diferenca_producao_alimentos, width='stretch', hide_index=True)
       st.subheader('Diferença de Produção Bebidas')
-      st.dataframe(df_diferenca_producao_bebidas, use_container_width=True, hide_index=True)
+      st.dataframe(df_diferenca_producao_bebidas, width='stretch', hide_index=True)
 
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
     st.subheader('Transferências e Gastos Extras')
-    st.dataframe(df_transf_e_gastos, use_container_width=True, hide_index=True)
+    st.dataframe(df_transf_e_gastos, width='stretch', hide_index=True)
     with st.expander("Detalhes Transferências Entradas"):
-      st.dataframe(df_transf_entradas, use_container_width=True, hide_index=True)
+      st.dataframe(df_transf_entradas, width='stretch', hide_index=True)
     with st.expander("Detalhes Transferências Saídas"):
-      st.dataframe(df_transf_saidas, use_container_width=True, hide_index=True)
+      st.dataframe(df_transf_saidas, width='stretch', hide_index=True)

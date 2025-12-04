@@ -114,7 +114,7 @@ with st.container(border=True):
   col, col1, col2 = st.columns([1, 8, 1])
   with col1:
     st.subheader('Faturamento Acumulado do Período')
-    st.dataframe(dfComparacaoAggStyled, use_container_width=True, hide_index=True, height= altura_dfComparacaoAgg * 35 + 35)
+    st.dataframe(dfComparacaoAggStyled, width='stretch', hide_index=True, height= altura_dfComparacaoAgg * 35 + 35)
     
 
 
