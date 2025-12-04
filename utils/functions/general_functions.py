@@ -153,7 +153,7 @@ def mostrar_menu_permissoes_kpis_faturamento_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/Eventos - Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
         st.sidebar.page_link("pages/Eventos - Eventos_Auditoria_de_Eventos_Confirmados.py", label=":no_entry_sign: Auditoria de Eventos - Confirmados")
-        st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Auditoria Externa - Gazit - Shopping Light")
+        st.sidebar.page_link("pages/Eventos - Gazit.py", label="🛍️ Auditoria Externa - Gazit - Shopping Light")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Acesso Liderança Eventos" in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento - Eventos")
@@ -166,7 +166,7 @@ def mostrar_menu_permissoes_kpis_faturamento_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Acompanhamento_de_Comissão.py", label="📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/Eventos - Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
-        st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Auditoria Externa - Gazit - Shopping Light")
+        st.sidebar.page_link("pages/Eventos - Gazit.py", label="🛍️ Auditoria Externa - Gazit - Shopping Light")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Acesso Admin Eventos" in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento - Eventos")
@@ -178,7 +178,7 @@ def mostrar_menu_permissoes_kpis_faturamento_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Acompanhamento_de_Comissão.py", label="📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/Eventos - Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
-        st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Auditoria Externa - Gazit - Shopping Light")
+        st.sidebar.page_link("pages/Eventos - Gazit.py", label="🛍️ Auditoria Externa - Gazit - Shopping Light")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Acesso Eventos 1" in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento - Eventos")
@@ -199,7 +199,7 @@ def mostrar_menu_permissoes_kpis_faturamento_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
         st.sidebar.page_link("pages/Eventos - Auditoria_de_Eventos_Preenchimento_Lancamentos.py", label=":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
-        st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Auditoria Externa - Gazit - Shopping Light")
+        st.sidebar.page_link("pages/Eventos - Gazit.py", label="🛍️ Auditoria Externa - Gazit - Shopping Light")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     elif "Acesso Eventos 3" in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento - Eventos")
@@ -231,7 +231,7 @@ def mostrar_menu_permissoes_kpis_faturamento_eventos(permissoes):
         st.sidebar.page_link("pages/Eventos - Conciliação_de_Parcelas_Eventos.py", label=":left_right_arrow: Contas a Receber - Conciliação de Parcelas de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Conversao_Eventos_Priceless.py", label="📈 KPI's de Vendas - Conversão de Eventos")
         st.sidebar.page_link("pages/Eventos - KPIs_Historico_Clientes_Eventos.py", label=":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
-        st.sidebar.page_link("pages/Eventos - Gazit.py", label=":shopping_bags: Auditoria Externa - Gazit - Shopping Light")
+        st.sidebar.page_link("pages/Eventos - Gazit.py", label="🛍️ Auditoria Externa - Gazit - Shopping Light")
         st.sidebar.page_link("pages/Eventos - Informações_de_Eventos.py", label="🔎 Informações de Eventos")
     else:
         pass
