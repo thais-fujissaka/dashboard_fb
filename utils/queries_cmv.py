@@ -333,31 +333,35 @@ def GET_EVENTOS_CMV(data_inicio, data_fim):
 @st.cache_data
 def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
   return dataframe_query(f'''
-    WITH subquery AS (
     SELECT
-      tdr.ID AS tdr_ID,
+      te.ID AS ID_Loja,
       CASE
-        WHEN te.ID = 131 THEN 110
-        ELSE te.ID    
-      END AS ID_Loja,                                                                                                                      
-      CASE
-        WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+        WHEN te.ID = 131 THEN 'Blue Note - São Paulo'
         ELSE te.NOME_FANTASIA    
-      END AS Loja,  
-      
-      CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE), '%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
-      tdr.VALOR_PAGAMENTO AS Valor,
-      tccg2.DESCRICAO AS Class_Cont_Grupo_2
+      END AS Loja,
+      DATE_FORMAT(tdr.COMPETENCIA, '%Y-%m-01') AS Primeiro_Dia_Mes,
+      SUM(tdr.VALOR_PAGAMENTO) AS BlueMe_Sem_Pedido_Valor,
+      SUM(CASE
+        WHEN tccg2.DESCRICAO IN ('ALIMENTOS', 'Insumos - Alimentos') THEN tdr.VALOR_PAGAMENTO
+        ELSE 0
+      END) AS BlueMe_Sem_Pedido_Alimentos,
+      SUM(CASE
+        WHEN tccg2.DESCRICAO IN ('BEBIDAS', 'Insumos - Bebidas') THEN tdr.VALOR_PAGAMENTO
+        ELSE 0
+      END) AS BlueMe_Sem_Pedido_Bebidas,
+      SUM(CASE
+        WHEN tccg2.DESCRICAO IN ('EMBALAGENS', 'Insumos - Embalagens') THEN tdr.VALOR_PAGAMENTO
+        ELSE 0
+      END) AS BlueMe_Sem_Pedido_Descart_Hig_Limp,
+      SUM(CASE
+        WHEN tccg2.DESCRICAO NOT IN ('ALIMENTOS', 'Insumos - Alimentos', 'BEBIDAS', 'Insumos - Bebidas', 'EMBALAGENS', 'Insumos - Embalagens') THEN tdr.VALOR_PAGAMENTO
+        ELSE 0
+      END) AS BlueMe_Sem_Pedido_Outros
     FROM
       T_DESPESA_RAPIDA tdr
-    JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
-    LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID
-    LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg ON tdr.FK_CLASSIFICACAO_CONTABIL_GRUPO_1 = tccg.ID
+    INNER JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+    INNER JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg ON tdr.FK_CLASSIFICACAO_CONTABIL_GRUPO_1 = tccg.ID
     LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON tdr.FK_CLASSIFICACAO_CONTABIL_GRUPO_2 = tccg2.ID
-    LEFT JOIN T_ASSOCIATIVA_PLANO_DE_CONTAS tapdc ON tccg2.ID = tapdc.FK_CLASSIFICACAO_GRUPO_2
-    LEFT JOIN T_DESPESA_STATUS tds ON tdr.ID = tds.FK_DESPESA_RAPIDA
-    LEFT JOIN T_STATUS ts ON tds.FK_STATUS_NAME = ts.ID
-    LEFT JOIN T_STATUS_PAGAMENTO tsp2 ON ts.FK_STATUS_PAGAMENTO = tsp2.ID
     WHERE
       tdr.BIT_CANCELADA = 0
       AND tdr.FK_DESPESA_TEKNISA IS NULL
@@ -368,39 +372,12 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
         WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID
       )
     GROUP BY
-      tdr.ID,
       te.ID,
-      tccg2.DESCRICAO,
-      CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE), '%Y-%m-01') AS DATE)
-  )
-  SELECT
-    ID_Loja,
-    Loja,
-    Primeiro_Dia_Mes,
-    SUM(Valor) AS BlueMe_Sem_Pedido_Valor,
-    SUM(CASE
-      WHEN Class_Cont_Grupo_2 IN ('ALIMENTOS', 'Insumos - Alimentos') THEN Valor
-      ELSE 0
-    END) AS BlueMe_Sem_Pedido_Alimentos,
-    SUM(CASE
-      WHEN Class_Cont_Grupo_2 IN ('BEBIDAS', 'Insumos - Bebidas') THEN Valor
-      ELSE 0
-    END) AS BlueMe_Sem_Pedido_Bebidas,
-    SUM(CASE
-      WHEN Class_Cont_Grupo_2 IN ('EMBALAGENS', 'Insumos - Embalagens') THEN Valor
-      ELSE 0
-      END) AS BlueMe_Sem_Pedido_Descart_Hig_Limp,
-    SUM(CASE
-      WHEN Class_Cont_Grupo_2 NOT IN ('ALIMENTOS', 'Insumos - Alimentos', 'BEBIDAS', 'Insumos - Bebidas', 'EMBALAGENS', 'Insumos - Embalagens') THEN Valor
-      ELSE 0
-      END) AS BlueMe_Sem_Pedido_Outros
-  FROM subquery
-  GROUP BY
-    ID_Loja,
-    Primeiro_Dia_Mes
-  ORDER BY
-    ID_Loja,
-    Primeiro_Dia_Mes;
+      te.NOME_FANTASIA,
+      DATE_FORMAT(tdr.COMPETENCIA, '%Y-%m-01')
+    ORDER BY
+      te.ID,
+      Primeiro_Dia_Mes;
 ''')
 
 def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio, data_fim, loja):
