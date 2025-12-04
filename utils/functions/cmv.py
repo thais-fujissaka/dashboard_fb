@@ -123,8 +123,13 @@ def config_faturamento_eventos(data_inicio, data_fim, loja, faturamento_bruto_al
 
 
 def config_compras(data_inicio, data_fim, loja):
+<<<<<<< Updated upstream
   df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
   df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
+=======
+  df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO(data_inicio, data_fim, loja)  
+  df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio, data_fim)
+>>>>>>> Stashed changes
 
   df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
 
