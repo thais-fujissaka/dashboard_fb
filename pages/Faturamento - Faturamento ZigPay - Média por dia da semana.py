@@ -1,8 +1,8 @@
 import streamlit as st
 from utils.functions.general_functions import config_sidebar
 from utils.queries_conciliacao import GET_CASAS
-from utils.queries_forecast import GET_FATURAMENTO_AGREGADO_DIA
-from utils.functions.financeiro_faturamento_dia_semana import *
+from utils.queries_forecast import GET_ITENS_VENDIDOS_DIA
+from utils.functions.faturamento_dia_semana import *
 from utils.functions.forecast import *
 from utils.user import logout
 
@@ -43,11 +43,10 @@ id_casa = mapeamento_casas[casa]
 st.divider()
 
 # Query com todos os faturamentos da Zig
-df_faturamento_diario = GET_FATURAMENTO_AGREGADO_DIA()
+df_faturamento_diario = GET_ITENS_VENDIDOS_DIA()
 
 # Filtrando por casa e gerando coluna com dia da semana
 df_faturamento_diario_casa = prepara_dados_faturamento_casa(df_faturamento_diario, casa)
-# st.write(df_faturamento_diario_casa)
 
 # Gera projeção para prox dias do mês corrente/seguinte por dia da semana
 df_dias_futuros_com_categorias = lista_dias_mes_anterior_atual(
@@ -56,6 +55,7 @@ df_dias_futuros_com_categorias = lista_dias_mes_anterior_atual(
     datas['ultimo_dia_mes_atual'], 
     datas['ano_anterior'], 
     datas['mes_anterior'],
+    datas['dois_meses_antes'],
     df_faturamento_diario_casa
 )
 

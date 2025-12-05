@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 from utils.functions.general_functions_conciliacao import calcular_datas, traduz_semana_mes
 
 
@@ -38,7 +39,8 @@ def prepara_dados_faturamento_casa(df_faturamento_diario, casa):
 
 
 def concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_casa, id_casa, casa):
-    df_projecao_mes_corrente = df_dias_futuros_mes[df_dias_futuros_mes['Data_Evento'].dt.month >= datas['mes_atual']]
+    # Por enquanto, usa a projeção para novembro e dezembro (por conta da T_ITENS_VENDIDOS_DIA)
+    df_projecao_mes_corrente = df_dias_futuros_mes[df_dias_futuros_mes['Data_Evento'].dt.month >= datas['mes_anterior']]
     df_projecao_mes_corrente = df_projecao_mes_corrente[['ID_Casa', 'Casa', 'Categoria', 'Data_Evento', 'Valor_Final', 'Dia Semana', 'Nome Mes', 'Mes_Ano']]
     df_projecao_mes_corrente = df_projecao_mes_corrente.rename(columns={'Valor_Final':'Valor_Bruto'})
 
@@ -74,7 +76,7 @@ def calcula_faturamento_medio(df_faturamento_todos_meses, detalhamento_categoria
     else:
         df_faturamento_categoria_dia_semana_filtrado = df_faturamento_categoria_dia_semana[df_faturamento_categoria_dia_semana['Categoria'] == categoria_selecionada]
         df_faturamento_dia_semana = df_faturamento_categoria_dia_semana_filtrado[['Dia Semana', 'Mes_Ano', 'Valor_Bruto']]
-
+    
     # ordem_meses = [
     #     'Janeiro', 'Fevereiro', 'Março',
     #     'Abril', 'Maio', 'Junho',
