@@ -11,59 +11,107 @@ casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
 
 
 # Faturamento da Zig por dia: alimentos, bebidas, delivery, couvert, etc
-@st.cache_data
-def GET_FATURAMENTO_AGREGADO_DIA():
-    df_faturamento_agregado_diario = dataframe_query(f''' 
-        SELECT
-            CASE
-                WHEN te.ID IN (161, 162) THEN 149
-                WHEN te.ID = 131 THEN 110
-                ELSE te.ID    
-            END AS ID_Casa,                                                                                                                      
-            CASE
-                WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
-                WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
-                ELSE te.NOME_FANTASIA    
-            END AS Casa,  
-            CASE 
-                WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
-                ELSE tivc2.DESCRICAO 
-            END AS Categoria,
-            cast(tiv.EVENT_DATE as date) AS Data_Evento,
-            SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
-            SUM(tiv.DISCOUNT_VALUE) AS Desconto,
-            SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
-        FROM T_ITENS_VENDIDOS tiv
-        LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
-        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
-        LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
-        LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
-        WHERE 
-            YEAR(tiv.EVENT_DATE) > 2024 AND 
-            (te.NOME_FANTASIA IN ({casas_str}) OR 
-            te.NOME_FANTASIA LIKE '%Delivery%' OR
-            te.NOME_FANTASIA LIKE '%Priceless%')
-        GROUP BY 
-            ID_Casa,
-            Casa,
-            Categoria,
-            Data_Evento
-    ''')
+# @st.cache_data
+# def GET_FATURAMENTO_AGREGADO_DIA():
+#     df_faturamento_agregado_diario = dataframe_query(f''' 
+#         SELECT
+#             CASE
+#                 WHEN te.ID IN (161, 162) THEN 149
+#                 WHEN te.ID = 131 THEN 110
+#                 ELSE te.ID    
+#             END AS ID_Casa,                                                                                                                      
+#             CASE
+#                 WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
+#                 WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+#                 ELSE te.NOME_FANTASIA    
+#             END AS Casa,  
+#             CASE 
+#                 WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
+#                 ELSE tivc2.DESCRICAO 
+#             END AS Categoria,
+#             cast(tiv.EVENT_DATE as date) AS Data_Evento,
+#             SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
+#             SUM(tiv.DISCOUNT_VALUE) AS Desconto,
+#             SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
+#         FROM T_ITENS_VENDIDOS tiv
+#         LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
+#         LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
+#         LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
+#         LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
+#         WHERE 
+#             YEAR(tiv.EVENT_DATE) > 2024 AND 
+#             (te.NOME_FANTASIA IN ({casas_str}) OR 
+#             te.NOME_FANTASIA LIKE '%Delivery%' OR
+#             te.NOME_FANTASIA LIKE '%Priceless%')
+#         GROUP BY 
+#             ID_Casa,
+#             Casa,
+#             Categoria,
+#             Data_Evento
+#     ''')
 
-    # Mapeamento do Delivery
-    mapeamento = {
-    'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
-    'Delivery Orfeu': ('Orfeu', 104),
-    'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
-    'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
-    'Delivery Jacaré': ('Jacaré', 105)
-    }
+#     # Mapeamento do Delivery
+#     mapeamento = {
+#     'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
+#     'Delivery Orfeu': ('Orfeu', 104),
+#     'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
+#     'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
+#     'Delivery Jacaré': ('Jacaré', 105)
+#     }
 
-    for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
-        mask = df_faturamento_agregado_diario['Casa'] == nome_antigo
-        df_faturamento_agregado_diario.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
+#     for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
+#         mask = df_faturamento_agregado_diario['Casa'] == nome_antigo
+#         df_faturamento_agregado_diario.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
     
-    return df_faturamento_agregado_diario
+#     return df_faturamento_agregado_diario
+
+
+# Substitui a query acima -> utiliza T_ITENS_VENDIDOS_DIA
+@st.cache_data
+def GET_ITENS_VENDIDOS_DIA():
+    df_itens_vendidos_dia = dataframe_query(f'''
+    SELECT 
+      CASE
+        WHEN tivd.FK_CASA = 118 THEN 114
+        WHEN tivd.FK_CASA = 103 THEN 116
+        WHEN tivd.FK_CASA = 169 THEN 148
+        WHEN tivd.FK_CASA = 139 THEN 105
+        WHEN tivd.FK_CASA = 112 THEN 104
+        WHEN te.ID IN (161, 162) THEN 149 -- Priceless
+        WHEN te.ID = 131 THEN 110 -- Blue Note
+        ELSE tivd.FK_CASA
+      END AS `ID_Casa`,
+      CASE
+        WHEN tivd.FK_CASA = 118 THEN 'Bar Brahma - Centro'
+        WHEN tivd.FK_CASA = 103 THEN 'Bar Léo - Centro'
+        WHEN tivd.FK_CASA = 169 THEN 'Bar Brahma - Granja'
+        WHEN tivd.FK_CASA = 139 THEN 'Jacaré'
+        WHEN tivd.FK_CASA = 112 THEN 'Orfeu'
+        WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
+        WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+        ELSE te.NOME_FANTASIA
+      END AS 'Casa',
+      CASE
+      	WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
+        ELSE tivc2.DESCRICAO 
+      END AS Categoria,
+          DATE(tivd.EVENT_DATE) AS 'Data_Evento',
+          SUM(tivd.DESCONTO) AS 'Desconto',
+          SUM(COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0)) AS 'Valor_Bruto',
+          SUM(COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0)) AS 'Valor_Liquido'
+        FROM T_ITENS_VENDIDOS_DIA tivd
+        LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
+        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
+          ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
+          AND tvivpc.ID_CASA = tivd.FK_CASA
+        LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tivc.ID_ZIGPAY = tivd.PRODUCT_ID
+        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc2.ID = tivc.FK_CATEGORIA 
+        GROUP BY `ID_Casa`, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)                                                                      
+    '''
+    )
+    # Agrupa por casa e data
+    df_itens_vendidos_dia = df_itens_vendidos_dia.groupby(['ID_Casa', 'Casa', 'Categoria', 'Data_Evento'], as_index=False)[['Valor_Bruto', 'Desconto', 'Valor_Liquido']].sum()
+    return df_itens_vendidos_dia
 
 
 # Faturamento de Eventos: Eventos A&B, Locações, Couvert
@@ -191,11 +239,11 @@ def GET_PARCELAS_RECEIT_EXTR():
 # Concatena todos os tipos de faturamento
 @st.cache_data
 def GET_TODOS_FATURAMENTOS_DIA():
-    faturamento_agregado_diario = GET_FATURAMENTO_AGREGADO_DIA()
+    faturamento_agregado_diario = GET_ITENS_VENDIDOS_DIA()
     faturamento_eventos = GET_FATURAMENTO_EVENTOS()
     parc_receitas_extr, parc_receitas_extr_dia = GET_PARCELAS_RECEIT_EXTR() # parcelas com categorias específicas e parcelas agrupadas como 'Outras Receitas'
     todos_faturamentos = pd.concat([faturamento_agregado_diario, faturamento_eventos, parc_receitas_extr_dia])
-    return todos_faturamentos, faturamento_eventos, parc_receitas_extr, parc_receitas_extr_dia
+    return faturamento_agregado_diario, todos_faturamentos, faturamento_eventos, parc_receitas_extr, parc_receitas_extr_dia
 
 
 # Orçamentos mensais
@@ -367,14 +415,14 @@ def GET_DESPESAS_RAPIDAS():
 @st.cache_data
 def GET_AUT_BLUE_ME_COM_PEDIDO():
     return dataframe_query(f'''
-        SELECT
-    --     vbmcp.tdr_ID AS tdr_ID,
-    --     vbmcp.ID_Loja AS ID_Loja,
-        vbmcp.Loja AS Casa,
+        SELECT               
+        CASE
+            WHEN vbmcp.Loja = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+            ELSE vbmcp.Loja
+        END AS Casa,                   
+        -- vbmcp.Loja AS Casa,
         vbmcp.Fornecedor AS Fornecedor,
-    --     vbmcp.Doc_Serie AS Doc_Serie,
         STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d') AS Data_Emissao,
-    --     STR_TO_DATE(vbmcp.Data_Vencimento, '%Y-%m-%d') AS Data_Vencimento,
         vbmcp.Valor_Liquido AS Valor_Liquido,
         vbmcp.Valor_Insumos AS Valor_Cotacao,
         ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Alimentos / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
@@ -383,10 +431,7 @@ def GET_AUT_BLUE_ME_COM_PEDIDO():
         ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Gelo_Gas_Carvao_Velas / virapc.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
         ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Utensilios / virapc.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
         ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Outros / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
-    --     DATE_FORMAT(STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d'), '%m/%Y') AS Mes_Texto
     FROM View_BlueMe_Com_Pedido vbmcp
     LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON vbmcp.tdr_ID = virapc.tdr_ID
     WHERE YEAR(Data_Emissao) > 2024
-    --   WHERE vbmcp.ID_Loja = 114
-    --   ORDER BY tdr_ID DESC
     ''')

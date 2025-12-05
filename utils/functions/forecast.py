@@ -5,7 +5,7 @@ import calendar
 from datetime import timedelta
 from utils.functions.general_functions_conciliacao import formata_df, traduz_semana_mes
 from utils.queries_cmv import GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO, GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO, GET_TRANSF_ESTOQUE, GET_PERDAS_E_CONSUMO_AGRUPADOS
-from utils.queries_forecast import GET_VALORACAO_ESTOQUE, GET_VALORACAO_PRODUCAO, GET_EVENTOS_CMV
+from utils.queries_forecast import GET_VALORACAO_ESTOQUE, GET_VALORACAO_PRODUCAO, GET_EVENTOS_CMV, GET_AUT_BLUE_ME_COM_PEDIDO
 from utils.components import dataframe_aggrid
 from st_aggrid import ColumnsAutoSizeMode
 
@@ -14,7 +14,7 @@ pd.set_option('future.no_silent_downcasting', True)
 ############################################ PROJEÇÕES MÊS CORRENTE ############################################
 
 # Prepara df de faturamento agregado diário para a casa selecionada
-def prepara_dados_faturam_agregado_diario(id_casa, df_faturamento_agregado_dia, inicio_do_mes_anterior, fim_do_mes_atual):
+def prepara_dados_faturam_agregado_diario(id_casa, df_faturamento_agregado_dia, inicio_do_mes_anterior, fim_do_mes_atual, dois_meses_antes):
     # Filtra por casa
     df_faturamento_agregado_casa = df_faturamento_agregado_dia[df_faturamento_agregado_dia['ID_Casa'] == id_casa].copy()
     df_faturamento_agregado_casa['Data_Evento'] = pd.to_datetime(df_faturamento_agregado_casa['Data_Evento'], errors='coerce')
@@ -29,60 +29,51 @@ def prepara_dados_faturam_agregado_diario(id_casa, df_faturamento_agregado_dia, 
 
     # Filtra por casa e mês (anterior e corrente) - para utilizar no cálculo de projeção
     df_faturamento_agregado_mes_corrente = df_faturamento_agregado_casa[
-        (df_faturamento_agregado_casa['Data_Evento'] >= inicio_do_mes_anterior) &
+        (df_faturamento_agregado_casa['Data_Evento'] >= dois_meses_antes) &
         (df_faturamento_agregado_casa['Data_Evento'] <= fim_do_mes_atual)]
     
     return df_faturamento_agregado_mes_corrente
 
 
 # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x DIAS (mês anterior e corrente) ---
-def lista_dias_mes_anterior_atual(ano_atual, mes_atual, ultimo_dia_mes_atual, 
-                                  ano_anterior, mes_anterior,
-                                  df_faturamento_agregado_mes_corrente):
+def criar_df_dias(ano, mes):
+    """Cria DataFrame com dias do mês, Data_Evento e Dia Semana traduzido."""
+    ultimo_dia = calendar.monthrange(ano, mes)[1]
+    dias = pd.DataFrame({'Dia_Mes': range(1, ultimo_dia + 1)})
 
-    # Último dia do mês anterior
-    ultimo_dia_mes_anterior = calendar.monthrange(ano_anterior, mes_anterior)[1]
-
-    # Cria lista de dias dos dois meses
-    lista_dias_mes_anterior = list(range(1, ultimo_dia_mes_anterior + 1))
-    lista_dias_mes_corrente = list(range(1, ultimo_dia_mes_atual + 1))
-
-    # Cria DataFrame para o mês anterior
-    df_dias_mes_anterior = pd.DataFrame({'Dia_Mes': lista_dias_mes_anterior})
-    df_dias_mes_anterior['Data_Evento'] = pd.to_datetime({
-        'year': ano_anterior,
-        'month': mes_anterior,
-        'day': df_dias_mes_anterior['Dia_Mes']
+    dias['Data_Evento'] = pd.to_datetime({
+        'year': ano,
+        'month': mes,
+        'day': dias['Dia_Mes']
     })
 
-    # Traduz dia da semana para português
-    df_dias_mes_anterior['Dia Semana'] = df_dias_mes_anterior['Data_Evento'].dt.strftime('%A') 
-    df_dias_mes_anterior['Dia Semana'] = df_dias_mes_anterior['Dia Semana'].apply(
+    dias['Dia Semana'] = dias['Data_Evento'].dt.strftime('%A').apply(
         lambda x: traduz_semana_mes(x, 'dia semana')
     )
+    return dias
 
-    # Cria DataFrame para o mês atual
-    df_dias_mes_corrente = pd.DataFrame({'Dia_Mes': lista_dias_mes_corrente})
-    df_dias_mes_corrente['Data_Evento'] = pd.to_datetime({
-        'year': ano_atual,
-        'month': mes_atual,
-        'day': df_dias_mes_corrente['Dia_Mes']
-    })
+def lista_dias_mes_anterior_atual(
+    ano_atual, mes_atual, ultimo_dia_mes_atual,
+    ano_anterior, mes_anterior, dois_meses_antes,
+    df_faturamento_agregado_mes_corrente
+):
+    # Gera os 3 dataframes de meses
+    df_dois_meses_antes = criar_df_dias(ano_anterior, dois_meses_antes)
+    df_mes_anterior = criar_df_dias(ano_anterior, mes_anterior)
+    df_mes_corrente = criar_df_dias(ano_atual, mes_atual)
 
-    # Traduz dia da semana para português usando sua função
-    df_dias_mes_corrente['Dia Semana'] = df_dias_mes_corrente['Data_Evento'].dt.strftime('%A')
-    df_dias_mes_corrente['Dia Semana'] = df_dias_mes_corrente['Dia Semana'].apply(
-        lambda x: traduz_semana_mes(x, 'dia semana')
+    # Concatena todos
+    df_dias_mes = pd.concat(
+        [df_dois_meses_antes, df_mes_anterior, df_mes_corrente],
+        ignore_index=True
     )
 
-    # Junta os dois meses
-    df_dias_mes = pd.concat([df_dias_mes_anterior, df_dias_mes_corrente], ignore_index=True)
-
-    # Agora faz o cross com categorias 
+    # Cross com categorias
     categorias = df_faturamento_agregado_mes_corrente['Categoria'].dropna().unique()
     df_categorias = pd.DataFrame({'Categoria': categorias})
-    df_dias_futuros_com_categorias = df_dias_mes.merge(df_categorias, how='cross')
-    return df_dias_futuros_com_categorias
+
+    df_resultado = df_dias_mes.merge(df_categorias, how='cross')
+    return df_resultado
 
 
 # Função para cálculo da projeção - mês corrente
@@ -540,38 +531,46 @@ def config_faturamento_bruto_zig(df, data_inicio, data_fim, casa):
 
 def config_compras(data_inicio, data_fim, loja):
     df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
-    df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
-    df2 = df2.groupby(['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], as_index=False)[['BlueMe_Com_Pedido_Valor_Liquido', 'BlueMe_Com_Pedido_Valor_Insumos', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas', 'BlueMe_Com_Pedido_Valor_Liq_Descart_Hig_Limp', 'BlueMe_Com_Pedido_Valor_Liq_Outros']].sum()
+    df1 = df1.rename(columns={'Loja':'Casa'})
+    df1['Primeiro_Dia_Mes'] = pd.to_datetime(df1['Primeiro_Dia_Mes'], errors='coerce')
+    df1['Mes_Ano'] = df1['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
     
-    df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
+    # df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
+    df2 = GET_AUT_BLUE_ME_COM_PEDIDO()
+    df_aut_blue_me_com_pedido = df2.copy()
+    df2['Data_Emissao'] = pd.to_datetime(df2['Data_Emissao'], errors='coerce')
+    df2['Mes_Ano'] = df2['Data_Emissao'].dt.strftime('%Y-%m')
+    df2 = df2.groupby(['Casa', 'Mes_Ano'], as_index=False)[['Valor_Liquido', 'Valor_Cotacao', 'Valor_Liq_Alimentos', 'Valor_Liq_Bebidas', 'Valor_Liq_Descart_Hig_Limp', 'Valor_Gelo_Gas_Carvao_Velas', 'Valor_Utensilios', 'Valor_Liq_Outros']].sum()
+    
+    df_compras = pd.merge(df2, df1, on=['Casa', 'Mes_Ano'], how='outer')
     df_compras['Primeiro_Dia_Mes'] = pd.to_datetime(df_compras['Primeiro_Dia_Mes'], errors='coerce')
-    df_compras['Mes_Ano'] = df_compras['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
+    # df_compras['Mes_Ano'] = df_compras['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
     
     df_compras = df_compras[
-        (df_compras['Loja'] == loja) &
+        (df_compras['Casa'] == loja) &
         (df_compras['Primeiro_Dia_Mes'] >= data_inicio) &
         (df_compras['Primeiro_Dia_Mes'] <= data_fim)
     ]
     
-    df_compras = df_compras.groupby(['ID_Loja', 'Loja', 'Mes_Ano']).agg(
+    df_compras = df_compras.groupby(['Casa', 'Mes_Ano']).agg(
         {'BlueMe_Sem_Pedido_Alimentos': 'sum', 
         'BlueMe_Sem_Pedido_Bebidas': 'sum', 
-        'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'sum', 
-        'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum'}).reset_index()
+        'Valor_Liq_Alimentos': 'sum', 
+        'Valor_Liq_Bebidas': 'sum'}).reset_index()
 
-    Compras_Alimentos = df_compras['BlueMe_Sem_Pedido_Alimentos'].sum() + df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'].sum()
-    Compras_Bebidas = df_compras['BlueMe_Sem_Pedido_Bebidas'].sum() + df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'].sum()
+    Compras_Alimentos = df_compras['BlueMe_Sem_Pedido_Alimentos'].sum() + df_compras['Valor_Liq_Alimentos'].sum()
+    Compras_Bebidas = df_compras['BlueMe_Sem_Pedido_Bebidas'].sum() + df_compras['Valor_Liq_Bebidas'].sum()
 
     Compras_Alimentos = float(Compras_Alimentos)
     Compras_Bebidas = float(Compras_Bebidas)
 
-    df_compras['Compras Alimentos'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'] + df_compras['BlueMe_Sem_Pedido_Alimentos']
-    df_compras['Compras Bebidas'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'] + df_compras['BlueMe_Sem_Pedido_Bebidas']
-    df_compras = df_compras.rename(columns={'ID_Loja': 'ID_Casa', 'Loja': 'Casa', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas', 'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.', 'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'})
+    df_compras['Compras Alimentos'] = df_compras['Valor_Liq_Alimentos'] + df_compras['BlueMe_Sem_Pedido_Alimentos']
+    df_compras['Compras Bebidas'] = df_compras['Valor_Liq_Bebidas'] + df_compras['BlueMe_Sem_Pedido_Bebidas']
+    df_compras = df_compras.rename(columns={'Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.', 'Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas', 'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.', 'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'})
 
-    df_compras = df_compras[['ID_Casa', 'Casa', 'Mes_Ano', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
+    df_compras = df_compras[['Casa', 'Mes_Ano', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
     
-    return df_compras, Compras_Alimentos, Compras_Bebidas
+    return df_compras, df_aut_blue_me_com_pedido, Compras_Alimentos, Compras_Bebidas
 
 
 def processar_transferencias(df, casa_col, loja, data_inicio, data_fim):
@@ -728,7 +727,7 @@ def merge_e_calculo_para_cmv(df_faturamento_zig, df_compras, df_valoracao_estoqu
     # Compras (alimentos + bebidas) mensais
     df_compras_geral = df_compras.copy()
     df_compras_geral['Compras Geral'] = df_compras_geral['Compras Alimentos'] + df_compras_geral['Compras Bebidas']
-    df_compras_geral = df_compras_geral[['ID_Casa', 'Casa', 'Mes_Ano', 'Compras Geral']]
+    df_compras_geral = df_compras_geral[['Casa', 'Mes_Ano', 'Compras Geral']]
 
     # Valoração estoque (alimentos + bebidas) mensal
     df_valoracao_estoque_geral = df_valoracao_estoque.copy()
@@ -946,7 +945,7 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
         df_aut_filtrado = df_aut_blue_me_com_pedido[
             (df_aut_blue_me_com_pedido['Casa'] == casa)
         ].copy()
-    
+        
         # Cria colunas de mês e ano e soma o total mensal para cada class. cont. 2
         df_aut_filtrado['Data_Emissao'] = pd.to_datetime(df_aut_filtrado['Data_Emissao'], errors='coerce')
         df_aut_filtrado['Ano'] = df_aut_filtrado['Data_Emissao'].dt.year

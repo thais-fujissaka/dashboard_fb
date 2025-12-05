@@ -63,10 +63,12 @@ def calcular_datas():
     # Lógica para forecast
     if mes_atual == 1:
         mes_anterior = 12
+        dois_meses_antes = 11
         ano_anterior = ano_atual - 1
-
+        
     else:
         mes_anterior = mes_atual - 1
+        dois_meses_antes = mes_atual - 2
         ano_anterior = ano_atual
 
 
@@ -77,6 +79,7 @@ def calcular_datas():
     fim_do_mes_atual = datetime.datetime(today.year, today.month, ultimo_dia_mes_atual) 
 
     inicio_do_mes_anterior = datetime.datetime(ano_anterior, mes_anterior, 1)
+    inicio_dois_meses_antes = datetime.datetime(ano_anterior, dois_meses_antes, 1)
     ultimo_dia_mes_anterior = today.replace(day=1) - timedelta(days=1)
 
     dez_ano_atual = datetime.datetime(today.year, 12, 31)
@@ -100,10 +103,12 @@ def calcular_datas():
         'mes_atual': mes_atual,
         'ano_atual': ano_atual,
         'mes_anterior': mes_anterior,
+        'dois_meses_antes': dois_meses_antes,
         'ano_anterior': ano_anterior,
         'ano_passado': ano_passado,
         'nome_mes_atual_pt': nome_mes_atual_pt,
         'inicio_mes_anterior': inicio_do_mes_anterior,
+        'inicio_dois_meses_antes': inicio_dois_meses_antes,
         'inicio_mes_atual': inicio_do_mes_atual,
     }
 
