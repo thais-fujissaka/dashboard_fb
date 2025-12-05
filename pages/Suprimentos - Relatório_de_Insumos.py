@@ -127,13 +127,16 @@ def main():
 
 		inputs_expenses_filtered_by_cat = inputsExpenses_filtered[inputsExpenses_filtered['Nivel 2'].isin(categoryN2_selected)]
 
-		# Gastos por fornecedor insumo N5
-		with st.expander('Gastos por Fornecedor insumo N5', expanded=False):
-			supplierExpenseN5 = supplier_expense_n5(data_inicio, data_fim)
-			supplierExpenseN5 = supplierExpenseN5[supplierExpenseN5['Casa'].isin(companies_filtered)]
+		supplierExpenseN5 = supplier_expense_n5(data_inicio, data_fim)
+		supplierExpenseN5 = supplierExpenseN5[supplierExpenseN5['Casa'].isin(companies_filtered)]
+		supplierExpenseN5 = supplierExpenseN5[supplierExpenseN5['INSUMO N2'].isin(categoryN2_selected)]
 
-			row_expenses = st.columns([1, 1, 1])
-			with row_expenses[1]:
+		with st.container(border=True):
+			# Gastos por fornecedor insumo N5
+			col1, col2 = st.columns([1, 1], vertical_alignment='bottom')
+			with col1:
+				st.markdown('### Despesas por Fornecedor')
+			with col2:
 				supplierExpenseN5_selected = st.multiselect(
 					'Selecione o(s) Fornecedor(es):',
 					options=sorted(supplierExpenseN5['Fornecedor'].dropna().unique()),
@@ -146,7 +149,7 @@ def main():
 			supplierExpenseN5_filtered = supplierExpenseN5[supplierExpenseN5['Fornecedor'].isin(supplierExpenseN5_selected)]
 			supplierExpenseN5_filtered = function_format_number_columns(supplierExpenseN5_filtered, columns_money=['Valor Insumo', 'Valor Med Por Insumo'])
 
-			st.markdown('### Despesas por Fornecedor')
+			
 			dataframe_aggrid(supplierExpenseN5_filtered, 'Despesas por Fornecedor')
 			function_copy_dataframe_as_tsv(supplierExpenseN5_filtered)
 
