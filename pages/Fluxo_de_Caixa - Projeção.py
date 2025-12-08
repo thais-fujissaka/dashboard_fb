@@ -16,10 +16,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-config_sidebar()
-
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 	st.switch_page('Login.py')
+
+config_sidebar()
 
 col1, col2, col3 = st.columns([6, 1, 1], vertical_alignment='center')
 with col1:
