@@ -61,6 +61,7 @@ def main():
 		'Valor Parcela': float
 	}
 	df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
+	df_parcelas['Data Evento'] = pd.to_datetime(df_parcelas['Data Evento'], errors='coerce')
 	df_parcelas['Data Vencimento'] = pd.to_datetime(df_parcelas['Data Vencimento'], errors='coerce')
 	df_parcelas['Data Recebimento'] = pd.to_datetime(df_parcelas['Data Recebimento'], errors='coerce')
 
@@ -185,11 +186,12 @@ def main():
 			
 			st.markdown("### Farol - Valor Total do Evento x Valor Total das Parcelas")
 			df_valor_total_parcelas = df_parcelas_eventos_confirmados.groupby('ID Evento')['Valor Parcela'].sum().reset_index().rename(columns={'Valor Parcela': 'Valor Total Parcelas'})
-			df_comparacao = df_eventos_confirmados[['ID Evento', 'Nome Evento', 'Observações', 'Valor Total Evento']].merge(df_valor_total_parcelas, on='ID Evento', how='left')
+			df_comparacao = df_eventos_confirmados[['ID Evento', 'Nome Evento', 'Data Evento', 'Observações', 'Valor Total Evento']].merge(df_valor_total_parcelas, on='ID Evento', how='left')
 			df_comparacao['Diferença'] = df_comparacao['Valor Total Evento'] - df_comparacao['Valor Total Parcelas']
 			df_comparacao = df_comparacao[df_comparacao['Diferença'] != 0]
 			df_comparacao_download = df_comparacao.copy()
 			df_comparacao = format_columns_brazilian(df_comparacao, ['Valor Total Evento', 'Valor Total Parcelas', 'Diferença'])
+			df_comparacao = df_format_date_columns_brazilian(df_comparacao, ['Data Evento'])
 			st.dataframe(df_comparacao, width='stretch', hide_index=True)
 			col1, col2 = st.columns([4, 1])
 			with col2:
