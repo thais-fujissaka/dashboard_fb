@@ -61,7 +61,6 @@ def main():
 		'Valor Parcela': float
 	}
 	df_parcelas = df_parcelas.astype(tipos_de_dados_parcelas, errors='ignore')
-	df_parcelas['Data Evento'] = pd.to_datetime(df_parcelas['Data Evento'], errors='coerce')
 	df_parcelas['Data Vencimento'] = pd.to_datetime(df_parcelas['Data Vencimento'], errors='coerce')
 	df_parcelas['Data Recebimento'] = pd.to_datetime(df_parcelas['Data Recebimento'], errors='coerce')
 
