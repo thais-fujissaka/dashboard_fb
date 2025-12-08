@@ -93,9 +93,13 @@ st.divider()
 # Campos de seleção de data
 col1, col2 = st.columns(2)
 with col1:
+    if datas['mes_atual'] == 12:
+        value=datas['inicio_mes_atual']
+    else:
+        value=datas['mes_seguinte']
     start_date = st.date_input(
         "Data de início", 
-        value=datas['mes_seguinte'], 
+        value=value, 
         min_value=datas['jan_ano_passado'], 
         max_value=datas['dez_ano_atual'], 
         format="DD/MM/YYYY",
