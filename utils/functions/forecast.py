@@ -779,6 +779,7 @@ def merge_e_calculo_para_cmv(df_faturamento_zig, df_compras, df_valoracao_estoqu
     df_calculo_cmv['Saídas Geral'] = df_calculo_cmv['Saídas Geral'].astype(float)
     df_calculo_cmv['Consumo Interno'] = df_calculo_cmv['Consumo Interno'].astype(float)
     df_calculo_cmv['Variacao_Producao'] = df_calculo_cmv['Variacao_Producao'].astype(float)
+    # st.write(df_calculo_cmv) Para verificar valores que não batem com a planilha
 
     df_calculo_cmv['CMV (R$)'] = df_calculo_cmv['Compras Geral'] - df_calculo_cmv['Variacao_Estoque'] + df_calculo_cmv['Entradas Geral'] - df_calculo_cmv['Saídas Geral'] - df_calculo_cmv['Consumo Interno'] - df_calculo_cmv['Variacao_Producao']
     df_calculo_cmv['CMV Percentual (%)'] = (df_calculo_cmv['CMV (R$)'] / df_calculo_cmv['Faturamento_Geral']) * 100
@@ -915,7 +916,8 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
         df_custos_filtrado = df_custos_gerais[
             (df_custos_gerais['Casa'] == casa) &
             ((df_custos_gerais['Classificacao_Contabil_1'] == class_cont) |
-            (df_custos_gerais['Classificacao_Contabil_2'] == 'MDO Terceirizada - Eventos')) # inclui essa class. cont. 2 da class. cont. 1 de PJ
+            (df_custos_gerais['Classificacao_Contabil_2'] == 'MDO Terceirizada - Eventos') |
+            (df_custos_gerais['Cargo_DRE'] == 'MDO Terceirizada - Eventos')) # inclui essa class. cont. 2 da class. cont. 1 de PJ
         ].copy()
     elif class_cont == 'Mão de Obra - PJ':
         df_custos_filtrado = df_custos_gerais[
