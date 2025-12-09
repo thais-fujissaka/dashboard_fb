@@ -779,6 +779,7 @@ def merge_e_calculo_para_cmv(df_faturamento_zig, df_compras, df_valoracao_estoqu
     df_calculo_cmv['Saídas Geral'] = df_calculo_cmv['Saídas Geral'].astype(float)
     df_calculo_cmv['Consumo Interno'] = df_calculo_cmv['Consumo Interno'].astype(float)
     df_calculo_cmv['Variacao_Producao'] = df_calculo_cmv['Variacao_Producao'].astype(float)
+    # st.write(df_calculo_cmv) Para verificar valores que não batem com a planilha
 
     df_calculo_cmv['CMV (R$)'] = df_calculo_cmv['Compras Geral'] - df_calculo_cmv['Variacao_Estoque'] + df_calculo_cmv['Entradas Geral'] - df_calculo_cmv['Saídas Geral'] - df_calculo_cmv['Consumo Interno'] - df_calculo_cmv['Variacao_Producao']
     df_calculo_cmv['CMV Percentual (%)'] = (df_calculo_cmv['CMV (R$)'] / df_calculo_cmv['Faturamento_Geral']) * 100
@@ -915,13 +916,24 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
         df_custos_filtrado = df_custos_gerais[
             (df_custos_gerais['Casa'] == casa) &
             ((df_custos_gerais['Classificacao_Contabil_1'] == class_cont) |
-            (df_custos_gerais['Classificacao_Contabil_2'] == 'MDO Terceirizada - Eventos')) # inclui essa class. cont. 2 da class. cont. 1 de PJ
+            # (df_custos_gerais['Classificacao_Contabil_2'] == 'MDO Terceirizada - Eventos') | # inclui essa class. cont. 2 da class. cont. 1 de PJ
+            (df_custos_gerais['Cargo_DRE'] == 'MDO Terceirizada - Eventos')) 
         ].copy()
+
+        # Faz a renomeação por conta da filtragem por Cargo_DRE
+        df_custos_filtrado['Classificacao_Contabil_2'] = df_custos_filtrado['Classificacao_Contabil_2'].replace(
+            'MDO PJ Fixo',
+            'MDO Terceirizada - Eventos'
+        )
+
     elif class_cont == 'Mão de Obra - PJ':
         df_custos_filtrado = df_custos_gerais[
             (df_custos_gerais['Casa'] == casa) &
             ((df_custos_gerais['Classificacao_Contabil_1'] == class_cont) &
-            (df_custos_gerais['Classificacao_Contabil_2'] == 'MDO PJ Fixo')) # desconsidera a class. cont. 2 'MDO Terceirizada - Eventos'
+            # (df_custos_gerais['Classificacao_Contabil_2'] == 'MDO PJ Fixo') # desconsidera outras class. cont. 2 que não 'MDO PJ Fixo'
+            (df_custos_gerais['Cargo_DRE'] != 'MDO Terceirizada - Eventos') & 
+            (df_custos_gerais['Cargo_DRE'] != '  - Analista') & 
+            (df_custos_gerais['Cargo_DRE'] != '  - Diretoria')) 
         ].copy()
     else:
         df_custos_filtrado = df_custos_gerais[
@@ -940,7 +952,12 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
     df_custos_filtrado['Mes'] = df_custos_filtrado['Data_Competencia'].dt.month
     df_custos_filtrado_mensal = df_custos_filtrado.groupby(['Casa', 'Mes', 'Ano', 'Classificacao_Contabil_2'], as_index=False)[col_valor].sum()
     df_custos_filtrado_mensal = df_custos_filtrado_mensal.rename(columns={col_valor:'Custo Real'})
-    
+
+    # --- Ajuste especial para Bar Brahma (+3000/mês quando for MDO PJ Fixo) ---
+    if casa == 'Bar Brahma - Centro':  # ajuste o nome exato da sua tabela
+        cond = df_custos_filtrado_mensal['Classificacao_Contabil_2'] == 'MDO PJ Fixo'
+        df_custos_filtrado_mensal.loc[cond, 'Custo Real'] += 3000
+
     if class_cont == 'Utilidades':
         df_aut_filtrado = df_aut_blue_me_com_pedido[
             (df_aut_blue_me_com_pedido['Casa'] == casa)
