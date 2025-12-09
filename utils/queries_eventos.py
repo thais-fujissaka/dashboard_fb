@@ -435,6 +435,7 @@ def GET_EVENTOS_AUDITORIA():
 	''')
 
 
+
 def GET_PARCELAS_EVENTOS_AUDITORIA():
 	return dataframe_query(f'''
 		SELECT
