@@ -160,7 +160,7 @@ def config_compras(data_inicio, data_fim, loja):
 
 
 def config_insumos_blueme_sem_pedido(data_inicio, data_fim, loja):
-  df = GET_INSUMOS_BLUE_ME_SEM_PEDIDO(data_inicio, data_fim)
+  df = GET_INSUMOS_BLUE_ME_SEM_PEDIDO()
   df = substituicao_ids(df, 'Loja', 'ID_Loja')
   df = df.drop(['Primeiro_Dia_Mes'], axis=1)
   df = df[df['Loja'] == loja]
@@ -174,7 +174,7 @@ def config_insumos_blueme_sem_pedido(data_inicio, data_fim, loja):
 
 
 def config_insumos_blueme_com_pedido(data_inicio, data_fim, loja):
-  df = GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim)
+  df = GET_INSUMOS_BLUE_ME_COM_PEDIDO()
   df = substituicao_ids(df, 'Loja', 'ID_Loja')
   df = df.drop(['Primeiro_Dia_Mes'], axis=1)
   df = df[df['Loja'] == loja]
