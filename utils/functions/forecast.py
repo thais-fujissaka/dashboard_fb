@@ -1091,8 +1091,6 @@ def exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_meses_anteriore
         'Classificacao_Contabil_2': 'Class. Contábil 2',
         'Faturamento Real': 'Faturamento Real Mês',
         'Faturamento Projetado': 'Faturamento Projetado Mês',
-        # 'Custo Projetado': 'Custo Projetado',
-        # 'Custo Real': 'Custo Real'
     })
     
     # Prepara colunas para exibir projeção prox meses
