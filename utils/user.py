@@ -40,6 +40,7 @@ def login(userName: str, userPassword: str) -> bool:
 
 def logout():
   st.session_state['loggedIn'] = False
+  st.cache_data.clear()
   st.switch_page('Login.py')
 
 

@@ -78,16 +78,16 @@ def dataframe_query(query, use_eshows=False):
 
 # Permissões de usuário
 @st.cache_data
-def GET_PERMISSIONS(email):
-	emailStr = f"'{email}'"
+def GET_PERMISSIONS(login):
+	loginStr = f"'{login}'"
 	return dataframe_query(f''' 
-		SELECT 
-			tg.POSICAO AS 'Permissao'
-		FROM
-			ADMIN_USERS au 
-			LEFT JOIN T_GRUPO_USUARIO tgu ON au.ID = tgu.FK_USUARIO 
-			LEFT JOIN T_GRUPO tg ON tgu.FK_GRUPO = tg.id
-		WHERE au.LOGIN = {emailStr}
+		SELECT
+            tcd.NOME_CARGO AS 'Permissao'
+        FROM
+            T_USUARIO_CARGO_DASH tucd 
+            LEFT JOIN ADMIN_USERS au ON tucd.FK_USUARIO = au.ID 
+            LEFT JOIN T_CARGO_DASH tcd ON tucd.FK_CARGO = tcd.ID 
+        WHERE au.LOGIN = {loginStr}
   	''')
 
 
@@ -115,6 +115,18 @@ def config_permissoes_user():
         nomeUser = " ".join(nomeUser["Nome"].tolist())
     return permissao, nomeUser, email
 
+def GET_ABAS_CARGOS(cargo):
+    cargoStr = f"'{cargo}'"
+    return dataframe_query(f'''
+        SELECT
+            tad.ID AS 'ID Aba',
+            tad.NOME_ABA AS 'Aba'
+        FROM
+            T_CARGO_ABA_DASH tcad 
+            LEFT JOIN T_CARGO_DASH tcd ON tcad.FK_CARGO = tcd.ID
+            LEFT JOIN T_ABAS_DASH tad ON tcad.FK_ABA = tad.ID
+        WHERE tcd.NOME_CARGO = {cargoStr}
+    ''')
 
 def GET_LOJAS():
   return dataframe_query(f'''
@@ -325,16 +337,71 @@ def mostrar_menu_permissoes_auditoria(permissoes):
 
 def config_sidebar():
 
-    permissoes, user_name, email = config_permissoes_user()
+    abas_secoes = {
+        100: "KPI's de Faturamento",
+        101: "KPI's de Faturamento",
+        102: "KPI's de Faturamento",
+        103: "KPI's de Faturamento",
+        104: "KPI's de Faturamento",
+        105: "KPI's de Faturamento",
+        106: "KPI's de Faturamento - Eventos",
+        107: "KPI's de Faturamento - Eventos",
+        108: "KPI's de Faturamento - Eventos",
+        109: "KPI's de Faturamento - Eventos",
+        110: "KPI's de Faturamento - Eventos",
+        111: "KPI's de Faturamento - Eventos",
+        112: "KPI's de Faturamento - Eventos",
+        113: "KPI's de Faturamento - Eventos",
+        114: "KPI's de Faturamento - Eventos",
+        115: "KPI's de Faturamento - Eventos",
+        116: "KPI's de Faturamento - Eventos",
+        117: "KPI's de Faturamento - Eventos",
+        118: "Fluxo de Caixa",
+        119: "Fluxo de Caixa",
+        120: "Fluxo de Caixa",
+        121: "Conciliação",
+        122: "Conciliação",
+        123: "Conciliação",
+        124: "KPI's de Resultado Operacional",
+        125: "KPI's de Resultado Operacional",
+        126: "KPI's de Resultado Operacional",
+        127: "KPI's de Resultado Operacional",
+        128: "KPI's de Resultado Operacional",
+        129: "KPI's de Resultado Operacional",
+        130: "KPI's de Resultado Operacional - Suprimentos",
+        131: "KPI's de Resultado Operacional - Suprimentos",
+        132: "KPI's de Resultado Operacional - Suprimentos",
+        133: "Auditoria",
+    }
+
+    cargo, user_name, email = config_permissoes_user()
+    
     st.sidebar.header(f"Bem-vindo(a) {user_name}!")
+    col1, col2 = st.sidebar.columns(2)
+    with col1:
+        st.button(label="Atualizar", on_click = st.cache_data.clear, width='stretch', icon='🔄')
+    with col2:
+        if st.button("Logout", width='stretch', icon='🚪'):
+            logout()
+
     if st.session_state["loggedIn"]:
-        mostrar_menu_permissoes_kpis_faturamento(permissoes)
-        mostrar_menu_permissoes_kpis_faturamento_eventos(permissoes)
-        mostrar_menu_permissoes_fluxo_de_caixa(permissoes)
-        mostrar_menu_permissoes_conciliacao(permissoes)
-        mostrar_menu_permissoes_kpis_resultado_operacional(permissoes)
-        mostrar_menu_permissoes_kpis_resultado_operacional_suprimentos(permissoes)
-        mostrar_menu_permissoes_auditoria(permissoes)
+        abas_permitidas = st.session_state["abas_permitidas"]
+
+        # Organizar abas por secao
+        abas_por_secao = {}
+        for aba in abas_permitidas:
+            secao = abas_secoes.get(aba['ID Aba'])
+            if secao:
+                if secao not in abas_por_secao:
+                    abas_por_secao[secao] = []
+                abas_por_secao[secao].append(aba)
+        
+        # Renderizar cada secao
+        for secao in abas_por_secao:
+            st.sidebar.markdown(f"## {secao}")
+            for aba in abas_por_secao[secao]:
+                st.sidebar.page_link(f'{aba["page_link"]}', label=f'{aba["Aba"]}')
+        
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 
