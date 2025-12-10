@@ -137,7 +137,7 @@ with tab2:
 ###################### DESPESAS - PRÓXIMOS MESES ###################### 
 with tab3:
     df_despesas_gerais = GET_DESPESAS_RAPIDAS()
-    # df_teste = df_despesas_gerais[(df_despesas_gerais['Casa'] == casa) & (df_despesas_gerais['Classificacao_Contabil_1'] == 'Deduções sobre Venda')]
+    # df_teste = df_despesas_gerais[df_despesas_gerais['Casa'] == casa]
     # st.write(df_teste)
 
     st.markdown(f'''
@@ -169,7 +169,7 @@ with tab3:
             df_valoracao_producao, 
             df_faturamento_eventos
         )
-        
+
         df_cmv_meses_anteriores_seguintes = calcula_cmv_proximos_meses(df_faturamento_meses_futuros, df_calculo_cmv, datas['ano_atual'], datas['mes_atual'])
         exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'])
 
@@ -180,6 +180,7 @@ with tab3:
 
         # Custos Eventos
         df_custos_eventos_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Custos de Eventos')
+        # st.write(df_custos_eventos_faturamentos_mensais_passados)
         df_projecao_custos_eventos_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_eventos_faturamentos_mensais_passados, 'Custos Eventos', datas['ano_atual'], datas['mes_atual'])
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_eventos_meses_anteriores_seguintes, 'Custos de Eventos', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
 
@@ -190,6 +191,7 @@ with tab3:
 
         # PJ
         df_custos_pj_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - PJ')
+        # st.write(df_custos_pj_faturamentos_mensais_passados)
         df_projecao_custos_pj_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_pj_faturamentos_mensais_passados, 'PJ', datas['ano_atual'], datas['mes_atual'])
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_pj_meses_anteriores_seguintes, 'Mão de Obra - PJ', 'meses seguintes', datas['ano_atual'], datas['mes_atual'], igual_mes_anterior=True)
 
