@@ -230,7 +230,8 @@ def main():
 
 		col1, col2 = st.columns([6, 1], vertical_alignment='bottom')
 		with col1:
-			total_str = f'{format_brazilian(df_faturamento_notie['Valor Total'].sum())}'
+			valor_total = df_faturamento_notie['Valor Total'].sum()
+			total_str = format_brazilian(valor_total)
 			st.markdown(f'**Valor Total no período: R$ {total_str}**')
 		with col2:
 			button_download(df_faturamento_notie, 'faturamento_notie', f'{data_inicio}_{data_fim}')
