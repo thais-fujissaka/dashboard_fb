@@ -104,16 +104,16 @@ def GET_USERNAME(email):
 
 
 def config_permissoes_user():
-    email = st.session_state.get("user_email", "Usuário desconhecido")
-    dfpermissao = GET_PERMISSIONS(email)
+    login = st.session_state.get("user_login", "Usuário desconhecido")
+    dfpermissao = GET_PERMISSIONS(login)
     if dfpermissao.empty: # Não está no EPM
         permissao = ["Gazit"]
         nomeUser = ""
     else: # Está no EPM
         permissao = dfpermissao["Permissao"].tolist()
-        nomeUser = GET_USERNAME(email)
+        nomeUser = GET_USERNAME(login)
         nomeUser = " ".join(nomeUser["Nome"].tolist())
-    return permissao, nomeUser, email
+    return permissao, nomeUser, login
 
 def GET_ABAS_CARGOS(cargo):
     cargoStr = f"'{cargo}'"
@@ -138,17 +138,18 @@ def GET_LOJAS():
 
 
 @st.cache_data
-def GET_LOJAS_USER(email):
-	emailStr = f"'{email}'"
+def GET_LOJAS_USER(login):
+	loginStr = f"'{login}'"
 	return dataframe_query(f'''
 		SELECT 
+            te.ID AS 'ID Loja',
 			te.NOME_FANTASIA AS 'Loja'
 		FROM
 			ADMIN_USERS au 
 			LEFT JOIN T_USUARIOS_EMPRESAS tue ON au.ID = tue.FK_USUARIO 
 			LEFT JOIN T_EMPRESAS te ON tue.FK_EMPRESA = te.ID
 			LEFT JOIN T_LOJAS tl ON te.ID = tl.ID
-		WHERE au.LOGIN = {emailStr}
+		WHERE au.LOGIN = {loginStr}
   	''')
 
 def config_sidebar():
@@ -193,12 +194,8 @@ def config_sidebar():
     cargo, user_name, email = config_permissoes_user()
     
     st.sidebar.header(f"Bem-vindo(a) {user_name}!")
-    col1, col2 = st.sidebar.columns(2)
-    with col1:
-        st.button(label="Atualizar", on_click = st.cache_data.clear, width='stretch', icon='🔄')
-    with col2:
-        if st.button("Logout", width='stretch', icon='🚪'):
-            logout()
+    if st.sidebar.button("Logout", width='stretch', icon='🚪'):
+        logout()
 
     if st.session_state["loggedIn"]:
         abas_permitidas = st.session_state["abas_permitidas"]

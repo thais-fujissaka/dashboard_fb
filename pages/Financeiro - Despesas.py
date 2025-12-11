@@ -24,9 +24,6 @@ with col:
   st.title('Controle de Despesas Gerais')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
-with col3:
-  if st.button("Logout"):
-    logout()
 
 st.divider()
 

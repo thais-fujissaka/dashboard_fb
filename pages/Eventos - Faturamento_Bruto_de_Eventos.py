@@ -33,9 +33,6 @@ def main():
 		st.title(":moneybag: Faturamento Bruto de Eventos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_faturamento', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_faturamento'):
-			logout()
 	st.divider()
 
 	# Recupera dados dos eventos e parcelas

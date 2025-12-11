@@ -34,9 +34,6 @@ def main():
 		st.title(":left_right_arrow: Contas a Receber - Conciliação de Parcelas de Eventos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_conciliacao_vencimento_recebimento_eventos', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_conciliacao_vencimento_recebimento_eventos'):
-			logout()
 	st.divider()
 
 	# Recupera dados dos eventos e parcelas

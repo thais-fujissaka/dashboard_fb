@@ -6,7 +6,6 @@ from utils.functions.general_functions import *
 from utils.functions.fluxo_de_caixa_previsao_faturamento import *
 from workalendar.america import Brazil
 from streamlit_echarts import st_echarts
-from utils.user import logout
 from datetime import datetime
 
 st.set_page_config(
@@ -23,9 +22,6 @@ with col:
   st.title('🪙 Previsão de Faturamento')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
-with col3:
-  if st.button("Logout"):
-    logout()
 
 config_sidebar()
 st.divider()

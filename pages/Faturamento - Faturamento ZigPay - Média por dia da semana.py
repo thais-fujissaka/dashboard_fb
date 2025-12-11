@@ -26,9 +26,6 @@ with col1:
     st.title(":moneybag: Faturamento ZigPay - Dias da semana")
 with col2:
     st.button(label="Atualizar dados", on_click=st.cache_data.clear)
-with col3:
-    if st.button("Logout"):
-        logout()
 st.divider()
 
 # Seletor de casa

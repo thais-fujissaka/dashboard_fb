@@ -44,11 +44,11 @@ def logout():
   st.switch_page('Login.py')
 
 
-def handle_login(user_email, password):
+def handle_login(user_login, password):
   #user data deve conter o usuario
-  if user_data := login(user_email, password):
+  if user_data := login(user_login, password):
     st.session_state['loggedIn'] = True
-    st.session_state['user_email'] = user_email
+    st.session_state['user_login'] = user_login
   else:
     st.session_state['loggedIn'] = False
     st.error("Email ou senha inválidos!!")

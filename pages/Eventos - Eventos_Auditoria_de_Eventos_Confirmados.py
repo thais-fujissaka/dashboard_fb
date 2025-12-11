@@ -35,9 +35,6 @@ def main():
 		st.header(":no_entry_sign: Auditoria de Eventos - Alteração de Confirmados")
 	with col2:
 		st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout'):
-			logout()
 	st.divider()
 
 	st.warning(':warning: Eventos e parcelas de eventos não devem ser alterados após a confirmação do evento.')

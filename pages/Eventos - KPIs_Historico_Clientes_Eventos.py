@@ -30,9 +30,6 @@ def main():
         st.title(":busts_in_silhouette: KPI's de Vendas - Histórico e Recorrência de Clientes")
     with col2:
         st.button(label='Atualizar', key='atualizar_historico_clientes_eventos', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout_historico_clientes_eventos'):
-            logout()
     st.divider()
 
     # Filtro por Casa

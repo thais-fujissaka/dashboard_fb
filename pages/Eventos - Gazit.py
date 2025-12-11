@@ -89,9 +89,6 @@ def main():
 		st.title("🛍️ Auditoria Externa - Gazit - Shopping Light")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_gazit', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_gazit'):
-			logout()
 	st.divider()
 
 	# Seletor de ano

@@ -27,9 +27,6 @@ with col:
 	st.title(":material/restaurant: Análise de Consumo")
 with col2:
 	st.button(label="Atualizar", on_click=st.cache_data.clear)
-with col3:
-	if st.button("Logout"):
-		logout()
 
 seletores_container = st.container(border=True)
 with seletores_container:

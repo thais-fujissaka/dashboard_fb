@@ -27,9 +27,6 @@ def main():
 		st.title("📦 Relatório de Insumos - Suprimentos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout'):
-			logout()
 	st.divider()
 	
 	inputs_expenses_base = inputs_expenses()

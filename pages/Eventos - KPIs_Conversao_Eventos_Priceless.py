@@ -62,9 +62,6 @@ def main():
         st.title("📈 KPI's de Vendas - Conversão de Eventos")
     with col2:
         st.button(label='Atualizar', key='atualizar_kpis_vendas', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout_kpis_vendas'):
-            logout()
     st.divider()
 
     # Adiciona selecao de mes e ano

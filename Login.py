@@ -68,7 +68,7 @@ def main():
         st.write("")
 
         with st.container(border=True):
-            user_email = st.text_input(
+            login = st.text_input(
                 label="Login", value="", placeholder="nome@email.com"
             )
             password = st.text_input(
@@ -79,15 +79,22 @@ def main():
                 st.button(
                     "Login",
                     on_click=handle_login,
-                    args=(user_email, password),
+                    args=(login, password),
                     type="primary",
                     width='stretch',
                 )
     else:
-        cargo, Nomeuser, email = config_permissoes_user()
+        cargo, Nomeuser, login = config_permissoes_user()
         cargo = cargo[0]
+
         st.write("Você está logado!")
         st.markdown("Redirecionando...")
+
+        # Recupera a permissao de casas
+        df_lojas_user = GET_LOJAS_USER(login)
+        casas_permitidas = df_lojas_user.to_dict("records")
+        st.session_state["casas_permitidas"] = casas_permitidas
+
         cargo_abas = GET_ABAS_CARGOS(cargo)
         abas_permitidas = cargo_abas.to_dict("records")
         for aba in abas_permitidas:

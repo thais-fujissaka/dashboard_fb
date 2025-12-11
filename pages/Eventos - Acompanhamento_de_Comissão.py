@@ -27,14 +27,11 @@ def main():
     config_sidebar()
 
     # Header
-    col1, col2, col3 = st.columns([6, 1, 1])
+    col1, col2 = st.columns([5, 1], vertical_alignment='center')
     with col1:
         st.title("📊 KPI's de Vendas - Cálculo da Comissão de Eventos")
     with col2:
-        st.button(label='Atualizar', key='atualizar_kpis_vendas', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout_kpis_vendas'):
-            logout()
+        st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
     st.divider()
 
     # Recupera dados dos eventos
@@ -49,7 +46,7 @@ def main():
 
     # Acessos das comissões dos vendedores por logins de vendedores (email)
     df_acessos_comissoes = GET_ACESSOS_COMISSOES()
-    user = st.session_state["user_email"]
+    user = st.session_state["user_login"]
     if user not in st.secrets["comissions_total_access"]["users"]:
         df_acessos_comissoes = df_acessos_comissoes[df_acessos_comissoes['E-mail'] == user]
 

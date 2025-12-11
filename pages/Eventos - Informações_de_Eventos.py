@@ -84,9 +84,6 @@ def main():
 		st.title("🔎 Informações de Eventos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_informacoes_eventos', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_informacoes_eventos'):
-			logout()
 	st.divider()
 
 	# Seletores de eventos

@@ -4,7 +4,6 @@ from utils.queries_financeiro import *
 from utils.functions.financeiro_faturamento_zigpay import *
 from utils.functions.general_functions import *
 from utils.components import *
-from utils.user import logout
 
 st.set_page_config(
   layout = 'wide',
@@ -23,9 +22,6 @@ def main():
     st.title(':moneybag: Faturamento Zigpay')
   with col2:
     st.button(label="Atualizar", on_click = st.cache_data.clear)
-  with col3:
-    if st.button("Logout"):
-      logout()
   st.divider()
 
   lojasComDados = preparar_dados_lojas_user_financeiro()

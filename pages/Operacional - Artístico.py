@@ -3,7 +3,6 @@ import pandas as pd
 from utils.queries_operacional import *
 from utils.functions.general_functions import *
 from utils.components import *
-from utils.user import logout
 from datetime import date, datetime
 from matplotlib.dates import relativedelta
 
@@ -39,9 +38,6 @@ def main():
     st.title('🎵 Artístico')
   with col2:
     st.button(label="Atualizar", on_click = st.cache_data.clear)
-  with col3:
-    if st.button("Logout"):
-      logout()
   st.divider()
 
   data_inicio = date(datetime.today().year, datetime.today().month, 1) - relativedelta(months=1)
