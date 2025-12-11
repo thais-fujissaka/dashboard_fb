@@ -167,6 +167,7 @@ def exibe_faturamento_categoria_mes_corrente(categoria, df_dias_futuros_mes, tip
         # Colunas a serem exibidas
         df_projecao_faturamento_mes_corrente = df_projecao_faturamento_mes_corrente[['Categoria', 'Data Evento', 'Dia Semana', 'Faturamento Projetado', 'Valor Bruto', 'Desconto', 'Valor Liquido']]
         df_projecao_faturamento_mes_corrente = df_projecao_faturamento_mes_corrente.sort_values(by=['Categoria', 'Data Evento'])
+        df_projecao_faturamento_mes_corrente = df_projecao_faturamento_mes_corrente.rename(columns={'Valor Bruto':'Faturamento Real', 'Valor Liquido':'Faturamento Liquido'})
         num_columns_dataframe = ['Faturamento Projetado', 'Faturamento Real', 'Desconto', 'Faturamento Liquido']
 
         st.markdown(f'''
@@ -461,7 +462,8 @@ def exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, ano_atual, 
             <h5>Comparação Faturamento: Atingimento Projetado e Atingimento Real</h5>
         ''', unsafe_allow_html=True)
 
-    df_faturamento_meses_anteriores_exibe = function_format_number_columns(df_faturamento_meses_anteriores, columns_money=['Orçamento', 'Faturamento Real', 'Faturamento Projetado'], columns_percent=['Atingimento Real', 'Atingimento Projetado'])
+    df_faturamento_meses_anteriores = df_faturamento_meses_anteriores.rename(columns={'Valor Bruto':'Faturamento Real'})
+    df_faturamento_meses_anteriores_exibe = function_format_number_columns(df_faturamento_meses_anteriores, columns_money=['Orçamento', 'Faturamento Real', 'Faturamento Projetado'], columns_percent=['Atingimento Real', 'Projeção Atingimento'])
     dataframe_aggrid(
         df=df_faturamento_meses_anteriores_exibe,
         name=f"Projeção - Faturamento Meses Anteriores",
