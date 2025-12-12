@@ -223,10 +223,14 @@ def main():
 	if len(date) == 2:
 		data_inicio = date[0]
 		data_fim = date[1]
-		df_faturamento_notie = faturamento_notie(data_inicio, data_fim)
-		df_faturamento_notie['Valor Total'] = df_faturamento_notie['Valor Total'].astype(float)
+		df_faturamento_notie = GET_FATURAMENTO_NOTIE(data_inicio, data_fim)
+		
+		cols_to_convert = ['Preço', 'Quantidade', 'Desconto', 'Valor Total']
+		for col in cols_to_convert:
+			df_faturamento_notie[col] = pd.to_numeric(df_faturamento_notie[col], errors='coerce')
+
 		df_faturamento_notie_formatado = df_format_date_columns_brazilian(df_faturamento_notie, ['Data'])
-		df_faturamento_notie_formatado = format_columns_brazilian(df_faturamento_notie, ['Valor Total'])
+		df_faturamento_notie_formatado = format_columns_brazilian(df_faturamento_notie, ['Preço', 'Quantidade', 'Desconto','Valor Total'])
 
 		col1, col2 = st.columns([6, 1], vertical_alignment='bottom')
 		with col1:
