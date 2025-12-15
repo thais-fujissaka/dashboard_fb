@@ -301,8 +301,3 @@ with tab3:
         if casa == 'Blue Note - São Paulo':
             exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_franquias_meses_anteriores_seguintes, 'Sistema de Franquias', 'meses anteriores', datas['ano_atual'], datas['mes_atual'], igual_mes_anterior=True)
 
-# with tab4:
-#     st.write(df_teste[df_teste['Casa'] == casa])
-    
-#     df_itens_vendidos_dia = GET_ITENS_VENDIDOS_DIA()
-#     st.write(df_itens_vendidos_dia[df_itens_vendidos_dia['Casa'] == casa])

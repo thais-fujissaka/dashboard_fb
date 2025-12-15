@@ -12,6 +12,7 @@ from utils.functions.faturamento import *
 from utils.functions.gazit import *
 from utils.user import *
 import math
+from utils.queries_gazit import *
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -92,8 +93,10 @@ def main():
 	st.divider()
 
 	# Seletor de ano
-	col1, col2 = st.columns([1, 3])
+	col1, col2 = st.columns([1, 1])
 	with col1:
+		st.markdown('## Faturamento de Eventos')
+	with col2:
 		ano = seletor_ano(2024, 2025, key='ano_faturamento')
 	st.divider()
 
@@ -197,6 +200,45 @@ def main():
 		else:
 			st.markdown("#### Parcelas")
 			st.markdown("Clique em um mês no gráfico para visualizar parcelas.")
+	st.divider()
+
+	col1, col2 = st.columns(2)
+	with col1:
+		st.markdown('## Faturamento de Produtos Vendidos')
+	with col2:
+		data_inicio_default, data_fim_default = get_first_and_last_day_of_month()
+		date = st.date_input(
+			'Selecione o período',
+			value = (data_inicio_default, data_fim_default),
+			key = 'periodo_datas',
+			min_value = datetime.datetime(2022, 1, 1),
+			max_value = 'today',
+			format = 'DD/MM/YYYY'
+		)
+	st.divider()
+	
+	if len(date) == 2:
+		data_inicio = date[0]
+		data_fim = date[1]
+		df_faturamento_notie = GET_FATURAMENTO_NOTIE(data_inicio, data_fim)
+		
+		cols_to_convert = ['Preço', 'Quantidade', 'Desconto', 'Valor Total']
+		for col in cols_to_convert:
+			df_faturamento_notie[col] = pd.to_numeric(df_faturamento_notie[col], errors='coerce')
+
+		df_faturamento_notie_formatado = df_format_date_columns_brazilian(df_faturamento_notie, ['Data'])
+		df_faturamento_notie_formatado = format_columns_brazilian(df_faturamento_notie, ['Preço', 'Quantidade', 'Desconto','Valor Total'])
+
+		col1, col2 = st.columns([6, 1], vertical_alignment='bottom')
+		with col1:
+			valor_total = df_faturamento_notie['Valor Total'].sum()
+			total_str = format_brazilian(valor_total)
+			st.markdown(f'**Valor Total no período: R$ {total_str}**')
+		with col2:
+			button_download(df_faturamento_notie, 'faturamento_notie', f'{data_inicio}_{data_fim}')
+		st.dataframe(df_faturamento_notie_formatado, hide_index=True)
+	
+
 
 if __name__ == '__main__':
     main()

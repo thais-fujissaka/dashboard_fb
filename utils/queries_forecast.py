@@ -95,10 +95,10 @@ def GET_ITENS_VENDIDOS_DIA():
       	WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
         ELSE tivc2.DESCRICAO 
       END AS Categoria,
-          DATE(tivd.EVENT_DATE) AS 'Data_Evento',
+          DATE(tivd.EVENT_DATE) AS 'Data Evento',
           SUM(tivd.DESCONTO) AS 'Desconto',
-          SUM(COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0)) AS 'Valor_Bruto',
-          SUM(COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0)) AS 'Valor_Liquido'
+          SUM(COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0)) AS 'Valor Bruto',
+          SUM(COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0)) AS 'Valor Liquido'
         FROM T_ITENS_VENDIDOS_DIA tivd
         LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
         LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
@@ -110,7 +110,7 @@ def GET_ITENS_VENDIDOS_DIA():
     '''
     )
     # Agrupa por casa e data
-    df_itens_vendidos_dia = df_itens_vendidos_dia.groupby(['ID_Casa', 'Casa', 'Categoria', 'Data_Evento'], as_index=False)[['Valor_Bruto', 'Desconto', 'Valor_Liquido']].sum()
+    df_itens_vendidos_dia = df_itens_vendidos_dia.groupby(['ID_Casa', 'Casa', 'Categoria', 'Data Evento'], as_index=False)[['Valor Bruto', 'Desconto', 'Valor Liquido']].sum()
     return df_itens_vendidos_dia
 
 
@@ -119,21 +119,21 @@ def GET_ITENS_VENDIDOS_DIA():
 def GET_FATURAMENTO_EVENTOS():
     df_faturamento_eventos = dataframe_query(f'''
     SELECT 
-        te.ID AS ID_Casa,
-        te.NOME_FANTASIA AS Casa,
-        tep.DATA_EVENTO AS Data_Evento,
+        te.ID AS 'ID_Casa',
+        te.NOME_FANTASIA AS 'Casa',
+        tep.DATA_EVENTO AS 'Data Evento',
         tep.VALOR_AB AS Valor_AB,
-        tep.VALOR_LOCACAO_AROO_1 AS VALOR_LOCACAO_AROO_1,
-        tep.VALOR_LOCACAO_AROO_2 AS VALOR_LOCACAO_AROO_2,
-        tep.VALOR_LOCACAO_AROO_3 AS VALOR_LOCACAO_AROO_3,          
-        tep.VALOR_LOCACAO_ANEXO AS VALOR_LOCACAO_ANEXO,
-        tep.VALOR_LOCACAO_NOTIE AS VALOR_LOCACAO_NOTIE, 
-        tep.VALOR_LOCACAO_MIRANTE AS VALOR_LOCACAO_MIRANTE, 
-        tep.VALOR_LOCACAO_GERADOR AS VALOR_LOCACAO_GERADOR,          
-        tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS VALOR_LOCACAO_DECORACAO_MOBILIARIO,          
-        tep.VALOR_LOCACAO_UTENSILIOS AS VALOR_LOCACAO_UTENSILIOS,   
-        tep.VALOR_LOCACAO_ESPACO AS VALOR_LOCACAO_ESPACO,
-        tep.VALOR_CONTRATACAO_ARTISTICO AS Couvert                                                                                                                                                                                                                            
+        tep.VALOR_LOCACAO_AROO_1 AS 'VALOR_LOCACAO_AROO_1',
+        tep.VALOR_LOCACAO_AROO_2 AS 'VALOR_LOCACAO_AROO_2',
+        tep.VALOR_LOCACAO_AROO_3 AS 'VALOR_LOCACAO_AROO_3',          
+        tep.VALOR_LOCACAO_ANEXO AS 'VALOR_LOCACAO_ANEXO',
+        tep.VALOR_LOCACAO_NOTIE AS 'VALOR_LOCACAO_NOTIE', 
+        tep.VALOR_LOCACAO_MIRANTE AS 'VALOR_LOCACAO_MIRANTE', 
+        tep.VALOR_LOCACAO_GERADOR AS 'VALOR_LOCACAO_GERADOR',          
+        tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'VALOR_LOCACAO_DECORACAO_MOBILIARIO',          
+        tep.VALOR_LOCACAO_UTENSILIOS AS 'VALOR_LOCACAO_UTENSILIOS',   
+        tep.VALOR_LOCACAO_ESPACO AS 'VALOR_LOCACAO_ESPACO',
+        tep.VALOR_CONTRATACAO_ARTISTICO AS 'Couvert'                                                                                                                                                                                                                           
     FROM T_EVENTOS_PRICELESS tep
     LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)  
     ORDER BY tep.DATA_EVENTO                                                                           
@@ -141,7 +141,7 @@ def GET_FATURAMENTO_EVENTOS():
     )
 
     # Define quais colunas serão "mantidas"
-    id_vars = ['ID_Casa', 'Casa', 'Data_Evento']
+    id_vars = ['ID_Casa', 'Casa', 'Data Evento']
 
     # Define quais colunas serão transformadas em categorias
     value_vars = ['Valor_AB', 'VALOR_LOCACAO_AROO_1', 'VALOR_LOCACAO_AROO_2',
@@ -155,11 +155,11 @@ def GET_FATURAMENTO_EVENTOS():
         id_vars=id_vars,
         value_vars=value_vars,
         var_name='Categoria',
-        value_name='Valor_Bruto'
+        value_name='Valor Bruto'
     )
 
     # Remove linhas sem valor
-    df_eventos_melt = df_eventos_melt.dropna(subset=['Valor_Bruto'])
+    df_eventos_melt = df_eventos_melt.dropna(subset=['Valor Bruto'])
 
     # Simplifica nomes de categoria
     df_eventos_melt['Categoria'] = df_eventos_melt['Categoria'].replace({
@@ -180,13 +180,13 @@ def GET_FATURAMENTO_EVENTOS():
     # Agrupa somando o valor total por categoria por data
     df_eventos_final = (
         df_eventos_melt
-        .groupby(['ID_Casa', 'Casa', 'Data_Evento', 'Categoria'], as_index=False)
-        .agg({'Valor_Bruto': 'sum'})
+        .groupby(['ID_Casa', 'Casa', 'Data Evento', 'Categoria'], as_index=False)
+        .agg({'Valor Bruto': 'sum'})
     )
 
     df_eventos_final['Desconto'] = 0
-    df_eventos_final['Valor_Liquido'] = df_eventos_final['Valor_Bruto']
-    df_eventos_final = df_eventos_final[['ID_Casa', 'Casa', 'Categoria', 'Data_Evento', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
+    df_eventos_final['Valor Liquido'] = df_eventos_final['Valor Bruto']
+    df_eventos_final = df_eventos_final[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Bruto', 'Desconto', 'Valor Liquido']]
     return df_eventos_final
 
 
@@ -198,15 +198,13 @@ def GET_PARCELAS_RECEIT_EXTR():
         CASE
             WHEN te.ID = 131 THEN 110
             ELSE te.ID    
-        END AS ID_Casa,                                                                                                                      
+        END AS 'ID_Casa',                                                                                                                      
         CASE
             WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
             ELSE te.NOME_FANTASIA    
-        END AS Casa,  
-        -- te.ID as 'ID_Casa',
-        -- te.NOME_FANTASIA as 'Casa',
-        tre.DATA_OCORRENCIA as 'Data_Ocorrencia',
-        vpa.VALOR_PARCELA as 'Valor_Parcela',
+        END AS 'Casa',  
+        tre.DATA_OCORRENCIA as 'Data Ocorrencia',
+        vpa.VALOR_PARCELA as 'Valor Parcela',
         trec2.CLASSIFICACAO as 'Categoria'
         FROM View_Parcelas_Agrupadas vpa
         INNER JOIN T_EMPRESAS te ON (vpa.FK_EMPRESA = te.ID)
@@ -216,22 +214,22 @@ def GET_PARCELAS_RECEIT_EXTR():
         ORDER BY te.NOME_FANTASIA ASC, tre.DATA_OCORRENCIA
         ''')
     
-    df_parc_receit_extr = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data_Ocorrencia', 'Categoria'], as_index=False)['Valor_Parcela'].sum()
+    df_parc_receit_extr = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data Ocorrencia', 'Categoria'], as_index=False)['Valor Parcela'].sum()
 
     # Agrupa por casa e dia (soma todas as categorias)
-    df_parc_receit_extr_dia = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data_Ocorrencia'], as_index=False)['Valor_Parcela'].sum()
+    df_parc_receit_extr_dia = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data Ocorrencia'], as_index=False)['Valor Parcela'].sum()
     df_parc_receit_extr_dia['Categoria'] = 'Outras Receitas'
 
     # Adequa para poder concatenar ao faturamento agregado
     df_parc_receit_extr_dia = df_parc_receit_extr_dia.rename(columns={
-        'Data_Ocorrencia':'Data_Evento',
-        'Valor_Parcela':'Valor_Bruto'
+        'Data Ocorrencia':'Data Evento',
+        'Valor Parcela':'Valor Bruto'
     })
 
     df_parc_receit_extr_dia['Desconto'] = 0
-    df_parc_receit_extr_dia['Valor_Liquido'] = df_parc_receit_extr_dia['Valor_Bruto']
+    df_parc_receit_extr_dia['Valor Liquido'] = df_parc_receit_extr_dia['Valor Bruto']
 
-    df_parc_receit_extr_dia = df_parc_receit_extr_dia[['ID_Casa', 'Casa', 'Categoria', 'Data_Evento', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
+    df_parc_receit_extr_dia = df_parc_receit_extr_dia[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Bruto', 'Desconto', 'Valor Liquido']]
 
     return df_parc_receit_extr, df_parc_receit_extr_dia
 
@@ -251,11 +249,11 @@ def GET_TODOS_FATURAMENTOS_DIA():
 def GET_ORCAMENTOS():
     df_orcamentos =  dataframe_query(f'''
     SELECT
-        te.ID AS ID_Casa,
-        te.NOME_FANTASIA AS Casa,
+        te.ID AS 'ID_Casa',
+        te.NOME_FANTASIA AS 'Casa',
         to2.ANO AS 'Ano',
-        to2.MES AS 'Mes',
-        to2.VALOR AS Orcamento_Faturamento,
+        to2.MES AS 'Mês',
+        to2.VALOR AS 'Orçamento',
         CASE
         WHEN tccg.DESCRICAO IN ('VENDA DE ALIMENTO', 'Alimentação') THEN 'Alimentos'
         WHEN tccg.DESCRICAO IN ('VENDA DE BEBIDAS', 'Bebida') THEN 'Bebidas'
@@ -263,7 +261,7 @@ def GET_ORCAMENTOS():
         WHEN tccg.DESCRICAO IN ('DELIVERY', 'Delivery') THEN 'Delivery'
         WHEN tccg.DESCRICAO IN ('GIFTS', 'Gifts') THEN 'Gifts'
         ELSE tccg.DESCRICAO
-        END AS Categoria
+        END AS 'Categoria'
     FROM
         T_ORCAMENTOS to2
     JOIN
@@ -286,13 +284,13 @@ def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
     df_faturamento_categoria_mensal = df_faturamento_categoria.copy() # Utiliza o mesmo df que já foi carregado na outra tab
 
     # Zera a hora
-    df_faturamento_categoria_mensal['Data_Evento'] = pd.to_datetime(df_faturamento_categoria_mensal['Data_Evento'], errors='coerce').dt.normalize()
-    df_faturamento_categoria_mensal['Ano'] = df_faturamento_categoria_mensal['Data_Evento'].dt.year
-    df_faturamento_categoria_mensal['Mes'] = df_faturamento_categoria_mensal['Data_Evento'].dt.month
+    df_faturamento_categoria_mensal['Data Evento'] = pd.to_datetime(df_faturamento_categoria_mensal['Data Evento'], errors='coerce').dt.normalize()
+    df_faturamento_categoria_mensal['Ano'] = df_faturamento_categoria_mensal['Data Evento'].dt.year
+    df_faturamento_categoria_mensal['Mês'] = df_faturamento_categoria_mensal['Data Evento'].dt.month
     df_faturamento_categoria_mensal = df_faturamento_categoria_mensal[df_faturamento_categoria_mensal['Ano'] > 2024]
     
     # Agrupa para ter os valores por mês
-    df_faturamento_categoria_mensal = df_faturamento_categoria_mensal.groupby(['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mes'], as_index=False)[['Valor_Bruto', 'Desconto', 'Valor_Liquido']].sum()
+    df_faturamento_categoria_mensal = df_faturamento_categoria_mensal.groupby(['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mês'], as_index=False)[['Valor Bruto', 'Desconto', 'Valor Liquido']].sum()
 
     return df_faturamento_categoria_mensal
 
@@ -300,9 +298,6 @@ def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
 @st.cache_data
 def GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_agregado_dia):
     df_faturamento_agregado_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_agregado_dia)
-    # df_faturamento_eventos_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_eventos)
-    # df_faturamento_receit_extr_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_parc_receit_extr_dia)
-    # df_todos_faturamentos_mensal = pd.concat([df_faturamento_agregado_mensal, df_faturamento_receit_extr_mensal])
     return df_faturamento_agregado_mensal
 
 

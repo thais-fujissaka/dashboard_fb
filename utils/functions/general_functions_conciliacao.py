@@ -146,7 +146,7 @@ def formata_df(df):
     
     # Aplica formatação brasileira em colunas de data 
     for col in df_formatado.select_dtypes(include='datetime').columns: 
-        df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y') 
+        df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d/%m/%Y') 
     return df_formatado
 
 
