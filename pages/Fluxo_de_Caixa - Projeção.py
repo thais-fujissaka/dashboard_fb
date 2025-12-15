@@ -131,7 +131,7 @@ with st.container(border=True):
 
     # Ordena por data
     df_projecao_grouped_com_soma = ordena_por_data(df_projecao_grouped_com_soma)
-    st.dataframe(df_projecao_grouped_com_soma, use_container_width=True, hide_index=True)
+    st.dataframe(df_projecao_grouped_com_soma, width='stretch', hide_index=True)
     button_download(df_projecao_grouped_com_soma, f"Projeção de bares agrupados", f"Projeção de bares agrupados")
 
 st.divider()
@@ -153,10 +153,11 @@ with st.container(border=True):
         )
 
     # Mensagem de aviso - Delivery
-    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Fabrica de Bares" no campo acima.')
-    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Bar Leo Centro" no campo acima.')
-    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Jacaré" no campo acima.')
-    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Orfeu" no campo acima.')
+    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Brahma - Centro, selecione "Delivery Fabrica de Bares" no campo acima.')
+    if 'Bar Léo - Granja' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Brahma - Granja, selecione "Delivery Brahma Granja Viana" no campo acima.')
+    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Léo - Centro, selecione "Delivery Bar Leo Centro" no campo acima.')
+    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do Jacaré, selecione "Delivery Jacaré" no campo acima.')
+    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do Orfeu, selecione "Delivery Orfeu" no campo acima.')
 
     df_projecao_bares = df_projecao_bares_geral
 
@@ -202,7 +203,7 @@ with st.container(border=True):
     })
 
     df_projecao_bar_com_soma = ordena_por_data(df_projecao_bar_com_soma)
-    st.dataframe(df_projecao_bar_com_soma, use_container_width=True, hide_index=True)
+    st.dataframe(df_projecao_bar_com_soma, width='stretch', hide_index=True)
     button_download(df_projecao_bar_com_soma, f"Projeção casa a casa", f"Projeção casa a casa")
 
 st.divider()
@@ -238,11 +239,13 @@ with st.container(border=True):
             format="DD/MM/YYYY",
         )
 
-    # Mensagem de aviso - Delivery
-    if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Fabrica de Bares" no campo acima.')
-    if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Bar Leo Centro" no campo acima.')
-    if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Jacaré" no campo acima.')
-    if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Orfeu" no campo acima.')
+    if not checkbox:
+        # Mensagem de aviso - Delivery
+        if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Brahma - Centro, selecione "Delivery Fabrica de Bares" no campo acima.')
+        if 'Bar Léo - Granja' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Brahma - Granja, selecione "Delivery Brahma Granja Viana" no campo acima.')
+        if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Léo - Centro, selecione "Delivery Bar Leo Centro" no campo acima.')
+        if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Jacaré, selecione "Delivery Jacaré" no campo acima.')
+        if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Orfeu, selecione "Delivery Orfeu" no campo acima.')
 
     data_inicio = pd.to_datetime(dataSelecionada)
     data_fim = pd.to_datetime(dataSelecionada2)
@@ -281,7 +284,7 @@ with st.container(border=True):
         "Status_Pgto": "Status Pgto",
     })
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width='stretch', hide_index=True)
     col1, col2 = st.columns([5, 2], vertical_alignment='center')
     with col1:
         st.write(f"Valor total das despesas selecionadas = **R$ {valorTotal}**")
@@ -339,7 +342,7 @@ with st.container(border=True):
         "Nome_Cliente": "Nome Cliente"       
     })
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width='stretch', hide_index=True)
     col1, col2 = st.columns([5, 2], vertical_alignment='center')
     with col1:
         st.write(f"Valor total das receitas extraordinárias selecionadas = **R$ {valorTotal}**")
@@ -398,7 +401,7 @@ with st.container(border=True):
         "Nome_Cliente": "Nome Cliente"   
     })
 
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    st.dataframe(df, width='stretch', hide_index=True)
     col1, col2 = st.columns([5, 2], vertical_alignment='center')
     with col1:
         st.write(f"Valor total das receitas de eventos selecionadas = **R$ {valorTotal}**")
