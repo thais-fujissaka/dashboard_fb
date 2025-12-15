@@ -138,8 +138,10 @@ def filtra_categoria_despesas(df_despesas_aprovadas_previstas, seletor_status_de
       (df_despesas_aprovadas_previstas['Status_Diretoria'] == 100) |
       (df_despesas_aprovadas_previstas['Status_Diretoria'].isna())
     ].copy()
-
-  df_categoria['Previsao_Pgto'] = df_categoria['Previsao_Pgto'].fillna(df_categoria['Data_Vencimento'])
+    
+    # PROBLEMA (15/12) - Aplicando apenas para 'Todas Previstas'
+    # df_categoria['Previsao_Pgto'] = df_categoria['Previsao_Pgto'].fillna(df_categoria['Data_Vencimento'])
+  
   df_categoria_agrupado = df_categoria.groupby(['Empresa', 'Previsao_Pgto'], as_index=False)['Valor_Liquido'].sum()
 
   # Filtra pela data de hoje até duas semanans a frente
@@ -171,8 +173,9 @@ def filtra_detalhes_despesas(seletor_status_despesa, despesas_pendentes_pagas, d
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 100) |
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'].isna())
         ].copy()
-    
-    df_despesas_pendentes_pagas['Previsao_Pgto'] = df_despesas_pendentes_pagas['Previsao_Pgto'].fillna(df_despesas_pendentes_pagas['Data_Vencimento'])
+
+        # PROBLEMA (15/12) - Aplicando apenas para 'Todas Previstas'
+        # df_despesas_pendentes_pagas['Previsao_Pgto'] = df_despesas_pendentes_pagas['Previsao_Pgto'].fillna(df_despesas_pendentes_pagas['Data_Vencimento'])
         
     # Filtra pelas datas de início e fim
     df_despesas_pendentes_pagas['Previsao_Pgto'] = pd.to_datetime(df_despesas_pendentes_pagas['Previsao_Pgto'], errors='coerce')

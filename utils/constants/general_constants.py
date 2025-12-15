@@ -17,7 +17,7 @@ lojasAgrupadas = ["Bar Brahma - Centro",
                   "Orfeu",
                   "Priceless",  
                   "Riviera Bar",
-                  "Tempus",
+                  "Tempus Fugit  Ltda ",
             ]
 
 # Todas as casas de df_casas menos 'All bar'
