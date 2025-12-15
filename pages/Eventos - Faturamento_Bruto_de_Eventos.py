@@ -97,7 +97,7 @@ def main():
 		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
-		ano = seletor_ano(2024, 2025, key='ano_faturamento')
+		ano = seletor_ano(2024, 2026, key='ano_faturamento')
 	st.divider()
 	
 	# Faturamento por Categoria

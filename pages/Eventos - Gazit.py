@@ -100,7 +100,7 @@ def main():
 	with col1:
 		st.markdown('## Faturamento de Eventos')
 	with col2:
-		ano = seletor_ano(2024, 2025, key='ano_faturamento')
+		ano = seletor_ano(2024, 2026, key='ano_faturamento')
 	st.divider()
 
 	df_parcelas = calcular_repasses_gazit_parcelas(df_parcelas, df_eventos)

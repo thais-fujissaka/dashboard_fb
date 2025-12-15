@@ -45,7 +45,7 @@ with seletores_container:
 		nome_mes, num_mes = seletor_mes_produtos(key="seletor_mes_analise_consumo")
 	with col3:
 		# Seleção do ano
-		ano = seletor_ano(2025, 2025, key="seletor_ano_analise_consumo")
+		ano = seletor_ano(2025, 2026, key="seletor_ano_analise_consumo")
 
 # Obtendo os dados de transações e compradores
 df_transacoes = GET_TRANSACOES_PERIODO_HORARIO_DIA_DA_SEMANA(id_casa)

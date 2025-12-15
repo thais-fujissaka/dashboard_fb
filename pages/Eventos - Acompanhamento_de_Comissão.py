@@ -116,7 +116,7 @@ def main():
                 lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
                 id_casa_faturamento, casa_faturamento, id_zigpay_faturamento = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto_comissao')
             with col2:
-                ano = seletor_ano(2024, 2025, key='ano_faturamento')
+                ano = seletor_ano(2024, 2026, key='ano_faturamento')
         filtro_data_categoria = "Recebimento (Caixa)"
 
         # Filtros parcelas
@@ -170,7 +170,7 @@ def main():
                     df_orcamentos = df_orcamentos[df_orcamentos['ID Casa'] == id_casa]
                     lista_vendedores_logado = df_acessos_comissoes[df_acessos_comissoes['ID Casa'] == id_casa]['ID - Responsavel'].tolist()
             with col1:
-                ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_comissao")
+                ano = seletor_ano(2025, 2026, key="seletor_ano_kpi_comissao")
             with col2:
                 mes = seletor_mes(
                     "Selecionar mês:", key="seletor_mes_kpi_comissao"
