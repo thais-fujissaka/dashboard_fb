@@ -407,32 +407,61 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
 @st.cache_data
 def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO():
   return dataframe_query(f'''
-  select
-    CASE
-      WHEN vibmcp.ID_Loja = 131 THEN 110
-      ELSE vibmcp.ID_Loja
-    END AS ID_Loja,
-    CASE
-      WHEN vibmcp.Loja = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
-      ELSE vibmcp.Loja
-    END AS Loja,
-    -- vibmcp.ID_Loja AS ID_Loja,
-    -- vibmcp.Loja AS Loja,
-    vibmcp.Primeiro_Dia_Mes AS Primeiro_Dia_Mes,
-    sum(vibmcp.Valor_Liquido) AS BlueMe_Com_Pedido_Valor_Liquido,
-    sum(vibmcp.Valor_Insumos) AS BlueMe_Com_Pedido_Valor_Insumos,
-    sum(vibmcp.Valor_Liq_Alimentos) AS BlueMe_Com_Pedido_Valor_Liq_Alimentos,
-    sum(vibmcp.Valor_Liq_Bebidas) AS BlueMe_Com_Pedido_Valor_Liq_Bebidas,
-    sum(vibmcp.Valor_Liq_Descart_Hig_Limp) AS BlueMe_Com_Pedido_Valor_Liq_Descart_Hig_Limp,
-    sum(vibmcp.Valor_Liq_Outros) AS BlueMe_Com_Pedido_Valor_Liq_Outros
-  from
-    View_Insumos_BlueMe_Com_Pedido vibmcp
-  group by
-    vibmcp.ID_Loja,
-    vibmcp.Primeiro_Dia_Mes
-  order by
-    vibmcp.ID_Loja,
-    vibmcp.Primeiro_Dia_Mes
+    SELECT
+      CASE
+        WHEN te.ID = 131 THEN 110
+        ELSE te.ID
+      END AS ID_Loja,
+      CASE
+        WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+        ELSE te.NOME_FANTASIA
+      END AS Loja,
+      CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE), '%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
+      SUM(tdr.VALOR_LIQUIDO) AS BlueMe_Com_Pedido_Valor_Liquido,
+      SUM(insumos.total_insumos) AS BlueMe_Com_Pedido_Valor_Insumos,
+      SUM(ROUND(tdr.VALOR_LIQUIDO * insumos.Valor_Alimentos / insumos.total_insumos, 2)) AS BlueMe_Com_Pedido_Valor_Liq_Alimentos,
+      SUM(ROUND(tdr.VALOR_LIQUIDO * insumos.Valor_Bebidas / insumos.total_insumos, 2)) AS BlueMe_Com_Pedido_Valor_Liq_Bebidas,
+      SUM(ROUND(tdr.VALOR_LIQUIDO * insumos.Valor_Descart_Hig_Limp / insumos.total_insumos, 2)) AS BlueMe_Com_Pedido_Valor_Liq_Descart_Hig_Limp,
+      SUM(ROUND(tdr.VALOR_LIQUIDO * insumos.Valor_Outros / insumos.total_insumos, 2)) AS BlueMe_Com_Pedido_Valor_Liq_Outros
+    FROM T_DESPESA_RAPIDA tdr
+    INNER JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID AND te.ID <> 135
+    LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID
+    LEFT JOIN (
+      SELECT
+        tdri.FK_DESPESA_RAPIDA,
+        SUM(tdri.VALOR) AS total_insumos,
+        SUM(CASE WHEN tin1.DESCRICAO = 'ALIMENTOS' THEN tdri.VALOR ELSE 0 END) AS Valor_Alimentos,
+        SUM(CASE WHEN tin1.DESCRICAO = 'BEBIDAS' THEN tdri.VALOR ELSE 0 END) AS Valor_Bebidas,
+        SUM(CASE WHEN tin1.DESCRICAO = 'DESCARTAVEIS/HIGIENE E LIMPEZA' THEN tdri.VALOR ELSE 0 END) AS Valor_Descart_Hig_Limp,
+        SUM(CASE 
+          WHEN tin1.DESCRICAO NOT IN (
+            'ALIMENTOS',
+            'BEBIDAS',
+            'DESCARTAVEIS/HIGIENE E LIMPEZA',
+            'GELO / GAS / CARVAO / VELAS',
+            'UTENSILIOS'
+          ) THEN tdri.VALOR 
+          ELSE 0 
+        END) AS Valor_Outros
+      FROM T_DESPESA_RAPIDA_ITEM tdri
+      LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID AND tin5.ID IS NOT NULL
+      LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID
+      LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID
+      LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID
+      LEFT JOIN T_INSUMOS_NIVEL_1 tin1 ON tin2.FK_INSUMOS_NIVEL_1 = tin1.ID
+      WHERE tdri.ID IS NOT NULL
+      GROUP BY tdri.FK_DESPESA_RAPIDA
+    ) insumos ON tdr.ID = insumos.FK_DESPESA_RAPIDA
+    WHERE tdr.ID IN (
+      SELECT DISTINCT tdri.FK_DESPESA_RAPIDA
+      FROM T_DESPESA_RAPIDA_ITEM tdri
+    )
+    GROUP BY
+      te.ID,
+      CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE), '%Y-%m-01') AS DATE)
+    ORDER BY
+      te.ID,
+      Primeiro_Dia_Mes;
 ''')
 
 
