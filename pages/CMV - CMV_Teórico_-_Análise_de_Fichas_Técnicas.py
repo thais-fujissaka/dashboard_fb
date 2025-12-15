@@ -43,7 +43,7 @@ def main():
     with col_mes:
         nome_mes, mes = seletor_mes_produtos('mes', 'Mês de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')
     with col_ano:
-        ano = seletor_ano(2024, 2025, 'ano', 'Ano de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')
+        ano = seletor_ano(2024, 2026, 'ano', 'Ano de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')
     with col_periodo:
         periodo = input_periodo_datas(key='datas', label='Período de Faturamento')
         
