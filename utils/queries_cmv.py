@@ -538,26 +538,55 @@ def GET_PERDAS_E_CONSUMO_AGRUPADOS():
 @st.cache_data
 def GET_INSUMOS_BLUE_ME_COM_PEDIDO():
   return dataframe_query(f'''
-  SELECT
-    vbmcp.tdr_ID AS tdr_ID,
-    vbmcp.ID_Loja AS ID_Loja,
-    vbmcp.Loja AS Loja,
-    vbmcp.Fornecedor AS Fornecedor,
-    vbmcp.Doc_Serie AS Doc_Serie,
-    vbmcp.Data_Emissao AS Data_Emissao,
-    vbmcp.Valor_Liquido AS Valor_Liquido,
-    vbmcp.Valor_Insumos AS Valor_Cotacao,
-    CAST(DATE_FORMAT(CAST(vbmcp.Data_Emissao AS DATE), '%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Alimentos / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Bebidas / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Bebidas,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Descartaveis_Higiene_Limpeza / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Gelo_Gas_Carvao_Velas / virapc.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Utensilios / virapc.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Outros / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
-  FROM
-    View_BlueMe_Com_Pedido vbmcp
-  LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON
-    vbmcp.tdr_ID = virapc.tdr_ID
+    SELECT
+      tdr.ID AS tdr_ID,
+      te.ID AS ID_Loja,
+      te.NOME_FANTASIA AS Loja,
+      tf.CORPORATE_NAME AS Fornecedor,
+      tdr.NF AS Doc_Serie,
+      tdr.COMPETENCIA AS Data_Emissao,
+      tdr.VALOR_LIQUIDO AS Valor_Liquido,
+      insumos.total_insumos AS Valor_Cotacao,
+      CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE), '%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
+      ROUND((tdr.VALOR_LIQUIDO * (insumos.Valor_Alimentos / insumos.total_insumos)), 2) AS Valor_Liq_Alimentos,
+      ROUND((tdr.VALOR_LIQUIDO * (insumos.Valor_Bebidas / insumos.total_insumos)), 2) AS Valor_Liq_Bebidas,
+      ROUND((tdr.VALOR_LIQUIDO * (insumos.Valor_Descart_Hig_Limp / insumos.total_insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
+      ROUND((tdr.VALOR_LIQUIDO * (insumos.Valor_Gelo_Gas_Carvao_Velas / insumos.total_insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
+      ROUND((tdr.VALOR_LIQUIDO * (insumos.Valor_Utensilios / insumos.total_insumos)), 2) AS Valor_Utensilios,
+      ROUND((tdr.VALOR_LIQUIDO * (insumos.Valor_Outros / insumos.total_insumos)), 2) AS Valor_Liq_Outros
+    FROM T_DESPESA_RAPIDA tdr
+    INNER JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+    LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID
+    LEFT JOIN (
+      SELECT
+        tdri.FK_DESPESA_RAPIDA,
+        SUM(tdri.VALOR) AS total_insumos,
+        SUM(CASE WHEN tin1.DESCRICAO = 'ALIMENTOS' THEN tdri.VALOR ELSE 0 END) AS Valor_Alimentos,
+        SUM(CASE WHEN tin1.DESCRICAO = 'BEBIDAS' THEN tdri.VALOR ELSE 0 END) AS Valor_Bebidas,
+        SUM(CASE WHEN tin1.DESCRICAO = 'DESCARTAVEIS/HIGIENE E LIMPEZA' THEN tdri.VALOR ELSE 0 END) AS Valor_Descart_Hig_Limp,
+        SUM(CASE WHEN tin1.DESCRICAO = 'GELO / GAS / CARVAO / VELAS' THEN tdri.VALOR ELSE 0 END) AS Valor_Gelo_Gas_Carvao_Velas,
+        SUM(CASE WHEN tin1.DESCRICAO = 'UTENSILIOS' THEN tdri.VALOR ELSE 0 END) AS Valor_Utensilios,
+        SUM(CASE 
+          WHEN tin1.DESCRICAO NOT IN (
+            'ALIMENTOS',
+            'BEBIDAS',
+            'DESCARTAVEIS/HIGIENE E LIMPEZA',
+            'GELO / GAS / CARVAO / VELAS',
+            'UTENSILIOS'
+          ) THEN tdri.VALOR 
+          ELSE 0 
+        END) AS Valor_Outros
+      FROM T_DESPESA_RAPIDA_ITEM tdri
+      LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID AND tin5.ID IS NOT NULL
+      LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID
+      LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID
+      LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID
+      LEFT JOIN T_INSUMOS_NIVEL_1 tin1 ON tin2.FK_INSUMOS_NIVEL_1 = tin1.ID
+      WHERE tdri.ID IS NOT NULL
+      GROUP BY tdri.FK_DESPESA_RAPIDA
+    ) insumos ON tdr.ID = insumos.FK_DESPESA_RAPIDA
+    WHERE insumos.total_insumos IS NOT NULL
+      AND te.ID <> 135;
 ''')
 
 
