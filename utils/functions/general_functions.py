@@ -472,7 +472,7 @@ def highlight_values(val):
 
 def preparar_dados_lojas_user_financeiro():
     permissao, nomeuser, username = config_permissoes_user()
-    if 'Administrador' in permissao:
+    if 'Administrador' in permissao or 'Dev Dash FB' in permissao:
         dflojas = GET_LOJAS()
         lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
         dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
