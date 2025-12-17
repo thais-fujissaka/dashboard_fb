@@ -53,24 +53,40 @@ def criar_df_dias(ano, mes):
     )
     return dias
 
-def lista_dias_mes_anterior_atual(
-    ano_atual, mes_atual, ultimo_dia_mes_atual,
-    ano_anterior, mes_anterior, dois_meses_antes,
-    df_faturamento_agregado_mes_corrente
-):
-    # Gera os 3 dataframes de meses
-    df_dois_meses_antes = criar_df_dias(ano_anterior, dois_meses_antes)
-    df_mes_anterior = criar_df_dias(ano_anterior, mes_anterior)
-    df_mes_corrente = criar_df_dias(ano_atual, mes_atual)
+def criar_df_dias_intervalo(ano_inicio, mes_inicio, ano_fim, mes_fim):
+    datas = pd.period_range(
+        start=f"{ano_inicio}-{mes_inicio:02d}",
+        end=f"{ano_fim}-{mes_fim:02d}",
+        freq="M"
+    )
 
-    # Concatena todos
-    df_dias_mes = pd.concat(
-        [df_dois_meses_antes, df_mes_anterior, df_mes_corrente],
-        ignore_index=True
+    lista_df = []
+
+    for periodo in datas:
+        ano = periodo.year
+        mes = periodo.month
+        lista_df.append(criar_df_dias(ano, mes))
+
+    return pd.concat(lista_df, ignore_index=True)
+
+def lista_dias_mes_anterior_atual(ano_atual, mes_atual, df_faturamento_agregado_mes_corrente):
+    ano_fim = ano_atual + 1
+    mes_fim = 12
+
+    # Gera dias do mês atual até dez do ano seguinte
+    df_dias_mes = criar_df_dias_intervalo(
+        ano_inicio=ano_atual,
+        mes_inicio=mes_atual - 1,
+        ano_fim=ano_fim,
+        mes_fim=mes_fim
     )
 
     # Cross com categorias
-    categorias = df_faturamento_agregado_mes_corrente['Categoria'].dropna().unique()
+    categorias = (
+        df_faturamento_agregado_mes_corrente['Categoria']
+        .dropna()
+        .unique()
+    )
     df_categorias = pd.DataFrame({'Categoria': categorias})
 
     df_resultado = df_dias_mes.merge(df_categorias, how='cross')
@@ -84,7 +100,7 @@ def cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_fut
         df_dias_futuros_com_categorias, 
         how='right', 
         on=['Data Evento', 'Dia Semana', 'Categoria'])
-
+    
     df_dias_futuros_mes['Faturamento Projetado'] = None
 
     # Loop por categoria
@@ -112,11 +128,13 @@ def cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_fut
                 ].copy()
 
                 # usa o Valor_Bruto (real) quando existir, senão a Projeção (que pode vir de dias anteriores)
+                # historico['Faturamento Projetado'] = historico['Faturamento Projetado'].fillna(0) # Para dias sem faturamento e sem projeção
                 valores_para_media = historico['Valor Bruto'].fillna(historico['Faturamento Projetado']).astype(float)
-
+                
                 if not valores_para_media.empty:
                     media = valores_para_media.mean()
                     df_dias_futuros_mes.at[i, 'Faturamento Projetado'] = media
+                    df_dias_futuros_mes['Faturamento Projetado'] = df_dias_futuros_mes['Faturamento Projetado'].fillna(0) # Para dias sem faturamento e sem projeção
 
     # Define valor final
     df_dias_futuros_mes['Valor Final'] = df_dias_futuros_mes['Valor Bruto'].fillna(df_dias_futuros_mes['Faturamento Projetado'])
@@ -124,7 +142,7 @@ def cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_fut
 
 
 # Exibe projeção por categoria (A&B, delivery, gifts e couvert) - mês corrente (dias anteriores e seguintes)
-def exibe_faturamento_categoria_mes_corrente(categoria, df_dias_futuros_mes, tipo, today, inicio_mes_atual):
+def exibe_faturamento_categoria_mes_corrente(categoria, df_dias_futuros_mes, tipo, datas):
     df_dias_futuros_mes['Faturamento Projetado'] = df_dias_futuros_mes['Faturamento Projetado'].fillna(0)
     df_dias_futuros_mes['Valor Bruto'] = df_dias_futuros_mes['Valor Bruto'].fillna(0)
     df_dias_futuros_mes['Desconto'] = df_dias_futuros_mes['Desconto'].fillna(0)
@@ -137,12 +155,16 @@ def exibe_faturamento_categoria_mes_corrente(categoria, df_dias_futuros_mes, tip
             df_projecao_faturamento_mes_corrente = df_dias_futuros_mes[
                 ((df_dias_futuros_mes['Categoria'] == 'Alimentos') |
                 (df_dias_futuros_mes['Categoria'] == 'Bebidas')) & 
-                (df_dias_futuros_mes['Data Evento'] > today)]
+                (df_dias_futuros_mes['Data Evento'] >= datas['today']) &
+                (df_dias_futuros_mes['Data Evento'] <= datas['fim_mes_atual'])
+            ]
             
         else:
             df_projecao_faturamento_mes_corrente = df_dias_futuros_mes[
                 (df_dias_futuros_mes['Categoria'] == categoria) &
-                (df_dias_futuros_mes['Data Evento'] > today)]
+                (df_dias_futuros_mes['Data Evento'] >= datas['today']) &
+                (df_dias_futuros_mes['Data Evento'] <= datas['fim_mes_atual'])
+            ]
 
             if categoria == 'Couvert':
                 titulo = 'Artístico (Couvert)'
@@ -159,8 +181,8 @@ def exibe_faturamento_categoria_mes_corrente(categoria, df_dias_futuros_mes, tip
     if tipo == 'dias anteriores':
         # Filtra para exibir dias anteriores do mês corrente - para comparação projeção/real
         df_projecao_faturamento_mes_corrente = df_dias_futuros_mes[
-            (df_dias_futuros_mes['Data Evento'] >= inicio_mes_atual) &
-            (df_dias_futuros_mes['Data Evento'] <= today) &
+            (df_dias_futuros_mes['Data Evento'] >= datas['inicio_mes_atual']) &
+            (df_dias_futuros_mes['Data Evento'] < datas['today']) &
             (df_dias_futuros_mes['Categoria'] != 'Serviço')
         ]
 
@@ -171,7 +193,7 @@ def exibe_faturamento_categoria_mes_corrente(categoria, df_dias_futuros_mes, tip
         num_columns_dataframe = ['Faturamento Projetado', 'Faturamento Real', 'Desconto', 'Faturamento Liquido']
 
         st.markdown(f'''
-            <h4>{titulo} - {inicio_mes_atual.strftime('%d/%m/%y')} a {today.strftime('%d/%m/%y')}</h4>
+            <h4>{titulo} - {datas['inicio_mes_atual'].strftime('%d/%m/%y')} a {datas['today'].strftime('%d/%m/%y')}</h4>
             <h5>Comparação: Faturamento Projetado e Faturamento Real</h5>
         ''', unsafe_allow_html=True)
     
@@ -200,7 +222,7 @@ def exibe_faturamento_eventos(df_faturamento_eventos, id_casa, datas):
 
     df_faturamento_eventos_futuros = df_faturamento_eventos[
         (df_faturamento_eventos['ID_Casa'] == id_casa) &
-        (df_faturamento_eventos['Data Evento'] >= datas['amanha']) &
+        (df_faturamento_eventos['Data Evento'] >= datas['today']) &
         (df_faturamento_eventos['Data Evento'] <= datas['fim_mes_atual']) 
     ]
 
@@ -230,7 +252,7 @@ def exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_
     # Filtra por casa e dias futuros
     df_parc_receitas_extr_futuras = df_parc_receit_extr_dia[
         (df_parc_receit_extr_dia['ID_Casa'] == id_casa) &
-        (df_parc_receit_extr_dia['Data Evento'] >= datas['amanha']) &
+        (df_parc_receit_extr_dia['Data Evento'] >= datas['today']) &
         (df_parc_receit_extr_dia['Data Evento'] <= datas['fim_mes_atual']) 
     ]
 

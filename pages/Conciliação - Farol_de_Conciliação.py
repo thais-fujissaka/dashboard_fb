@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-import datetime
 import calendar
+from utils.components import seletor_ano
 from utils.functions.general_functions_conciliacao import *
 from utils.constants.general_constants import casas_validas
 from utils.functions.general_functions import config_sidebar
@@ -51,11 +51,8 @@ with col1:
 
 # Seletor de ano
 with col2:
-    ano_atual = datas['ano_atual'] 
-    anos = list(range(2024, ano_atual+1))
-    index_padrao = anos.index(ano_atual)
-    ano_farol = st.selectbox("Selecione um ano:", anos, index=index_padrao)
-
+    ano_farol = seletor_ano(2024, 2026, 'ano_farol', 'Selecione um ano:')
+    
 st.divider()
 
 # Conciliação completa (2024 -- atual)

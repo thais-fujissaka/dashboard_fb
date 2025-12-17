@@ -66,13 +66,12 @@ with tab1:
     
     # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x DIAS (mês anterior e corrente) ---
     df_dias_futuros_com_categorias = lista_dias_mes_anterior_atual(
-        datas['ano_atual'], datas['mes_atual'], datas['ultimo_dia_mes_atual'], 
-        datas['ano_anterior'], datas['mes_anterior'], datas['dois_meses_antes'],
+        datas['ano_atual'], datas['mes_atual'], 
         df_faturamento_agregado_mes_corrente)
 
     # Gera projeção para prox dias do mês corrente por dia da semana
     df_dias_futuros_mes = cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_futuros_com_categorias)
-
+    
     # Container que exibe projeção dos prox dias do mês corrente
     with st.container(border=True):
         st.markdown(f'''
@@ -80,10 +79,10 @@ with tab1:
             <p><strong>Premissa</strong> (para todas as categorias de faturamento, exceto 'Eventos' e 'Outras Receitas'): por dia da semana, é calculada a média de faturamento baseada nas das duas últimas semanas.</p>
             ''', unsafe_allow_html=True)
 
-        exibe_faturamento_categoria_mes_corrente('A&B', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
-        exibe_faturamento_categoria_mes_corrente('Gifts', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
-        exibe_faturamento_categoria_mes_corrente('Delivery', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
-        exibe_faturamento_categoria_mes_corrente('Couvert', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
+        exibe_faturamento_categoria_mes_corrente('A&B', df_dias_futuros_mes, 'dias seguintes', datas)
+        exibe_faturamento_categoria_mes_corrente('Gifts', df_dias_futuros_mes, 'dias seguintes', datas)
+        exibe_faturamento_categoria_mes_corrente('Delivery', df_dias_futuros_mes, 'dias seguintes', datas)
+        exibe_faturamento_categoria_mes_corrente('Couvert', df_dias_futuros_mes, 'dias seguintes', datas)
         exibe_faturamento_eventos(df_faturamento_eventos, id_casa, datas)
         exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_extr, id_casa, datas)
 
@@ -91,7 +90,7 @@ with tab1:
         
     # Container que exibe faturamento real e projetado dos dias anteriores do mês corrente
     with st.container(border=True):
-        exibe_faturamento_categoria_mes_corrente('Dias anteriores', df_dias_futuros_mes, 'dias anteriores', datas['today'], datas['inicio_mes_atual'])
+        exibe_faturamento_categoria_mes_corrente('Dias anteriores', df_dias_futuros_mes, 'dias anteriores', datas)
 
 
 ###################### PROJEÇÃO DE FATURAMENTO - PRÓXIMOS MESES ###################### 
