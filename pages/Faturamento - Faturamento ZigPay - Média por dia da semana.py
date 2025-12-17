@@ -65,7 +65,7 @@ df_dias_futuros_mes = cria_projecao_mes_corrente(df_faturamento_diario_casa, df_
 df_dias_futuros_mes['Mes_Ano'] = df_dias_futuros_mes['Mes_Ano'].fillna(df_dias_futuros_mes['Data Evento'].dt.strftime('%m-%Y'))
 
 # Une meses já concluídos com mês corrente
-df_faturamento_todos_meses = concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_casa, id_casa, casa)
+df_faturamento_todos_meses = concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_casa, id_casa, casa, ano)
 
 # Calcula faturamento geral por dia da semana para cada mês
 pivot_faturamento_geral = calcula_faturamento_medio(df_faturamento_todos_meses, ano)
