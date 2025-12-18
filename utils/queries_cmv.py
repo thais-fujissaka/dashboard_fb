@@ -589,28 +589,98 @@ def GET_PERDAS_E_CONSUMO_AGRUPADOS():
 @st.cache_data
 def GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja):
   return dataframe_query(f'''
-  SELECT
-    vbmcp.tdr_ID AS tdr_ID,
-    vbmcp.ID_Loja AS ID_Loja,
-    vbmcp.Loja AS Loja,
-    vbmcp.Fornecedor AS Fornecedor,
-    vbmcp.Doc_Serie AS Doc_Serie,
-    vbmcp.Data_Emissao AS Data_Emissao,
-    vbmcp.Valor_Liquido AS Valor_Liquido,
-    vbmcp.Valor_Insumos AS Valor_Cotacao,
-    CAST(DATE_FORMAT(CAST(vbmcp.Data_Emissao AS DATE), '%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Alimentos / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Bebidas / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Bebidas,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Descartaveis_Higiene_Limpeza / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Gelo_Gas_Carvao_Velas / virapc.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Utensilios / virapc.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
-    ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Outros / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
-  FROM
-    View_BlueMe_Com_Pedido vbmcp
-  LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON
-    vbmcp.tdr_ID = virapc.tdr_ID
-  WHERE DATE(vbmcp.Data_Emissao) BETWEEN DATE('{data_inicio}') AND DATE('{data_fim}')
-    AND vbmcp.Loja = '{loja}'
+    SELECT
+      tdr.ID AS tdr_ID,
+      te.ID AS ID_Loja,
+      te.NOME_FANTASIA AS Loja,
+      tf.CORPORATE_NAME AS Fornecedor,
+      tdr.NF AS Doc_Serie,
+      tdr.COMPETENCIA AS Data_Emissao,
+      tdr.VALOR_LIQUIDO AS Valor_Liquido,
+      SUM(tdri.VALOR) AS Valor_Cotacao,
+      CAST(DATE_FORMAT(CAST(tdr.COMPETENCIA AS DATE),'%Y-%m-01') AS DATE) AS Primeiro_Dia_Mes,
+      ROUND(
+        tdr.VALOR_LIQUIDO * (
+          SUM(CASE WHEN tin1.DESCRICAO = 'ALIMENTOS' THEN tdri.VALOR ELSE 0 END)
+          / NULLIF(SUM(tdri.VALOR),0)
+        ),
+        2
+      ) AS Valor_Liq_Alimentos,
+      ROUND(
+        tdr.VALOR_LIQUIDO * (
+          SUM(CASE WHEN tin1.DESCRICAO = 'BEBIDAS' THEN tdri.VALOR ELSE 0 END)
+          / NULLIF(SUM(tdri.VALOR),0)
+        ),
+        2
+      ) AS Valor_Liq_Bebidas,
+      ROUND(
+        tdr.VALOR_LIQUIDO * (
+          SUM(CASE WHEN tin1.DESCRICAO = 'DESCARTAVEIS/HIGIENE E LIMPEZA' THEN tdri.VALOR ELSE 0 END)
+          / NULLIF(SUM(tdri.VALOR),0)
+        ),
+        2
+      ) AS Valor_Liq_Descart_Hig_Limp,
+      ROUND(
+        tdr.VALOR_LIQUIDO * (
+          SUM(CASE WHEN tin1.DESCRICAO = 'GELO / GAS / CARVAO / VELAS' THEN tdri.VALOR ELSE 0 END)
+          / NULLIF(SUM(tdri.VALOR),0)
+        ),
+          2
+        ) AS Valor_Gelo_Gas_Carvao_Velas,
+        ROUND(
+          tdr.VALOR_LIQUIDO * (
+            SUM(CASE WHEN tin1.DESCRICAO = 'UTENSILIOS' THEN tdri.VALOR ELSE 0 END)
+            / NULLIF(SUM(tdri.VALOR),0)
+          ),
+          2
+        ) AS Valor_Utensilios,
+        ROUND(
+          tdr.VALOR_LIQUIDO * (
+            SUM(CASE
+              WHEN tin1.DESCRICAO NOT IN (
+                'ALIMENTOS',
+                'BEBIDAS',
+                'DESCARTAVEIS/HIGIENE E LIMPEZA',
+                'GELO / GAS / CARVAO / VELAS',
+                'UTENSILIOS'
+              )
+              THEN tdri.VALOR ELSE 0
+            END)
+            / NULLIF(SUM(tdri.VALOR),0)
+          ),
+          2
+        ) AS Valor_Liq_Outros
+    FROM
+      T_DESPESA_RAPIDA tdr
+      JOIN T_EMPRESAS te
+        ON tdr.FK_LOJA = te.ID
+      LEFT JOIN T_FORNECEDOR tf
+        ON tdr.FK_FORNECEDOR = tf.ID
+      JOIN T_DESPESA_RAPIDA_ITEM tdri
+        ON tdr.ID = tdri.FK_DESPESA_RAPIDA
+      LEFT JOIN T_INSUMOS_NIVEL_5 tin5
+        ON tdri.FK_INSUMO = tin5.ID
+      LEFT JOIN T_INSUMOS_NIVEL_4 tin4
+        ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID
+      LEFT JOIN T_INSUMOS_NIVEL_3 tin3
+        ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID
+      LEFT JOIN T_INSUMOS_NIVEL_2 tin2
+        ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID
+      LEFT JOIN T_INSUMOS_NIVEL_1 tin1
+        ON tin2.FK_INSUMOS_NIVEL_1 = tin1.ID
+    WHERE
+      DATE(tdr.COMPETENCIA) BETWEEN DATE('{data_inicio}') AND DATE('{data_fim}')
+      AND te.NOME_FANTASIA = '{loja}'
+      AND tdri.ID IS NOT NULL
+      AND te.ID <> 135
+    GROUP BY
+      tdr.ID,
+      te.ID,
+      te.NOME_FANTASIA,
+      tf.CORPORATE_NAME,
+      tdr.NF,
+      tdr.COMPETENCIA,
+      tdr.VALOR_LIQUIDO;
 ''')
 
 
