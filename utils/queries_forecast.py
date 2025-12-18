@@ -367,30 +367,6 @@ def GET_DESPESAS_RAPIDAS():
 @st.cache_data
 def GET_AUT_BLUE_ME_COM_PEDIDO():
     return dataframe_query(f'''
-<<<<<<< Updated upstream
-        SELECT
-    --     vbmcp.tdr_ID AS tdr_ID,
-    --     vbmcp.ID_Loja AS ID_Loja,
-        vbmcp.Loja AS Casa,
-        vbmcp.Fornecedor AS Fornecedor,
-    --     vbmcp.Doc_Serie AS Doc_Serie,
-        STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d') AS Data_Emissao,
-    --     STR_TO_DATE(vbmcp.Data_Vencimento, '%Y-%m-%d') AS Data_Vencimento,
-        vbmcp.Valor_Liquido AS Valor_Liquido,
-        vbmcp.Valor_Insumos AS Valor_Cotacao,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Alimentos / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Bebidas / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Bebidas,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Descartaveis_Higiene_Limpeza / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Gelo_Gas_Carvao_Velas / virapc.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Utensilios / virapc.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Outros / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
-    --     DATE_FORMAT(STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d'), '%m/%Y') AS Mes_Texto
-    FROM View_BlueMe_Com_Pedido vbmcp
-    LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON vbmcp.tdr_ID = virapc.tdr_ID
-    WHERE YEAR(Data_Emissao) > 2024
-    --   WHERE vbmcp.ID_Loja = 114
-    --   ORDER BY tdr_ID DESC
-=======
         WITH despesa_com_insumos AS (
             SELECT
                 tdr.ID,
@@ -432,5 +408,4 @@ def GET_AUT_BLUE_ME_COM_PEDIDO():
         JOIN T_EMPRESAS te ON dci.FK_LOJA = te.ID
         WHERE te.ID <> 135 AND YEAR(STR_TO_DATE(dci.COMPETENCIA, '%Y-%m-%d')) > 2024
         ORDER BY dci.ID;
->>>>>>> Stashed changes
     ''')
