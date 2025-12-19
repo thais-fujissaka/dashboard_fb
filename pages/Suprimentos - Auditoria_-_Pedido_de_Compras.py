@@ -194,7 +194,7 @@ def main():
                         ['Valor Total Distorcido']
                     )
                     st.markdown('### Resumo por Casa')
-                    st.dataframe(bluemeWithOrder_style)
+                    st.dataframe(bluemeWithOrder_style, hide_index=True)
 
 if __name__ == '__main__':
     main()
