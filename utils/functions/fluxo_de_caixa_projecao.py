@@ -15,7 +15,7 @@ def seletor_data_fim_padrao(key):
     key=key,
     format="DD/MM/YYYY",
     min_value=datetime.datetime.today() + timedelta(days=1),
-    max_value=datetime.datetime.today() + timedelta(days=12)
+    max_value=datetime.datetime.today() + timedelta(days=365)
   )
 
 
@@ -70,7 +70,7 @@ def config_projecao_bares(df_saldos_bancarios, df_valor_liquido, df_projecao_zig
   merged_df = df_saldos_bancarios
   for df in [df_valor_liquido, df_projecao_zig, df_receitas_extraord_proj, df_receitas_eventos_proj, df_despesas_aprovadas, df_despesas_pagas]:
     merged_df = pd.merge(merged_df, df, on=['Data', 'Empresa'], how='outer')
-
+  
   # Preenchendo valores nulos com 0 e renomeando colunas
   merged_df = merged_df.fillna(0)
   merged_df = merged_df.rename(columns={'Valor_Projetado': 'Valor_Projetado_Zig'})
