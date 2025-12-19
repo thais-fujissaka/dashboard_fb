@@ -77,21 +77,43 @@ def supplier_expense_n5(day,day2):
 def blueme_with_order(day,day2):
   return dataframe_query(f'''
     SELECT
-        BP.tdr_ID AS 'ID Despesa',
-        BP.ID_Loja AS 'ID Casa',
-        BP.Loja AS 'Casa',
-        BP.Fornecedor AS 'Fornecedor',
-        BP.Doc_Serie AS 'Doc Serie',
-        DATE_FORMAT(BP.Data_Emissao, '%d/%m/%Y') AS 'Data Competencia',                                  
-        DATE_FORMAT(BP.Data_Vencimento, '%d/%m/%Y') AS 'Data Vencimento',
-        BP.Valor_Original AS 'Valor Original',
-        BP.Valor_Liquido AS 'Valor Liquido',
-        BP.Valor_Insumos AS 'Valor Cotação',
-        DATE_FORMAT(BP.Data_Emissao, '%d/%m/%Y') AS 'Mes Texto'                               
-      FROM View_BlueMe_Com_Pedido BP
-      LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON BP.tdr_ID = virapc.tdr_ID
-      WHERE DATE(BP.Data_Emissao) >= '{day}'
-      AND DATE(BP.Data_Emissao) <= '{day2}'
+      tdr.ID AS 'ID Despesa',
+      te.ID AS 'ID Casa',
+      te.NOME_FANTASIA AS 'Casa',
+      tf.CORPORATE_NAME AS 'Fornecedor',
+      tdr.NF AS 'Doc Serie',
+      DATE_FORMAT(STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d'), '%d/%m/%Y') AS 'Data Competencia',
+      DATE_FORMAT(STR_TO_DATE(tdr.VENCIMENTO, '%Y-%m-%d'), '%d/%m/%Y') AS 'Data Vencimento',
+      tdr.VALOR_PAGAMENTO AS 'Valor Original',
+      tdr.VALOR_LIQUIDO AS 'Valor Liquido',	
+      SUM(tdri.VALOR) AS 'Valor Cotação',
+      DATE_FORMAT(STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d'), '%d/%m/%Y') AS 'Mes Texto'
+    FROM T_DESPESA_RAPIDA tdr
+    JOIN T_EMPRESAS te
+        ON tdr.FK_LOJA = te.ID
+    LEFT JOIN T_FORNECEDOR tf
+        ON tdr.FK_FORNECEDOR = tf.ID
+    LEFT JOIN T_DESPESA_RAPIDA_ITEM tdri
+        ON tdr.ID = tdri.FK_DESPESA_RAPIDA
+    LEFT JOIN T_INSUMOS_NIVEL_5 tin5
+        ON tdri.FK_INSUMO = tin5.ID
+    WHERE
+        te.ID <> 135
+        AND tdri.ID IS NOT NULL
+        AND DATE(STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d')) >= '{day}'
+        AND DATE(STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d')) <= '{day2}'
+    GROUP BY
+        tdr.ID,
+        te.ID,
+        te.NOME_FANTASIA,
+        tf.CORPORATE_NAME,
+        tdr.NF,
+        tdr.COMPETENCIA,
+        tdr.VENCIMENTO,
+        tdr.VALOR_PAGAMENTO,
+        tdr.VALOR_LIQUIDO
+    ORDER BY
+        tdr.ID
   ''')
 
 
