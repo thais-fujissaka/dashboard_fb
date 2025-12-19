@@ -17,7 +17,7 @@ lojasAgrupadas = ["Bar Brahma - Centro",
                   "Orfeu",
                   "Priceless",  
                   "Riviera Bar",
-                  "Tempus",
+                  "Tempus Fugit  Ltda ",
             ]
 
 # Todas as casas de df_casas menos 'All bar'
@@ -39,6 +39,7 @@ casas_validas = ['Arcos',
                  'Riviera Bar', 
                  'Sanduiche comunicação LTDA ', 
                  'Tempus Fugit  Ltda ', 
+                 'The Cavern',
                  'Ultra Evil Premium Ltda '
             ]
 
@@ -62,7 +63,8 @@ cores_casas = [
     "#C2185B", # Riviera
     "#FF6600", # Sanduiche
     "#9933CC", # Tempus
-    "#2C3E50", # Ultra Evil
+    "#03420D", # The Cavern
+    "#3D5771", # Ultra Evil
     ]
 
 

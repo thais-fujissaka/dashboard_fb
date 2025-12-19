@@ -11,59 +11,107 @@ casas_str = f"'{casas_str}'"  # adiciona aspas ao redor da lista toda
 
 
 # Faturamento da Zig por dia: alimentos, bebidas, delivery, couvert, etc
-@st.cache_data
-def GET_FATURAMENTO_AGREGADO_DIA():
-    df_faturamento_agregado_diario = dataframe_query(f''' 
-        SELECT
-            CASE
-                WHEN te.ID IN (161, 162) THEN 149
-                WHEN te.ID = 131 THEN 110
-                ELSE te.ID    
-            END AS ID_Casa,                                                                                                                      
-            CASE
-                WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
-                WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
-                ELSE te.NOME_FANTASIA    
-            END AS Casa,  
-            CASE 
-                WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
-                ELSE tivc2.DESCRICAO 
-            END AS Categoria,
-            cast(tiv.EVENT_DATE as date) AS Data_Evento,
-            SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
-            SUM(tiv.DISCOUNT_VALUE) AS Desconto,
-            SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
-        FROM T_ITENS_VENDIDOS tiv
-        LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
-        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
-        LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
-        LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
-        WHERE 
-            YEAR(tiv.EVENT_DATE) > 2024 AND 
-            (te.NOME_FANTASIA IN ({casas_str}) OR 
-            te.NOME_FANTASIA LIKE '%Delivery%' OR
-            te.NOME_FANTASIA LIKE '%Priceless%')
-        GROUP BY 
-            ID_Casa,
-            Casa,
-            Categoria,
-            Data_Evento
-    ''')
+# @st.cache_data
+# def GET_FATURAMENTO_AGREGADO_DIA():
+#     df_faturamento_agregado_diario = dataframe_query(f''' 
+#         SELECT
+#             CASE
+#                 WHEN te.ID IN (161, 162) THEN 149
+#                 WHEN te.ID = 131 THEN 110
+#                 ELSE te.ID    
+#             END AS ID_Casa,                                                                                                                      
+#             CASE
+#                 WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
+#                 WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+#                 ELSE te.NOME_FANTASIA    
+#             END AS Casa,  
+#             CASE 
+#                 WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
+#                 ELSE tivc2.DESCRICAO 
+#             END AS Categoria,
+#             cast(tiv.EVENT_DATE as date) AS Data_Evento,
+#             SUM((tiv.UNIT_VALUE * tiv.COUNT)) AS Valor_Bruto,
+#             SUM(tiv.DISCOUNT_VALUE) AS Desconto,
+#             SUM((tiv.UNIT_VALUE * tiv.COUNT) - tiv.DISCOUNT_VALUE) AS Valor_Liquido
+#         FROM T_ITENS_VENDIDOS tiv
+#         LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tiv.PRODUCT_ID = tivc.ID_ZIGPAY
+#         LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc.FK_CATEGORIA = tivc2.ID
+#         LEFT JOIN T_ITENS_VENDIDOS_TIPOS tivt ON tivc.FK_TIPO = tivt.ID
+#         LEFT JOIN T_EMPRESAS te ON tiv.LOJA_ID = te.ID_ZIGPAY
+#         WHERE 
+#             YEAR(tiv.EVENT_DATE) > 2024 AND 
+#             (te.NOME_FANTASIA IN ({casas_str}) OR 
+#             te.NOME_FANTASIA LIKE '%Delivery%' OR
+#             te.NOME_FANTASIA LIKE '%Priceless%')
+#         GROUP BY 
+#             ID_Casa,
+#             Casa,
+#             Categoria,
+#             Data_Evento
+#     ''')
 
-    # Mapeamento do Delivery
-    mapeamento = {
-    'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
-    'Delivery Orfeu': ('Orfeu', 104),
-    'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
-    'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
-    'Delivery Jacaré': ('Jacaré', 105)
-    }
+#     # Mapeamento do Delivery
+#     mapeamento = {
+#     'Delivery Bar Leo Centro': ('Bar Léo - Centro', 116),
+#     'Delivery Orfeu': ('Orfeu', 104),
+#     'Delivery Fabrica de Bares': ('Bar Brahma - Centro', 114),
+#     'Delivery Brahma Granja Viana': ('Bar Brahma - Granja', 148),
+#     'Delivery Jacaré': ('Jacaré', 105)
+#     }
 
-    for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
-        mask = df_faturamento_agregado_diario['Casa'] == nome_antigo
-        df_faturamento_agregado_diario.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
+#     for nome_antigo, (novo_nome, novo_id) in mapeamento.items():
+#         mask = df_faturamento_agregado_diario['Casa'] == nome_antigo
+#         df_faturamento_agregado_diario.loc[mask, ['Casa', 'ID_Casa']] = [novo_nome, novo_id]
     
-    return df_faturamento_agregado_diario
+#     return df_faturamento_agregado_diario
+
+
+# Substitui a query acima -> utiliza T_ITENS_VENDIDOS_DIA
+@st.cache_data
+def GET_ITENS_VENDIDOS_DIA():
+    df_itens_vendidos_dia = dataframe_query(f'''
+    SELECT 
+      CASE
+        WHEN tivd.FK_CASA = 118 THEN 114
+        WHEN tivd.FK_CASA = 103 THEN 116
+        WHEN tivd.FK_CASA = 169 THEN 148
+        WHEN tivd.FK_CASA = 139 THEN 105
+        WHEN tivd.FK_CASA = 112 THEN 104
+        WHEN te.ID IN (161, 162) THEN 149 -- Priceless
+        WHEN te.ID = 131 THEN 110 -- Blue Note
+        ELSE tivd.FK_CASA
+      END AS `ID_Casa`,
+      CASE
+        WHEN tivd.FK_CASA = 118 THEN 'Bar Brahma - Centro'
+        WHEN tivd.FK_CASA = 103 THEN 'Bar Léo - Centro'
+        WHEN tivd.FK_CASA = 169 THEN 'Bar Brahma - Granja'
+        WHEN tivd.FK_CASA = 139 THEN 'Jacaré'
+        WHEN tivd.FK_CASA = 112 THEN 'Orfeu'
+        WHEN te.NOME_FANTASIA IN ('Abaru - Priceless', 'Notiê - Priceless') THEN 'Priceless'
+        WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
+        ELSE te.NOME_FANTASIA
+      END AS 'Casa',
+      CASE
+      	WHEN te.ID IN (103, 112, 118, 139, 169) THEN 'Delivery'
+        ELSE tivc2.DESCRICAO 
+      END AS Categoria,
+          DATE(tivd.EVENT_DATE) AS 'Data Evento',
+          SUM(tivd.DESCONTO) AS 'Desconto',
+          SUM(COALESCE((tivd.VALOR_UNITARIO * tivd.QUANTIDADE), 0)) AS 'Valor Bruto',
+          SUM(COALESCE(((tivd.VALOR_UNITARIO * tivd.QUANTIDADE) - tivd.DESCONTO), 0)) AS 'Valor Liquido'
+        FROM T_ITENS_VENDIDOS_DIA tivd
+        LEFT JOIN T_EMPRESAS te ON te.ID = tivd.FK_CASA 
+        LEFT JOIN T_VISUALIZACAO_ITENS_VENDIDOS_POR_CASA tvivpc 
+          ON tvivpc.ID_ZIG_ITEM_VENDIDO = tivd.PRODUCT_ID
+          AND tvivpc.ID_CASA = tivd.FK_CASA
+        LEFT JOIN T_ITENS_VENDIDOS_CADASTROS tivc ON tivc.ID_ZIGPAY = tivd.PRODUCT_ID
+        LEFT JOIN T_ITENS_VENDIDOS_CATEGORIAS tivc2 ON tivc2.ID = tivc.FK_CATEGORIA 
+        GROUP BY `ID_Casa`, tvivpc.ID_ZIG_ITEM_VENDIDO, DATE(tivd.EVENT_DATE)                                                                      
+    '''
+    )
+    # Agrupa por casa e data
+    df_itens_vendidos_dia = df_itens_vendidos_dia.groupby(['ID_Casa', 'Casa', 'Categoria', 'Data Evento'], as_index=False)[['Valor Bruto', 'Desconto', 'Valor Liquido']].sum()
+    return df_itens_vendidos_dia
 
 
 # Faturamento de Eventos: Eventos A&B, Locações, Couvert
@@ -71,21 +119,21 @@ def GET_FATURAMENTO_AGREGADO_DIA():
 def GET_FATURAMENTO_EVENTOS():
     df_faturamento_eventos = dataframe_query(f'''
     SELECT 
-        te.ID AS ID_Casa,
-        te.NOME_FANTASIA AS Casa,
-        tep.DATA_EVENTO AS Data_Evento,
+        te.ID AS 'ID_Casa',
+        te.NOME_FANTASIA AS 'Casa',
+        tep.DATA_EVENTO AS 'Data Evento',
         tep.VALOR_AB AS Valor_AB,
-        tep.VALOR_LOCACAO_AROO_1 AS VALOR_LOCACAO_AROO_1,
-        tep.VALOR_LOCACAO_AROO_2 AS VALOR_LOCACAO_AROO_2,
-        tep.VALOR_LOCACAO_AROO_3 AS VALOR_LOCACAO_AROO_3,          
-        tep.VALOR_LOCACAO_ANEXO AS VALOR_LOCACAO_ANEXO,
-        tep.VALOR_LOCACAO_NOTIE AS VALOR_LOCACAO_NOTIE, 
-        tep.VALOR_LOCACAO_MIRANTE AS VALOR_LOCACAO_MIRANTE, 
-        tep.VALOR_LOCACAO_GERADOR AS VALOR_LOCACAO_GERADOR,          
-        tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS VALOR_LOCACAO_DECORACAO_MOBILIARIO,          
-        tep.VALOR_LOCACAO_UTENSILIOS AS VALOR_LOCACAO_UTENSILIOS,   
-        tep.VALOR_LOCACAO_ESPACO AS VALOR_LOCACAO_ESPACO,
-        tep.VALOR_CONTRATACAO_ARTISTICO AS Couvert                                                                                                                                                                                                                            
+        tep.VALOR_LOCACAO_AROO_1 AS 'VALOR_LOCACAO_AROO_1',
+        tep.VALOR_LOCACAO_AROO_2 AS 'VALOR_LOCACAO_AROO_2',
+        tep.VALOR_LOCACAO_AROO_3 AS 'VALOR_LOCACAO_AROO_3',          
+        tep.VALOR_LOCACAO_ANEXO AS 'VALOR_LOCACAO_ANEXO',
+        tep.VALOR_LOCACAO_NOTIE AS 'VALOR_LOCACAO_NOTIE', 
+        tep.VALOR_LOCACAO_MIRANTE AS 'VALOR_LOCACAO_MIRANTE', 
+        tep.VALOR_LOCACAO_GERADOR AS 'VALOR_LOCACAO_GERADOR',          
+        tep.VALOR_LOCACAO_DECORACAO_MOBILIARIO AS 'VALOR_LOCACAO_DECORACAO_MOBILIARIO',          
+        tep.VALOR_LOCACAO_UTENSILIOS AS 'VALOR_LOCACAO_UTENSILIOS',   
+        tep.VALOR_LOCACAO_ESPACO AS 'VALOR_LOCACAO_ESPACO',
+        tep.VALOR_CONTRATACAO_ARTISTICO AS 'Couvert'                                                                                                                                                                                                                           
     FROM T_EVENTOS_PRICELESS tep
     LEFT JOIN T_EMPRESAS te ON (tep.FK_EMPRESA = te.ID)  
     ORDER BY tep.DATA_EVENTO                                                                           
@@ -93,7 +141,7 @@ def GET_FATURAMENTO_EVENTOS():
     )
 
     # Define quais colunas serão "mantidas"
-    id_vars = ['ID_Casa', 'Casa', 'Data_Evento']
+    id_vars = ['ID_Casa', 'Casa', 'Data Evento']
 
     # Define quais colunas serão transformadas em categorias
     value_vars = ['Valor_AB', 'VALOR_LOCACAO_AROO_1', 'VALOR_LOCACAO_AROO_2',
@@ -107,11 +155,11 @@ def GET_FATURAMENTO_EVENTOS():
         id_vars=id_vars,
         value_vars=value_vars,
         var_name='Categoria',
-        value_name='Valor_Bruto'
+        value_name='Valor Bruto'
     )
 
     # Remove linhas sem valor
-    df_eventos_melt = df_eventos_melt.dropna(subset=['Valor_Bruto'])
+    df_eventos_melt = df_eventos_melt.dropna(subset=['Valor Bruto'])
 
     # Simplifica nomes de categoria
     df_eventos_melt['Categoria'] = df_eventos_melt['Categoria'].replace({
@@ -132,13 +180,13 @@ def GET_FATURAMENTO_EVENTOS():
     # Agrupa somando o valor total por categoria por data
     df_eventos_final = (
         df_eventos_melt
-        .groupby(['ID_Casa', 'Casa', 'Data_Evento', 'Categoria'], as_index=False)
-        .agg({'Valor_Bruto': 'sum'})
+        .groupby(['ID_Casa', 'Casa', 'Data Evento', 'Categoria'], as_index=False)
+        .agg({'Valor Bruto': 'sum'})
     )
 
     df_eventos_final['Desconto'] = 0
-    df_eventos_final['Valor_Liquido'] = df_eventos_final['Valor_Bruto']
-    df_eventos_final = df_eventos_final[['ID_Casa', 'Casa', 'Categoria', 'Data_Evento', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
+    df_eventos_final['Valor Liquido'] = df_eventos_final['Valor Bruto']
+    df_eventos_final = df_eventos_final[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Bruto', 'Desconto', 'Valor Liquido']]
     return df_eventos_final
 
 
@@ -150,15 +198,13 @@ def GET_PARCELAS_RECEIT_EXTR():
         CASE
             WHEN te.ID = 131 THEN 110
             ELSE te.ID    
-        END AS ID_Casa,                                                                                                                      
+        END AS 'ID_Casa',                                                                                                                      
         CASE
             WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
             ELSE te.NOME_FANTASIA    
-        END AS Casa,  
-        -- te.ID as 'ID_Casa',
-        -- te.NOME_FANTASIA as 'Casa',
-        tre.DATA_OCORRENCIA as 'Data_Ocorrencia',
-        vpa.VALOR_PARCELA as 'Valor_Parcela',
+        END AS 'Casa',  
+        tre.DATA_OCORRENCIA as 'Data Ocorrencia',
+        vpa.VALOR_PARCELA as 'Valor Parcela',
         trec2.CLASSIFICACAO as 'Categoria'
         FROM View_Parcelas_Agrupadas vpa
         INNER JOIN T_EMPRESAS te ON (vpa.FK_EMPRESA = te.ID)
@@ -168,22 +214,22 @@ def GET_PARCELAS_RECEIT_EXTR():
         ORDER BY te.NOME_FANTASIA ASC, tre.DATA_OCORRENCIA
         ''')
     
-    df_parc_receit_extr = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data_Ocorrencia', 'Categoria'], as_index=False)['Valor_Parcela'].sum()
+    df_parc_receit_extr = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data Ocorrencia', 'Categoria'], as_index=False)['Valor Parcela'].sum()
 
     # Agrupa por casa e dia (soma todas as categorias)
-    df_parc_receit_extr_dia = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data_Ocorrencia'], as_index=False)['Valor_Parcela'].sum()
+    df_parc_receit_extr_dia = df_parc_receit_extr.groupby(['ID_Casa', 'Casa', 'Data Ocorrencia'], as_index=False)['Valor Parcela'].sum()
     df_parc_receit_extr_dia['Categoria'] = 'Outras Receitas'
 
     # Adequa para poder concatenar ao faturamento agregado
     df_parc_receit_extr_dia = df_parc_receit_extr_dia.rename(columns={
-        'Data_Ocorrencia':'Data_Evento',
-        'Valor_Parcela':'Valor_Bruto'
+        'Data Ocorrencia':'Data Evento',
+        'Valor Parcela':'Valor Bruto'
     })
 
     df_parc_receit_extr_dia['Desconto'] = 0
-    df_parc_receit_extr_dia['Valor_Liquido'] = df_parc_receit_extr_dia['Valor_Bruto']
+    df_parc_receit_extr_dia['Valor Liquido'] = df_parc_receit_extr_dia['Valor Bruto']
 
-    df_parc_receit_extr_dia = df_parc_receit_extr_dia[['ID_Casa', 'Casa', 'Categoria', 'Data_Evento', 'Valor_Bruto', 'Desconto', 'Valor_Liquido']]
+    df_parc_receit_extr_dia = df_parc_receit_extr_dia[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Bruto', 'Desconto', 'Valor Liquido']]
 
     return df_parc_receit_extr, df_parc_receit_extr_dia
 
@@ -191,11 +237,11 @@ def GET_PARCELAS_RECEIT_EXTR():
 # Concatena todos os tipos de faturamento
 @st.cache_data
 def GET_TODOS_FATURAMENTOS_DIA():
-    faturamento_agregado_diario = GET_FATURAMENTO_AGREGADO_DIA()
+    faturamento_agregado_diario = GET_ITENS_VENDIDOS_DIA()
     faturamento_eventos = GET_FATURAMENTO_EVENTOS()
     parc_receitas_extr, parc_receitas_extr_dia = GET_PARCELAS_RECEIT_EXTR() # parcelas com categorias específicas e parcelas agrupadas como 'Outras Receitas'
     todos_faturamentos = pd.concat([faturamento_agregado_diario, faturamento_eventos, parc_receitas_extr_dia])
-    return todos_faturamentos, faturamento_eventos, parc_receitas_extr, parc_receitas_extr_dia
+    return faturamento_agregado_diario, todos_faturamentos, faturamento_eventos, parc_receitas_extr, parc_receitas_extr_dia
 
 
 # Orçamentos mensais
@@ -203,11 +249,11 @@ def GET_TODOS_FATURAMENTOS_DIA():
 def GET_ORCAMENTOS():
     df_orcamentos =  dataframe_query(f'''
     SELECT
-        te.ID AS ID_Casa,
-        te.NOME_FANTASIA AS Casa,
+        te.ID AS 'ID_Casa',
+        te.NOME_FANTASIA AS 'Casa',
         to2.ANO AS 'Ano',
-        to2.MES AS 'Mes',
-        to2.VALOR AS Orcamento_Faturamento,
+        to2.MES AS 'Mês',
+        to2.VALOR AS 'Orçamento',
         CASE
         WHEN tccg.DESCRICAO IN ('VENDA DE ALIMENTO', 'Alimentação') THEN 'Alimentos'
         WHEN tccg.DESCRICAO IN ('VENDA DE BEBIDAS', 'Bebida') THEN 'Bebidas'
@@ -215,7 +261,7 @@ def GET_ORCAMENTOS():
         WHEN tccg.DESCRICAO IN ('DELIVERY', 'Delivery') THEN 'Delivery'
         WHEN tccg.DESCRICAO IN ('GIFTS', 'Gifts') THEN 'Gifts'
         ELSE tccg.DESCRICAO
-        END AS Categoria
+        END AS 'Categoria'
     FROM
         T_ORCAMENTOS to2
     JOIN
@@ -238,13 +284,13 @@ def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
     df_faturamento_categoria_mensal = df_faturamento_categoria.copy() # Utiliza o mesmo df que já foi carregado na outra tab
 
     # Zera a hora
-    df_faturamento_categoria_mensal['Data_Evento'] = pd.to_datetime(df_faturamento_categoria_mensal['Data_Evento'], errors='coerce').dt.normalize()
-    df_faturamento_categoria_mensal['Ano'] = df_faturamento_categoria_mensal['Data_Evento'].dt.year
-    df_faturamento_categoria_mensal['Mes'] = df_faturamento_categoria_mensal['Data_Evento'].dt.month
+    df_faturamento_categoria_mensal['Data Evento'] = pd.to_datetime(df_faturamento_categoria_mensal['Data Evento'], errors='coerce').dt.normalize()
+    df_faturamento_categoria_mensal['Ano'] = df_faturamento_categoria_mensal['Data Evento'].dt.year
+    df_faturamento_categoria_mensal['Mês'] = df_faturamento_categoria_mensal['Data Evento'].dt.month
     df_faturamento_categoria_mensal = df_faturamento_categoria_mensal[df_faturamento_categoria_mensal['Ano'] > 2024]
     
     # Agrupa para ter os valores por mês
-    df_faturamento_categoria_mensal = df_faturamento_categoria_mensal.groupby(['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mes'], as_index=False)[['Valor_Bruto', 'Desconto', 'Valor_Liquido']].sum()
+    df_faturamento_categoria_mensal = df_faturamento_categoria_mensal.groupby(['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mês'], as_index=False)[['Valor Bruto', 'Desconto', 'Valor Liquido']].sum()
 
     return df_faturamento_categoria_mensal
 
@@ -252,9 +298,6 @@ def GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_categoria):
 @st.cache_data
 def GET_TODOS_FATURAMENTOS_MENSAL(df_faturamento_agregado_dia):
     df_faturamento_agregado_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_agregado_dia)
-    # df_faturamento_eventos_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_faturamento_eventos)
-    # df_faturamento_receit_extr_mensal = GET_FATURAMENTO_CATEGORIA_MENSAL(df_parc_receit_extr_dia)
-    # df_todos_faturamentos_mensal = pd.concat([df_faturamento_agregado_mensal, df_faturamento_receit_extr_mensal])
     return df_faturamento_agregado_mensal
 
 
@@ -342,18 +385,20 @@ def GET_DESPESAS_RAPIDAS():
                 WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
                 ELSE te.NOME_FANTASIA    
             END AS Casa, 
-        -- te.NOME_FANTASIA AS Casa,
         STR_TO_DATE(tdr.COMPETENCIA, '%Y-%m-%d') AS Data_Competencia,
         STR_TO_DATE(tdr.VENCIMENTO, '%Y-%m-%d') AS Data_Vencimento,
         tdr.OBSERVACAO AS Descricao,
         tdr.VALOR_PAGAMENTO AS Valor_Pagamento,
         tdr.VALOR_LIQUIDO AS Valor_Liquido,
         tccg2.DESCRICAO AS Classificacao_Contabil_2,
-        tccg1.DESCRICAO AS Classificacao_Contabil_1
+        tccg1.DESCRICAO AS Classificacao_Contabil_1,
+        vcpj.Cargo_DRE as 'Cargo_DRE'
     FROM T_DESPESA_RAPIDA tdr
     LEFT JOIN T_EMPRESAS te ON tdr.FK_LOJA = te.ID
+    LEFT JOIN T_FORNECEDOR tf ON (tdr.FK_FORNECEDOR = tf.ID)
     LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2 ON tdr.FK_CLASSIFICACAO_CONTABIL_GRUPO_2 = tccg2.ID
     LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg1 ON tccg2.FK_GRUPO_1 = tccg1.ID
+    LEFT JOIN View_Cargos_PJ vcpj ON (tf.CORPORATE_NAME = vcpj.Codigo_PJ)
     WHERE tccg1.FK_VERSAO_PLANO_CONTABIL = 103 
         AND tdr.BIT_CANCELADA = 0
         AND YEAR(tdr.COMPETENCIA) > 2024

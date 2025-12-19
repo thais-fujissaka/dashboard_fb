@@ -276,6 +276,9 @@ def mostrar_menu_permissoes_kpis_faturamento(permissoes):
     elif 'Acesso Financeiro 3' in permissoes:
         st.sidebar.markdown("## KPI's de Faturamento")
         st.sidebar.page_link("pages/Financeiro - Faturamento_Zigpay.py", label=":moneybag: Faturamento Zigpay")
+    elif 'Acesso Financeiro Central' in permissoes:
+        st.sidebar.markdown("## KPI's de Faturamento")
+        st.sidebar.page_link("pages/Fluxo_de_Caixa - Previsão_de_Faturamento.py", label="🪙 Previsão de Faturamento")
 
 
 def mostrar_menu_permissoes_kpis_resultado_operacional(permissoes):
@@ -469,7 +472,7 @@ def highlight_values(val):
 
 def preparar_dados_lojas_user_financeiro():
     permissao, nomeuser, username = config_permissoes_user()
-    if 'Administrador' in permissao:
+    if 'Administrador' in permissao or 'Dev Dash FB' in permissao:
         dflojas = GET_LOJAS()
         lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
         dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
@@ -513,9 +516,9 @@ def preparar_dados_lojas_user_projecao_fluxo():
 
   lojasReais = ['Abaru - Priceless', 'Arcos', 'All bar', 'Bar Brahma Aeroclube', 'Brahma Aricanduva',
                 'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Brasilia -  Aeroporto', 'Bardassê', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)',
-                'Colorado Aeroporto BSB', 'Delivery Bar Leo Centro', 'Delivery Fabrica de Bares', 'Delivery Jacaré', 'Delivery Orfeu', 'Duroc ', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'FDB DIGITAL PARTICIPACOES LTDA', 'FDB HOLDING INFERIOR LTDA', 'FDB HOLDING SUPERIOR LTDA', 'Filial', 'Hbar participacoes e empreendimentos ', 'Ilha das Flores ', 'Lojinha - Brahma', 'Navarro', 'Patizal ',  'Piratininga', 'Tundra',
+                'Colorado Aeroporto BSB', 'Delivery Bar Leo Centro', 'Delivery Brahma Granja Viana', 'Delivery Fabrica de Bares', 'Delivery Jacaré', 'Delivery Orfeu', 'Duroc ', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'FDB DIGITAL PARTICIPACOES LTDA', 'FDB HOLDING INFERIOR LTDA', 'FDB HOLDING SUPERIOR LTDA', 'Filial', 'Hbar participacoes e empreendimentos ', 'Ilha das Flores ', 'Lojinha - Brahma', 'Navarro', 'Patizal ',  'Piratininga', 'Tundra',
                 'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Priceless', 'Riviera Bar', 
-                'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão']
+                'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'The Cavern', 'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão']
   
   lojas = dflojas[dflojas['Loja'].isin(set(lojasReais))]['Loja'].tolist()
   lojas.sort(key=str.lower)

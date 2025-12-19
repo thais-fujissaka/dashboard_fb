@@ -36,8 +36,10 @@ df_despesas_com_parcelamento = GET_CUSTOS_BLUEME_COM_PARC()
 df_tipo_class_cont_2 = GET_TIPO_CLASS_CONT_2()
 
 
-# Definindo datas
+# Calculando datas
 datas = calcular_datas()
+min_data = datetime.date(2024, 1, 1)
+max_data = datetime.date(datas['ano_atual'] + 1, 12, 31)
 
 # Filtrando por casa(s) e data
 casas = df_casas['Casa'].tolist()
@@ -93,19 +95,23 @@ st.divider()
 # Campos de seleção de data
 col1, col2 = st.columns(2)
 with col1:
+    if datas['mes_atual'] == 12:
+        value_inicio=datas['inicio_mes_atual']
+    else:
+        value_inicio=datas['mes_seguinte']
     start_date = st.date_input(
         "Data de início", 
-        value=datas['mes_seguinte'], 
-        min_value=datas['jan_ano_passado'], 
-        max_value=datas['dez_ano_atual'], 
+        value=value_inicio, 
+        min_value=min_data, 
+        max_value=max_data, 
         format="DD/MM/YYYY",
         key='start_date')
 with col2:
     end_date = st.date_input(
         "Data de fim", 
         value=datas['ultimo_dia_ano'], 
-        min_value=datas['jan_ano_passado'], 
-        max_value=datas['dez_ano_atual'], 
+        min_value=min_data, 
+        max_value=max_data, 
         format="DD/MM/YYYY",
         key='end_date')
 

@@ -16,10 +16,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-config_sidebar()
-
 if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 	st.switch_page('Login.py')
+
+config_sidebar()
 
 col1, col2, col3 = st.columns([6, 1, 1], vertical_alignment='center')
 with col1:
@@ -153,10 +153,11 @@ with st.container(border=True):
         )
 
     # Mensagem de aviso - Delivery
-    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Fabrica de Bares" no campo acima.')
-    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Bar Leo Centro" no campo acima.')
-    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Jacaré" no campo acima.')
-    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Orfeu" no campo acima.')
+    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Brahma - Centro, selecione "Delivery Fabrica de Bares" no campo acima.')
+    if 'Bar Léo - Granja' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Brahma - Granja, selecione "Delivery Brahma Granja Viana" no campo acima.')
+    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Léo - Centro, selecione "Delivery Bar Leo Centro" no campo acima.')
+    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do Jacaré, selecione "Delivery Jacaré" no campo acima.')
+    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do Orfeu, selecione "Delivery Orfeu" no campo acima.')
 
     df_projecao_bares = df_projecao_bares_geral
 
@@ -238,11 +239,13 @@ with st.container(border=True):
             format="DD/MM/YYYY",
         )
 
-    # Mensagem de aviso - Delivery
-    if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Fabrica de Bares" no campo acima.')
-    if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Bar Leo Centro" no campo acima.')
-    if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Jacaré" no campo acima.')
-    if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Orfeu" no campo acima.')
+    if not checkbox:
+        # Mensagem de aviso - Delivery
+        if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Brahma - Centro, selecione "Delivery Fabrica de Bares" no campo acima.')
+        if 'Bar Léo - Granja' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Brahma - Granja, selecione "Delivery Brahma Granja Viana" no campo acima.')
+        if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Léo - Centro, selecione "Delivery Bar Leo Centro" no campo acima.')
+        if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Jacaré, selecione "Delivery Jacaré" no campo acima.')
+        if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Orfeu, selecione "Delivery Orfeu" no campo acima.')
 
     data_inicio = pd.to_datetime(dataSelecionada)
     data_fim = pd.to_datetime(dataSelecionada2)

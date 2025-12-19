@@ -63,7 +63,7 @@ def df_format_date_columns_brazilian(df, date_columns):
     for col in date_columns:
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], errors='coerce')
-            df[col] = df[col].dt.strftime('%d-%m-%Y')
+            df[col] = df[col].dt.strftime('%d/%m/%Y')
         else:
             print(f"Aviso: coluna '{col}' não encontrada no DataFrame.")
     return df

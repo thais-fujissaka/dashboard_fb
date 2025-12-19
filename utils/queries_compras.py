@@ -55,6 +55,7 @@ def supplier_expense_n5(day,day2):
       F.ID AS 'ID Fornecedor',
       F.FANTASY_NAME AS 'Fornecedor',
         E.NOME_FANTASIA AS 'Casa',
+        N2.DESCRICAO AS 'INSUMO N2',
         N5.ID AS 'ID Nivel 5',
         N5.DESCRICAO AS 'INSUMO N5',
         SUM(DRI.QUANTIDADE) AS 'Quantidade Insumo',
@@ -62,6 +63,9 @@ def supplier_expense_n5(day,day2):
         SUM(DRI.VALOR) / SUM(DRI.QUANTIDADE) AS 'Valor Med Por Insumo'                                
     FROM T_DESPESA_RAPIDA_ITEM DRI 
         INNER JOIN T_INSUMOS_NIVEL_5 N5 ON (DRI.FK_INSUMO = N5.ID)
+        INNER JOIN T_INSUMOS_NIVEL_4 N4 ON (N5.FK_INSUMOS_NIVEL_4 = N4.ID)
+        INNER JOIN T_INSUMOS_NIVEL_3 N3 ON (N4.FK_INSUMOS_NIVEL_3 = N3.ID)
+        INNER JOIN T_INSUMOS_NIVEL_2 N2 ON (N3.FK_INSUMOS_NIVEL_2 = N2.ID)
         INNER JOIN T_DESPESA_RAPIDA DR ON (DRI.FK_DESPESA_RAPIDA = DR.ID)
         INNER JOIN T_FORNECEDOR F ON (DR.FK_FORNECEDOR = F.ID)
         INNER JOIN T_EMPRESAS E ON (DR.FK_LOJA = E.ID)

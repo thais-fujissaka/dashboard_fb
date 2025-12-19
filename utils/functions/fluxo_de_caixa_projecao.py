@@ -15,7 +15,7 @@ def seletor_data_fim_padrao(key):
     key=key,
     format="DD/MM/YYYY",
     min_value=datetime.datetime.today() + timedelta(days=1),
-    max_value=datetime.datetime.today() + timedelta(days=12)
+    max_value=datetime.datetime.today() + timedelta(days=365)
   )
 
 
@@ -70,7 +70,7 @@ def config_projecao_bares(df_saldos_bancarios, df_valor_liquido, df_projecao_zig
   merged_df = df_saldos_bancarios
   for df in [df_valor_liquido, df_projecao_zig, df_receitas_extraord_proj, df_receitas_eventos_proj, df_despesas_aprovadas, df_despesas_pagas]:
     merged_df = pd.merge(merged_df, df, on=['Data', 'Empresa'], how='outer')
-
+  
   # Preenchendo valores nulos com 0 e renomeando colunas
   merged_df = merged_df.fillna(0)
   merged_df = merged_df.rename(columns={'Valor_Projetado': 'Valor_Projetado_Zig'})
@@ -138,8 +138,10 @@ def filtra_categoria_despesas(df_despesas_aprovadas_previstas, seletor_status_de
       (df_despesas_aprovadas_previstas['Status_Diretoria'] == 100) |
       (df_despesas_aprovadas_previstas['Status_Diretoria'].isna())
     ].copy()
-
-  df_categoria['Previsao_Pgto'] = df_categoria['Previsao_Pgto'].fillna(df_categoria['Data_Vencimento'])
+    
+    # PROBLEMA (15/12) - Aplicando apenas para 'Todas Previstas'
+    # df_categoria['Previsao_Pgto'] = df_categoria['Previsao_Pgto'].fillna(df_categoria['Data_Vencimento'])
+  
   df_categoria_agrupado = df_categoria.groupby(['Empresa', 'Previsao_Pgto'], as_index=False)['Valor_Liquido'].sum()
 
   # Filtra pela data de hoje até duas semanans a frente
@@ -171,8 +173,9 @@ def filtra_detalhes_despesas(seletor_status_despesa, despesas_pendentes_pagas, d
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 100) |
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'].isna())
         ].copy()
-    
-    df_despesas_pendentes_pagas['Previsao_Pgto'] = df_despesas_pendentes_pagas['Previsao_Pgto'].fillna(df_despesas_pendentes_pagas['Data_Vencimento'])
+
+        # PROBLEMA (15/12) - Aplicando apenas para 'Todas Previstas'
+        # df_despesas_pendentes_pagas['Previsao_Pgto'] = df_despesas_pendentes_pagas['Previsao_Pgto'].fillna(df_despesas_pendentes_pagas['Data_Vencimento'])
         
     # Filtra pelas datas de início e fim
     df_despesas_pendentes_pagas['Previsao_Pgto'] = pd.to_datetime(df_despesas_pendentes_pagas['Previsao_Pgto'], errors='coerce')
