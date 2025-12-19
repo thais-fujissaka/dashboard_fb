@@ -124,7 +124,7 @@ def config_faturamento_eventos(data_inicio, data_fim, loja, faturamento_bruto_al
 
 def config_compras(data_inicio, data_fim, loja):
   df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
-  df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
+  df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio, data_fim, loja)
 
   df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
 
@@ -174,7 +174,7 @@ def config_insumos_blueme_sem_pedido(data_inicio, data_fim, loja):
 
 
 def config_insumos_blueme_com_pedido(data_inicio, data_fim, loja):
-  df = GET_INSUMOS_BLUE_ME_COM_PEDIDO()
+  df = GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja)
   df = substituicao_ids(df, 'Loja', 'ID_Loja')
   df = df.drop(['Primeiro_Dia_Mes'], axis=1)
   df = df[df['Loja'] == loja]
