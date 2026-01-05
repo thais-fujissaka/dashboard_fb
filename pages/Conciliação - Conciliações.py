@@ -43,7 +43,7 @@ col1, col2 = st.columns(2)
 with col1:
     d_inicial = st.date_input("Data de início", value=datas['jan_ano_atual'], min_value=min_data, max_value=max_data, format="DD/MM/YYYY")
 with col2:
-    d_final = st.date_input("Data de fim", value=datas['fim_mes_atual'], min_value=min_data, max_value=max_data, format="DD/MM/YYYY")
+    d_final = st.date_input("Data de fim", value=datas['dez_ano_atual'], min_value=min_data, max_value=max_data, format="DD/MM/YYYY")
 
 # Convertendo as datas dos inputs para datetime
 start_date = pd.to_datetime(d_inicial)

@@ -38,7 +38,16 @@ def main():
 	col1, col2 = st.columns(2)
 	# Periodo
 	with col1:
-		periodo = input_periodo_datas(key='data_inicio')
+		# periodo = input_periodo_datas(key='data_inicio')
+		today = get_today()
+		first_day_this_month_this_year = get_first_day_this_month_this_year(today)
+		last_day_this_month_this_year = get_last_day_this_month_this_year(today)
+		periodo = st.date_input('Período',
+					value=(first_day_this_month_this_year, last_day_this_month_this_year),
+					min_value=get_jan_last_year(get_last_year(today)), # Janeiro do ano anterior
+					format="DD/MM/YYYY",
+					key='data_inicio'
+                )
 	
 	if not periodo or len(periodo) < 2 or not periodo[0] or not periodo[1]:
 		st.warning("Selecione um período válido antes de continuar.")
