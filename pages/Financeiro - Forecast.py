@@ -68,7 +68,7 @@ with tab1:
     df_dias_futuros_com_categorias = lista_dias_mes_anterior_atual(
         datas['ano_atual'], datas['mes_atual'], 
         df_faturamento_agregado_mes_corrente)
-
+    
     # Gera projeção para prox dias do mês corrente por dia da semana
     df_dias_futuros_mes = cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_futuros_com_categorias)
     
@@ -109,10 +109,10 @@ with tab2:
 
     # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x MESES (ano corrente) ---
     df_meses_futuros_com_categorias = lista_meses_ano(df_faturamento_mes_casa, datas['ano_atual'], datas['ano_passado'])
-
+    
     # Gera projeção para prox meses do ano
     df_faturamento_meses_futuros = projecao_faturamento_meses_seguintes(df_faturamento_orcamento, df_meses_futuros_com_categorias, datas['ano_atual'], datas['mes_atual'])
-
+ 
     # Container que exibe projeção dos prox meses
     with st.container(border=True):
         st.markdown(f'''
@@ -179,7 +179,6 @@ with tab3:
 
         # Custos Eventos
         df_custos_eventos_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Custos de Eventos')
-        # st.write(df_custos_eventos_faturamentos_mensais_passados)
         df_projecao_custos_eventos_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_eventos_faturamentos_mensais_passados, 'Custos Eventos', datas['ano_atual'], datas['mes_atual'])
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_eventos_meses_anteriores_seguintes, 'Custos de Eventos', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
 
@@ -190,7 +189,6 @@ with tab3:
 
         # PJ
         df_custos_pj_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - PJ')
-        # st.write(df_custos_pj_faturamentos_mensais_passados)
         df_projecao_custos_pj_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_pj_faturamentos_mensais_passados, 'PJ', datas['ano_atual'], datas['mes_atual'])
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_pj_meses_anteriores_seguintes, 'Mão de Obra - PJ', 'meses seguintes', datas['ano_atual'], datas['mes_atual'], igual_mes_anterior=True)
 

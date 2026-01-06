@@ -81,13 +81,16 @@ if ano == datas['ano_atual']:
             <span style="font-size: 14px">Média de faturamento projetado (não real). Mês ainda não está concluído.</span>
         </div>
         """
-else:
+elif ano > datas['ano_atual']:
     df_estilizado = pivot_faturamento_geral
     legenda = f"""
         <div style="display: flex; align-items: center; padding:10px; border:1px solid #ccc; border-radius:8px";>
             <span style="font-size: 14px"><b>Observação:</b> Esses valores são a média de faturamento projetado (não real).</span>
         </div>
         """
+elif ano < datas['ano_atual']:
+    df_estilizado = pivot_faturamento_geral
+    legenda = ""
 
 st.subheader(f"Média de faturamento geral por dia da semana - {casa} - {ano}")
 st.dataframe(df_estilizado, hide_index=True, height=458)
