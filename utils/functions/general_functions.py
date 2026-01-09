@@ -293,6 +293,7 @@ def mostrar_menu_permissoes_kpis_resultado_operacional(permissoes):
     elif 'Acesso Financeiro 2' in permissoes:
         st.sidebar.markdown("## KPI's de Resultado Operacional")
         st.sidebar.page_link("pages/Financeiro - Despesas.py", label=":money_with_wings: Controle de Despesas Gerais")
+		st.sidebar.page_link("pages/CMV - CMV_Real.py", label="⚖ CMV Real")
     elif "Acesso CMV 1" in permissoes:
         st.sidebar.markdown("## CMV")
         st.sidebar.page_link("pages/CMV - CMV_Teórico_-_Análise_de_Fichas_Técnicas.py", label=":material/rubric: CMV Teórico - Análise de Fichas Técnicas")        
