@@ -35,6 +35,7 @@ df_casas = GET_CASAS()
  df_parc_receitas_extr, 
  df_parc_receit_extr_dia) = GET_TODOS_FATURAMENTOS_DIA()
 
+
 # Filtrando Datas
 datas = calcular_datas()
 
@@ -112,7 +113,7 @@ with tab2:
     
     # Gera projeção para prox meses do ano
     df_faturamento_meses_futuros = projecao_faturamento_meses_seguintes(df_faturamento_orcamento, df_meses_futuros_com_categorias, datas['ano_atual'], datas['mes_atual'])
- 
+    
     # Container que exibe projeção dos prox meses
     with st.container(border=True):
         st.markdown(f'''

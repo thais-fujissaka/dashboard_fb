@@ -1136,7 +1136,7 @@ def exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_meses_anteriore
     
     # Prepara colunas para exibir projeção prox meses
     if tipo == 'meses seguintes':
-        df_projecao_custos = df_projecao_custos[df_projecao_custos['Mês'] >= mes_atual]
+        df_projecao_custos = df_projecao_custos[(df_projecao_custos['Mês'] >= mes_atual) & (df_projecao_custos['Ano'] == ano_atual)]
         colunas_num_dataframe = ['Faturamento Projetado Mês', 'Custo Projetado', 'Custo Real']
         if igual_mes_anterior == False:
             colunas = ['Class. Contábil 2', 'Ano', 'Mês', 'Faturamento Projetado Mês', 'Custo Percentual Projetado', 'Custo Projetado', 'Custo Real']
