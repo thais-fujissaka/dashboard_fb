@@ -151,10 +151,13 @@ def config_compras(data_inicio, data_fim, loja):
   df_compras = df_compras.rename(columns={'Primeiro_Dia_Mes': 'Mes Ano', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas', 'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.', 'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'})
 
   df_compras = df_compras[['ID_Loja', 'Loja', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
+
+  # Exibe todos os valores em apenas uma linha
+  df_compras = df_compras.groupby(['ID_Loja', 'Loja'], as_index=False)[['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']].sum()
   
   columns = ['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']
   df_compras = format_columns_brazilian(df_compras, columns)
-
+  
   return df_compras, Compras_Alimentos, Compras_Bebidas
 
 

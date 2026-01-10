@@ -11,6 +11,12 @@ from streamlit_echarts import st_echarts
 
 ano_atual = datetime.datetime.now().year
 
+hoje = pd.Timestamp.today().normalize()
+ontem = hoje - pd.Timedelta(days=1)
+inicio_mes = hoje.replace(day=1)
+dias_ate_ontem = (ontem - inicio_mes).days + 1
+
+
 # Cria tabela de conciliação para cada casa
 def conciliacao_casa(df, casa, datas_completas):
     df_copia = df.copy()
@@ -31,6 +37,14 @@ def conciliacao_casa(df, casa, datas_completas):
     # Receitas Extraordinárias #
     df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
     df_parc_receit_extr_farol = df_parc_receit_extr[df_parc_receit_extr['Casa'] == casa]
+    df_parc_receit_extr_farol = df_parc_receit_extr_farol[ # não vou considerar eventos a partir de setembro/2025
+        ~(
+            (df_parc_receit_extr_farol["Classif_Receita"].str.lower() == "eventos") &
+            ((df_parc_receit_extr_farol["Recebimento_Parcela"].dt.month >= 9) &
+             (df_parc_receit_extr_farol["Recebimento_Parcela"].dt.year >= 2025))
+        )
+    ]
+
     if 'Receitas Extraordinárias' not in df_copia.columns:
         df_copia['Receitas Extraordinárias'] = somar_por_data(
             df_parc_receit_extr_farol, "Recebimento_Parcela", "Valor_Parcela", datas_completas
@@ -158,10 +172,20 @@ def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     df_qtd_dias_nao_conciliados_mes = df_dias_nao_conciliados.groupby(['Data'])['Conciliação'].count().reset_index()
     df_qtd_dias_nao_conciliados_mes = df_qtd_dias_nao_conciliados_mes.merge(df_meses, left_on='Data', right_on='Mes', how='right')
 
-    # Porcentagem de dias não conciliados por mês -> qtd dias não conciliados / total de dias no mês
-    df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Conciliação'] / df_qtd_dias_nao_conciliados_mes['Qtd_dias']
-    df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Porcentagem'].fillna(0) # Preenche meses None com zero (tem todos os dias conciliados ou meses depois do atual)
+    # MÊS ATUAL NO ANO ATUAL
+    mask_mes_atual = (df_qtd_dias_nao_conciliados_mes['Mes'] == mes_atual) & (ano_farol == ano_atual)
+    df_qtd_dias_nao_conciliados_mes.loc[mask_mes_atual, 'Porcentagem'] = (
+        df_qtd_dias_nao_conciliados_mes.loc[mask_mes_atual, 'Conciliação'] / dias_ate_ontem
+    )
 
+    # MESES COMPLETOS (anos anteriores ou meses passados)
+    mask_outros_meses = ~mask_mes_atual
+    df_qtd_dias_nao_conciliados_mes.loc[mask_outros_meses, 'Porcentagem'] = (
+        df_qtd_dias_nao_conciliados_mes.loc[mask_outros_meses, 'Conciliação'] / df_qtd_dias_nao_conciliados_mes.loc[mask_outros_meses, 'Qtd_dias']
+    )
+    
+    df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Porcentagem'].fillna(0) # Preenche meses None com zero (tem todos os dias conciliados ou meses depois do atual)
+    
     # Lista com meses (0-11) e a porcentagem de dias não conciliados
     porc_dias_nao_conciliados = df_qtd_dias_nao_conciliados_mes['Porcentagem'].tolist()
 
