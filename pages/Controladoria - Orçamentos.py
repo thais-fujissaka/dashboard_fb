@@ -3,7 +3,9 @@ import pandas as pd
 import pymysql
 from utils.functions.general_functions import config_sidebar
 from utils.queries_conciliacao import GET_CASAS
-from utils.components import button_download
+from utils.components import button_download, seletor_ano
+
+pd.set_option('future.no_silent_downcasting', True)
 
 
 # Conexão com o banco de dados
@@ -20,13 +22,15 @@ c = conn.cursor()
 # Consulta para recuperar class. cont. 1 de cada class_cont_2 da primeira coluna de forma confiável
 query_class_cont = f'''
 SELECT 
-    tccg2.DESCRICAO AS Descricao_2,
-    tccg1.DESCRICAO AS Descricao_1
+	tccg1.ID AS ID_CLASS_CONT_1,
+	tccg1.DESCRICAO AS Descricao_1,
+    tccg2.ID AS ID_CLASS_CONT_2
 FROM T_CLASSIFICACAO_CONTABIL_GRUPO_2 tccg2
 LEFT JOIN T_CLASSIFICACAO_CONTABIL_GRUPO_1 tccg1 ON (tccg2.FK_GRUPO_1 = tccg1.ID)
 WHERE tccg2.DESCRICAO = %s
 AND tccg1.FK_VERSAO_PLANO_CONTABIL = 103
 '''
+
 
 st.set_page_config(
     page_title="Subir Orçamentos",
@@ -45,19 +49,20 @@ config_sidebar()
 st.title(":material/list: Subir Orçamentos")
 st.divider()
 
-# Seletor de casa
-df_casas = GET_CASAS()
-casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Terraço Notiê', 'The Cavern', 'Orfeu', 'Riviera Bar']
-casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
+# Seletor de casa e ano
+col1, col2 = st.columns(2)
 
-# Recupera id da casa
-mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-if casa != 'BNSP' and casa != 'Terraço Notiê':
+with col1:
+    df_casas = GET_CASAS()
+    casas = df_casas['Casa'].tolist()
+    casa = st.selectbox("Selecione a casa referente ao arquivo de Orçamentos:", casas)
+
+    # Recupera id da casa
+    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
     id_casa = mapeamento_casas[casa]
-elif casa == 'Terraço Notiê':
-    id_casa = 162
-elif casa == 'BNSP':
-    id_casa = 131
+    
+with col2:
+    ano = seletor_ano(2026, 2026, 'ano', 'Selecione o ano refente ao orçamento:')
 
 st.divider()
 
@@ -73,35 +78,32 @@ else:
     # Lê o arquivo adicionado
     df = pd.read_excel(uploaded_file, skiprows=3)
     st.divider()
-    st.subheader('Tabela original')
-    st.dataframe(df, hide_index=True)
-    st.divider()
+    # st.subheader('Tabela original')
+    # st.dataframe(df, hide_index=True)
+    # st.divider()
 
     df_transformado = df.copy()
-    st.subheader('Tabela transformada')
 
     # Removendo colunas e linhas desnecessárias 
-    df_transformado = df_transformado.drop(columns=['Unnamed: 1', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 5', 'Unnamed: 6', '1º TRIMESTRE', '2º TRIMESTRE', '3º TRIMESTRE', '4º TRIMESTRE'])
+    df_transformado = df_transformado[['Unnamed: 0', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']]
     df_transformado = df_transformado.dropna(subset=['Unnamed: 0'])
     
-    indice = df_transformado[df_transformado['Unnamed: 0'] == 'TOTAL - DESPESAS OPERATIVAS'].index # Remove todas as linhas abaixo disso
+    indice = df_transformado[df_transformado['Unnamed: 0'] == '(-) Impostos'].index # Remove todas as linhas abaixo disso
     if not indice.empty:
         df_transformado = df_transformado.loc[:indice[0] - 1]
     df_transformado = df_transformado.iloc[:-1]
 
     # Remove linhas que não são de orçamento / apenas títulos
-    col = (
-        df_transformado['Unnamed: 0']
-        # .astype(str)
-        # .str.replace('\xa0', ' ', regex=False)  # espaço invisível
-        # .str.replace(r'\s+', ' ', regex=True)  # normaliza espaços
-        # .str.strip()
-    )
+    col = (df_transformado['Unnamed: 0'])
    
-    contem_parenteses_negativo = col.str.contains(r'\(-\)', na=False) 
-    contem_parenteses_positivo = col.str.contains(r'\(\+\)', na=False) 
+    excecoes_parenteses = {
+        '(-) Despesas de Patrocínio',
+        '(+) Receitas de Patrocínio'
+    }
+    contem_parenteses_negativo = col.str.contains(r'\(-\)', na=False) &  ~col.isin(excecoes_parenteses)
+    contem_parenteses_positivo = col.str.contains(r'\(\+\)', na=False) &  ~col.isin(excecoes_parenteses)
     contem_cargos = col.str.contains(
-        r'squad|chef|gerente|coord|adm|maitre|hostess|garçon|chop|cumin|bar|cozinh|saladeiro|pia|confeiteiro|copeiro|pizza|boqueta|churras|ajud|estoquista|aux|porteiro|bilheteiro|caixa|operador',
+        r'squad|chef|gerente|coord|maitre|hostess|garçon|chop|cumin|barista|bartender|bar back|cozinheiro|ajud cozinha|saladeiro|pia|confeiteiro|copeiro|pizza|boqueta|churras|ajud limpeza|estoquista|aux|porteiro|bilheteiro|caixa|operador',
         case=False,
         na=False
     )
@@ -137,6 +139,14 @@ else:
         'Serviços de Terceiros',
         'Locação de Equipamentos',
         'Sistema de Franquias',
+        'Encargos e Provisões',
+        'Benefícios', 
+        'Outros B',
+        '  - Administrativa',
+        'Viagens e Estadias',
+        'TOTAL - DESPESAS OPERATIVAS',
+        'EBITDA', 'EBIT',
+        '(+/-) Receitas/Despesas Financeiras',
     }
 
     df_transformado = df_transformado[
@@ -146,7 +156,14 @@ else:
         (~contem_cargos)                 # remove cargos de PJ e Salários
     ]
 
-    # Renomeia nomes da planilha para class. cont. 2
+    # Aplica tratamentos numéricos
+    df_transformado = df_transformado.fillna(0)
+    colunas_numericas = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+    for col in colunas_numericas:
+        df_transformado[col] = pd.to_numeric(df_transformado[col], errors='coerce')
+        df_transformado[col] = df_transformado[col].abs() # Transforma valores negativos em positivos
+
+    # Renomeia nomes da planilha para class. cont. 2 correspondente no banco
     condicao = df_transformado['Unnamed: 0'] == 'Alimentação D'
     df_transformado.loc[condicao, 'Unnamed: 0'] = 'Insumos - Alimentos'
 
@@ -157,10 +174,20 @@ else:
     df_transformado.loc[condicao, 'Unnamed: 0'] = 'Insumos - Embalagens'
 
     condicao = df_transformado['Unnamed: 0'] == 'PJ'
-    df_transformado.loc[condicao, 'Unnamed: 0'] = 'Mão de Obra - PJ'
+    df_transformado.loc[condicao, 'Unnamed: 0'] = 'MDO PJ Fixo'
 
     condicao = df_transformado['Unnamed: 0'] == 'Salários'
-    df_transformado.loc[condicao, 'Unnamed: 0'] = 'Mão de Obra - Salários'
+    df_transformado.loc[condicao, 'Unnamed: 0'] = 'MDO CLT - Salário'
+
+    condicao = df_transformado['Unnamed: 0'] == 'Brindes e Confraternizações'
+    df_transformado.loc[condicao, 'Unnamed: 0'] = 'Brindes e Confraternizações - Marketing'
+    
+    condicao = df_transformado['Unnamed: 0'] == 'Custas Cartório'
+    df_transformado.loc[condicao, 'Unnamed: 0'] = 'Custas Cartório / Operação'
+
+    idx = df_transformado[df_transformado['Unnamed: 0'] == 'Eventos A&B'].index # Caso de dois 'Eventos A&B'
+    df_transformado.loc[idx[1], 'Unnamed: 0'] = 'Insumos - Eventos A&B'
+    df_transformado.loc[idx[1], 'Classificacao 1'] = 'Custo Mercadoria Vendida'
     
     
     # Cria coluna de class. cont. 2
@@ -168,28 +195,78 @@ else:
     
     lista_class_cont_2_primeira_coluna = df_transformado['Unnamed: 0'].tolist()
 
+    # Realiza consulta no banco para recuperar class. cont. 1 correspondente de cada class. cont. 2
     for item in lista_class_cont_2_primeira_coluna:
         c.execute(query_class_cont, (item,))
-        res = c.fetchone()
-
-        if res:
-            class_cont_1 = res[1]
-        else:
-            class_cont_1 = None  # 'Não encontrado'
+        resultado_query = c.fetchone()
+        
+        if resultado_query:
+            fk_class_cont_1 = resultado_query[0]
+            descricao_class_cont_1 = resultado_query[1]
+            fk_class_cont_2 = resultado_query[2]
+        else:  # 'Não encontrado'
+            fk_class_cont_1 = None
+            descricao_class_cont_1 = None 
+            fk_class_cont_2 = None
 
         condicao = df_transformado['Unnamed: 0'] == item
-        df_transformado.loc[condicao, 'Classificacao 1'] = class_cont_1
+        df_transformado.loc[condicao, 'Classificacao 1'] = descricao_class_cont_1
+        df_transformado.loc[condicao, 'FK_CLASSIFICACAO_1'] = fk_class_cont_1
+        df_transformado.loc[condicao, 'FK_CLASSIFICACAO_2'] = fk_class_cont_2
+
+        # Renomeia class. cont. 1 específicas
+        if item == 'MDO Terceirizada - Artístico':
+            df_transformado.loc[condicao, 'Classificacao 1'] = 'Mão de Obra - PJ'
+            df_transformado.loc[condicao, 'FK_CLASSIFICACAO_1'] = 256
+            df_transformado.loc[condicao, 'FK_CLASSIFICACAO_2'] = 1008
         
-    st.dataframe(df_transformado, hide_index=True)
+        if item == 'MDO Terceirizada - Eventos':
+            df_transformado.loc[condicao, 'Classificacao 1'] = 'Mão de Obra - PJ'
     
+    # Transforma formato do df
+    df_layout_final = df_transformado.melt(
+        id_vars=['Classificacao 1', 'Classificacao 2', 'FK_CLASSIFICACAO_1', 'FK_CLASSIFICACAO_2'],
+        value_vars=colunas_numericas,
+        var_name='Mes',
+        value_name='Valor'
+    )
+
+    # Cria e organiza colunas para corresponder a T_ORCAMENTOS
+    df_layout_final['FK_EMPRESA'] = id_casa
+    df_layout_final['ANO'] = ano
+    df_layout_final['IS_VALID'] = 1
+    df_layout_final['FK_PLANO_DE_CONTAS'] = 103
+
+    mapa_meses = {
+        'Janeiro': 1, 'Fevereiro': 2, 'Março': 3, 'Abril': 4,
+        'Maio': 5, 'Junho': 6, 'Julho': 7, 'Agosto': 8,
+        'Setembro': 9, 'Outubro': 10, 'Novembro': 11, 'Dezembro': 12
+    }
+
+    df_layout_final['Mes'] = df_layout_final['Mes'].map(mapa_meses) # Transforma meses em número
+
+    df_layout_final = df_layout_final.rename(columns={
+        'Mes': 'MES',
+        'Valor': 'VALOR'
+    })
+
+    df_layout_final_ids = df_layout_final.copy()
+    df_layout_final = df_layout_final[['FK_EMPRESA', 'Classificacao 1', 'Classificacao 2', 'MES','ANO', 'VALOR', 'FK_PLANO_DE_CONTAS', 'IS_VALID']]
+    st.subheader('Tabela para verificação') 
+    st.dataframe(df_layout_final, hide_index=True)
+    st.divider()
 
     # Mostra o resultado
-    # col1, col2 = st.columns([4, 1])
-    # with col1:
-    #     st.subheader('Descontos categorizados') 
-    # with col2:
-    #     button_download(df_download, f"{casa} - {mes_ano}", f"Descontos - {casa}")
+    df_layout_final_ids = df_layout_final_ids[['FK_EMPRESA', 'FK_CLASSIFICACAO_1', 'FK_CLASSIFICACAO_2', 'MES','ANO', 'VALOR', 'FK_PLANO_DE_CONTAS', 'IS_VALID']]
+    df_layout_final_ids['FK_CLASSIFICACAO_1'] = pd.to_numeric(df_layout_final_ids['FK_CLASSIFICACAO_1'], errors='coerce').astype('Int64')
+    df_layout_final_ids['FK_CLASSIFICACAO_2'] = pd.to_numeric(df_layout_final_ids['FK_CLASSIFICACAO_2'], errors='coerce').astype('Int64')
 
-    # st.info('Atenção para as células com categoria vazia, caso haja.')
-    # st.dataframe(df_categorizado, hide_index=True)
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        st.subheader('Tabela transformada') 
+        st.write('Adaptada para inserção no EPM.')
+    with col2:
+        button_download(df_layout_final_ids, f"Orçamentos_{casa}", f"Orçamentos - {casa}")
+
+    st.dataframe(df_layout_final_ids, hide_index=True)
     
