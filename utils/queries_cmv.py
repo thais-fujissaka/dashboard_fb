@@ -462,6 +462,7 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio,
       WHERE
         tdri.ID IS NOT NULL
         AND te.ID <> 135
+        AND tdr.BIT_CANCELADA = 0
       GROUP BY
         tdr.ID,
         te.ID,
@@ -573,6 +574,7 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO():
       WHERE
         tdri.ID IS NOT NULL
         AND te.ID <> 135
+        AND tdr.BIT_CANCELADA = 0
       GROUP BY
         tdr.ID,
         te.ID,
