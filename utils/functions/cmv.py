@@ -30,7 +30,9 @@ def substituicao_ids(df, colNome, colID):
   substituicoesNomes = {
     'Delivery Fabrica de Bares': 'Bar Brahma - Centro',
     'Hotel Maraba': 'Bar Brahma - Centro',
+    'Delivery Brahma Centro': 'Bar Brahma - Centro',
     'Delivery Bar Leo Centro': 'Bar Léo - Centro',
+    'Delivery Brahma Granja Viana': 'Bar Brahma - Granja',
     'Delivery Orfeu': 'Orfeu',
     'Delivery Jacaré': 'Jacaré',
     'Notiê - Priceless': 'Priceless',
@@ -74,6 +76,7 @@ def primeiro_dia_mes_para_mes_ano(df):
 def config_faturamento_bruto_zig(data_inicio, data_fim, loja):
   df = GET_FATURAM_ZIG_ALIM_BEB_MENSAL(data_inicio=data_inicio, data_fim=data_fim)
   df = substituicao_ids(df, 'Loja', 'ID_Loja')
+  
 
   df['Valor_Bruto'] = df['Valor_Bruto'].astype(float)
   df = df.dropna(subset=['ID_Loja'])
@@ -85,17 +88,20 @@ def config_faturamento_bruto_zig(data_inicio, data_fim, loja):
     'Data_Evento': 'first'
   }).reset_index()
 
-  df_delivery = df[df['Delivery'] == 1]
-  df_zig = df[df['Delivery'] == 0]
-
+  # Faturamento Delivery
+  df_delivery = df[(df['Delivery'] == 1)]
   df_delivery = df_delivery[df_delivery['Loja'] == loja]
+
+  # Faturamento Zig
+  df_zig = df[df['Delivery'] == 0]
   df_zig = df_zig[df_zig['Loja'] == loja]
+  
 
   faturamento_bruto_alimentos = df_zig[(df_zig['Categoria'] == 'Alimentos')]['Valor_Bruto'].sum()
   faturamento_bruto_bebidas = df_zig[(df_zig['Categoria'] == 'Bebidas')]['Valor_Bruto'].sum()
   faturamento_alimentos_delivery = df_delivery[(df_delivery['Categoria'] == 'Alimentos')]['Valor_Bruto'].sum()
   faturamento_bebidas_delivery = df_delivery[(df_delivery['Categoria'] == 'Bebidas')]['Valor_Bruto'].sum()
-
+  
   # faturamento_total_zig = faturamento_bruto_alimentos + faturamento_bruto_bebidas + faturamento_alimentos_delivery + faturamento_bebidas_delivery
   return df_delivery, df_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_alimentos_delivery, faturamento_bebidas_delivery
 

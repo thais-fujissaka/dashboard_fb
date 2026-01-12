@@ -260,7 +260,7 @@ def GET_FATURAM_ZIG_ALIM_BEB_MENSAL(data_inicio, data_fim):
     te.NOME_FANTASIA AS Loja,
     tivc2.DESCRICAO AS Categoria,
     CASE 
-      WHEN te.ID IN (103, 112, 118, 139) THEN 1
+      WHEN te.ID IN (103, 112, 118, 139, 169) THEN 1
       ELSE 0 
     END AS Delivery,
     cast(date_format(cast(tivd.EVENT_DATE AS date), '%Y-%m-01') AS date) AS Primeiro_Dia_Mes,
@@ -746,6 +746,7 @@ def GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja):
       AND te.NOME_FANTASIA = '{loja}'
       AND tdri.ID IS NOT NULL
       AND te.ID <> 135
+      AND tdr.BIT_CANCELADA = 0
     GROUP BY
       tdr.ID,
       te.ID,
