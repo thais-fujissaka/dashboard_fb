@@ -324,6 +324,12 @@ def mostrar_menu_permissoes_auditoria(permissoes):
         st.sidebar.page_link("pages/Auditoria - Descontos.py", label=":material/list: Categorização - Descontos")
         
 
+def mostrar_menu_permissoes_planejamento(permissoes):
+    if 'Dev Dash FB' in permissoes:
+        st.sidebar.markdown("## Planejamento Anual")
+        st.sidebar.page_link("pages/Geral - Análises_e_Objetivos.py", label=":material/assignment: Análises e Objetivos")
+        
+
 def config_sidebar():
 
     permissoes, user_name, email = config_permissoes_user()
@@ -336,6 +342,7 @@ def config_sidebar():
         mostrar_menu_permissoes_kpis_resultado_operacional(permissoes)
         mostrar_menu_permissoes_kpis_resultado_operacional_suprimentos(permissoes)
         mostrar_menu_permissoes_auditoria(permissoes)
+        mostrar_menu_permissoes_planejamento(permissoes)
     else:
         st.sidebar.write("Por favor, faça login para acessar o menu.")
 
