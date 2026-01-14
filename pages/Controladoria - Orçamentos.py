@@ -56,6 +56,12 @@ with col1:
     df_casas = GET_CASAS()
     casas = df_casas['Casa'].tolist()
     casa = st.selectbox("Selecione a casa referente ao arquivo de Orçamentos:", casas)
+    if casa == 'Blue Note - São Paulo':
+        nome_casa = 'Blue Note SP'
+    elif casa == 'Ultra Evil Premium Ltda ':
+        nome_casa = 'Ultra Evil'
+    else:
+        nome_casa = casa
 
     # Recupera id da casa
     mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
@@ -149,6 +155,10 @@ else:
         '(+/-) Receitas/Despesas Financeiras',
     }
 
+    # Regra especial para o Blue Note
+    if casa == 'Blue Note - São Paulo':
+        excluir_exatos.discard('Viagens e Estadias')  # não exclui
+
     df_transformado = df_transformado[
         (~col.isin(excluir_exatos)) &    # remove títulos
         (~contem_parenteses_negativo) &  # remove (-)
@@ -185,10 +195,20 @@ else:
     condicao = df_transformado['Unnamed: 0'] == 'Custas Cartório'
     df_transformado.loc[condicao, 'Unnamed: 0'] = 'Custas Cartório / Operação'
 
-    idx = df_transformado[df_transformado['Unnamed: 0'] == 'Eventos A&B'].index # Caso de dois 'Eventos A&B'
+    idx = df_transformado[df_transformado['Unnamed: 0'] == 'Eventos A&B'].index # Caso de dois 'Eventos A&B' (Faturamento Bruto e Custo Mercadoria Vendida)
     df_transformado.loc[idx[1], 'Unnamed: 0'] = 'Insumos - Eventos A&B'
     df_transformado.loc[idx[1], 'Classificacao 1'] = 'Custo Mercadoria Vendida'
-    
+
+    if casa == 'Blue Note - São Paulo': # Realoca essas duas categorias de Faturamento Bruto
+        condicao = df_transformado['Unnamed: 0'] == 'Viagens e Estadias' # Não excluí: Renomeia para mapear para a class. cont. 1
+        df_transformado.loc[condicao, 'Unnamed: 0'] = 'Viagens e Estadias - Artístico'
+
+        condicao = df_transformado['Unnamed: 0'] == 'Eventos Rebate Fornecedores - Premium Corp'
+        df_transformado.loc[condicao, 'Unnamed: 0'] = 'Eventos Locações'
+
+        condicao = df_transformado['Unnamed: 0'] == 'Membership'
+        df_transformado.loc[condicao, 'Unnamed: 0'] = 'Outras Receitas'
+        df_transformado = df_transformado.groupby('Unnamed: 0', as_index=False)[['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']].sum()
     
     # Cria coluna de class. cont. 2
     df_transformado['Classificacao 2'] = df_transformado['Unnamed: 0']
@@ -266,7 +286,7 @@ else:
         st.subheader('Tabela transformada') 
         st.write('Adaptada para inserção no EPM.')
     with col2:
-        button_download(df_layout_final_ids, f"Orçamentos_{casa}", f"Orçamentos - {casa}")
+        button_download(df_layout_final_ids, f"Orçamentos_{nome_casa}", f"Orçamentos - {nome_casa}")
 
     st.dataframe(df_layout_final_ids, hide_index=True)
     

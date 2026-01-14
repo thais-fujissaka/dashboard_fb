@@ -72,7 +72,7 @@ def supplier_expense_n5(day,day2):
     WHERE DR.COMPETENCIA >= '{day}'
         AND DR.COMPETENCIA <= '{day2}'
         AND DR.BIT_CANCELADA = 0
-    GROUP BY F.ID, N5.ID
+    GROUP BY F.ID, N5.ID, E.NOME_FANTASIA -- Incluí o último campo para exibir corretamente as despesas por fornecedor
     ORDER BY F.FANTASY_NAME, N5.DESCRICAO
 """)
 

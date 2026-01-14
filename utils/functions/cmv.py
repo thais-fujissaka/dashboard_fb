@@ -36,7 +36,7 @@ def substituicao_ids(df, colNome, colID):
     'Delivery Orfeu': 'Orfeu',
     'Delivery Jacaré': 'Jacaré',
     'Notiê - Priceless': 'Priceless',
-    'Abaru - Priceless': 'Priceless',
+    'Terraço Notie': 'Priceless',
     'Blue Note - São Paulo': 'Blue Note - Agregado',
     'Blue Note SP (Novo)': 'Blue Note - Agregado',
     'Girondino - CCBB': 'Girondino - Agregado',
@@ -471,6 +471,8 @@ def config_transferencias_gastos(data_inicio, data_fim, loja):
 
 def config_transferencias_detalhadas(data_inicio, data_fim, loja):
   df_transf_estoque = GET_TRANSF_ESTOQUE()
+  df_transf_estoque = substituicao_ids(df_transf_estoque, 'Casa_Saida', 'ID_Loja_Saida')
+  df_transf_estoque = substituicao_ids(df_transf_estoque, 'Casa_Entrada', 'ID_Loja_Entrada')
   df_transf_estoque = filtrar_por_datas(df_transf_estoque, data_inicio, data_fim, 'Data_Transferencia')
   df_transf_estoque = df_transf_estoque.rename(columns={'Casa_Saida': 'Casa Saída', 'Casa_Entrada': 'Casa Entrada', 'Data_Transferencia': 'Data Transferência', 
                                                         'Valor_Transferencia': 'Valor Transferência', 'ID_Insumo_Nivel_5': 'ID Insumo Nível 5', 

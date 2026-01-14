@@ -83,8 +83,7 @@ st.divider()
 
 lojasComDados = preparar_dados_lojas_user_financeiro()
 
-if 'Abaru - Priceless' in lojasComDados and 'Notiê - Priceless' in lojasComDados:
-  lojasComDados.remove('Abaru - Priceless')
+if 'Notiê - Priceless' in lojasComDados:
   lojasComDados.remove('Notiê - Priceless')
 if 'Blue Note - São Paulo' in lojasComDados and 'Blue Note SP (Novo)' in lojasComDados:
   lojasComDados.remove('Blue Note - São Paulo')
