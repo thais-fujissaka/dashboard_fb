@@ -153,12 +153,12 @@ with tab3:
         ''', unsafe_allow_html=True)
 
         # CMV 
-        df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery = config_faturamento_bruto_zig(df_faturamento_agregado_dia, datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_faturamento_eventos = config_faturamento_eventos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
-        df_compras, df_aut_blue_me_com_pedido, compras_alimentos, compras_bebidas = config_compras(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_valoracao_estoque = config_valoracao_estoque_ou_producao('estoque', datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas = config_transferencias_gastos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_valoracao_producao = config_valoracao_estoque_ou_producao('producao', datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+        df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery = config_faturamento_bruto_zig(df_faturamento_agregado_dia, datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_faturamento_eventos = config_faturamento_eventos(datas['jan_ano_passado'], datas['dez_ano_atual'], casa, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
+        df_compras, df_aut_blue_me_com_pedido, compras_alimentos, compras_bebidas = config_compras(datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_valoracao_estoque = config_valoracao_estoque_ou_producao('estoque', datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas = config_transferencias_gastos(datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_valoracao_producao = config_valoracao_estoque_ou_producao('producao', datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
         
         # Cálculo CMV e Faturamento Geral para meses anteriores
         df_calculo_cmv = merge_e_calculo_para_cmv(
@@ -171,7 +171,7 @@ with tab3:
         )
 
         df_cmv_meses_anteriores_seguintes = calcula_cmv_proximos_meses(df_faturamento_meses_futuros, df_calculo_cmv, datas['ano_atual'], datas['mes_atual'])
-        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'])
+        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'], datas['ano_atual'])
 
         # Custos Artístico Geral
         df_custos_artistico_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Custos Artístico Geral')
@@ -254,7 +254,7 @@ with tab3:
             ''', unsafe_allow_html=True)
         
         # CMV
-        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses anteriores', datas['mes_atual'])
+        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses anteriores', datas['mes_atual'], datas['ano_atual'])
         
         # Custos Artístico Geral
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_artistico_meses_anteriores_seguintes, 'Custos Artístico Geral', 'meses anteriores', datas['ano_atual'], datas['mes_atual'])
