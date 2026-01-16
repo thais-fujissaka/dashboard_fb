@@ -166,12 +166,21 @@ def conciliacao_casa(df, casa, datas_completas):
 def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     df_dias_nao_conciliados = df_casa[df_casa['Data'].dt.year == ano_farol]
     df_dias_nao_conciliados = df_dias_nao_conciliados[df_dias_nao_conciliados['Conciliação'] != 0.0]
-    df_dias_nao_conciliados['Data'] = df_dias_nao_conciliados['Data'].dt.month # Mês dos dias não conciliados
 
+    # EXCLUI O DIA DE HOJE SE FOR O MÊS/ANO ATUAL
+    if ano_farol == ano_atual:
+        df_dias_nao_conciliados = df_dias_nao_conciliados[
+            ~(
+                (df_dias_nao_conciliados['Data'].dt.month == mes_atual) &
+                (df_dias_nao_conciliados['Data'] > ontem)
+            )
+        ]
+    df_dias_nao_conciliados['Data'] = df_dias_nao_conciliados['Data'].dt.month # Mês dos dias não conciliados
+    
     # Contagem de dias não conciliados por mês
     df_qtd_dias_nao_conciliados_mes = df_dias_nao_conciliados.groupby(['Data'])['Conciliação'].count().reset_index()
     df_qtd_dias_nao_conciliados_mes = df_qtd_dias_nao_conciliados_mes.merge(df_meses, left_on='Data', right_on='Mes', how='right')
-
+    
     # MÊS ATUAL NO ANO ATUAL
     mask_mes_atual = (df_qtd_dias_nao_conciliados_mes['Mes'] == mes_atual) & (ano_farol == ano_atual)
     df_qtd_dias_nao_conciliados_mes.loc[mask_mes_atual, 'Porcentagem'] = (
@@ -188,7 +197,7 @@ def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     
     # Lista com meses (0-11) e a porcentagem de dias não conciliados
     porc_dias_nao_conciliados = df_qtd_dias_nao_conciliados_mes['Porcentagem'].tolist()
-
+    
     lista_dias_nao_conciliados = []
     for i, dia in enumerate(porc_dias_nao_conciliados):
         if (i <= mes_atual - 1) and (ano_farol == ano_atual):
@@ -199,8 +208,7 @@ def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
             dia = dia * 100  # para anos anteriores, sempre multiplica
         dia = round(dia, 2)
         lista_dias_nao_conciliados.append(dia)
-
-    #st.write(df_dias_nao_conciliados) # vou precisar
+   
     # lista_dias_nao_conciliados = [v if v != 0 else None for v in lista_dias_nao_conciliados]  # None não é plotado
     return lista_dias_nao_conciliados
 
@@ -502,16 +510,16 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
 def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     df_copia = df.copy()
-
+    
     # Para cada mês, montar a lista com o valor de todas as casas
     for i, mes in enumerate(meses):
         coluna_mes = []
         coluna_mes_fmt = []
         for lista in lista_casas_mes:  # percorre a lista de porc de dias não conciliados de cada casa
             if (i == mes_atual - 1) and (ano_farol == ano_atual): # para mês e ano atual
-                if lista[i] != 0: # se não há dias conciliados, não mostra 100%
+                if lista[i] != 0: # se há dias não conciliados, faz 100 - qtd
                     porc_dias_conciliados = 100 - lista[i]
-                else: porc_dias_conciliados = 0
+                else: porc_dias_conciliados = 100
             elif (i < mes_atual - 1) and (ano_farol == ano_atual): # para meses anteriores ao atual e ano atual
                 porc_dias_conciliados = 100 - lista[i] # pega o mês i dessa casa
             elif (i > mes_atual - 1) and (ano_farol == ano_atual): # para meses posteriores ao atual e ano atual
