@@ -14,10 +14,12 @@ lojasAgrupadas = ["Bar Brahma - Centro",
                   "Girondino ", 
                   "Hotel Maraba",
                   "Jacaré",
+                  "Notiê - Priceless",
                   "Orfeu",
                   "Priceless",  
                   "Riviera Bar",
                   "Tempus Fugit  Ltda ",
+                  "Terraço Notie"
             ]
 
 # Todas as casas de df_casas menos 'All bar'

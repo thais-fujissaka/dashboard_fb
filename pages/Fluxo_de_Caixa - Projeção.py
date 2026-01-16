@@ -89,7 +89,7 @@ with st.container(border=True):
     st.markdown(
         """*Bar Brahma - Centro, Bar Brahma - Granja, Bar Brahma Paulista, Brahma Ribeirão, Bar Léo - Centro, Bar Brasília - Aeroporto, 
             Delivery Bar Léo Centro, Delivery Fábrica de Bares, Delivery Orfeu, Edifício Rolim, Escritório Fábrica de Bares, 
-            Girondino, Girondino - CCBB, Hotel Marabá, Jacaré, Orfeu, Priceless, Riviera, Tempus*
+            Girondino, Girondino - CCBB, Hotel Marabá, Jacaré, Notiê - Priceless, Orfeu, Priceless, Riviera Bar, Tempus, Terraço Notiê*
     """)
 
     df_projecao_bares = df_projecao_bares_geral
