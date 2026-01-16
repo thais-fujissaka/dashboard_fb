@@ -39,7 +39,7 @@ st.divider()
 
 # Seletor de casa
 df_casas = GET_CASAS()
-casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Terraço Notiê', 'The Cavern', 'Orfeu', 'Riviera Bar']
+casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Terraço Notiê', 'The Cavern']
 casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
 
 # Recupera id da casa
@@ -55,7 +55,7 @@ st.divider()
 
 if casa == 'Notiê - Priceless' or casa == 'Terraço Notiê':
     regras_categoria = {
-        'funcionario|funcionário|funcionaria|funcionária': "COLABORADOR (30%)",
+        'funcionario|funcionário|funcionaria|funcionária': "COLABORADORES (30%)",
         'gerência|gerencia|coord': 'CONSUMO GERENCIAL',
         'master|mastecard|mastetcard': 'CONVÊNIO',
         'taxa rolha|taxa de rolha|rolha': 'CORTESIA',
@@ -66,7 +66,7 @@ if casa == 'Notiê - Priceless' or casa == 'Terraço Notiê':
 
 if casa == 'Arcos':
     regras_categoria = {
-        "1|2": "COLABORADOR (30%)",
+        "1|2": "COLABORADORES (30%)",
         "4|teatro": "CONVÊNIO",
         "7|niver|cortesia": "CORTESIA",
         "16": "CONSUMO GERENCIAL",
@@ -95,7 +95,7 @@ if casa == 'Bar Brahma - Centro':
 
 if casa == 'Bar Brahma - Granja':
     regras_categoria = {
-        'funcionário|funcionario': 'COLABORADOR (30%)',
+        'funcionário|funcionario': 'COLABORADORES (30%)',
         'refeição|coord|cordenador|maicon|técnico som|dupla jornada': 'CONSUMO GERENCIAL',
         'musico|dj|música|thais|técnico de som': 'MÚSICOS',
         'logista|logísta|nilsem|nielsemm|nilsemm|nilsennm|lojista|lojistq|santander|cadastro|meta|flar': 'CONVÊNIO',
@@ -115,11 +115,11 @@ if casa == 'Bar Léo - Centro':
         'dois por um|2p1|gumer|gulmer|kumer|goume|cps': 'PROMOÇÃO'
     }
 
-if casa == 'Blue Note' or casa == 'BNSP':
+if casa == 'Blue Note - São Paulo' or casa == 'BNSP':
     regras_categoria = {
         'consumo coordenação|consumo gerência|consumo gerencia|consumos gerencia|coordenacao|coordenação|coordenador|chef|consumo mkt|alimentação mkt|gerente|alimentação gerencia': 'CONSUMO GERENCIAL',
         'socio|sócio': 'CONTA ASSINADA',
-        'porto|azul|membro|mix|safra|inter|itaú|itau|convênio|convenio|condômino|condomínio|fiserv|sul america|sul ameruca': 'CONVÊNIO',
+        'porto|azul|membro|mix|safra|inter|itaú|itau|convênio|convenio|condômino|condomínio|fiserv|sul america|sul ameruca|daycoval': 'CONVÊNIO',
         'niver|cortesia|cheescake|torta belga':' CORTESIA',
         'artístico|artistico|dj|banda|músico|musico': 'MÚSICOS',
         'retirou serviço|correção': 'OPERACIONAL',
@@ -131,9 +131,9 @@ if casa == 'Blue Note' or casa == 'BNSP':
         'reunião t.i': 'REUNIÃO - TI'
     }
 
-if casa == 'Girondino':
+if casa == 'Girondino ':
     regras_categoria = {
-        'funcionário|funcionario|funcionário da casa|funcionario da casa|desconto funcionário|desconto funcionario|desconto funça|staff da casa|estaff': 'COLABORADOR (30%)',
+        'funcionário|funcionario|funcionário da casa|funcionario da casa|desconto funcionário|desconto funcionario|desconto funça|staff da casa|estaff|funça': 'COLABORADORES (30%)',
         'mkt': 'MARKETING',
         'consumo|alimentação segurança|alimentacao seguranca|almoço liderança|almoco lideranca': 'CONSUMO GERENCIAL',
         'niver': 'CORTESIA',
@@ -142,8 +142,8 @@ if casa == 'Girondino':
 
 if casa == 'Girondino - CCBB': 
     regras_categoria = {
-        'ourocard|scolaboradorbb|colaboraforbb|bb|cbb|colaboraorbb|colaborado rbb|colabiradorbb': 'CONVÊNIO',
-        'colaboradorfb|colabrador fb|volaboradpr': 'COLABORADOR (30%)',
+        'ourocard|scolaboradorbb|colaboraforbb|bb|cbb|colaboraorbb|colaborado rbb|colabiradorbb|ourkcard': 'CONVÊNIO',
+        'colaboradorfb|colabrador fb|volaboradpr': 'COLABORADORES (30%)',
         'colaborador fb- ccbb|colaborador fb - ccbb|colaborador fb-ccbb|consumo|socio': 'CONSUMO GERENCIAL',
         'mkt': 'MARKETING'
     }
@@ -170,31 +170,40 @@ if casa == 'Love Cabaret':
         'cod 14': 'TESTE'
     }
 
-if casa == 'Edifício Rolim':
+if casa == 'Edificio Rolim':
     regras_categoria = {
-        'funcionario|desconto fb|ator': 'COLABORADOR (30%)',
+        'funcionario|desconto fb|ator|atoe': 'COLABORADORES (30%)',
         'niver': 'CORTESIA',
         'mkt': 'MARKETING'
     }
 
 if casa == 'Orfeu':
     regras_categoria = {
-        'colaborador fb': 'COLABORADOR (30%)',
+        'colaborador fb': 'COLABORADORES (30%)',
         'coordenação|coordenacao|coordenador|gerente|gerência': 'CONSUMO GERENCIAL',
         'niver|níver': 'CORTESIA',
         'sem troco': 'OPERACIONAL',
         'permuta': 'PERMUTA'
     }
 
-if casa == 'Riviera':
+if casa == 'Riviera Bar':
     regras_categoria = {
-        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma': 'COLABORADOR (30%)',
+        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma': 'COLABORADORES (30%)',
         'consumo|alimentacao -|alimentação -|coordenacao|oordenacao|coordenação|coordenacai|chef|gerente|lideranca|liderança|luderanca|gerencia|coirdenaxao|coorfenacao|ciordenacao|coirfenacao|coordenaçao|consumação': 'CONSUMO GERENCIAL',
         'morador|convênio|convenio': 'CONVÊNIO',
         'niver|nuver|cortesia|anibersariante|anovetsatio|anivetsario|ani etsatio': 'CORTESIA',
         'evento': 'EVENTOS',
         'marketing|mkt': 'MARKETING',
         'troco|troci|ajuste': 'OPERACIONAL'
+    }
+
+if casa == 'The Cavern':
+    regras_categoria = {
+        'desconto funcionario|desconto funcionário': 'COLABORADOR (30%)',
+        'refeição|refeicao|recepcao|gerencial|consomo chefe|consumo chefe': 'CONSUMO GERENCIAL',
+        'evento': 'EVENTO',
+        'camarim': 'MÚSICOS',
+        'troco|perdas e danos': 'OPERACIONAL'
     }
 
 
@@ -217,7 +226,7 @@ else:
     df_categorizado = df.copy()
 
     # Problema das planilhas que vem com a justificativa na coluna de categoria (zig)
-    if casa == 'Girondino - CCBB' or casa == 'Blue Note' or casa == 'BNSP' or casa == 'Riviera' or casa == 'Terraço Notiê':
+    if casa == 'Girondino - CCBB' or casa == 'Blue Note - São Paulo' or casa == 'BNSP' or casa == 'Riviera Bar' or casa == 'Terraço Notiê':
         mascara = (
             df_categorizado['Justificativa'].isna() |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('h') |
