@@ -231,7 +231,9 @@ else:
             df_categorizado['Justificativa'].isna() |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('h') |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('g') |
-            df_categorizado['Justificativa'].str.strip().str.lower().eq('g')
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('g') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('.') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('cartão ouro card')
         )
 
         df_categorizado.loc[mascara, 'Justificativa'] = df_categorizado.loc[mascara, 'Categoria']
