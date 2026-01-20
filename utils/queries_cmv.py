@@ -334,7 +334,10 @@ def GET_EVENTOS_CMV(data_inicio, data_fim):
 def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
   return dataframe_query(f'''
     SELECT
-      te.ID AS ID_Loja,
+      CASE 
+        WHEN te.ID = 131 THEN 110
+        ELSE te.ID  
+      END AS ID_Loja,
       CASE
         WHEN te.ID = 131 THEN 'Blue Note - São Paulo'
         ELSE te.NOME_FANTASIA    
@@ -366,11 +369,11 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
       tdr.BIT_CANCELADA = 0
       AND tdr.FK_DESPESA_TEKNISA IS NULL
       AND tccg.ID IN (162, 205, 236)
-      AND NOT EXISTS (
-        SELECT 1
-        FROM T_DESPESA_RAPIDA_ITEM tdri
-        WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID
-      )
+      # AND NOT EXISTS (
+      #   SELECT 1
+      #   FROM T_DESPESA_RAPIDA_ITEM tdri
+      #   WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID
+      # )
     GROUP BY
       te.ID,
       te.NOME_FANTASIA,
