@@ -188,13 +188,13 @@ if casa == 'Orfeu':
 
 if casa == 'Riviera Bar':
     regras_categoria = {
-        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma': 'COLABORADORES (30%)',
-        'consumo|alimentacao -|alimentação -|coordenacao|oordenacao|coordenação|coordenacai|chef|gerente|lideranca|liderança|luderanca|gerencia|coirdenaxao|coorfenacao|ciordenacao|coirfenacao|coordenaçao|consumação': 'CONSUMO GERENCIAL',
-        'morador|convênio|convenio': 'CONVÊNIO',
-        'niver|nuver|cortesia|anibersariante|anovetsatio|anivetsario|ani etsatio': 'CORTESIA',
+        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma|thiago bar|caique bar|fubcionario|funcionatio|hostess|colaborador|blue note|blue|arcos': 'COLABORADORES (30%)',
+        'consumo|alimentacao -|alimentação -|coordenacao|coordena|oordenacao|coordemacao|chf bar|coordenação|coordenacai|chef|gerente|lideranca|lidetamca|liderança|luderanca|lideramca|lideranxa|gerencia|coirdenaxao|coorfenacao|ciordenacao|coirfenacao|coordenaçao|consumação|cordenacao|coordenscsp|corodenaco|coordenaca0|maitre|matrie': 'CONSUMO GERENCIAL',
+        'morador|motador|convênio|convenio|99|adv|crm|ct|galeria|guedes|hc|lavi|safra|we work|zuck|insider|telus|ims|sinquia|inova bra': 'CONVÊNIO',
+        'niver|nuver|cortesia|anibersariante|anovetsatio|ano versario|anivetsario|ani etsatio|bday|apenas 10%|ajiversariante|anivefsadio|anibersario|aniveesario|anivetsariantr|anversario|anoversario|anversario|anivrrsario|anivesario|anivesarrio|anviersario|coryesia|crtesia': 'CORTESIA',
         'evento': 'EVENTOS',
         'marketing|mkt': 'MARKETING',
-        'troco|troci|ajuste': 'OPERACIONAL'
+        'troco|troci|ajuste|tsroco': 'OPERACIONAL'
     }
 
 if casa == 'The Cavern':
@@ -230,7 +230,23 @@ else:
         mascara = (
             df_categorizado['Justificativa'].isna() |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('h') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('g') |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('g')
+        )
+
+        df_categorizado.loc[mascara, 'Justificativa'] = df_categorizado.loc[mascara, 'Categoria']
+    
+    if casa == 'Riviera Bar': # Casos específicos - Riviera
+        mascara = (
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('fundo cobranca') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('sisconeto') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('societe') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('fundo c') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('gelly') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('gelly fit') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('wework') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('weework') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('btg')
         )
 
         df_categorizado.loc[mascara, 'Justificativa'] = df_categorizado.loc[mascara, 'Categoria']
