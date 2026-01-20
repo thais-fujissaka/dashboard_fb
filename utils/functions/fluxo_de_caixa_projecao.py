@@ -128,13 +128,17 @@ def filtra_categoria_despesas(df_despesas_aprovadas_previstas, seletor_status_de
 
   # 1) Filtra apenas despesas aprovadas pela diretoria
   if seletor_status_despesa == 'Apenas Aprovadas':
-    df_categoria = df_despesas_aprovadas_previstas[df_despesas_aprovadas_previstas['Status_Diretoria'] == 101].copy()
+    df_categoria = df_despesas_aprovadas_previstas[
+      (df_despesas_aprovadas_previstas['Status_Diretoria'] == 101) |
+      (df_despesas_aprovadas_previstas['Status_Diretoria'] == 103)
+    ].copy()
     # df_categoria_agrupado = df_categoria.groupby(['Empresa', 'Previsao_Pgto'], as_index=False)['Valor_Liquido'].sum()
 
   # 2) Filtra pelas despesas previstas (aprovadas, pendentes e nulas)
   if seletor_status_despesa == 'Todas Previstas':
     df_categoria = df_despesas_aprovadas_previstas[
       (df_despesas_aprovadas_previstas['Status_Diretoria'] == 101) |
+      (df_despesas_aprovadas_previstas['Status_Diretoria'] == 103) |
       (df_despesas_aprovadas_previstas['Status_Diretoria'] == 100) |
       (df_despesas_aprovadas_previstas['Status_Diretoria'].isna())
     ].copy()

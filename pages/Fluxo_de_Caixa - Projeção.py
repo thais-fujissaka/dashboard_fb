@@ -55,8 +55,6 @@ df_valor_liquido = GET_VALOR_LIQUIDO_RECEBIDO()                 # valor liquido 
 df_projecao_zig = GET_PROJECAO_ZIG()                            # projecao faturamento da zig de cada casa para a semana
 df_receitas_extraord_proj = GET_RECEITAS_EXTRAORD_FLUXO_CAIXA() # receit. extr. lançadas de cada casa para duas semanas
 df_receitas_eventos_proj = GET_EVENTOS_FLUXO_CAIXA()            # eventos lançados de cada casa para duas semanas
-# df_despesas_aprovadas = GET_DESPESAS_APROVADAS()              # despesas aprovadas e pendentes de pagamento
-# df_despesas_pagas = GET_DESPESAS_PAGAS()                      # despesas pagas no período
 
 df_despesas_aprovadas_previstas_pendentes = GET_DESPESAS_PENDENTES() # despesas pendentes (aprovadas ou não)
 df_despesas_pagas_previstas_pendentes = GET_DESPESAS_PAGAS()         # despesas pagas (aprovadas ou não)
