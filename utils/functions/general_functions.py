@@ -322,7 +322,8 @@ def mostrar_menu_permissoes_auditoria(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Auditoria")
         st.sidebar.page_link("pages/Auditoria - Descontos.py", label=":material/list: Categorização - Descontos")
-        
+        st.sidebar.page_link("pages/Auditoria - Promoções.py", label=":material/list: Formatar - Promoções")
+
 
 def mostrar_menu_permissoes_controladoria(permissoes):
     if 'Dev Dash FB' in permissoes:
