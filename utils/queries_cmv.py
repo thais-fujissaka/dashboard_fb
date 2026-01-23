@@ -369,11 +369,11 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO():
       tdr.BIT_CANCELADA = 0
       AND tdr.FK_DESPESA_TEKNISA IS NULL
       AND tccg.ID IN (162, 205, 236)
-      # AND NOT EXISTS (
-      #   SELECT 1
-      #   FROM T_DESPESA_RAPIDA_ITEM tdri
-      #   WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID
-      # )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM T_DESPESA_RAPIDA_ITEM tdri
+        WHERE tdri.FK_DESPESA_RAPIDA = tdr.ID
+      )
     GROUP BY
       te.ID,
       te.NOME_FANTASIA,
@@ -476,7 +476,15 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio,
     WHERE
       q.Primeiro_Dia_Mes >= '{data_inicio}'
       AND q.Primeiro_Dia_Mes <= '{data_fim}'
-      AND q.Loja = '{loja}'
+      AND (
+        CASE 
+          WHEN q.Loja = 'Girondino ' THEN 'Girondino - Agregado'
+          WHEN q.Loja = 'Girondino - CCBB' THEN 'Girondino - Agregado'
+          WHEN q.Loja = 'Blue Note - São Paulo' THEN 'Blue Note - Agregado'
+          WHEN q.Loja = 'Blue Note SP (Novo)' THEN 'Blue Note - Agregado'
+          ELSE q.Loja
+        END
+		) =  '{loja}'
     GROUP BY
       q.ID_Loja,
       q.Loja,
