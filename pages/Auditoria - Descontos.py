@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.functions.general_functions import config_sidebar
 from utils.queries_conciliacao import GET_CASAS
-from utils.components import button_download
+from utils.components import button_download, seletor_mes, seletor_ano
 
 
 # --- PATCH para ignorar cores inválidas no openpyxl ---
@@ -37,19 +37,30 @@ config_sidebar()
 st.title(":material/list: Categorização - Descontos")
 st.divider()
 
-# Seletor de casa
+# Seletores de casa e data
 df_casas = GET_CASAS()
-casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Terraço Notiê', 'The Cavern']
-casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
 
-# Recupera id da casa
-mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-if casa != 'BNSP' and casa != 'Terraço Notiê':
-    id_casa = mapeamento_casas[casa]
-elif casa == 'Terraço Notiê':
-    id_casa = 162
-elif casa == 'BNSP':
-    id_casa = 131
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    # casas = df_casas['Casa'].tolist()
+    casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Terraço Notiê', 'The Cavern']
+    casa = st.selectbox("Selecione a casa correspondente ao arquivo de Descontos:", casas)
+    
+    # Recupera id da casa
+    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
+    if casa != 'BNSP' and casa != 'Terraço Notiê':
+        id_casa = mapeamento_casas[casa]
+    elif casa == 'Terraço Notiê':
+        id_casa = 162
+    elif casa == 'BNSP':
+        id_casa = 131
+
+with col2:
+    mes = seletor_mes("Selecione o mês correspondente ao arquivo de Descontos:", key="seletor_mes_descontos_dre")
+    
+with col3:
+    ano = seletor_ano(2025, 2026, 'ano', 'Selecione o ano correspondente ao arquivo de Descontos:')
 
 st.divider()
 
@@ -285,12 +296,15 @@ else:
     # Adiciona coluna da casa para download
     df_download['ID_Casa'] = id_casa 
 
-    # Resgata mes e ano dos dados para nomear excel
-    df_download['Mes_Ano'] = df_download['Data'].dt.strftime("%m%Y")
-    mes_ano = df_download['Mes_Ano'].unique().tolist()
-    mes_ano = mes_ano[0]
-    
-    df_download = df_download[['ID_Casa', 'Funcionário', 'Data', 'Clientes', 'Justificativa', 'Categoria', 'Produtos', 'Porcentagem', 'Desconto']]
+    # Cria coluna com primeiro dia do mês dos descontos
+    df_download['Primeiro_Dia_Mes'] = pd.Timestamp(
+        year=int(ano),
+        month=int(mes),
+        day=1
+    )
+
+    # Organiza colunas
+    df_download = df_download[['ID_Casa', 'Funcionário', 'Data', 'Clientes', 'Justificativa', 'Categoria', 'Produtos', 'Porcentagem', 'Desconto', 'Primeiro_Dia_Mes']]
     df_download = df_download.rename(columns={
         'ID_Casa': 'FK_CASA', 
         'Funcionário': 'FUNCIONARIO',
@@ -300,7 +314,8 @@ else:
         'Categoria': 'CATEGORIA',
         'Produtos': 'PRODUTOS',
         'Porcentagem': 'PORCENTAGEM',
-        'Desconto': 'DESCONTO'
+        'Desconto': 'DESCONTO',
+        'Primeiro_Dia_Mes': 'PRIMEIRO_DIA_MES'
     })
     
     # Mostra o resultado
@@ -308,7 +323,7 @@ else:
     with col1:
         st.subheader('Descontos categorizados') 
     with col2:
-        button_download(df_download, f"{casa} - {mes_ano}", f"Descontos - {casa}")
+        button_download(df_download, f"{casa} - {mes}{ano}", f"Descontos - {casa}")
 
     st.info('Atenção para as células com categoria vazia, caso haja.')
     st.dataframe(df_categorizado, hide_index=True)
