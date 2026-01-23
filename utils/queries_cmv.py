@@ -670,7 +670,13 @@ def GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja):
     SELECT
       tdr.ID AS tdr_ID,
       te.ID AS ID_Loja,
-      te.NOME_FANTASIA AS Loja,
+      CASE 
+      	WHEN te.NOME_FANTASIA = 'Girondino ' THEN 'Girondino - Agregado'
+      	WHEN te.NOME_FANTASIA = 'Girondino - CCBB' THEN 'Girondino - Agregado'
+      	WHEN te.NOME_FANTASIA = 'Blue Note - São Paulo' THEN 'Blue Note - Agregado'
+      	WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - Agregado'
+      	ELSE te.NOME_FANTASIA
+      END AS `Loja`,
       tf.CORPORATE_NAME AS Fornecedor,
       tdr.NF AS Doc_Serie,
       tdr.COMPETENCIA AS Data_Emissao,
@@ -748,7 +754,15 @@ def GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja):
         ON tin2.FK_INSUMOS_NIVEL_1 = tin1.ID
     WHERE
       DATE(tdr.COMPETENCIA) BETWEEN DATE('{data_inicio}') AND DATE('{data_fim}')
-      AND te.NOME_FANTASIA = '{loja}'
+      AND (
+        CASE 
+          WHEN te.NOME_FANTASIA = 'Girondino ' THEN 'Girondino - Agregado'
+          WHEN te.NOME_FANTASIA = 'Girondino - CCBB' THEN 'Girondino - Agregado'
+          WHEN te.NOME_FANTASIA = 'Blue Note - São Paulo' THEN 'Blue Note - Agregado'
+          WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - Agregado'
+          ELSE te.NOME_FANTASIA
+        END
+		  ) = '{loja}'
       AND tdri.ID IS NOT NULL
       AND te.ID <> 135
       AND tdr.BIT_CANCELADA = 0
