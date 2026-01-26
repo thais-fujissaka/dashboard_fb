@@ -132,15 +132,18 @@ def config_compras(data_inicio, data_fim, loja):
   df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
   df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio, data_fim, loja)
 
+  df1 = substituicao_ids(df1, 'Loja', 'ID_Loja')
+  df2 = substituicao_ids(df2, 'Loja', 'ID_Loja')
+
   df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
 
-  df_compras = substituicao_ids(df_compras, 'Loja', 'ID_Loja')
-  df_compras = df_compras[df_compras['Loja'] == loja]
+  df_compras = df_compras[df_compras['Loja'] == loja]  
   df_compras = df_compras.groupby(['ID_Loja', 'Loja', 'Primeiro_Dia_Mes']).agg(
     {'BlueMe_Sem_Pedido_Alimentos': 'sum', 
      'BlueMe_Sem_Pedido_Bebidas': 'sum', 
      'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'sum', 
-     'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum'}).reset_index()
+     'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum',
+    }).reset_index()
 
   df_compras = filtrar_por_datas(df_compras, data_inicio, data_fim, 'Primeiro_Dia_Mes')
 
@@ -154,7 +157,13 @@ def config_compras(data_inicio, data_fim, loja):
 
   df_compras['Compras Alimentos'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'] + df_compras['BlueMe_Sem_Pedido_Alimentos']
   df_compras['Compras Bebidas'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'] + df_compras['BlueMe_Sem_Pedido_Bebidas']
-  df_compras = df_compras.rename(columns={'Primeiro_Dia_Mes': 'Mes Ano', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas', 'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.', 'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'})
+  df_compras = df_compras.rename(columns={
+    'Primeiro_Dia_Mes': 'Mes Ano', 
+    'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.',
+    'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas',
+    'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.',
+    'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'
+  })
 
   df_compras = df_compras[['ID_Loja', 'Loja', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
 
@@ -162,9 +171,10 @@ def config_compras(data_inicio, data_fim, loja):
   df_compras = df_compras.groupby(['ID_Loja', 'Loja'], as_index=False)[['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']].sum()
   
   columns = ['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']
+  df_compras_download = df_compras.copy()
   df_compras = format_columns_brazilian(df_compras, columns)
   
-  return df_compras, Compras_Alimentos, Compras_Bebidas
+  return df_compras, Compras_Alimentos, Compras_Bebidas, df_compras_download
 
 
 

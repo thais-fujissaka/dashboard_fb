@@ -105,7 +105,7 @@ data_fim_mes_anterior = data_inicio.replace(day=1) - timedelta(days=1)
 
 df_faturamento_delivery, df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_alimentos_delivery, faturamento_bebidas_delivery = config_faturamento_bruto_zig(data_inicio, data_fim, lojas_selecionadas)
 df_faturamento_eventos, faturamento_alimentos_eventos, faturamento_bebidas_eventos = config_faturamento_eventos(data_inicio, data_fim, lojas_selecionadas, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
-df_compras, compras_alimentos, compras_bebidas = config_compras(data_inicio, data_fim, lojas_selecionadas)
+df_compras, compras_alimentos, compras_bebidas, df_compras_download = config_compras(data_inicio, data_fim, lojas_selecionadas)
 df_valoracao_estoque_atual = config_valoracao_estoque(data_inicio, data_fim, lojas_selecionadas)
 df_valoracao_estoque_mes_anterior = config_valoracao_estoque(data_inicio_mes_anterior, data_fim_mes_anterior, lojas_selecionadas)
 df_diferenca_estoque = config_diferenca_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior)
@@ -339,7 +339,11 @@ st.dataframe(df_cmv_dre_styled, height=altura_cmv_dre, hide_index=True, width='s
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
-    st.subheader('Compras')
+    col1, col2 = st.columns([6, 1], vertical_alignment="center")
+    with col1:
+      st.subheader('Compras')
+    with col2:
+      button_download(df_compras_download, f'compras_{lojas_selecionadas}', f'compras_{lojas_selecionadas}')
     st.dataframe(df_compras, hide_index=True)
     classificacoes = obter_valores_unicos_ordenados(df_insumos_sem_pedido, 'Classificacao')
     fornecedores_com_pedido = obter_valores_unicos_ordenados(df_insumos_com_pedido, 'Fornecedor') 
