@@ -102,25 +102,25 @@ else:
        'Data': 'DATA' 
     })
 
-    # Cria coluna que de categoria 'Eventos'
-    df_formatado["CATEGORIA"] = np.where(
-        (~df_formatado["PROMOCAO"].isin([ # Para o que não está nessas categorias
-            '30% ESHOWS - RG', '30% ESHOWS - CPF', 
-            '30% DIVERTI - CPF', 
-            '30% FÁBRICA DE BARES - CPF', '30% FÁBRICA DE BARES - RG', 
-            'CARTÃO BLACK - ESHOWS, ESTAFF, FABLAB', 'CARTÃO BLACK - FB', 
-            'LUCIANO PERES - SÓCIO ',
-            '10% CONVENIADOS - CPF'
-        ])), 
-        'Eventos',  # categoriza como 'Eventos'
-        None        # senão, Null
-    )
+    # Cria coluna que de categoria 'Eventos' - Stand by
+    # df_formatado["CATEGORIA"] = np.where(
+    #     (~df_formatado["PROMOCAO"].isin([ # Para o que não está nessas categorias
+    #         '30% ESHOWS - RG', '30% ESHOWS - CPF', 
+    #         '30% DIVERTI - CPF', 
+    #         '30% FÁBRICA DE BARES - CPF', '30% FÁBRICA DE BARES - RG', 
+    #         'CARTÃO BLACK - ESHOWS, ESTAFF, FABLAB', 'CARTÃO BLACK - FB', 
+    #         'LUCIANO PERES - SÓCIO ',
+    #         '10% CONVENIADOS - CPF'
+    #     ])), 
+    #     'Eventos',  # categoriza como 'Eventos'
+    #     None        # senão, Null
+    # )
 
     # Reordena colunas
-    df_formatado = df_formatado[['FK_CASA', 'DATA', 'PRODUTO', 'PROMOCAO', 'CATEGORIA_PRODUTO', 'QUANTIDADE_USOS', 'DESCONTO_TOTAL', 'CATEGORIA']]
+    df_formatado = df_formatado[['FK_CASA', 'DATA', 'PRODUTO', 'PROMOCAO', 'CATEGORIA_PRODUTO', 'QUANTIDADE_USOS', 'DESCONTO_TOTAL']]
 
     # Mostra o resultado
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2, vertical_alignment='center')
     with col1:
         st.subheader('Tabela formatada')
         st.write('Tabela adequada para inputar os dados no EPM.')
