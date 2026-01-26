@@ -21,7 +21,7 @@ RGB.__set__ = __rgb_set_fixed__
 
 
 st.set_page_config(
-    page_title="Categorização de descontos",
+    page_title="Categorização - Descontos",
     page_icon=":material/list:",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -57,7 +57,7 @@ with col1:
         id_casa = 131
 
 with col2:
-    mes = seletor_mes("Selecione o mês correspondente ao arquivo de Descontos:", key="seletor_mes_descontos_dre")
+    mes = seletor_mes("Selecione o mês correspondente ao arquivo de Descontos:", key="seletor_mes_descontos_zig")
     
 with col3:
     ano = seletor_ano(2025, 2026, 'ano', 'Selecione o ano correspondente ao arquivo de Descontos:')
