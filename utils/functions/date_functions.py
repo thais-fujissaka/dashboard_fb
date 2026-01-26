@@ -7,6 +7,9 @@ from workalendar.america import Brazil
 def get_today():
     return datetime.datetime.now()
 
+def get_this_year():
+    return datetime.datetime.now().year
+
 def get_last_year(today):
     return today.year - 1
 
