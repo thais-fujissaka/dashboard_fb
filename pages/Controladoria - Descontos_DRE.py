@@ -11,7 +11,7 @@ pd.set_option('future.no_silent_downcasting', True)
 
 
 st.set_page_config(
-    page_title="Descontos DRE",
+    page_title="Descontos - DRE",
     page_icon=":material/percent_discount:",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -24,15 +24,18 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/percent_discount: Descontos DRE")
+st.title(":material/percent_discount: Descontos - DRE")
 st.divider()
 
-# Define variáveis importantes
+# Recupera dados
 df_casas = GET_CASAS()
 df_descontos = GET_DESCONTOS()
+df_promocoes = GET_PROMOCOES()
+
+# Define variáveis importantes
 id_casa = None
 nome_casa = None
-CMV = 0.29
+CMV = 0.29 # Valor estimado
 DEDUCAO_FAT_ALIM = 0.43
 DEDUCAO_FAT_BEB = 0.57
 
@@ -44,7 +47,8 @@ with col1:
     casas = ['Todas as casas', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Terraço Notiê', 'The Cavern']
     casa = st.selectbox("Selecione uma casa:", casas)
     if casa == 'Todas as casas':
-        nome_casa = Noneid_casa = None
+        nome_casa = None
+        id_casa = None
     else:
         if casa == 'BNSP':
             nome_casa = 'Blue Note SP (Novo)'
@@ -63,20 +67,14 @@ with col3:
 
 st.divider()
 
-df_descontos_filtrado = df_descontos[
-    (df_descontos['DATA'].dt.month == int(mes)) &
-    (df_descontos['DATA'].dt.year == ano)
-].copy()
+# Filtra pelo mês, ano e casa selecionados
+df_descontos_filtrado, df_promocoes_filtrado = filtra_df(df_descontos, df_promocoes, mes, ano, id_casa)
 
-# Se selecionou uma casa específica, filtra
-if id_casa is not None:
-    df_descontos_filtrado = df_descontos_filtrado[
-        df_descontos_filtrado['FK_CASA'] == id_casa
-    ]
+# Concatena descontos e promoções 
+df_descontos_mes, df_promocoes_mes, df_concatenado = prepara_consolidado(df_descontos_filtrado, df_promocoes_filtrado)
 
-df_descontos_filtrado['Mês'] = df_descontos_filtrado['DATA'].dt.month
-df_categorias_mes = df_descontos_filtrado.groupby(['FK_CASA', 'Mês', 'CATEGORIA'], as_index=False)['DESCONTO'].sum()
-df_categorias_mes['CMV'] = CMV
+df_categorias_mes = df_concatenado.copy()
+df_categorias_mes['CMV'] = CMV # Cria coluna com valor de CMV
 
 # Calcula 'Aloca no Centro de Custo' par todas as categorias (menos EVENTOS)
 df_categorias_mes['DESCONTO'] = df_categorias_mes['DESCONTO'].astype(float)
@@ -98,13 +96,46 @@ if not df_categorias_mes.empty:
     )   
 
     # Calcula Dedução de A&B para EVENTOS
+    if casa == 'Orfeu': # Mudança para caso do Orfeu
+        DEDUCAO_FAT_ALIM = 0.57
+        DEDUCAO_FAT_BEB = 0.43
+    
     condicao = df_categorias_mes_centro_custo['CATEGORIA'].isin(['EVENTO', 'EVENTOS'])
-    df_categorias_mes_centro_custo.loc[condicao, 'Dedução  Faturamento - Alimento'] = df_categorias_mes_centro_custo['DESCONTO'] * DEDUCAO_FAT_ALIM
-    df_categorias_mes_centro_custo.loc[condicao, 'Dedução  Faturamento - Bebida'] = df_categorias_mes_centro_custo['DESCONTO'] * DEDUCAO_FAT_BEB
+    df_categorias_mes_centro_custo.loc[condicao, 'Dedução Faturamento - Alimento'] = df_categorias_mes_centro_custo['DESCONTO'] * DEDUCAO_FAT_ALIM
+    df_categorias_mes_centro_custo.loc[condicao, 'Dedução Faturamento - Bebida'] = df_categorias_mes_centro_custo['DESCONTO'] * DEDUCAO_FAT_BEB
 
     # Mapeamento - Descontos - DRE
     df_categorias_mes_descontos_dre = mapeamento_descontos_dre(casa, df_categorias_mes_centro_custo)
 
+    # Formata para download
+    df_download = df_categorias_mes_descontos_dre.copy()
+    df_download = df_download.rename(columns={
+        'DESCONTO': 'TOTAL_DESCONTO',
+        'Aloca no Centro de Custo': 'ALOCA_CENTRO_CUSTO',
+        'Centro de Custo': 'CENTRO_CUSTO',
+        'Permanece no Desconto': 'PERMANECE_DESCONTO',
+        'Dedução Faturamento - Alimento': 'DEDUCAO_FATURAMENTO_ALIM',
+        'Dedução Faturamento - Bebida': 'DEDUCAO_FATURAMENTO_BEB',
+        'Descontos - DRE': 'DESCONTOS_DRE'
+    })
+    df_download = df_download[['FK_CASA', 'DATA', 'CATEGORIA', 'TOTAL_DESCONTO', 'CMV', 'ALOCA_CENTRO_CUSTO', 'CENTRO_CUSTO', 'PERMANECE_DESCONTO', 'DEDUCAO_FATURAMENTO_ALIM', 'DEDUCAO_FATURAMENTO_BEB', 'DESCONTOS_DRE']]
 
+    # Exibe tebala resultante
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader('Tabela formatada')
+    with col2:
+        button_download(df_download, f"{casa} - {mes}{ano}", f"Descontos - {casa}")
+    
+    df_categorias_mes_descontos_dre = df_categorias_mes_descontos_dre.rename(columns={
+        'FK_CASA': 'ID Casa',
+        'CATEGORIA': 'Categoria',
+        'DESCONTO': 'Total Desconto',
+        'DATA': 'Data'
+    })
+    df_categorias_mes_descontos_dre = df_categorias_mes_descontos_dre[['ID Casa', 'Data', 'Categoria', 'Total Desconto', 'CMV', 'Aloca no Centro de Custo', 'Centro de Custo', 'Permanece no Desconto', 'Dedução Faturamento - Alimento', 'Dedução Faturamento - Bebida', 'Descontos - DRE']]
+    st.dataframe(df_categorias_mes_descontos_dre, hide_index=True)
 
-st.dataframe(df_categorias_mes_descontos_dre, hide_index=True)
+else:
+    st.info('Nada a ser exibido para a data selecionada.')
+    
