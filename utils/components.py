@@ -94,7 +94,6 @@ def input_periodo_datas(key, label='Período'):
     # Inicializa o input com o mês atual
     date_input = st.date_input(label,
                             value=(first_day_this_month_this_year, last_day_this_month_this_year),
-                            min_value=jan_this_year,
                             format="DD/MM/YYYY",
                             key=key
                             )
