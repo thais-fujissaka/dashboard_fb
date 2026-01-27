@@ -170,10 +170,14 @@ def filtra_categoria_despesas(df_despesas_aprovadas_previstas, seletor_status_de
 def filtra_detalhes_despesas(seletor_status_despesa, despesas_pendentes_pagas, data_inicio, data_fim):
   # Filtra de acordo com o seletor (aprovadas/previstas)
     if seletor_status_despesa == 'Apenas Aprovadas':
-        df_despesas_pendentes_pagas = despesas_pendentes_pagas[despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 101].copy()
+        df_despesas_pendentes_pagas = despesas_pendentes_pagas[
+          (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 101) |
+          (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 103)
+        ].copy()
     else:
         df_despesas_pendentes_pagas = despesas_pendentes_pagas[
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 101) |
+            (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 103) |
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'] == 100) |
             (despesas_pendentes_pagas['FK_Aprovacao_Diretoria'].isna())
         ].copy()
