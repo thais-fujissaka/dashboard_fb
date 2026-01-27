@@ -7,8 +7,6 @@ from utils.functions.ajustes import *
 from utils.queries_conciliacao import *
 
 
-# casas_validas = [c for c in casas_validas if c != "All bar"]
-
 st.set_page_config(
   page_title="Conciliação FB - Ajustes",
   page_icon=":material/instant_mix:",

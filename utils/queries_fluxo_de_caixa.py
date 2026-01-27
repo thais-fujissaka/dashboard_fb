@@ -4,6 +4,16 @@ from utils.functions.general_functions import dataframe_query
 #################################### PROJEÇÃO ########################################
 
 @st.cache_data
+def GET_BARES_AGRUPADOS():
+  return dataframe_query(f"""
+SELECT te.NOME_FANTASIA AS 'Empresa'
+FROM T_BARES_AGRUPADOS AS tbg 
+LEFT JOIN T_EMPRESAS AS te ON (te.ID = tbg.FK_EMPRESA) 
+ORDER BY te.NOME_FANTASIA                                                                       
+""")
+
+
+@st.cache_data
 def GET_SALDOS_BANCARIOS():
   return dataframe_query(f"""
 SELECT * FROM View_Saldos_Bancarios

@@ -3,7 +3,7 @@ import pandas as pd
 from utils.queries_fluxo_de_caixa import *
 from utils.functions.general_functions import *
 from utils.functions.fluxo_de_caixa_projecao import *
-from utils.constants.general_constants import lojasAgrupadas
+# from utils.constants.general_constants import lojasAgrupadas
 from datetime import datetime
 from utils.user import logout
 from utils.components import button_download
@@ -42,9 +42,10 @@ st.divider()
 
 
 # Bares exibidos nos seletores
+df_bares_agrupados = GET_BARES_AGRUPADOS()
+lojasAgrupadas = df_bares_agrupados['Empresa'].tolist()
+
 lojasComDados = preparar_dados_lojas_user_projecao_fluxo() 
-lojas_retirar = ['Colorado Aeroporto BSB', 'Duroc ', 'Filial', 'Hbar participacoes e empreendimentos ']
-lojasComDados = [loja for loja in lojasComDados if loja not in lojas_retirar]
 lojasComDados = ['Todas as casas'] + lojasComDados
 
 # Recuperando dados
