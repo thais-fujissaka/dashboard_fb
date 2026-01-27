@@ -35,6 +35,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 
 st.title(":material/list: Categorização - Descontos")
+st.write('Aba que categoriza e formata planilhas de Descontos ZigPay para inserção automática no EPM.')
 st.divider()
 
 # Seletores de casa e data

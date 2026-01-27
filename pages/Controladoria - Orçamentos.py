@@ -47,6 +47,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 
 st.title(":material/list: Subir Orçamentos")
+st.write('Aba que formata a planilha de Orçamento Operacional anual para inserção automática no EPM.')
 st.divider()
 
 # Seletor de casa e ano

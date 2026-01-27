@@ -36,6 +36,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 
 st.title(":material/list: Formatar - Promoções")
+st.write('Aba que formata a planilha de Promoções ZigPay para inserção automática no EPM.')
 st.divider()
 
 # Seletores de casa e data
