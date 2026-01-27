@@ -43,7 +43,7 @@ st.divider()
 
 # Bares exibidos nos seletores
 lojasComDados = preparar_dados_lojas_user_projecao_fluxo() 
-lojas_retirar = ['Bar Brasilia -  Aeroporto', 'Colorado Aeroporto BSB', 'Duroc ', 'Filial', 'Hbar participacoes e empreendimentos ']
+lojas_retirar = ['Colorado Aeroporto BSB', 'Duroc ', 'Filial', 'Hbar participacoes e empreendimentos ']
 lojasComDados = [loja for loja in lojasComDados if loja not in lojas_retirar]
 lojasComDados = ['Todas as casas'] + lojasComDados
 
@@ -84,7 +84,7 @@ with st.container(border=True):
     
     st.markdown(
     """*All bar, Bar Brahma - Centro, Bar Brahma - Granja, Bar Brahma Aeroclube, Bar Brahma Paulista, Bar Brasília - Aeroporto, 
-    Bar Léo - Centro, Bar Léo - Vila Madalena, Bardassê, Brahma - Ribeirão, Brahma Aricanduva, Brahma Ribeirão, 
+    Bar Léo - Centro, Bar Léo - Vila Madalena, Bardassê, Brahma - Ribeirão, Brahma Aricanduva,
     Delivery Bar Léo Centro, Delivery Fábrica de Bares, Delivery Orfeu, Edifício Rolim, Escritório Fábrica de Bares, 
     FDB DIGITAL PARTICIPACOES LTDA, FDB HOLDING INFERIOR LTDA, FDB HOLDING SUPERIOR LTDA, Girondino, Girondino - CCBB, 
     Hotel Marabá, Ilha das Flores, Jacaré, Lojinha - Brahma, Navarro, Notiê - Priceless, Orfeu, Patizal, Priceless, 
