@@ -5,6 +5,17 @@ from utils.constants.general_constants import casas_validas
 
 
 @st.cache_data
+def GET_CASAS_SIMPLES():
+    df_casas = dataframe_query('''
+      SELECT 
+        te.ID AS 'ID_Casa',
+        te.NOME_FANTASIA AS 'Casa'
+        FROM T_EMPRESAS te                       
+      ''')
+    return df_casas
+
+
+@st.cache_data
 def GET_DESCONTOS():
   df_descontos = dataframe_query('''
     SELECT 

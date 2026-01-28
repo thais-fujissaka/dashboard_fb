@@ -5,10 +5,9 @@ def mapeamento_centro_custo(casa, df):
     regras_centro_custo = {
         'CONSUMO GERÊNCIA|CONSUMO GERENCIA|DESCONTO FUNCIONÁRIOS 30%|CONSUMO GERENCIAL|COLABORADOR 30%|COLABORADORES \(30%\)|COLABORADOR \(30%\)|REUNIÃO - EVENTOS|COLABORADORES 30%|REUNIÃO - COMPRAS': '  -  Alimentação Funcionário',
         'MÚSICOS|REUNIÃO - ARTÍSTICO|TÉCNICO DE SOM|ARTÍSTICO': 'Alimentação e Transporte',
-        'REUNIÃO - MKT|REUNIÃO - MARKETING|MARKETING|\[Ação de Marketing\]|PERMUTA|\[Promoção\]': 'Eventos de Marketing',
-        # '[Promoção] - Jantar Love Cabaret': 'Eventos de Marketing', # Love
+        'REUNIÃO - MKT|REUNIÃO - MARKETING|MARKETING|\[Ação de Marketing\] - Captação|\[Ação de Marketing\] - Influencer|PERMUTA': 'Eventos de Marketing', # Não considero [Ação de Marketing]
         'REUNIÃO - TI|REUNIÃO - T.I.': 'Sistemas Gerais - Operacionais',
-        'CONTROLE DE EVENTOS|\[Evento\]': 'FATURAMENTO',
+        'CONTROLE DE EVENTOS': 'FATURAMENTO', # Não considero [Evento]
         'PROMOÇÃO': 'Ferramentas de Marketing',
         'FOTOS E VIDEOS MKT': 'Produção Gráfica e Material Institucional',
         'INFLUENCER|INFLUENCERS|\[Ação de Marketing\] - Influencers Delivery': 'Influenciadores', # Granja
@@ -27,6 +26,9 @@ def mapeamento_centro_custo(casa, df):
     if casa in ['Riviera Bar']:
         regras_centro_custo['\[Ação de Marketing\] - Captação'] = ('Produção Gráfica e Material Institucional')
 
+    if casa in ['Orfeu']:
+        regras_centro_custo['\[Ação de Marketing\] - Captação'] = None
+
     df_categorias_mes_centro_custo = df.copy()
     
     for padrao, categoria in regras_centro_custo.items(): # Mapeamento - Centro de Custo
@@ -41,7 +43,7 @@ def mapeamento_descontos_dre(casa, df):
         'COTA|OPERAÇÕES|REUNIÃO|MÚSICOS|REUNIÃO - ARTÍSTICO|REUNIÃO - TI|OUTROS|CLIENTE - DUO GOURMET|ASSINADA SÓCIOS E DIRETOR|ASSINADA SÓCIO FACUNDO|CORTESIA|CONVÊNIO|REUNIÃO - SUPRIMENTOS|RETIRADA / REDUÇÃO DE SERVIÇO|TREINAMENTO|LUCIANO PERES - SOCIO|LUCIANO PERES - SÓCIO|REUNIÃO - FABLAB|TESTE|TÉCNICO DE SOM|POLÍCIA|REUNIÃO - OPERAÇÕES|SEM JUSTIFICATIVA|PROMOÇÕES|OPERACIONAL|SERVIÇO|PERMUTA|OUTRO|REUNIÃO - OPERACIONAL|CONTA ASSINADA|10% LOJISTAS - CPF|10% CONVENIADOS - CPF|PROMOO': 'Descontos - Operação',
         'CONSUMO GERÊNCIA|CONSUMO GERENCIAL|DESCONTO FUNCIONÁRIO|CONSUMO COLABORADOR|COLABORADOR 30%|COLABORADORES \(30%\)|COLABORADOR \(30%\)|REUNIÃO - EVENTOS|COLABORADORES 30%|REUNIÃO - COMPRAS|30% FÁBRICA DE BARES|CARTÃO BLACK - ESHOWS, ESTAFF, FABLAB|CARTÃO BLACK - FB|30% FUNCIONÁRIOS FB|30% ESHOWS - CPF|30% ESHOWS - RG|30% DIVERTI - CPF|DIVERT 30%|30% FB - ORFEU|CONTA ASSINADA - FDB|CONTA ASSINADA - FACUNDO|REUNIÃO - EVENTOS|REUNIÃO - COMPRAS|30% FB - ORFEU': 'Desconto - Alimentação Escritório',
         'REUNIÃO - MKT|REUNIÃO - MARKETING|MARKETING|PROMOÇÃO|FOTOS E VIDEOS MKT|INFLUENCER|\[Ação de Marketing\]': 'Descontos - Marketing',
-        '\[Evento\]|PACOTE': 'Faturamento de Eventos - Promoções Utilizadas',
+        '\[Event\]|\[Evento\]|PACOTE': 'Faturamento de Eventos - Promoções Utilizadas',
         '\[Evento\] - Confraternização FB': 'Descontos - Promoções Utilizadas' # Bar Léo
     }
 
@@ -76,15 +78,15 @@ def mapeamento_descontos_dre(casa, df):
         regras_descontos_dre['30% DIVERTI - CPF|10% CONVENIADOS GRUPO ENJOEI'] = ('Descontos - Operação')
 
     if casa in ['Terraço Notiê']:
-        regras_descontos_dre['CONVÊNIO|CLIENTE MASTERCARD|CARTAO MASTER 10%|COTA|Descontos - Marketing|[Reunião] - Eventos'] = ('Desconto - Marketing')
-        regras_descontos_dre['CLIENTE - BEM SP|FUNCIONÁRIOS MASTERCARD|30% TERRAÇO NOTIÊ|[Convênio] - 50% BEM SP|[Convênio] - 30% BEM SP|CLIENTE - MASTECARD|COTA - MASTERCARD|[Cota] - MASTERCARD|Descontos - Operação|[Convidados] - Karina Mota|CONTA ASSINADA'] = ('Descontos - Operação')
+        regras_descontos_dre['CONVÊNIO|CLIENTE MASTERCARD|CARTAO MASTER 10%|COTA|Descontos - Marketing|\[Reunião\] - Eventos|\[Reunião\] - Marketing'] = ('Desconto - Marketing')
+        regras_descontos_dre['CLIENTE - BEM SP|FUNCIONÁRIOS MASTERCARD|30% TERRAÇO NOTIÊ|\[Convênio\] - 50% BEM SP|\[Convênio\] - 30% BEM SP|CLIENTE - MASTECARD|COTA - MASTERCARD|\[Cota\] - MASTERCARD|Descontos - Operação|\[Convidados\] - Karina Mota|CONTA ASSINADA|\[BemSP\]'] = ('Descontos - Operação')
         regras_descontos_dre['REUNIÃO - AUDITORIA|REUNIÃO - T.I.'] = ('Desconto - Alimentação Escritório')
         regras_descontos_dre['EVENTO|\[Evento\]|PRO_240874 Bem SP-Itau 100 anos'] = ('Faturamento Eventos - Promoções Utilizadas')
 
     if casa in ['Riviera Bar']:
         regras_descontos_dre['CONTA ASSINANDA - CAIRÊ'] = ('Desconto - Alimentação Escritório')
         regras_descontos_dre['30% DIVERTI - CPF|30% FÁBRICA DE BARES'] = ('Desconto - Operação')
-        # regras_descontos_dre['\[Evento\]'] = ('Faturamento Eventos - Promoções Utilizadas')
+        regras_descontos_dre['\[Evento\]'] = ('Faturamento Eventos - Promoções Utilizadas')
 
     df_categorias_mes_descontos_dre = df.copy()
     

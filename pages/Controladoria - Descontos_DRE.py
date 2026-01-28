@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from utils.functions.general_functions import config_sidebar
 from utils.functions.controladoria_descontos_dre import *
-from utils.queries_conciliacao import GET_CASAS
 from utils.queries_descontos_dre import *
 from utils.components import button_download, seletor_ano, seletor_mes
 
@@ -28,7 +27,7 @@ st.title(":material/percent_discount: Descontos - DRE")
 st.divider()
 
 # Recupera dados
-df_casas = GET_CASAS()
+df_casas = GET_CASAS_SIMPLES()
 df_descontos = GET_DESCONTOS()
 df_promocoes = GET_PROMOCOES()
 
@@ -52,6 +51,8 @@ with col1:
     else:
         if casa == 'BNSP':
             nome_casa = 'Blue Note SP (Novo)'
+        elif casa == 'Terraço Notiê':
+            nome_casa = 'Terraço Notie'
         else:
             nome_casa = casa
 
