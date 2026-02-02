@@ -335,7 +335,8 @@ def mostrar_menu_permissoes_controladoria(permissoes):
     if 'Dev Dash FB' in permissoes:
         st.sidebar.markdown("## Controladoria")
         st.sidebar.page_link("pages/Controladoria - Orçamentos.py", label=":material/list: Subir Orçamentos")
-        
+        st.sidebar.page_link("pages/Controladoria - Descontos_DRE.py", label=":material/percent_discount: Descontos - DRE")
+
 
 def config_sidebar():
 
