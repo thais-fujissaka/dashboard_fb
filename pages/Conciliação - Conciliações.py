@@ -32,17 +32,18 @@ st.divider()
 # Recuperando dados
 df_casas = GET_CASAS()
 
-# Filtrando Datas
+# Calculando Datas
 datas = calcular_datas()
-
+min_data = datetime.date(2024, 1, 1)
+max_data = datetime.date(datas['ano_atual'] + 1, 12, 31)
 
 # Campos de seleção de data
 col1, col2 = st.columns(2)
 
 with col1:
-    d_inicial = st.date_input("Data de início", value=datas['jan_ano_atual'], min_value=datas['jan_ano_passado'], max_value=datas['dez_ano_atual'], format="DD/MM/YYYY")
+    d_inicial = st.date_input("Data de início", value=datas['jan_ano_atual'], min_value=min_data, max_value=max_data, format="DD/MM/YYYY")
 with col2:
-    d_final = st.date_input("Data de fim", value=datas['fim_mes_atual'], min_value=datas['jan_ano_passado'], max_value=datas['dez_ano_atual'], format="DD/MM/YYYY")
+    d_final = st.date_input("Data de fim", value=datas['dez_ano_atual'], min_value=min_data, max_value=max_data, format="DD/MM/YYYY")
 
 # Convertendo as datas dos inputs para datetime
 start_date = pd.to_datetime(d_inicial)

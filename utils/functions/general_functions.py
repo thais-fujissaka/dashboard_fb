@@ -134,6 +134,12 @@ def GET_LOJAS():
     te.ID as 'ID_Loja',
     te.NOME_FANTASIA as 'Loja'
     FROM T_EMPRESAS te
+    WHERE te.NOME_FANTASIA IS NOT NULL 
+    AND te.NOME_FANTASIA NOT IN ('Brahminha', 'Cine Joia', 'Colorado Aeroporto BSB', 'Duroc ', 
+                         'Eshows', 'Espaces', 'Estaff', 'FabLab', 'Filial', 
+                         'Hbar participacoes e empreendimentos ', 'Rappi e iFood - Delivery FB', 
+                         'Tempus - BTG', 'SIlo participacao ', 'Stella Artois Aeroporto BSB', 
+                         'Vivax  Tv', 'Z Carniceria', 'Zé da Praia')                    
 ''')
 
 
@@ -189,6 +195,8 @@ def config_sidebar():
         131: "KPI's de Resultado Operacional - Suprimentos",
         132: "KPI's de Resultado Operacional - Suprimentos",
         133: "Auditoria",
+        134: "Auditoria",
+        135: "Controladoria"
     }
 
     cargo, user_name, email = config_permissoes_user()
@@ -352,7 +360,7 @@ def highlight_values(val):
 
 def preparar_dados_lojas_user_financeiro():
     permissao, nomeuser, username = config_permissoes_user()
-    if 'Administrador' in permissao:
+    if 'Administrador' in permissao or 'Dev Dash FB' in permissao:
         dflojas = GET_LOJAS()
         lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
         dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
@@ -386,34 +394,34 @@ def preparar_dados_lojas_user_financeiro():
 
 
 def preparar_dados_lojas_user_projecao_fluxo():
-  permissao, nomeuser, username = config_permissoes_user()
-  if 'Administrador' or 'Acesso Financeiro 3' in permissao:
-    dflojas = GET_LOJAS()
-    lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
-    dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
-  else:
-    dflojas = GET_LOJAS_USER(username)
+    permissao, nomeuser, username = config_permissoes_user()
+    if 'Administrador' or 'Acesso Financeiro 3' in permissao:
+        dflojas = GET_LOJAS()
+        lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
+        dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
+    else:
+        dflojas = GET_LOJAS_USER(username)
 
-  lojasReais = ['Abaru - Priceless', 'Arcos', 'All bar', 'Bar Brahma Aeroclube', 'Brahma Aricanduva',
-                'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Brasilia -  Aeroporto', 'Bardassê', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)',
-                'Colorado Aeroporto BSB', 'Delivery Bar Leo Centro', 'Delivery Fabrica de Bares', 'Delivery Jacaré', 'Delivery Orfeu', 'Duroc ', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'FDB DIGITAL PARTICIPACOES LTDA', 'FDB HOLDING INFERIOR LTDA', 'FDB HOLDING SUPERIOR LTDA', 'Filial', 'Hbar participacoes e empreendimentos ', 'Ilha das Flores ', 'Lojinha - Brahma', 'Navarro', 'Patizal ',  'Piratininga', 'Tundra',
-                'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Priceless', 'Riviera Bar', 
-                'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'The Cavern', 'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão']
-  
-  lojas = dflojas[dflojas['Loja'].isin(set(lojasReais))]['Loja'].tolist()
-  lojas.sort(key=str.lower)
-
-  # Verificar se ambas as lojas estão na lista
-  if 'Abaru - Priceless' in lojas and 'Notiê - Priceless' in lojas:
-    # Remover a 'loja 1' da lista
-    lojas.remove('Abaru - Priceless')
+    # lojasReais = ['Abaru - Priceless', 'Arcos', 'All bar', 'Bar Brahma Aeroclube', 'Brahma Aricanduva',
+    #                 'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Brasilia -  Aeroporto', 'Bardassê', 'Bar Léo - Centro', 'Bar Léo - Vila Madalena', 'Blue Note - São Paulo', 'Blue Note SP (Novo)',
+    #                 'Colorado Aeroporto BSB', 'Delivery Bar Leo Centro', 'Delivery Brahma Granja Viana', 'Delivery Jacaré', 'Delivery Orfeu', 'Duroc ', 'Edificio Rolim', 'Escritório Fabrica de Bares', 'FDB DIGITAL PARTICIPACOES LTDA', 'FDB HOLDING INFERIOR LTDA', 'FDB HOLDING SUPERIOR LTDA', 'Filial', 'Hbar participacoes e empreendimentos ', 'Ilha das Flores ', 'Lojinha - Brahma', 'Navarro', 'Patizal ',  'Piratininga', 'Tundra',
+    #                 'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless', 'Orfeu', 'Priceless', 'Riviera Bar', 
+    #                 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Terraço Notie', 'The Cavern', 'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão']
     
-    # Encontrar o índice da 'loja 3' para inserir a 'loja 1' logo após
-    indice_loja_alvo = lojas.index('Notiê - Priceless')
+    lojas = dflojas['Loja'].tolist()
+    lojas.sort(key=str.lower)
     
-    # Inserir a 'loja 1' após a 'loja 3'
-    lojas.insert(indice_loja_alvo + 1, 'Abaru - Priceless')
-
+    # Verificar se ambas as lojas estão na lista
+    if 'Abaru - Priceless' in lojas and 'Notiê - Priceless' in lojas:
+        # Remover a 'loja 1' da lista
+        lojas.remove('Abaru - Priceless')
+        st.write('a', lojas)
+        # Encontrar o índice da 'loja 3' para inserir a 'loja 1' logo após
+        indice_loja_alvo = lojas.index('Notiê - Priceless')
+        
+        # Inserir a 'loja 1' após a 'loja 3'
+        lojas.insert(indice_loja_alvo + 1, 'Abaru - Priceless')
+    
     return lojas
 
 

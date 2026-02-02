@@ -3,7 +3,7 @@ import pandas as pd
 from utils.queries_fluxo_de_caixa import *
 from utils.functions.general_functions import *
 from utils.functions.fluxo_de_caixa_projecao import *
-from utils.constants.general_constants import lojasAgrupadas
+# from utils.constants.general_constants import lojasAgrupadas
 from datetime import datetime
 from utils.components import button_download
 
@@ -38,12 +38,11 @@ st.divider()
 
 
 # Bares exibidos nos seletores
+df_bares_agrupados = GET_BARES_AGRUPADOS()
+lojasAgrupadas = df_bares_agrupados['Empresa'].tolist()
+
 lojasComDados = preparar_dados_lojas_user_projecao_fluxo() 
-lojas_retirar = ['Bar Brahma Aeroclube', 'Brahma Aricanduva', 'Bar Brasilia -  Aeroporto', 'Bardassê', 'Bar Léo - Vila Madalena', 'Colorado Aeroporto BSB', 'Duroc ', 
-                 'FDB DIGITAL PARTICIPACOES LTDA', 'FDB HOLDING INFERIOR LTDA', 'FDB HOLDING SUPERIOR LTDA', 'Filial', 'Hbar participacoes e empreendimentos ', 'Ilha das Flores ', 
-                 'Lojinha - Brahma', 'Navarro', 'Patizal ', 'Tundra', 'Hotel Maraba', 'Brahma - Ribeirão']
-lojasComDados = [loja for loja in lojasComDados if loja not in lojas_retirar]
-lojasComDados = ["Todas as casas" if c == "All bar" else c for c in lojasComDados]
+lojasComDados = ['Todas as casas'] + lojasComDados
 
 # Recuperando dados
 df_saldos_bancarios = GET_SALDOS_BANCARIOS()                    # saldo inicio do dia atual de cada casa
@@ -51,8 +50,6 @@ df_valor_liquido = GET_VALOR_LIQUIDO_RECEBIDO()                 # valor liquido 
 df_projecao_zig = GET_PROJECAO_ZIG()                            # projecao faturamento da zig de cada casa para a semana
 df_receitas_extraord_proj = GET_RECEITAS_EXTRAORD_FLUXO_CAIXA() # receit. extr. lançadas de cada casa para duas semanas
 df_receitas_eventos_proj = GET_EVENTOS_FLUXO_CAIXA()            # eventos lançados de cada casa para duas semanas
-# df_despesas_aprovadas = GET_DESPESAS_APROVADAS()              # despesas aprovadas e pendentes de pagamento
-# df_despesas_pagas = GET_DESPESAS_PAGAS()                      # despesas pagas no período
 
 df_despesas_aprovadas_previstas_pendentes = GET_DESPESAS_PENDENTES() # despesas pendentes (aprovadas ou não)
 df_despesas_pagas_previstas_pendentes = GET_DESPESAS_PAGAS()         # despesas pagas (aprovadas ou não)
@@ -83,9 +80,12 @@ with st.container(border=True):
         multiplicador2 = st.number_input("Selecione um multiplicador", value=1.0, key="multiplicador_input2")
     
     st.markdown(
-        """*Bar Brahma - Centro, Bar Brahma - Granja, Bar Brahma Paulista, Brahma Ribeirão, Bar Léo - Centro, Bar Brasília - Aeroporto, 
-            Delivery Bar Léo Centro, Delivery Fábrica de Bares, Delivery Orfeu, Edifício Rolim, Escritório Fábrica de Bares, 
-            Girondino, Girondino - CCBB, Hotel Marabá, Jacaré, Orfeu, Priceless, Riviera, Tempus*
+    """*All bar, Bar Brahma - Centro, Bar Brahma - Granja, Bar Brahma Aeroclube, Bar Brahma Paulista, Bar Brasília - Aeroporto, 
+    Bar Léo - Centro, Bar Léo - Vila Madalena, Bardassê, Brahma - Ribeirão, Brahma Aricanduva,
+    Delivery Bar Léo Centro, Delivery Fábrica de Bares, Delivery Orfeu, Edifício Rolim, Escritório Fábrica de Bares, 
+    FDB DIGITAL PARTICIPACOES LTDA, FDB HOLDING INFERIOR LTDA, FDB HOLDING SUPERIOR LTDA, Girondino, Girondino - CCBB, 
+    Hotel Marabá, Ilha das Flores, Jacaré, Lojinha - Brahma, Navarro, Notiê - Priceless, Orfeu, Patizal, Priceless, 
+    Riviera Bar, Tempus, Terraço Notiê, Tundra*
     """)
 
     df_projecao_bares = df_projecao_bares_geral
@@ -149,10 +149,11 @@ with st.container(border=True):
         )
 
     # Mensagem de aviso - Delivery
-    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Fabrica de Bares" no campo acima.')
-    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Bar Leo Centro" no campo acima.')
-    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Jacaré" no campo acima.')
-    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do {bares_selecionados}, selecione "Delivery Orfeu" no campo acima.')
+    if 'Bar Brahma - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Brahma - Centro, selecione "Delivery Fabrica de Bares" no campo acima.')
+    if 'Bar Léo - Granja' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Brahma - Granja, selecione "Delivery Brahma Granja Viana" no campo acima.')
+    if 'Bar Léo - Centro' in bares_selecionados: st.write(f'Para visualizar o Delivery do Bar Léo - Centro, selecione "Delivery Bar Leo Centro" no campo acima.')
+    if 'Jacaré' in bares_selecionados: st.write(f'Para visualizar o Delivery do Jacaré, selecione "Delivery Jacaré" no campo acima.')
+    if 'Orfeu' in bares_selecionados: st.write(f'Para visualizar o Delivery do Orfeu, selecione "Delivery Orfeu" no campo acima.')
 
     df_projecao_bares = df_projecao_bares_geral
 
@@ -234,11 +235,13 @@ with st.container(border=True):
             format="DD/MM/YYYY",
         )
 
-    # Mensagem de aviso - Delivery
-    if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Fabrica de Bares" no campo acima.')
-    if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Bar Leo Centro" no campo acima.')
-    if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Jacaré" no campo acima.')
-    if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do {lojasSelecionadas}, selecione "Delivery Orfeu" no campo acima.')
+    if not checkbox:
+        # Mensagem de aviso - Delivery
+        if 'Bar Brahma - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Brahma - Centro, selecione "Delivery Fabrica de Bares" no campo acima.')
+        if 'Bar Léo - Granja' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Brahma - Granja, selecione "Delivery Brahma Granja Viana" no campo acima.')
+        if 'Bar Léo - Centro' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Bar Léo - Centro, selecione "Delivery Bar Leo Centro" no campo acima.')
+        if 'Jacaré' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Jacaré, selecione "Delivery Jacaré" no campo acima.')
+        if 'Orfeu' in lojasSelecionadas: st.write(f'Para visualizar o Delivery do Orfeu, selecione "Delivery Orfeu" no campo acima.')
 
     data_inicio = pd.to_datetime(dataSelecionada)
     data_fim = pd.to_datetime(dataSelecionada2)

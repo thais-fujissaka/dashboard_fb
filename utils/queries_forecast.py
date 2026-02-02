@@ -412,23 +412,45 @@ def GET_DESPESAS_RAPIDAS():
 @st.cache_data
 def GET_AUT_BLUE_ME_COM_PEDIDO():
     return dataframe_query(f'''
-        SELECT               
-        CASE
-            WHEN vbmcp.Loja = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
-            ELSE vbmcp.Loja
-        END AS Casa,                   
-        -- vbmcp.Loja AS Casa,
-        vbmcp.Fornecedor AS Fornecedor,
-        STR_TO_DATE(vbmcp.Data_Emissao, '%Y-%m-%d') AS Data_Emissao,
-        vbmcp.Valor_Liquido AS Valor_Liquido,
-        vbmcp.Valor_Insumos AS Valor_Cotacao,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Alimentos / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Bebidas / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Bebidas,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Descartaveis_Higiene_Limpeza / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Gelo_Gas_Carvao_Velas / virapc.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Utensilios / virapc.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
-        ROUND((vbmcp.Valor_Liquido * (virapc.Valor_Outros / virapc.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
-    FROM View_BlueMe_Com_Pedido vbmcp
-    LEFT JOIN View_Insumos_Receb_Agrup_Por_Categ virapc ON vbmcp.tdr_ID = virapc.tdr_ID
-    WHERE YEAR(Data_Emissao) > 2024
+        WITH despesa_com_insumos AS (
+            SELECT
+                tdr.ID,
+                tdr.FK_LOJA,
+                tdr.COMPETENCIA,
+                tdr.VALOR_LIQUIDO,
+                SUM(tdri.VALOR) AS Valor_Total_Insumos,
+                SUM(CASE WHEN tin1.DESCRICAO = 'ALIMENTOS' THEN tdri.VALOR ELSE 0 END) AS Valor_Alimentos,
+                SUM(CASE WHEN tin1.DESCRICAO = 'BEBIDAS' THEN tdri.VALOR ELSE 0 END) AS Valor_Bebidas,
+                SUM(CASE WHEN tin1.DESCRICAO = 'DESCARTAVEIS/HIGIENE E LIMPEZA' THEN tdri.VALOR ELSE 0 END) AS Valor_Descartaveis,
+                SUM(CASE WHEN tin1.DESCRICAO = 'GELO / GAS / CARVAO / VELAS' THEN tdri.VALOR ELSE 0 END) AS Valor_Gelo_Gas,
+                SUM(CASE WHEN tin1.DESCRICAO = 'UTENSILIOS' THEN tdri.VALOR ELSE 0 END) AS Valor_Utensilios,
+                SUM(CASE WHEN tin1.DESCRICAO NOT IN ('ALIMENTOS', 'BEBIDAS', 'DESCARTAVEIS/HIGIENE E LIMPEZA', 'GELO / GAS / CARVAO / VELAS', 'UTENSILIOS') THEN tdri.VALOR ELSE 0 END) AS Valor_Outros,
+                tf.CORPORATE_NAME
+            FROM T_DESPESA_RAPIDA tdr
+            LEFT JOIN T_FORNECEDOR tf ON tdr.FK_FORNECEDOR = tf.ID
+            LEFT JOIN T_DESPESA_RAPIDA_ITEM tdri ON tdr.ID = tdri.FK_DESPESA_RAPIDA
+            LEFT JOIN T_INSUMOS_NIVEL_5 tin5 ON tdri.FK_INSUMO = tin5.ID
+            LEFT JOIN T_INSUMOS_NIVEL_4 tin4 ON tin5.FK_INSUMOS_NIVEL_4 = tin4.ID
+            LEFT JOIN T_INSUMOS_NIVEL_3 tin3 ON tin4.FK_INSUMOS_NIVEL_3 = tin3.ID
+            LEFT JOIN T_INSUMOS_NIVEL_2 tin2 ON tin3.FK_INSUMOS_NIVEL_2 = tin2.ID
+            LEFT JOIN T_INSUMOS_NIVEL_1 tin1 ON tin2.FK_INSUMOS_NIVEL_1 = tin1.ID
+            WHERE tdri.ID IS NOT NULL
+            GROUP BY tdr.ID, tdr.FK_LOJA, tdr.COMPETENCIA, tdr.VALOR_LIQUIDO, tf.CORPORATE_NAME
+        )
+        SELECT
+            CASE WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo' ELSE te.NOME_FANTASIA END AS Casa,
+            dci.CORPORATE_NAME AS Fornecedor,
+            STR_TO_DATE(dci.COMPETENCIA, '%Y-%m-%d') AS Data_Emissao,
+            dci.VALOR_LIQUIDO AS Valor_Liquido,
+            dci.Valor_Total_Insumos AS Valor_Cotacao,
+            ROUND((dci.VALOR_LIQUIDO * (dci.Valor_Alimentos / dci.Valor_Total_Insumos)), 2) AS Valor_Liq_Alimentos,
+            ROUND((dci.VALOR_LIQUIDO * (dci.Valor_Bebidas / dci.Valor_Total_Insumos)), 2) AS Valor_Liq_Bebidas,
+            ROUND((dci.VALOR_LIQUIDO * (dci.Valor_Descartaveis / dci.Valor_Total_Insumos)), 2) AS Valor_Liq_Descart_Hig_Limp,
+            ROUND((dci.VALOR_LIQUIDO * (dci.Valor_Gelo_Gas / dci.Valor_Total_Insumos)), 2) AS Valor_Gelo_Gas_Carvao_Velas,
+            ROUND((dci.VALOR_LIQUIDO * (dci.Valor_Utensilios / dci.Valor_Total_Insumos)), 2) AS Valor_Utensilios,
+            ROUND((dci.VALOR_LIQUIDO * (dci.Valor_Outros / dci.Valor_Total_Insumos)), 2) AS Valor_Liq_Outros
+        FROM despesa_com_insumos dci
+        JOIN T_EMPRESAS te ON dci.FK_LOJA = te.ID
+        WHERE te.ID <> 135 AND YEAR(STR_TO_DATE(dci.COMPETENCIA, '%Y-%m-%d')) > 2024
+        ORDER BY dci.ID;
     ''')

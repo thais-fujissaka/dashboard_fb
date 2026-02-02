@@ -11,6 +11,12 @@ from streamlit_echarts import st_echarts
 
 ano_atual = datetime.datetime.now().year
 
+hoje = pd.Timestamp.today().normalize()
+ontem = hoje - pd.Timedelta(days=1)
+inicio_mes = hoje.replace(day=1)
+dias_ate_ontem = (ontem - inicio_mes).days + 1
+
+
 # Cria tabela de conciliação para cada casa
 def conciliacao_casa(df, casa, datas_completas):
     df_copia = df.copy()
@@ -31,6 +37,14 @@ def conciliacao_casa(df, casa, datas_completas):
     # Receitas Extraordinárias #
     df_parc_receit_extr = GET_PARCELAS_RECEIT_EXTR()
     df_parc_receit_extr_farol = df_parc_receit_extr[df_parc_receit_extr['Casa'] == casa]
+    df_parc_receit_extr_farol = df_parc_receit_extr_farol[ # não vou considerar eventos a partir de setembro/2025
+        ~(
+            (df_parc_receit_extr_farol["Classif_Receita"].str.lower() == "eventos") &
+            ((df_parc_receit_extr_farol["Recebimento_Parcela"].dt.month >= 9) &
+             (df_parc_receit_extr_farol["Recebimento_Parcela"].dt.year >= 2025))
+        )
+    ]
+
     if 'Receitas Extraordinárias' not in df_copia.columns:
         df_copia['Receitas Extraordinárias'] = somar_por_data(
             df_parc_receit_extr_farol, "Recebimento_Parcela", "Valor_Parcela", datas_completas
@@ -38,7 +52,10 @@ def conciliacao_casa(df, casa, datas_completas):
 
     # Eventos (desmembrar de Receitas Extraordinárias) #
     df_eventos = GET_EVENTOS()
-    df_eventos_farol = df_eventos[df_eventos['Casa'] == casa]
+    df_eventos_farol = df_eventos[
+        (df_eventos['Casa'] == casa) &
+        ~(df_eventos['Forma_Pgto'] == 'Permuta')
+    ]
     if 'Eventos' not in df_copia.columns:
         df_copia['Eventos'] = somar_por_data(
             df_eventos_farol, "Recebimento_Parcela", "Valor_Parcela", datas_completas
@@ -152,19 +169,38 @@ def conciliacao_casa(df, casa, datas_completas):
 def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
     df_dias_nao_conciliados = df_casa[df_casa['Data'].dt.year == ano_farol]
     df_dias_nao_conciliados = df_dias_nao_conciliados[df_dias_nao_conciliados['Conciliação'] != 0.0]
-    df_dias_nao_conciliados['Data'] = df_dias_nao_conciliados['Data'].dt.month # Mês dos dias não conciliados
 
+    # EXCLUI O DIA DE HOJE SE FOR O MÊS/ANO ATUAL
+    if ano_farol == ano_atual:
+        df_dias_nao_conciliados = df_dias_nao_conciliados[
+            ~(
+                (df_dias_nao_conciliados['Data'].dt.month == mes_atual) &
+                (df_dias_nao_conciliados['Data'] > ontem)
+            )
+        ]
+    df_dias_nao_conciliados['Data'] = df_dias_nao_conciliados['Data'].dt.month # Mês dos dias não conciliados
+    
     # Contagem de dias não conciliados por mês
     df_qtd_dias_nao_conciliados_mes = df_dias_nao_conciliados.groupby(['Data'])['Conciliação'].count().reset_index()
     df_qtd_dias_nao_conciliados_mes = df_qtd_dias_nao_conciliados_mes.merge(df_meses, left_on='Data', right_on='Mes', how='right')
+    
+    # MÊS ATUAL NO ANO ATUAL
+    mask_mes_atual = (df_qtd_dias_nao_conciliados_mes['Mes'] == mes_atual) & (ano_farol == ano_atual)
+    df_qtd_dias_nao_conciliados_mes.loc[mask_mes_atual, 'Porcentagem'] = (
+        df_qtd_dias_nao_conciliados_mes.loc[mask_mes_atual, 'Conciliação'] / dias_ate_ontem
+    )
 
-    # Porcentagem de dias não conciliados por mês -> qtd dias não conciliados / total de dias no mês
-    df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Conciliação'] / df_qtd_dias_nao_conciliados_mes['Qtd_dias']
+    # MESES COMPLETOS (anos anteriores ou meses passados)
+    mask_outros_meses = ~mask_mes_atual
+    df_qtd_dias_nao_conciliados_mes.loc[mask_outros_meses, 'Porcentagem'] = (
+        df_qtd_dias_nao_conciliados_mes.loc[mask_outros_meses, 'Conciliação'] / df_qtd_dias_nao_conciliados_mes.loc[mask_outros_meses, 'Qtd_dias']
+    )
+    
     df_qtd_dias_nao_conciliados_mes['Porcentagem'] = df_qtd_dias_nao_conciliados_mes['Porcentagem'].fillna(0) # Preenche meses None com zero (tem todos os dias conciliados ou meses depois do atual)
-
+    
     # Lista com meses (0-11) e a porcentagem de dias não conciliados
     porc_dias_nao_conciliados = df_qtd_dias_nao_conciliados_mes['Porcentagem'].tolist()
-
+    
     lista_dias_nao_conciliados = []
     for i, dia in enumerate(porc_dias_nao_conciliados):
         if (i <= mes_atual - 1) and (ano_farol == ano_atual):
@@ -175,8 +211,7 @@ def lista_dias_nao_conciliados_casa(df_casa, ano_farol, df_meses, mes_atual):
             dia = dia * 100  # para anos anteriores, sempre multiplica
         dia = round(dia, 2)
         lista_dias_nao_conciliados.append(dia)
-
-    #st.write(df_dias_nao_conciliados) # vou precisar
+   
     # lista_dias_nao_conciliados = [v if v != 0 else None for v in lista_dias_nao_conciliados]  # None não é plotado
     return lista_dias_nao_conciliados
 
@@ -478,16 +513,16 @@ def grafico_dias_nao_conciliados_trim(df_conciliacao_farol, casas_validas, trime
 def df_farol_conciliacao_mes(lista_casas_mes, df, ano_farol, mes_atual):
     meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     df_copia = df.copy()
-
+    
     # Para cada mês, montar a lista com o valor de todas as casas
     for i, mes in enumerate(meses):
         coluna_mes = []
         coluna_mes_fmt = []
         for lista in lista_casas_mes:  # percorre a lista de porc de dias não conciliados de cada casa
             if (i == mes_atual - 1) and (ano_farol == ano_atual): # para mês e ano atual
-                if lista[i] != 0: # se não há dias conciliados, não mostra 100%
+                if lista[i] != 0: # se há dias não conciliados, faz 100 - qtd
                     porc_dias_conciliados = 100 - lista[i]
-                else: porc_dias_conciliados = 0
+                else: porc_dias_conciliados = 100
             elif (i < mes_atual - 1) and (ano_farol == ano_atual): # para meses anteriores ao atual e ano atual
                 porc_dias_conciliados = 100 - lista[i] # pega o mês i dessa casa
             elif (i > mes_atual - 1) and (ano_farol == ano_atual): # para meses posteriores ao atual e ano atual

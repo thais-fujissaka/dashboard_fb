@@ -45,6 +45,9 @@ ABAS = {
     118: {'nome_aba': ':material/chart_data: Projeção - Despesas', 'page_link': 'pages/Fluxo_de_Caixa - Projeção.py'},
     130: {'nome_aba': '📦 Relatório de Insumos - Suprimentos', 'page_link': 'pages/Suprimentos - Relatório_de_Insumos.py'},
     104: {'nome_aba': '🛍️ Relatório de Vendas', 'page_link': 'pages/Faturamento - Relatório de Vendas.py'},
+    133: {'nome_aba': ':material/list: Categorização - Descontos', 'page_link': 'pages/Auditoria - Descontos.py'},
+    134: {'nome_aba': ':material/list: Formatar - Promoções', 'page_link': 'pages/Auditoria - Promoções.py'},
+    135: {'nome_aba': ':material/list: Subir Orçamentos', 'page_link': 'pages/Controladoria - Orçamentos.py'},
 }
 
 def main():

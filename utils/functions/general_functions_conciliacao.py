@@ -61,14 +61,16 @@ def calcular_datas():
     ano_passado = today.year - 1
 
     # Lógica para forecast
-    if mes_atual == 1:
+    if mes_atual == 1: # Caso de janeiro
         mes_anterior = 12
         dois_meses_antes = 11
         ano_anterior = ano_atual - 1
         
     else:
-        mes_anterior = mes_atual - 1
         dois_meses_antes = mes_atual - 2
+        if mes_atual == 2: # Caso de fevereiro
+            dois_meses_antes = 12
+        mes_anterior = mes_atual - 1
         ano_anterior = ano_atual
 
 

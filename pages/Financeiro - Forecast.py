@@ -35,6 +35,7 @@ df_casas = GET_CASAS()
  df_parc_receitas_extr, 
  df_parc_receit_extr_dia) = GET_TODOS_FATURAMENTOS_DIA()
 
+
 # Filtrando Datas
 datas = calcular_datas()
 
@@ -66,13 +67,12 @@ with tab1:
     
     # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x DIAS (mês anterior e corrente) ---
     df_dias_futuros_com_categorias = lista_dias_mes_anterior_atual(
-        datas['ano_atual'], datas['mes_atual'], datas['ultimo_dia_mes_atual'], 
-        datas['ano_anterior'], datas['mes_anterior'], datas['dois_meses_antes'],
+        datas['ano_atual'], datas['mes_atual'], 
         df_faturamento_agregado_mes_corrente)
-
+    
     # Gera projeção para prox dias do mês corrente por dia da semana
     df_dias_futuros_mes = cria_projecao_mes_corrente(df_faturamento_agregado_mes_corrente, df_dias_futuros_com_categorias)
-
+    
     # Container que exibe projeção dos prox dias do mês corrente
     with st.container(border=True):
         st.markdown(f'''
@@ -80,10 +80,10 @@ with tab1:
             <p><strong>Premissa</strong> (para todas as categorias de faturamento, exceto 'Eventos' e 'Outras Receitas'): por dia da semana, é calculada a média de faturamento baseada nas das duas últimas semanas.</p>
             ''', unsafe_allow_html=True)
 
-        exibe_faturamento_categoria_mes_corrente('A&B', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
-        exibe_faturamento_categoria_mes_corrente('Gifts', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
-        exibe_faturamento_categoria_mes_corrente('Delivery', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
-        exibe_faturamento_categoria_mes_corrente('Couvert', df_dias_futuros_mes, 'dias seguintes', datas['today'], datas['inicio_mes_atual'])
+        exibe_faturamento_categoria_mes_corrente('A&B', df_dias_futuros_mes, 'dias seguintes', datas)
+        exibe_faturamento_categoria_mes_corrente('Gifts', df_dias_futuros_mes, 'dias seguintes', datas)
+        exibe_faturamento_categoria_mes_corrente('Delivery', df_dias_futuros_mes, 'dias seguintes', datas)
+        exibe_faturamento_categoria_mes_corrente('Couvert', df_dias_futuros_mes, 'dias seguintes', datas)
         exibe_faturamento_eventos(df_faturamento_eventos, id_casa, datas)
         exibe_faturamento_outras_receitas(df_parc_receit_extr_dia, df_parc_receitas_extr, id_casa, datas)
 
@@ -91,7 +91,7 @@ with tab1:
         
     # Container que exibe faturamento real e projetado dos dias anteriores do mês corrente
     with st.container(border=True):
-        exibe_faturamento_categoria_mes_corrente('Dias anteriores', df_dias_futuros_mes, 'dias anteriores', datas['today'], datas['inicio_mes_atual'])
+        exibe_faturamento_categoria_mes_corrente('Dias anteriores', df_dias_futuros_mes, 'dias anteriores', datas)
 
 
 ###################### PROJEÇÃO DE FATURAMENTO - PRÓXIMOS MESES ###################### 
@@ -110,10 +110,10 @@ with tab2:
 
     # --- CRIA COMBINAÇÃO DE TODAS AS CATEGORIAS x MESES (ano corrente) ---
     df_meses_futuros_com_categorias = lista_meses_ano(df_faturamento_mes_casa, datas['ano_atual'], datas['ano_passado'])
-
+    
     # Gera projeção para prox meses do ano
     df_faturamento_meses_futuros = projecao_faturamento_meses_seguintes(df_faturamento_orcamento, df_meses_futuros_com_categorias, datas['ano_atual'], datas['mes_atual'])
-
+    
     # Container que exibe projeção dos prox meses
     with st.container(border=True):
         st.markdown(f'''
@@ -153,12 +153,12 @@ with tab3:
         ''', unsafe_allow_html=True)
 
         # CMV 
-        df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery = config_faturamento_bruto_zig(df_faturamento_agregado_dia, datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_faturamento_eventos = config_faturamento_eventos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
-        df_compras, df_aut_blue_me_com_pedido, compras_alimentos, compras_bebidas = config_compras(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_valoracao_estoque = config_valoracao_estoque_ou_producao('estoque', datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas = config_transferencias_gastos(datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
-        df_valoracao_producao = config_valoracao_estoque_ou_producao('producao', datas['jan_ano_atual'], datas['dez_ano_atual'], casa)
+        df_faturamento_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_delivery = config_faturamento_bruto_zig(df_faturamento_agregado_dia, datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_faturamento_eventos = config_faturamento_eventos(datas['jan_ano_passado'], datas['dez_ano_atual'], casa, faturamento_bruto_alimentos, faturamento_bruto_bebidas)
+        df_compras, df_aut_blue_me_com_pedido, compras_alimentos, compras_bebidas = config_compras(datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_valoracao_estoque = config_valoracao_estoque_ou_producao('estoque', datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas = config_transferencias_gastos(datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
+        df_valoracao_producao = config_valoracao_estoque_ou_producao('producao', datas['jan_ano_passado'], datas['dez_ano_atual'], casa)
         
         # Cálculo CMV e Faturamento Geral para meses anteriores
         df_calculo_cmv = merge_e_calculo_para_cmv(
@@ -171,7 +171,7 @@ with tab3:
         )
 
         df_cmv_meses_anteriores_seguintes = calcula_cmv_proximos_meses(df_faturamento_meses_futuros, df_calculo_cmv, datas['ano_atual'], datas['mes_atual'])
-        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'])
+        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses seguintes', datas['mes_atual'], datas['ano_atual'])
 
         # Custos Artístico Geral
         df_custos_artistico_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Custos Artístico Geral')
@@ -180,7 +180,6 @@ with tab3:
 
         # Custos Eventos
         df_custos_eventos_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Custos de Eventos')
-        # st.write(df_custos_eventos_faturamentos_mensais_passados)
         df_projecao_custos_eventos_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_eventos_faturamentos_mensais_passados, 'Custos Eventos', datas['ano_atual'], datas['mes_atual'])
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_eventos_meses_anteriores_seguintes, 'Custos de Eventos', 'meses seguintes', datas['ano_atual'], datas['mes_atual'])
 
@@ -191,7 +190,6 @@ with tab3:
 
         # PJ
         df_custos_pj_faturamentos_mensais_passados = prepara_dados_custos_mensais(df_despesas_gerais, df_faturamento_meses_futuros, casa, 'Mão de Obra - PJ')
-        # st.write(df_custos_pj_faturamentos_mensais_passados)
         df_projecao_custos_pj_meses_anteriores_seguintes = projecao_custos_proximos_meses(df_custos_pj_faturamentos_mensais_passados, 'PJ', datas['ano_atual'], datas['mes_atual'])
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_pj_meses_anteriores_seguintes, 'Mão de Obra - PJ', 'meses seguintes', datas['ano_atual'], datas['mes_atual'], igual_mes_anterior=True)
 
@@ -256,7 +254,7 @@ with tab3:
             ''', unsafe_allow_html=True)
         
         # CMV
-        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses anteriores', datas['mes_atual'])
+        exibe_cmv_meses_anteriores_e_seguintes(df_cmv_meses_anteriores_seguintes, 'meses anteriores', datas['mes_atual'], datas['ano_atual'])
         
         # Custos Artístico Geral
         exibe_custos_meses_anteriores_e_seguintes(df_projecao_custos_artistico_meses_anteriores_seguintes, 'Custos Artístico Geral', 'meses anteriores', datas['ano_atual'], datas['mes_atual'])

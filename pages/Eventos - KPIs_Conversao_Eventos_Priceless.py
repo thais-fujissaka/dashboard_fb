@@ -70,7 +70,7 @@ def main():
         lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
         id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
     with col1:
-        ano = seletor_ano(2025, 2025, key="seletor_ano_kpi_conversao_eventos_priceless")
+        ano = seletor_ano(2025, 2026, key="seletor_ano_kpi_conversao_eventos_priceless")
     with col2:
         mes = seletor_mes(
             "Selecionar mês:", key="seletor_mes_kpi_conversao_eventos_priceless"

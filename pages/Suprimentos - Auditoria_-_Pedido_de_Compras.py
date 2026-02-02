@@ -140,7 +140,7 @@ def main():
             if bluemeWithOrder.empty:
                 st.warning("Nenhum dado com distorção encontrado.")
             else:
-                col1, col2 = st.columns([3, 1]) 
+                col1, col2 = st.columns([3, 1.5]) 
                 with col1:
                     assocExpenseItems = assoc_expense_items(data_inicio, data_fim)
                     bluemeWithOrder['Data Competencia'] = bluemeWithOrder['Data Competencia'].astype(str)
@@ -191,7 +191,7 @@ def main():
                         ['Valor Total Distorcido']
                     )
                     st.markdown('### Resumo por Casa')
-                    st.dataframe(bluemeWithOrder_style)
+                    st.dataframe(bluemeWithOrder_style, hide_index=True)
 
 if __name__ == '__main__':
     main()

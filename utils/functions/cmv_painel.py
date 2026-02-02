@@ -97,11 +97,21 @@ def grafico_cmv_orcado(df_cmv_orcado):
 def calcular_cmv_teorico_ano(ano, mes_atual, id_casa, df_fichas_itens_vendidos, df_fichas_itens_producao, df_precos_insumos_de_estoque, df_itens_vendidos_dia, insumos_necessarios_estoque_casa):
 
     df_cmv_teorico = pd.DataFrame()
+    
+    # Tratamento de data
+    ano_selecionado = ano
+    ano_atual = get_this_year()
+    if ano_selecionado != ano_atual:
+        if ano_selecionado < ano_atual:
+            mes_atual = 12
+        if ano_selecionado > ano_atual:
+            mes_atual = 12
 
     for mes in range(1, mes_atual + 1):
         
+        ultimo_dia_mes = calendar.monthrange(ano, mes)[1]
         data_inicio = datetime.datetime(ano, mes, 1).strftime('%Y-%m-%d')
-        data_fim = datetime.datetime(ano, mes, calendar.monthrange(ano, mes)[1]).strftime('%Y-%m-%d')
+        data_fim = datetime.datetime(ano, mes, ultimo_dia_mes).strftime('%Y-%m-%d')
         
         insumos_necessarios_estoque_casa_mes = pd.concat(
             [
@@ -334,6 +344,15 @@ def calcula_cmv_real_mes(ano, mes, casa):
 
 def calcula_cmv_real_ano_paralelo(ano, mes_atual, casa):
     df_cmv_real = pd.DataFrame()
+
+    # Tratamento de data
+    ano_selecionado = ano
+    ano_atual = get_this_year()
+    if ano_selecionado != ano_atual:
+        if ano_selecionado < ano_atual:
+            mes_atual = 12
+        if ano_selecionado > ano_atual:
+            mes_atual = 12
 
     with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {executor.submit(calcula_cmv_real_mes, ano, mes, casa): mes for mes in range(1, mes_atual + 1)}

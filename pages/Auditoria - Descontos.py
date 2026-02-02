@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.functions.general_functions import config_sidebar
 from utils.queries_conciliacao import GET_CASAS
-from utils.components import button_download
+from utils.components import button_download, seletor_mes, seletor_ano
 
 
 # --- PATCH para ignorar cores inválidas no openpyxl ---
@@ -21,7 +21,7 @@ RGB.__set__ = __rgb_set_fixed__
 
 
 st.set_page_config(
-    page_title="Categorização de descontos",
+    page_title="Categorização - Descontos",
     page_icon=":material/list:",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -35,27 +35,39 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 config_sidebar()
 
 st.title(":material/list: Categorização - Descontos")
+st.write('Aba que categoriza e formata planilhas de Descontos ZigPay para inserção automática no EPM.')
 st.divider()
 
-# Seletor de casa
+# Seletores de casa e data
 df_casas = GET_CASAS()
-casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Terraço Notiê', 'The Cavern', 'Orfeu', 'Riviera Bar']
-casa = st.selectbox("Selecione a casa referente ao arquivo de Descontos:", casas)
 
-# Recupera id da casa
-mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-if casa != 'BNSP' and casa != 'Terraço Notiê':
-    id_casa = mapeamento_casas[casa]
-elif casa == 'Terraço Notiê':
-    id_casa = 162
-elif casa == 'BNSP':
-    id_casa = 131
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    # casas = df_casas['Casa'].tolist()
+    casas = ['Arcos', 'Bar Brahma - Centro', 'Bar Brahma - Granja', 'Bar Léo - Centro', 'Blue Note - São Paulo', 'BNSP', 'Edificio Rolim', 'Girondino ', 'Girondino - CCBB', 'Jacaré', 'Love Cabaret', 'Orfeu', 'Riviera Bar', 'Terraço Notiê', 'The Cavern']
+    casa = st.selectbox("Selecione a casa correspondente ao arquivo de Descontos:", casas)
+    
+    # Recupera id da casa
+    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
+    if casa != 'BNSP' and casa != 'Terraço Notiê':
+        id_casa = mapeamento_casas[casa]
+    elif casa == 'Terraço Notiê':
+        id_casa = 162
+    elif casa == 'BNSP':
+        id_casa = 131
+
+with col2:
+    mes = seletor_mes("Selecione o mês correspondente ao arquivo de Descontos:", key="seletor_mes_descontos_zig")
+    
+with col3:
+    ano = seletor_ano(2025, 2026, 'ano', 'Selecione o ano correspondente ao arquivo de Descontos:')
 
 st.divider()
 
 if casa == 'Notiê - Priceless' or casa == 'Terraço Notiê':
     regras_categoria = {
-        'funcionario|funcionário|funcionaria|funcionária': "COLABORADOR (30%)",
+        'funcionario|funcionário|funcionaria|funcionária': "COLABORADORES (30%)",
         'gerência|gerencia|coord': 'CONSUMO GERENCIAL',
         'master|mastecard|mastetcard': 'CONVÊNIO',
         'taxa rolha|taxa de rolha|rolha': 'CORTESIA',
@@ -66,7 +78,7 @@ if casa == 'Notiê - Priceless' or casa == 'Terraço Notiê':
 
 if casa == 'Arcos':
     regras_categoria = {
-        "1|2": "COLABORADOR (30%)",
+        "1|2": "COLABORADORES (30%)",
         "4|teatro": "CONVÊNIO",
         "7|niver|cortesia": "CORTESIA",
         "16": "CONSUMO GERENCIAL",
@@ -95,7 +107,7 @@ if casa == 'Bar Brahma - Centro':
 
 if casa == 'Bar Brahma - Granja':
     regras_categoria = {
-        'funcionário|funcionario': 'COLABORADOR (30%)',
+        'funcionário|funcionario': 'COLABORADORES (30%)',
         'refeição|coord|cordenador|maicon|técnico som|dupla jornada': 'CONSUMO GERENCIAL',
         'musico|dj|música|thais|técnico de som': 'MÚSICOS',
         'logista|logísta|nilsem|nielsemm|nilsemm|nilsennm|lojista|lojistq|santander|cadastro|meta|flar': 'CONVÊNIO',
@@ -115,11 +127,11 @@ if casa == 'Bar Léo - Centro':
         'dois por um|2p1|gumer|gulmer|kumer|goume|cps': 'PROMOÇÃO'
     }
 
-if casa == 'Blue Note' or casa == 'BNSP':
+if casa == 'Blue Note - São Paulo' or casa == 'BNSP':
     regras_categoria = {
         'consumo coordenação|consumo gerência|consumo gerencia|consumos gerencia|coordenacao|coordenação|coordenador|chef|consumo mkt|alimentação mkt|gerente|alimentação gerencia': 'CONSUMO GERENCIAL',
         'socio|sócio': 'CONTA ASSINADA',
-        'porto|azul|membro|mix|safra|inter|itaú|itau|convênio|convenio|condômino|condomínio|fiserv|sul america|sul ameruca': 'CONVÊNIO',
+        'porto|azul|membro|mix|safra|inter|itaú|itau|convênio|convenio|condômino|condomínio|fiserv|sul america|sul ameruca|daycoval': 'CONVÊNIO',
         'niver|cortesia|cheescake|torta belga':' CORTESIA',
         'artístico|artistico|dj|banda|músico|musico': 'MÚSICOS',
         'retirou serviço|correção': 'OPERACIONAL',
@@ -131,9 +143,9 @@ if casa == 'Blue Note' or casa == 'BNSP':
         'reunião t.i': 'REUNIÃO - TI'
     }
 
-if casa == 'Girondino':
+if casa == 'Girondino ':
     regras_categoria = {
-        'funcionário|funcionario|funcionário da casa|funcionario da casa|desconto funcionário|desconto funcionario|desconto funça|staff da casa|estaff': 'COLABORADOR (30%)',
+        'funcionário|funcionario|funcionário da casa|funcionario da casa|desconto funcionário|desconto funcionario|desconto funça|staff da casa|estaff|funça': 'COLABORADORES (30%)',
         'mkt': 'MARKETING',
         'consumo|alimentação segurança|alimentacao seguranca|almoço liderança|almoco lideranca': 'CONSUMO GERENCIAL',
         'niver': 'CORTESIA',
@@ -142,8 +154,8 @@ if casa == 'Girondino':
 
 if casa == 'Girondino - CCBB': 
     regras_categoria = {
-        'ourocard|scolaboradorbb|colaboraforbb|bb|cbb|colaboraorbb|colaborado rbb|colabiradorbb': 'CONVÊNIO',
-        'colaboradorfb|colabrador fb|volaboradpr': 'COLABORADOR (30%)',
+        'ourocard|scolaboradorbb|colaboraforbb|bb|cbb|colaboraorbb|colaborado rbb|colabiradorbb|ourkcard': 'CONVÊNIO',
+        'colaboradorfb|colabrador fb|volaboradpr': 'COLABORADORES (30%)',
         'colaborador fb- ccbb|colaborador fb - ccbb|colaborador fb-ccbb|consumo|socio': 'CONSUMO GERENCIAL',
         'mkt': 'MARKETING'
     }
@@ -170,31 +182,40 @@ if casa == 'Love Cabaret':
         'cod 14': 'TESTE'
     }
 
-if casa == 'Edifício Rolim':
+if casa == 'Edificio Rolim':
     regras_categoria = {
-        'funcionario|desconto fb|ator': 'COLABORADOR (30%)',
+        'funcionario|desconto fb|ator|atoe': 'COLABORADORES (30%)',
         'niver': 'CORTESIA',
         'mkt': 'MARKETING'
     }
 
 if casa == 'Orfeu':
     regras_categoria = {
-        'colaborador fb': 'COLABORADOR (30%)',
+        'colaborador fb': 'COLABORADORES (30%)',
         'coordenação|coordenacao|coordenador|gerente|gerência': 'CONSUMO GERENCIAL',
         'niver|níver': 'CORTESIA',
         'sem troco': 'OPERACIONAL',
         'permuta': 'PERMUTA'
     }
 
-if casa == 'Riviera':
+if casa == 'Riviera Bar':
     regras_categoria = {
-        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma': 'COLABORADOR (30%)',
-        'consumo|alimentacao -|alimentação -|coordenacao|oordenacao|coordenação|coordenacai|chef|gerente|lideranca|liderança|luderanca|gerencia|coirdenaxao|coorfenacao|ciordenacao|coirfenacao|coordenaçao|consumação': 'CONSUMO GERENCIAL',
-        'morador|convênio|convenio': 'CONVÊNIO',
-        'niver|nuver|cortesia|anibersariante|anovetsatio|anivetsario|ani etsatio': 'CORTESIA',
+        'desconto func|funcionario|funcionário|bar dos arcos|bar brahma|thiago bar|caique bar|fubcionario|funcionatio|hostess|colaborador|blue note|blue|arcos': 'COLABORADORES (30%)',
+        'consumo|alimentacao -|alimentação -|coordenacao|coordena|oordenacao|coordemacao|chf bar|coordenação|coordenacai|chef|gerente|lideranca|lidetamca|liderança|luderanca|lideramca|lideranxa|gerencia|coirdenaxao|coorfenacao|ciordenacao|coirfenacao|coordenaçao|consumação|cordenacao|coordenscsp|corodenaco|coordenaca0|maitre|matrie': 'CONSUMO GERENCIAL',
+        'morador|motador|convênio|convenio|99|adv|crm|ct|galeria|guedes|hc|lavi|safra|we work|zuck|insider|telus|ims|sinquia|inova bra': 'CONVÊNIO',
+        'niver|nuver|cortesia|anibersariante|anovetsatio|ano versario|anivetsario|ani etsatio|bday|apenas 10%|ajiversariante|anivefsadio|anibersario|aniveesario|anivetsariantr|anversario|anoversario|anversario|anivrrsario|anivesario|anivesarrio|anviersario|coryesia|crtesia': 'CORTESIA',
         'evento': 'EVENTOS',
         'marketing|mkt': 'MARKETING',
-        'troco|troci|ajuste': 'OPERACIONAL'
+        'troco|troci|ajuste|tsroco': 'OPERACIONAL'
+    }
+
+if casa == 'The Cavern':
+    regras_categoria = {
+        'desconto funcionario|desconto funcionário': 'COLABORADOR (30%)',
+        'refeição|refeicao|recepcao|gerencial|consomo chefe|consumo chefe': 'CONSUMO GERENCIAL',
+        'evento': 'EVENTO',
+        'camarim': 'MÚSICOS',
+        'troco|perdas e danos': 'OPERACIONAL'
     }
 
 
@@ -217,11 +238,29 @@ else:
     df_categorizado = df.copy()
 
     # Problema das planilhas que vem com a justificativa na coluna de categoria (zig)
-    if casa == 'Girondino - CCBB' or casa == 'Blue Note' or casa == 'BNSP' or casa == 'Riviera' or casa == 'Terraço Notiê':
+    if casa == 'Girondino - CCBB' or casa == 'Blue Note - São Paulo' or casa == 'BNSP' or casa == 'Riviera Bar' or casa == 'Terraço Notiê':
         mascara = (
             df_categorizado['Justificativa'].isna() |
             df_categorizado['Justificativa'].str.strip().str.lower().eq('h') |
-            df_categorizado['Justificativa'].str.strip().str.lower().eq('g')
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('g') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('g') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('.') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('cartão ouro card')
+        )
+
+        df_categorizado.loc[mascara, 'Justificativa'] = df_categorizado.loc[mascara, 'Categoria']
+    
+    if casa == 'Riviera Bar': # Casos específicos - Riviera
+        mascara = (
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('fundo cobranca') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('sisconeto') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('societe') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('fundo c') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('gelly') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('gelly fit') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('wework') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('weework') |
+            df_categorizado['Justificativa'].str.strip().str.lower().eq('btg')
         )
 
         df_categorizado.loc[mascara, 'Justificativa'] = df_categorizado.loc[mascara, 'Categoria']
@@ -258,12 +297,15 @@ else:
     # Adiciona coluna da casa para download
     df_download['ID_Casa'] = id_casa 
 
-    # Resgata mes e ano dos dados para nomear excel
-    df_download['Mes_Ano'] = df_download['Data'].dt.strftime("%m%Y")
-    mes_ano = df_download['Mes_Ano'].unique().tolist()
-    mes_ano = mes_ano[0]
-    
-    df_download = df_download[['ID_Casa', 'Funcionário', 'Data', 'Clientes', 'Justificativa', 'Categoria', 'Produtos', 'Porcentagem', 'Desconto']]
+    # Cria coluna com primeiro dia do mês dos descontos
+    df_download['Primeiro_Dia_Mes'] = pd.Timestamp(
+        year=int(ano),
+        month=int(mes),
+        day=1
+    )
+
+    # Organiza colunas
+    df_download = df_download[['ID_Casa', 'Funcionário', 'Data', 'Clientes', 'Justificativa', 'Categoria', 'Produtos', 'Porcentagem', 'Desconto', 'Primeiro_Dia_Mes']]
     df_download = df_download.rename(columns={
         'ID_Casa': 'FK_CASA', 
         'Funcionário': 'FUNCIONARIO',
@@ -273,7 +315,8 @@ else:
         'Categoria': 'CATEGORIA',
         'Produtos': 'PRODUTOS',
         'Porcentagem': 'PORCENTAGEM',
-        'Desconto': 'DESCONTO'
+        'Desconto': 'DESCONTO',
+        'Primeiro_Dia_Mes': 'PRIMEIRO_DIA_MES'
     })
     
     # Mostra o resultado
@@ -281,7 +324,7 @@ else:
     with col1:
         st.subheader('Descontos categorizados') 
     with col2:
-        button_download(df_download, f"{casa} - {mes_ano}", f"Descontos - {casa}")
+        button_download(df_download, f"{casa} - {mes}{ano}", f"Descontos - {casa}")
 
     st.info('Atenção para as células com categoria vazia, caso haja.')
     st.dataframe(df_categorizado, hide_index=True)

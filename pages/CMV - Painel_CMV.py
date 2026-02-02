@@ -42,7 +42,7 @@ def main():
     with col1:
         id_casa, casa, id_zigpay = input_selecao_casas(CASAS_EXCLUIDAS, 'selecao_casa')
     with col2:
-        ano = seletor_ano(2024, int(get_last_year(today=datetime.datetime.now()) + 1), 'ano', label='Selecione o ano')
+        ano = seletor_ano(2024, int(get_last_year(today=datetime.datetime.now()) + 2), 'ano', label='Selecione o ano')
     st.divider()
     
     ### Dados

@@ -79,8 +79,7 @@ st.divider()
 
 lojasComDados = preparar_dados_lojas_user_financeiro()
 
-if 'Abaru - Priceless' in lojasComDados and 'Notiê - Priceless' in lojasComDados:
-  lojasComDados.remove('Abaru - Priceless')
+if 'Notiê - Priceless' in lojasComDados:
   lojasComDados.remove('Notiê - Priceless')
 if 'Blue Note - São Paulo' in lojasComDados and 'Blue Note SP (Novo)' in lojasComDados:
   lojasComDados.remove('Blue Note - São Paulo')
@@ -105,7 +104,7 @@ df_faturamento_eventos, faturamento_alimentos_eventos, faturamento_bebidas_event
 df_compras, compras_alimentos, compras_bebidas = config_compras(data_inicio, data_fim, lojas_selecionadas)
 df_valoracao_estoque_atual = config_valoracao_estoque(data_inicio, data_fim, lojas_selecionadas)
 df_valoracao_estoque_mes_anterior = config_valoracao_estoque(data_inicio_mes_anterior, data_fim_mes_anterior, lojas_selecionadas)
-df_diferenca_estoque = config_diferenca_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior)
+df_diferenca_estoque, df_diferenca_estoque_download = config_diferenca_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior)
 df_variacao_estoque, variacao_estoque_alimentos, variacao_estoque_bebidas = config_variacao_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior)
 df_insumos_sem_pedido = config_insumos_blueme_sem_pedido(data_inicio, data_fim, lojas_selecionadas)
 df_insumos_com_pedido = config_insumos_blueme_com_pedido(data_inicio, data_fim, lojas_selecionadas)
@@ -125,9 +124,19 @@ df_producao_alimentos.drop(columns=['ID_Loja', 'Loja'], inplace=True)
 df_producao_bebidas.drop(columns=['ID_Loja', 'Loja'], inplace=True)
 df_valoracao_estoque_atual.drop(columns=['ID_Loja', 'Loja'], inplace=True)
 
+df_valoracao_estoque_atual = df_valoracao_estoque_atual.rename(columns={
+    'ID_Insumo': 'ID Insumo',
+    'Valor_em_Estoque': 'Valor em Estoque',
+    'Unidade_Medida': 'Unidade de Medida'
+})
+df_valoracao_estoque_atual = df_valoracao_estoque_atual[['Categoria', 'ID Insumo', 'Insumo', 'Unidade de Medida', 'Quantidade', 'Valor em Estoque']]
+
+# Salva valores para download
+df_valoracao_estoque_atual_download = df_valoracao_estoque_atual.copy()
+df_producao_total_download = df_producao_total.copy()
 
 df_faturamento_total = config_faturamento_total(df_faturamento_delivery, df_faturamento_zig, df_faturamento_eventos)
-df_valoracao_estoque_atual = format_columns_brazilian(df_valoracao_estoque_atual, ['Valor_em_Estoque', 'Quantidade'])
+df_valoracao_estoque_atual = format_columns_brazilian(df_valoracao_estoque_atual, ['Valor em Estoque', 'Quantidade'])
 df_producao_alimentos = format_columns_brazilian(df_producao_alimentos, ['Valor_Total', 'Quantidade', 'Valor_Unidade_Medida'])
 df_producao_bebidas = format_columns_brazilian(df_producao_bebidas, ['Valor_Total', 'Quantidade', 'Valor_Unidade_Medida'])
 df_producao_total = format_columns_brazilian(df_producao_total, ['Valor Produção Mês Anterior', 'Valor Produção Atual'])
@@ -336,7 +345,12 @@ st.dataframe(df_cmv_dre_styled, height=altura_cmv_dre, hide_index=True, width='s
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
-    st.subheader('Compras')
+    col1, col2 = st.columns([6, 1], vertical_alignment="center")
+    with col1:
+      st.subheader('Compras')
+    with col2:
+      button_download(df_compras, f'compras_{lojas_selecionadas}', f'compras_{lojas_selecionadas}')
+    df_compras = format_columns_brazilian(df_compras, ['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas'])
     st.dataframe(df_compras, hide_index=True)
     classificacoes = obter_valores_unicos_ordenados(df_insumos_sem_pedido, 'Classificacao')
     fornecedores_com_pedido = obter_valores_unicos_ordenados(df_insumos_com_pedido, 'Fornecedor') 
@@ -350,10 +364,15 @@ with st.container(border=True):
         fornecedores_selecionados = st.multiselect(label='Selecione Fornecedores', options=fornecedores_sem_pedido, key=3)
       df_insumos_sem_pedido = filtrar_por_classe_selecionada(df_insumos_sem_pedido, 'Fornecedor', fornecedores_selecionados)
       valor_total = df_insumos_sem_pedido['Valor'].sum()
+      df_insumos_sem_pedido_download = df_insumos_sem_pedido.copy()
       df_insumos_sem_pedido = format_columns_brazilian(df_insumos_sem_pedido, ['Valor'])
       valor_total = format_brazilian(valor_total)
       st.dataframe(df_insumos_sem_pedido, width='stretch', hide_index=True)
-      st.write('Valor total = R$', valor_total)
+      col1, col2 = st.columns([6, 1], vertical_alignment="center")
+      with col1:
+        st.write('Valor Total = **R$**', f'**{valor_total}**')
+      with col2:
+        button_download(df_insumos_sem_pedido_download, f'ins_s_pedido', f'ins_s_pedido')
     with st.expander("Detalhes Insumos BlueMe Com Pedido"):
       col3, col4, col5 = st.columns(3)
       with col5:
@@ -374,34 +393,45 @@ with st.container(border=True):
       valor_gelo = format_brazilian(valor_gelo)
       valor_utensilios = format_brazilian(valor_utensilios)
       valor_outros = format_brazilian(valor_outros)
+      df_insumos_com_pedido_download = df_insumos_com_pedido.copy()
       df_insumos_com_pedido = format_columns_brazilian(df_insumos_com_pedido, ['Valor Líquido', 'Valor Cotação', 'Insumos - V. Líq', 'Valor Líq. Alimentos','Valor Líq. Bebidas',
                                         'Valor Líq. Hig/Limp.', 'Valor Líq Gelo/Gas/Carvão/Velas', 'Valor Líq. Utensilios', 'Valor Líq. Outros'])
       st.dataframe(df_insumos_com_pedido, width='stretch', hide_index=True)
-      st.write(
-        f"Valor Total = R\\$ {valor_total_com_pedido},  \n"
-        f"Valor Alimentos = R\\$ {valor_alimentos},  \n"
-        f"Valor Bebidas = R\\$ {valor_bebidas},  \n"
-        f"Valor Hig/Limp. = R\\$ {valor_hig},  \n"
-        f"Valor Gelo = R\\$ {valor_gelo},  \n"
-        f"Valor Utensílios = R\\$ {valor_utensilios},  \n"
-        f"Valor Outros = R\\$ {valor_outros}"
-      )
+      col1, col2 = st.columns([6, 1], vertical_alignment="top")
+      with col1:
+        st.write(
+          f"Valor Total = **R\\$ {valor_total_com_pedido}**  \n"
+          f"Valor Alimentos = **R\\$ {valor_alimentos}**  \n"
+          f"Valor Bebidas = **R\\$ {valor_bebidas}**  \n"
+          f"Valor Hig/Limp. = **R\\$ {valor_hig}**  \n"
+          f"Valor Gelo = **R\\$ {valor_gelo}**  \n"
+          f"Valor Utensílios = **R\\$ {valor_utensilios}**  \n"
+          f"Valor Outros = **R\\$ {valor_outros}**"
+        )
+      with col2:
+        button_download(df_insumos_com_pedido_download, f'ins_c_pedido', f'ins_c_pedido')
 
-df_valoracao_estoque_atual = df_valoracao_estoque_atual.rename(columns={
-    'ID_Insumo': 'ID Insumo',
-    'Valor_em_Estoque': 'Valor em Estoque',
-    'Unidade_Medida': 'Unidade de Medida'
-})
-df_valoracao_estoque_atual = df_valoracao_estoque_atual[['Categoria', 'ID Insumo', 'Insumo', 'Unidade de Medida', 'Quantidade', 'Valor em Estoque']]
+
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
-    st.subheader('Valoração e Variação de Estoque')
+    col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+    with col1:
+      st.subheader('Valoração e Variação de Estoque')
+    with col2:
+      button_download(df_variacao_estoque, f'val_var_estoque', f'val_var_estoque')
+    df_variacao_estoque = format_columns_brazilian(df_variacao_estoque, ['Estoque Mes Anterior', 'Estoque Atual'])
     st.dataframe(df_variacao_estoque, width='stretch', hide_index=True)
     with st.expander("Detalhes Valoração Estoque Atual"):
       st.dataframe(df_valoracao_estoque_atual, width='stretch', hide_index=True)
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col2:
+        button_download(df_valoracao_estoque_atual_download, f'val_estoque_atual', f'val_estoque_atual')
     with st.expander("Diferença de Estoque"):
       st.dataframe(df_diferenca_estoque, width='stretch', hide_index=True)
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col2:
+        button_download(df_diferenca_estoque_download, f'dif_estoque', f'dif_estoque')
 
 df_producao_alimentos = df_producao_alimentos.rename(columns={
     'Item_Produzido': 'Item Produzido',
@@ -427,28 +457,69 @@ df_diferenca_producao_bebidas = df_diferenca_producao_bebidas.rename(columns={
 })
 df_diferenca_producao_bebidas = df_diferenca_producao_bebidas[['Categoria', 'Item Produzido', 'Unidade de Medida', 'Quantidade Anterior', 'Valor Total Anterior', 'Quantidade Atual', 'Valor Total Atual', 'Diferença Quantidade', 'Diferença Valor Total']]
 
+# Salva para download
+df_producao_alimentos_download = df_producao_alimentos.copy()
+df_producao_bebidas_download = df_producao_bebidas.copy()
+df_diferenca_producao_alimentos_download = df_diferenca_producao_alimentos.copy()
+df_diferenca_producao_bebidas_download = df_diferenca_producao_bebidas.copy()
+
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
-    st.subheader('Inventário de Produção')
+    col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+    with col1:
+      st.subheader('Inventário de Produção')
+    with col2:
+      button_download(df_producao_total_download, f'inv_producao', f'inv_producao')
     st.dataframe(df_producao_total, width='stretch', hide_index=True)
     with st.expander("Detalhes Valoração Estoque Atual"):
-      st.subheader('Valoração de Produção Alimentos')
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col1:
+        st.subheader('Valoração de Produção Alimentos')
+      with col2:
+        button_download(df_producao_alimentos_download, f'val_producao_alimentos', f'val_producao_alimentos')
       st.dataframe(df_producao_alimentos, width='stretch', hide_index=True)
-      st.subheader('Valoração de Produção Bebidas')
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col1:
+        st.subheader('Valoração de Produção Bebidas')
+      with col2:
+        button_download(df_producao_bebidas_download, f'val_producao_bebidas', f'val_producao_bebidas')
       st.dataframe(df_producao_bebidas, width='stretch', hide_index=True)
-    with st.expander("Diferença de valoração de Produção"):
-      st.subheader('Diferença de Produção Alimentos')
+    with st.expander("Diferença de Valoração de Produção"):
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col1:
+        st.subheader('Diferença de Produção Alimentos')
+      with col2:
+        button_download(df_diferenca_producao_alimentos_download, f'dif_producao_alimentos', f'dif_producao_alimentos')
       st.dataframe(df_diferenca_producao_alimentos, width='stretch', hide_index=True)
-      st.subheader('Diferença de Produção Bebidas')
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col1:
+        st.subheader('Diferença de Produção Bebidas')
+      with col2:
+        button_download(df_diferenca_producao_bebidas_download, f'dif_producao_bebidas', f'dif_producao_bebidas')
       st.dataframe(df_diferenca_producao_bebidas, width='stretch', hide_index=True)
 
 with st.container(border=True):
   col0, col1, col2 = st.columns([1, 12, 1])
   with col1:
-    st.subheader('Transferências e Gastos Extras')
-    st.dataframe(df_transf_e_gastos, width='stretch', hide_index=True)
+    col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+    with col1:
+      st.subheader('Transferências e Gastos Extras')
+    with col2:
+      button_download(df_transf_e_gastos, f'transf_e_gastos', f'transf_e_gastos')
+    df_transf_e_gastos = format_columns_brazilian(df_transf_e_gastos, ['Entrada Alimentos', 'Entrada Bebidas', 'Saída Alimentos', 'Saída Bebidas', 'Consumo Interno', 'Quebras e Perdas'])
+    st.dataframe(df_transf_e_gastos, width='stretch', hide_index=True) 
     with st.expander("Detalhes Transferências Entradas"):
+      df_transf_entradas_download = df_transf_entradas.copy()
+      df_tranf_entradas = format_columns_brazilian(df_transf_entradas, ['Valor Transferência'])
       st.dataframe(df_transf_entradas, width='stretch', hide_index=True)
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col2:
+        button_download(df_transf_entradas_download, f'transf_entradas', f'transf_entradas')
     with st.expander("Detalhes Transferências Saídas"):
+      df_transf_saidas_download = df_transf_saidas.copy()
+      df_transf_saidas = format_columns_brazilian(df_transf_saidas, ['Valor Transferência'])
       st.dataframe(df_transf_saidas, width='stretch', hide_index=True)
+      col1, col2 = st.columns([6, 1], vertical_alignment="bottom")
+      with col2:
+        button_download(df_transf_saidas_download, f'transf_saidas', f'transf_saidas')

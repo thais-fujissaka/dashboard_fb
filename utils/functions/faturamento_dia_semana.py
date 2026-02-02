@@ -15,9 +15,12 @@ def destaca_mes_atual_seguintes(row):
 
 
 def prepara_dados_faturamento_casa(df_faturamento_diario, casa):
-    # Filtra por casa
-    df_faturamento_diario_casa = df_faturamento_diario[df_faturamento_diario['Casa'] == casa].copy()
+    # Filtra por casa e ano
+    df_faturamento_diario_casa = df_faturamento_diario.copy()
     df_faturamento_diario_casa['Data Evento'] = pd.to_datetime(df_faturamento_diario_casa['Data Evento'], errors='coerce')
+    df_faturamento_diario_casa = df_faturamento_diario_casa[
+        (df_faturamento_diario_casa['Casa'] == casa)
+    ].copy()
 
     # Cria dia da semana em português
     df_faturamento_diario_casa['Dia Semana'] = df_faturamento_diario_casa['Data Evento'].dt.strftime('%A')
@@ -38,13 +41,16 @@ def prepara_dados_faturamento_casa(df_faturamento_diario, casa):
     return df_faturamento_diario_casa
 
 
-def concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_casa, id_casa, casa):
-    # Por enquanto, usa a projeção para novembro e dezembro (por conta da T_ITENS_VENDIDOS_DIA)
-    df_projecao_mes_corrente = df_dias_futuros_mes[df_dias_futuros_mes['Data Evento'].dt.month >= datas['mes_anterior']]
-    df_projecao_mes_corrente = df_projecao_mes_corrente[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Final', 'Dia Semana', 'Nome Mes', 'Mes_Ano']]
-    df_projecao_mes_corrente = df_projecao_mes_corrente.rename(columns={'Valor Final':'Valor Bruto'})
-
-    df_concat = pd.concat([df_faturamento_diario_casa, df_projecao_mes_corrente])
+def concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_casa, id_casa, casa, ano):
+    # Usa a projeção para o mês corrente (ainda não está finalizado) e para o próximo ano
+    if ano == datas['ano_atual']:
+        df_projecao_futuro = df_dias_futuros_mes[df_dias_futuros_mes['Data Evento'].dt.month >= datas['mes_atual']]
+    else:
+        df_projecao_futuro = df_dias_futuros_mes
+    df_projecao_futuro = df_projecao_futuro[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Final', 'Dia Semana', 'Nome Mes', 'Mes_Ano']]
+    df_projecao_futuro = df_projecao_futuro.rename(columns={'Valor Final':'Valor Bruto'})
+    
+    df_concat = pd.concat([df_faturamento_diario_casa, df_projecao_futuro])
     df_concat['ID_Casa'] = df_concat['ID_Casa'].fillna(id_casa)
     df_concat['Casa'] = df_concat['Casa'].fillna(casa)
 
@@ -60,19 +66,25 @@ def concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_
 
 
 # Calcula faturamento geral (junta todas as categorias da Zig) por dia da semana para cada mês
-def calcula_faturamento_medio(df_faturamento_todos_meses, detalhamento_categoria=False, categoria_selecionada=None):
+def calcula_faturamento_medio(df_faturamento_todos_meses, ano, detalhamento_categoria=False, categoria_selecionada=None):
     # garante que é número
     df_faturamento_todos_meses['Valor Bruto'] = pd.to_numeric(
         df_faturamento_todos_meses['Valor Bruto'], 
         errors='coerce'
     )
-    
+   
+    # Filtra pelo ano selecionado o df que tem todos os meses do ano atual e seguinte
+    df_faturamento_todos_meses = df_faturamento_todos_meses[df_faturamento_todos_meses['Data Evento'].dt.year == ano]
+    # st.write(df_faturamento_todos_meses[df_faturamento_todos_meses['Categoria']=='Alimentos']
+    #   .groupby(['Dia Semana', 'Mes_Ano'])['Valor Bruto']
+    #   .agg(['count','size','mean','sum']))
+
     # Calcula a média de faturamento de cada categoria por dia da semana
-    df_faturamento_categoria_dia_semana = df_faturamento_todos_meses.groupby(['Categoria', 'Dia Semana', 'Mes_Ano', 'Nome Mes'], as_index=False)[['Valor Bruto']].mean()
+    df_faturamento_categoria_dia_semana = df_faturamento_todos_meses.groupby(['Categoria', 'Dia Semana', 'Mes_Ano'], dropna=False, as_index=False)[['Valor Bruto']].mean()
 
     if detalhamento_categoria == False:
         # Soma de todas as categorias por dia da semana
-        df_faturamento_dia_semana = df_faturamento_categoria_dia_semana.groupby(['Dia Semana', 'Mes_Ano', 'Nome Mes'], as_index=False)[['Valor Bruto']].sum()
+        df_faturamento_dia_semana = df_faturamento_categoria_dia_semana.groupby(['Dia Semana', 'Mes_Ano'], as_index=False)[['Valor Bruto']].sum()
     else:
         df_faturamento_categoria_dia_semana_filtrado = df_faturamento_categoria_dia_semana[df_faturamento_categoria_dia_semana['Categoria'] == categoria_selecionada]
         df_faturamento_dia_semana = df_faturamento_categoria_dia_semana_filtrado[['Dia Semana', 'Mes_Ano', 'Valor Bruto']]

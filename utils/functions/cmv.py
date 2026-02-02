@@ -30,11 +30,13 @@ def substituicao_ids(df, colNome, colID):
   substituicoesNomes = {
     'Delivery Fabrica de Bares': 'Bar Brahma - Centro',
     'Hotel Maraba': 'Bar Brahma - Centro',
+    'Delivery Brahma Centro': 'Bar Brahma - Centro',
     'Delivery Bar Leo Centro': 'Bar Léo - Centro',
+    'Delivery Brahma Granja Viana': 'Bar Brahma - Granja',
     'Delivery Orfeu': 'Orfeu',
     'Delivery Jacaré': 'Jacaré',
     'Notiê - Priceless': 'Priceless',
-    'Abaru - Priceless': 'Priceless',
+    'Terraço Notie': 'Priceless',
     'Blue Note - São Paulo': 'Blue Note - Agregado',
     'Blue Note SP (Novo)': 'Blue Note - Agregado',
     'Girondino - CCBB': 'Girondino - Agregado',
@@ -74,6 +76,7 @@ def primeiro_dia_mes_para_mes_ano(df):
 def config_faturamento_bruto_zig(data_inicio, data_fim, loja):
   df = GET_FATURAM_ZIG_ALIM_BEB_MENSAL(data_inicio=data_inicio, data_fim=data_fim)
   df = substituicao_ids(df, 'Loja', 'ID_Loja')
+  
 
   df['Valor_Bruto'] = df['Valor_Bruto'].astype(float)
   df = df.dropna(subset=['ID_Loja'])
@@ -85,17 +88,20 @@ def config_faturamento_bruto_zig(data_inicio, data_fim, loja):
     'Data_Evento': 'first'
   }).reset_index()
 
-  df_delivery = df[df['Delivery'] == 1]
-  df_zig = df[df['Delivery'] == 0]
-
+  # Faturamento Delivery
+  df_delivery = df[(df['Delivery'] == 1)]
   df_delivery = df_delivery[df_delivery['Loja'] == loja]
+
+  # Faturamento Zig
+  df_zig = df[df['Delivery'] == 0]
   df_zig = df_zig[df_zig['Loja'] == loja]
+  
 
   faturamento_bruto_alimentos = df_zig[(df_zig['Categoria'] == 'Alimentos')]['Valor_Bruto'].sum()
   faturamento_bruto_bebidas = df_zig[(df_zig['Categoria'] == 'Bebidas')]['Valor_Bruto'].sum()
   faturamento_alimentos_delivery = df_delivery[(df_delivery['Categoria'] == 'Alimentos')]['Valor_Bruto'].sum()
   faturamento_bebidas_delivery = df_delivery[(df_delivery['Categoria'] == 'Bebidas')]['Valor_Bruto'].sum()
-
+  
   # faturamento_total_zig = faturamento_bruto_alimentos + faturamento_bruto_bebidas + faturamento_alimentos_delivery + faturamento_bebidas_delivery
   return df_delivery, df_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_alimentos_delivery, faturamento_bebidas_delivery
 
@@ -124,17 +130,20 @@ def config_faturamento_eventos(data_inicio, data_fim, loja, faturamento_bruto_al
 
 def config_compras(data_inicio, data_fim, loja):
   df1 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_SEM_PEDIDO()  
-  df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO()
+  df2 = GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA(data_inicio, data_fim, loja)
+
+  df1 = substituicao_ids(df1, 'Loja', 'ID_Loja')
+  df2 = substituicao_ids(df2, 'Loja', 'ID_Loja')
 
   df_compras = pd.merge(df2, df1, on=['ID_Loja', 'Loja', 'Primeiro_Dia_Mes'], how='outer')
 
-  df_compras = substituicao_ids(df_compras, 'Loja', 'ID_Loja')
-  df_compras = df_compras[df_compras['Loja'] == loja]
+  df_compras = df_compras[df_compras['Loja'] == loja]  
   df_compras = df_compras.groupby(['ID_Loja', 'Loja', 'Primeiro_Dia_Mes']).agg(
     {'BlueMe_Sem_Pedido_Alimentos': 'sum', 
      'BlueMe_Sem_Pedido_Bebidas': 'sum', 
      'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'sum', 
-     'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum'}).reset_index()
+     'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'sum',
+    }).reset_index()
 
   df_compras = filtrar_por_datas(df_compras, data_inicio, data_fim, 'Primeiro_Dia_Mes')
 
@@ -148,13 +157,19 @@ def config_compras(data_inicio, data_fim, loja):
 
   df_compras['Compras Alimentos'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Alimentos'] + df_compras['BlueMe_Sem_Pedido_Alimentos']
   df_compras['Compras Bebidas'] = df_compras['BlueMe_Com_Pedido_Valor_Liq_Bebidas'] + df_compras['BlueMe_Sem_Pedido_Bebidas']
-  df_compras = df_compras.rename(columns={'Primeiro_Dia_Mes': 'Mes Ano', 'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.', 'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas', 'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.', 'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'})
+  df_compras = df_compras.rename(columns={
+    'Primeiro_Dia_Mes': 'Mes Ano', 
+    'BlueMe_Com_Pedido_Valor_Liq_Alimentos': 'BlueMe c/ Pedido Alim.',
+    'BlueMe_Com_Pedido_Valor_Liq_Bebidas': 'BlueMe c/ Pedido Bebidas',
+    'BlueMe_Sem_Pedido_Alimentos': 'BlueMe s/ Pedido Alim.',
+    'BlueMe_Sem_Pedido_Bebidas': 'BlueMe s/ Pedido Bebidas'
+  })
 
   df_compras = df_compras[['ID_Loja', 'Loja', 'BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']]
-  
-  columns = ['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']
-  df_compras = format_columns_brazilian(df_compras, columns)
 
+  # Exibe todos os valores em apenas uma linha
+  df_compras = df_compras.groupby(['ID_Loja', 'Loja'], as_index=False)[['BlueMe c/ Pedido Alim.', 'BlueMe s/ Pedido Alim.', 'Compras Alimentos', 'BlueMe c/ Pedido Bebidas', 'BlueMe s/ Pedido Bebidas', 'Compras Bebidas']].sum()
+  
   return df_compras, Compras_Alimentos, Compras_Bebidas
 
 
@@ -174,29 +189,70 @@ def config_insumos_blueme_sem_pedido(data_inicio, data_fim, loja):
 
 
 def config_insumos_blueme_com_pedido(data_inicio, data_fim, loja):
-  df = GET_INSUMOS_BLUE_ME_COM_PEDIDO()
-  df = substituicao_ids(df, 'Loja', 'ID_Loja')
-  df = df.drop(['Primeiro_Dia_Mes'], axis=1)
-  df = df[df['Loja'] == loja]
-  df = filtrar_por_datas(df, data_inicio, data_fim, 'Data_Emissao')
+    df = GET_INSUMOS_BLUE_ME_COM_PEDIDO(data_inicio, data_fim, loja)
 
-  df = df_format_date_brazilian(df, 'Data_Emissao')
+    df = (
+        df
+        .pipe(substituicao_ids, 'Loja', 'ID_Loja')
+        .drop(columns=['Primeiro_Dia_Mes'])
+        .loc[lambda x: x['Loja'] == loja]
+        .pipe(filtrar_por_datas, data_inicio, data_fim, 'Data_Emissao')
+        .pipe(df_format_date_brazilian, 'Data_Emissao')
+    )
 
-  df['Valor_Cotacao'] = df['Valor_Cotacao'].astype(float)
-  df['Valor_Liquido'] = df['Valor_Liquido'].astype(float)
-  df['Insumos - V. Líq'] = df['Valor_Cotacao'] - df['Valor_Liquido']
+    # Colunas numéricas
+    colunas_float = [
+        'Valor_Cotacao',
+        'Valor_Liquido',
+        'Valor_Liq_Alimentos',
+        'Valor_Liq_Bebidas',
+        'Valor_Liq_Descart_Hig_Limp',
+        'Valor_Gelo_Gas_Carvao_Velas',
+        'Valor_Utensilios',
+        'Valor_Liq_Outros'
+    ]
 
-  df.rename(columns = {'tdr_ID': 'tdr ID', 'ID_Loja': 'ID Loja', 'Loja': 'Loja', 'Fornecedor': 'Fornecedor', 'Doc_Serie': 'Doc_Serie', 'Data_Emissao': 'Data Emissão',
-                       'Valor_Liquido': 'Valor Líquido', 'Valor_Cotacao': 'Valor Cotação', 'Valor_Liq_Alimentos': 'Valor Líq. Alimentos',
-                       'Valor_Liq_Bebidas': 'Valor Líq. Bebidas', 'Valor_Liq_Descart_Hig_Limp': 'Valor Líq. Hig/Limp.', 'Valor_Gelo_Gas_Carvao_Velas': 'Valor Líq Gelo/Gas/Carvão/Velas',
-                       'Valor_Utensilios': 'Valor Líq. Utensilios', 'Valor_Liq_Outros': 'Valor Líq. Outros'}, inplace=True)
+    df[colunas_float] = df[colunas_float].astype(float)
 
-  
+    # Cálculo de insumos
+    df['Insumos - V. Líq'] = df['Valor_Cotacao'] - df['Valor_Liquido']
 
-  nova_ordem = ['tdr ID', 'ID Loja', 'Loja', 'Fornecedor', 'Doc_Serie', 'Data Emissão', 'Valor Líquido', 'Valor Cotação', 'Insumos - V. Líq', 'Valor Líq. Alimentos',
-                'Valor Líq. Bebidas', 'Valor Líq. Hig/Limp.', 'Valor Líq Gelo/Gas/Carvão/Velas', 'Valor Líq. Utensilios', 'Valor Líq. Outros']
-  df = df[nova_ordem]
-  return df
+    # Renomear colunas
+    df = df.rename(columns={
+        'tdr_ID': 'tdr ID',
+        'ID_Loja': 'ID Loja',
+        'Doc_Serie': 'Doc_Serie',
+        'Data_Emissao': 'Data Emissão',
+        'Valor_Liquido': 'Valor Líquido',
+        'Valor_Cotacao': 'Valor Cotação',
+        'Valor_Liq_Alimentos': 'Valor Líq. Alimentos',
+        'Valor_Liq_Bebidas': 'Valor Líq. Bebidas',
+        'Valor_Liq_Descart_Hig_Limp': 'Valor Líq. Hig/Limp.',
+        'Valor_Gelo_Gas_Carvao_Velas': 'Valor Líq Gelo/Gas/Carvão/Velas',
+        'Valor_Utensilios': 'Valor Líq. Utensilios',
+        'Valor_Liq_Outros': 'Valor Líq. Outros'
+    })
+
+    # Ordem final
+    ordem_colunas = [
+        'tdr ID',
+        'ID Loja',
+        'Loja',
+        'Fornecedor',
+        'Doc_Serie',
+        'Data Emissão',
+        'Valor Líquido',
+        'Valor Cotação',
+        'Insumos - V. Líq',
+        'Valor Líq. Alimentos',
+        'Valor Líq. Bebidas',
+        'Valor Líq. Hig/Limp.',
+        'Valor Líq Gelo/Gas/Carvão/Velas',
+        'Valor Líq. Utensilios',
+        'Valor Líq. Outros'
+    ]
+
+    return df[ordem_colunas]
 
 
 def config_valoracao_producao(data_inicio, loja):
@@ -293,13 +349,59 @@ def config_diferenca_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_me
   df_diferenca_estoque['Diferença Preço'] = round(df_diferenca_estoque['Preço Mês Atual'] - df_diferenca_estoque['Preço Mês Anterior'], 2)
   df_diferenca_estoque['Diferenca_Estoque'] = df_diferenca_estoque['Valor_em_Estoque_Atual'] - df_diferenca_estoque['Valor_em_Estoque_Mes_Anterior']
   df_diferenca_estoque.sort_values(by=['Diferenca_Estoque', 'Categoria'], inplace=True)
-  df_diferenca_estoque = format_columns_brazilian(df_diferenca_estoque, ['Quantidade_Atual', 'Quantidade_Mes_Anterior', 'Valor_em_Estoque_Atual', 'Valor_em_Estoque_Mes_Anterior', 'Diferenca_Estoque', 'Preço Mês Atual', 'Preço Mês Anterior', 'Diferença Preço'])
-  df_diferenca_estoque.drop(['ID_Loja', 'ID_Nivel_4'], axis=1, inplace=True)
-  df_diferenca_estoque.rename(columns={'Quantidade_Atual': 'Quantidade Atual', 'Quantidade_Mes_Anterior': 'Quantidade Mes Anterior', 'Diferenca_Estoque': 'Diferença Valor Estoque', 'Valor_em_Estoque_Atual': 'Valor em Estoque Atual', 'Valor_em_Estoque_Mes_Anterior': 'Valor em Estoque Mes Anterior', 'Unidade_Medida': 'Unidade de Medida', 'ID_Insumo': 'ID Insumo'}, inplace=True)
-  df_diferenca_estoque = df_diferenca_estoque[['Categoria', 'ID Insumo', 'Insumo', 'Unidade de Medida','Preço Mês Anterior', 'Quantidade Mes Anterior', 'Valor em Estoque Mes Anterior', 'Preço Mês Atual', 'Quantidade Atual', 'Valor em Estoque Atual', 'Diferença Preço', 'Diferença Valor Estoque']]
+
+  df_diferenca_estoque = df_diferenca_estoque.drop(
+    columns=['ID_Loja', 'ID_Nivel_4']
+  )
+
+  df_diferenca_estoque = df_diferenca_estoque.rename(columns={
+    'Quantidade_Atual': 'Quantidade Atual',
+    'Quantidade_Mes_Anterior': 'Quantidade Mes Anterior',
+    'Diferenca_Estoque': 'Diferença Valor Estoque',
+    'Valor_em_Estoque_Atual': 'Valor em Estoque Atual',
+    'Valor_em_Estoque_Mes_Anterior': 'Valor em Estoque Mes Anterior',
+    'Unidade_Medida': 'Unidade de Medida',
+    'ID_Insumo': 'ID Insumo',
+    'Preço Mês Atual': 'Preço Mês Atual',
+    'Preço Mês Anterior': 'Preço Mês Anterior',
+    'Diferença Preço': 'Diferença Preço'
+  })
+
+  df_diferenca_estoque = df_diferenca_estoque[
+    [
+      'Categoria',
+      'ID Insumo',
+      'Insumo',
+      'Unidade de Medida',
+      'Preço Mês Anterior',
+      'Quantidade Mes Anterior',
+      'Valor em Estoque Mes Anterior',
+      'Preço Mês Atual',
+      'Quantidade Atual',
+      'Valor em Estoque Atual',
+      'Diferença Preço',
+      'Diferença Valor Estoque'
+    ]
+  ]
+
+  df_diferenca_estoque = format_columns_brazilian(
+    df_diferenca_estoque,
+    [
+      'Quantidade Atual',
+      'Quantidade Mes Anterior',
+      'Valor em Estoque Atual',
+      'Valor em Estoque Mes Anterior',
+      'Diferença Valor Estoque',
+      'Preço Mês Atual',
+      'Preço Mês Anterior',
+      'Diferença Preço'
+    ]
+  )
+
+  df_diferenca_estoque_download = df_diferenca_estoque.copy()
   df_diferenca_estoque = df_diferenca_estoque.style.map(highlight_values_inverse, subset=['Diferença Preço'])
 
-  return df_diferenca_estoque
+  return df_diferenca_estoque, df_diferenca_estoque_download
 
 
 def config_variacao_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior):
@@ -326,8 +428,7 @@ def config_variacao_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes
     'Estoque Atual': 'sum'
   }).reset_index()
 
-  df_variacao_estoque = df_variacao_estoque[df_variacao_estoque['Categoria'] != 0]
-  df_variacao_estoque = format_columns_brazilian(df_variacao_estoque, ['Estoque Mes Anterior', 'Estoque Atual'])
+  df_variacao_estoque = df_variacao_estoque[df_variacao_estoque['Categoria'] != 0]  
 
   return df_variacao_estoque, variacao_estoque_alimentos, variacao_estoque_bebidas
 
@@ -456,12 +557,12 @@ def config_transferencias_gastos(data_inicio, data_fim, loja):
   consumo_interno = float(df_transf_e_gastos['Consumo Interno'].iloc[0]) if not df_perdas_e_consumo.empty and 'Consumo Interno' in df_transf_e_gastos.columns else 0.0
   quebras_e_perdas = float(df_transf_e_gastos['Quebras e Perdas'].iloc[0]) if not df_perdas_e_consumo.empty and 'Quebras e Perdas' in df_transf_e_gastos.columns else 0.0
 
-  df_transf_e_gastos = format_columns_brazilian(df_transf_e_gastos, ['Entrada Alimentos', 'Entrada Bebidas', 'Saída Alimentos', 'Saída Bebidas', 'Consumo Interno', 'Quebras e Perdas'])
-
   return df_transf_e_gastos, saida_alimentos, saida_bebidas, entrada_alimentos, entrada_bebidas, consumo_interno, quebras_e_perdas
 
 def config_transferencias_detalhadas(data_inicio, data_fim, loja):
   df_transf_estoque = GET_TRANSF_ESTOQUE()
+  df_transf_estoque = substituicao_ids(df_transf_estoque, 'Casa_Saida', 'ID_Loja_Saida')
+  df_transf_estoque = substituicao_ids(df_transf_estoque, 'Casa_Entrada', 'ID_Loja_Entrada')
   df_transf_estoque = filtrar_por_datas(df_transf_estoque, data_inicio, data_fim, 'Data_Transferencia')
   df_transf_estoque = df_transf_estoque.rename(columns={'Casa_Saida': 'Casa Saída', 'Casa_Entrada': 'Casa Entrada', 'Data_Transferencia': 'Data Transferência', 
                                                         'Valor_Transferencia': 'Valor Transferência', 'ID_Insumo_Nivel_5': 'ID Insumo Nível 5', 
@@ -471,8 +572,7 @@ def config_transferencias_detalhadas(data_inicio, data_fim, loja):
   df_entradas = df_transf_estoque[df_transf_estoque['Casa Entrada'] == loja]
   df_saidas = df_format_date_brazilian(df_saidas, 'Data Transferência')
   df_entradas = df_format_date_brazilian(df_entradas, 'Data Transferência')
-  df_entradas = format_columns_brazilian(df_entradas, ['Valor Transferência'])
-  df_saidas = format_columns_brazilian(df_saidas, ['Valor Transferência'])
+  
   return df_entradas, df_saidas
 
 
