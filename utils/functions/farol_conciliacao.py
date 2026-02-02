@@ -52,7 +52,10 @@ def conciliacao_casa(df, casa, datas_completas):
 
     # Eventos (desmembrar de Receitas Extraordinárias) #
     df_eventos = GET_EVENTOS()
-    df_eventos_farol = df_eventos[df_eventos['Casa'] == casa]
+    df_eventos_farol = df_eventos[
+        (df_eventos['Casa'] == casa) &
+        ~(df_eventos['Forma_Pgto'] == 'Permuta')
+    ]
     if 'Eventos' not in df_copia.columns:
         df_copia['Eventos'] = somar_por_data(
             df_eventos_farol, "Recebimento_Parcela", "Valor_Parcela", datas_completas
