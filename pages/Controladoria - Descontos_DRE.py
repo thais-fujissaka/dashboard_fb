@@ -23,7 +23,11 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/percent_discount: Descontos - DRE")
+col1, col2 = st.columns([5, 1], vertical_alignment='center')
+with col1:
+    st.title(":material/percent_discount: Descontos - DRE")
+with col2:
+    st.button(label='Atualizar dados', key='atualizar_forecast', on_click=st.cache_data.clear)
 st.divider()
 
 # Recupera dados
