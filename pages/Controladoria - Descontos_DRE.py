@@ -26,6 +26,7 @@ config_sidebar()
 col1, col2 = st.columns([5, 1], vertical_alignment='center')
 with col1:
     st.title(":material/percent_discount: Descontos - DRE")
+    st.write("Aba que replica a aba de 'Descontos' da planilha de DRE para inserção automática no EPM.")
 with col2:
     st.button(label='Atualizar dados', key='atualizar_forecast', on_click=st.cache_data.clear)
 st.divider()
@@ -124,6 +125,7 @@ if not df_categorias_mes.empty:
         'Descontos - DRE': 'DESCONTOS_DRE'
     })
     df_download = df_download[['FK_CASA', 'DATA', 'CATEGORIA', 'TOTAL_DESCONTO', 'CMV', 'ALOCA_CENTRO_CUSTO', 'CENTRO_CUSTO', 'PERMANECE_DESCONTO', 'DEDUCAO_FATURAMENTO_ALIM', 'DEDUCAO_FATURAMENTO_BEB', 'DESCONTOS_DRE']]
+    df_download = df_download.sort_values(by=['FK_CASA'])
 
     # Exibe tebala resultante
     col1, col2 = st.columns(2)
@@ -139,6 +141,7 @@ if not df_categorias_mes.empty:
         'DATA': 'Data'
     })
     df_categorias_mes_descontos_dre = df_categorias_mes_descontos_dre[['ID Casa', 'Data', 'Categoria', 'Total Desconto', 'CMV', 'Aloca no Centro de Custo', 'Centro de Custo', 'Permanece no Desconto', 'Dedução Faturamento - Alimento', 'Dedução Faturamento - Bebida', 'Descontos - DRE']]
+    df_categorias_mes_descontos_dre = df_categorias_mes_descontos_dre.sort_values(by=['ID Casa'])
     st.dataframe(df_categorias_mes_descontos_dre, hide_index=True)
 
 else:
