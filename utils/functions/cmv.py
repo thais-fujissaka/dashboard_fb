@@ -5,11 +5,6 @@ from utils.components import *
 import calendar
 from babel.dates import format_date
 from utils.functions.date_functions import *
-from reportlab.lib.pagesizes import landscape, A3
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.pdfgen import canvas
 import io
 
 pd.set_option('future.no_silent_downcasting', True)

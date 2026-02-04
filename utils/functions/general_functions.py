@@ -196,7 +196,8 @@ def config_sidebar():
         132: "KPI's de Resultado Operacional - Suprimentos",
         133: "Auditoria",
         134: "Auditoria",
-        135: "Controladoria"
+        135: "Controladoria",
+        136: "Controladoria"
     }
 
     cargo, user_name, email = config_permissoes_user()
