@@ -214,7 +214,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
                 "Data_Somente",  # ainda usamos a coluna original com hora para somar por data
                 "Valor", datas
             )
-
+        
         # Diferenças (Contas a Receber) #
         if 'Diferenças (Contas a Receber)' not in df_conciliacao.columns:
             df_conciliacao['Diferenças (Contas a Receber)'] = calcula_diferencas(
@@ -300,7 +300,7 @@ def conciliacao_inicial(id_casa, casa, start_date, end_date, tab):
 
         ## Exportando em Excel
         excel_filename = 'Conciliacao_FB.xlsx'
-
+        
         if casa != 'All bar':
             if st.button('Atualizar Planilha Excel'):
                 sheet_name_zig = 'df_extrato_zig'

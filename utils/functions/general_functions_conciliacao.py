@@ -118,13 +118,31 @@ def calcular_datas():
 # Formata valores numéricos e datas 
 def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date):
     if id_casa != 157: 
-        df_filtrado = df[df['ID_Casa'] == id_casa] 
-        df_filtrado = df_filtrado[(df_filtrado[coluna_data] >= start_date) & (df_filtrado[coluna_data] <= end_date)] 
+        df_filtrado = df[df['ID_Casa'] == id_casa].copy() 
     else:    
-        df_filtrado = df[(df[coluna_data] >= start_date) & (df[coluna_data] <= end_date)] 
+        df_filtrado = df.copy()
 
-    # Copia para formatação brasileira de colunas numéricas 
-    df_formatado = df_filtrado.copy() 
+    # Guarda a data original (com horário)
+    col_data_original = f"{coluna_data}_original"
+    df_filtrado[col_data_original] = pd.to_datetime(df_filtrado[coluna_data])
+
+    # Normaliza SOMENTE para filtro
+    df_filtrado[coluna_data] = df_filtrado[coluna_data].dt.normalize()
+
+    # Filtro por período
+    df_filtrado = df_filtrado[
+        (df_filtrado[coluna_data] >= pd.to_datetime(start_date)) &
+        (df_filtrado[coluna_data] <= pd.to_datetime(end_date))
+    ]
+
+    # Restaura a data real (com horário)
+    df_filtrado[coluna_data] = df_filtrado[col_data_original]
+
+    # Remove coluna auxiliar (opcional)
+    df_filtrado.drop(columns=[col_data_original], inplace=True)
+
+    # Df de exibição
+    df_formatado = df_filtrado.copy()
     
     # Aplica formatação brasileira em colunas numéricas 
     for col in df_formatado.select_dtypes(include='object').columns: 
@@ -135,6 +153,7 @@ def filtra_formata_df(df, coluna_data, id_casa, start_date, end_date):
     for col in df_formatado.select_dtypes(include='datetime').columns: 
         df_formatado[col] = pd.to_datetime(df_formatado[col]).dt.strftime('%d-%m-%Y') 
     return df_filtrado, df_formatado
+
 
 # Recebe df filtrado e só formata campos numéricos e de data
 def formata_df(df):

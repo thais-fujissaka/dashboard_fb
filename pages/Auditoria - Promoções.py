@@ -119,6 +119,18 @@ else:
 
     # Reordena colunas
     df_formatado = df_formatado[['FK_CASA', 'DATA', 'PRODUTO', 'PROMOCAO', 'CATEGORIA_PRODUTO', 'QUANTIDADE_USOS', 'DESCONTO_TOTAL']]
+    df_download = df_formatado.copy()
+
+    # Renomeia casas para formatar nome do arquivo excel
+    if casa == 'Bar Brahma - Centro': nome_casa = 'BBC'
+    elif casa == 'Bar Brahma - Granja': nome_casa = 'BBG'
+    elif casa == 'Bar Léo - Centro': nome_casa = 'Bar Léo'
+    elif casa == 'Blue Note - São Paulo': nome_casa = 'Blue Note SP'
+    elif casa == 'Edificio Rolim': nome_casa = 'Rolim'
+    elif casa == 'Girondino - CCBB': nome_casa = 'CCBB'
+    elif casa == 'Love Cabaret': nome_casa = 'Love'
+    elif casa == 'Riviera Bar': nome_casa = 'Riviera'
+    else: nome_casa = casa
 
     # Mostra o resultado
     col1, col2 = st.columns(2, vertical_alignment='center')
@@ -126,8 +138,7 @@ else:
         st.subheader('Tabela formatada')
         st.write('Tabela adequada para inputar os dados no EPM.')
     with col2:
-        button_download(df_formatado, f"{casa} - {mes}{ano}", f"Promoções - {casa}")
+        button_download(df_download, f"{nome_casa} - PROMO_{mes}{ano}", f"Promoções - {casa}")
     
-    df_download = df_formatado.copy()
     st.dataframe(df_download, hide_index=True)
 

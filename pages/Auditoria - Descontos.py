@@ -231,6 +231,8 @@ else:
     df = pd.read_excel(uploaded_file, skiprows=3)
     st.divider()
     st.subheader('Tabela original')
+    
+    df['Porcentagem'] = df['Porcentagem'] * 100
     st.dataframe(df, hide_index=True)
     st.divider()
 
@@ -318,14 +320,25 @@ else:
         'Desconto': 'DESCONTO',
         'Primeiro_Dia_Mes': 'PRIMEIRO_DIA_MES'
     })
+
+    # Renomeia casas para formatar nome do arquivo excel
+    if casa == 'Bar Brahma - Centro': nome_casa = 'BBC'
+    elif casa == 'Bar Brahma - Granja': nome_casa = 'BBG'
+    elif casa == 'Bar Léo - Centro': nome_casa = 'Bar Léo'
+    elif casa == 'Blue Note - São Paulo': nome_casa = 'Blue Note SP'
+    elif casa == 'Edificio Rolim': nome_casa = 'Rolim'
+    elif casa == 'Girondino - CCBB': nome_casa = 'CCBB'
+    elif casa == 'Love Cabaret': nome_casa = 'Love'
+    elif casa == 'Riviera Bar': nome_casa = 'Riviera'
+    else: nome_casa = casa
     
     # Mostra o resultado
     col1, col2 = st.columns([4, 1])
     with col1:
         st.subheader('Descontos categorizados') 
     with col2:
-        button_download(df_download, f"{casa} - {mes}{ano}", f"Descontos - {casa}")
+        button_download(df_download, f"{nome_casa} - DESC_{mes}{ano}", f"Descontos - {casa}")
 
     st.info('Atenção para as células com categoria vazia, caso haja.')
-    st.dataframe(df_categorizado, hide_index=True)
+    st.dataframe(df_download, hide_index=True)
     
