@@ -76,7 +76,7 @@ def main():
 	st.divider()
 
 	# Filtro de casa:
-	lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+	lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
 	id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='seletor_casas_auditoria')
 	if id_casa != -1:
 		df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]

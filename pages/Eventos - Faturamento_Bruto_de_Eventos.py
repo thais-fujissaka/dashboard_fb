@@ -91,7 +91,7 @@ def main():
 	# Seletores
 	col1, col2= st.columns([1, 1], gap="large")
 	with col1:
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
 		ano = seletor_ano(2024, 2026, key='ano_faturamento')

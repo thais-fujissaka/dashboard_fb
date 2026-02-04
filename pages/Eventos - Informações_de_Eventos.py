@@ -89,7 +89,7 @@ def main():
 	# Seletores de eventos
 	col1, col2 = st.columns([1, 3])
 	with col1:
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='casas_informacoes_eventos')
 
 	# Filtro por Casa
