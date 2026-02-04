@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.components import seletor_ano
+from utils.components import seletor_ano, input_selecao_casas
 from utils.functions.general_functions_conciliacao import *
 from utils.constants.general_constants import casas_validas
 from utils.functions.general_functions import config_sidebar
@@ -28,31 +28,15 @@ with col2:
   st.button(label='Atualizar dados', key='atualizar_forecast', on_click=st.cache_data.clear)
 st.divider()
 
-# Recuperando dados
-df_casas = GET_CASAS()
-
 # Filtrando por casa e ano
 datas = calcular_datas()
 col1, col2 = st.columns(2)
 
 # Seletor de casa
 with col1: 
-  casas = df_casas['Casa'].tolist()
-
-  casas = ["Todas as casas" if c == "All bar" else c for c in casas]
-  casa = st.selectbox("Selecione uma casa:", casas)
-  if casa == "Todas as casas":
-    nome_casa = "Todas as casas"
-    casa = "All bar"
-  else:
-     nome_casa = casa
-
-  # Definindo um dicionário para mapear nomes de casas a IDs de casas
-  mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-
-  # Obtendo o ID da casa selecionada
-  id_casa = mapeamento_casas[casa]
-
+  lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Todas as Casas']
+  id_casa, nome_casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
+  
 # Seletor de ano
 with col2:
   ano = seletor_ano(2024, 2026, 'ano_ajustes', 'Selecione um ano:')

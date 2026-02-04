@@ -14,6 +14,7 @@ def input_selecao_casas(lista_casas_retirar, key):
     df_casas = get_casas_validas()
     # Remove casas da lista_casas_retirar
     df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
+    st.write(df_casas)
     # Adiciona a opção "Todas as Casas"
     if 'Todas as Casas' in lista_casas_retirar:
         lista_casas_validas = df_casas['Casa'].to_list()
