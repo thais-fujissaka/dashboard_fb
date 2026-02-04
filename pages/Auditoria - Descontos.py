@@ -231,6 +231,8 @@ else:
     df = pd.read_excel(uploaded_file, skiprows=3)
     st.divider()
     st.subheader('Tabela original')
+    
+    df['Porcentagem'] = df['Porcentagem'] * 100
     st.dataframe(df, hide_index=True)
     st.divider()
 
