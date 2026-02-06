@@ -43,8 +43,6 @@ def main():
   data_inicio = date(datetime.today().year, datetime.today().month, 1) - relativedelta(months=1)
   data_fim = date(datetime.today().year, datetime.today().month, 1) - relativedelta(days=1)
 
-  # Cálculo inicial para obter as casas
-  df_fabrica_faturamento_couvert, df_eshows_custos, df_propostas_eshows, df_merged = dados_fabrica_eshows(data_inicio, data_fim)
 
   st.markdown('## Lucro por Casa')
   st.divider()
@@ -57,8 +55,14 @@ def main():
       format='DD/MM/YYYY'
     )
   with col2:
-    lojas_selecionadas = st.multiselect("Casa", df_merged['Loja'].unique(), default=df_merged['Loja'].unique(), key='loja')
+    lista_casas_retirar = ['The Cavern']
+    df_lojas_selecionadas = input_multiselecao_casas(lista_casas_retirar, key="casas_artistico")
+    lojas_selecionadas = df_lojas_selecionadas['Casa'].to_list()
   st.divider()
+
+  if len(lojas_selecionadas) == 0:
+      st.warning('Nenhuma loja selecionada')
+      st.stop()
 
   if len(data_range) == 2:
     data_inicio, data_fim = data_range
@@ -80,8 +84,11 @@ def main():
     df_merged_anterior['Loja'] = df_merged_anterior['Loja'].replace(["0", 0], "")
 
     df_merged_filtrado = df_merged[df_merged['Loja'].isin(lojas_selecionadas)]
+    if df_merged_filtrado.empty:
+      st.warning('Sem dados encontrados para o período selecionado.')
+      st.stop()
     df_merged_anterior_filtrado = df_merged_anterior[df_merged_anterior['Loja'].isin(lojas_selecionadas)]
-    
+
     lucro_total = float(df_merged_filtrado['Resultado'].sum())
     lucro_total_anterior = float(df_merged_anterior_filtrado['Resultado'].sum())
     delta_lucro = float(lucro_total - lucro_total_anterior)

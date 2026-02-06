@@ -139,6 +139,9 @@ def substituir_precos_producao_na_ficha(df_precos_na_ficha, df_itens_precos_comp
     return df_precos_na_ficha
 
 def adicionar_novos_precos_producao_completos(df_precos_na_ficha):
+    if df_precos_na_ficha.empty:
+        st.error('Nenhuma ficha de produção encontrada.')
+        st.stop()
     itens_precos_completos = (
         df_precos_na_ficha.groupby('ID Item Produzido')['Custo Ficha']
         .apply(lambda x: x.notna().all())

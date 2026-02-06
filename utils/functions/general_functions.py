@@ -361,20 +361,15 @@ def highlight_values(val):
 
 def preparar_dados_lojas_user_financeiro():
     permissao, nomeuser, username = config_permissoes_user()
-    if 'Administrador' in permissao or 'Dev Dash FB' in permissao:
-        dflojas = GET_LOJAS()
-        lojasARemover = ['Casa Teste', 'Casa Teste 2', 'Casa Teste 3']
-        dflojas = dflojas[~dflojas['Loja'].isin(lojasARemover)]
-    else:
-        dflojas = GET_LOJAS_USER(username)
+    dflojas = GET_LOJAS_USER(username)
 
     lojasReais = [
-        'Abaru - Priceless', 'Arcos', 'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Léo - Centro',
+        'Arcos', 'Bar Brahma - Centro', 'Bar Brahma Paulista', 'Bar Léo - Centro',
         'Blue Note - São Paulo', 'Blue Note SP (Novo)', 'Delivery Bar Leo Centro', 'Delivery Fabrica de Bares',
         'Delivery Jacaré', 'Delivery Orfeu', 'Edificio Rolim', 'Escritório Fabrica de Bares',
-        'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret', 'Notiê - Priceless',
+        'Girondino ', 'Girondino - CCBB', 'Hotel Maraba', 'Jacaré', 'Love Cabaret',
         'Orfeu', 'Priceless', 'Riviera Bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ',
-        'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão', 'The Cavern'
+        'Ultra Evil Premium Ltda ', 'Bar Brahma - Granja', 'Brahma - Ribeirão', 'The Cavern', 'Terraço Notie'
     ]
 
     lojas = dflojas[dflojas['Loja'].isin(set(lojasReais))]['Loja'].tolist()

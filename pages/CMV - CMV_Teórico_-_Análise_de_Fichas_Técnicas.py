@@ -35,7 +35,7 @@ def main():
     # Seletores
     col_casa, col_mes, col_ano, col_periodo = st.columns([1, 1, 1, 1])
     with col_casa:
-        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas']
+        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas', 'Priceless', 'Escritório Fabrica de Bares']
         id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, 'selecao_casa')
     with col_mes:
         nome_mes, mes = seletor_mes_produtos('mes', 'Mês de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')

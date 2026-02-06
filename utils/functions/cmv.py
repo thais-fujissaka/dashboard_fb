@@ -43,12 +43,13 @@ def substituicao_ids(df, colNome, colID):
   return df
 
 
-def criar_seletores_cmv(LojasComDados, data_inicio_default, data_fim_default):
+def criar_seletores_cmv(data_inicio_default, data_fim_default):
   col1, col2, col3 = st.columns([2, 1, 1])
 
   # Adiciona seletores
   with col1:
-    lojas_selecionadas = st.selectbox(label='Selecione Lojas', options=LojasComDados, key='lojas_multiselect')
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Edificio Rolim', 'Priceless', 'Escritório Fabrica de Bares']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
   with col2:
     data_inicio = st.date_input('Data de Início', value=data_inicio_default, key='data_inicio_input', format="DD/MM/YYYY")
   with col3:
@@ -57,7 +58,7 @@ def criar_seletores_cmv(LojasComDados, data_inicio_default, data_fim_default):
   # Converte as datas selecionadas para o formato Timestamp
   data_inicio = pd.to_datetime(data_inicio)
   data_fim = pd.to_datetime(data_fim)
-  return lojas_selecionadas, data_inicio, data_fim
+  return casa, data_inicio, data_fim
 
 def primeiro_dia_mes_para_mes_ano(df):
   df['Primeiro_Dia_Mes'] = pd.to_datetime(df['Primeiro_Dia_Mes'], format='%d-%m-%Y', errors='coerce')
@@ -97,7 +98,6 @@ def config_faturamento_bruto_zig(data_inicio, data_fim, loja):
   faturamento_alimentos_delivery = df_delivery[(df_delivery['Categoria'] == 'Alimentos')]['Valor_Bruto'].sum()
   faturamento_bebidas_delivery = df_delivery[(df_delivery['Categoria'] == 'Bebidas')]['Valor_Bruto'].sum()
   
-  # faturamento_total_zig = faturamento_bruto_alimentos + faturamento_bruto_bebidas + faturamento_alimentos_delivery + faturamento_bebidas_delivery
   return df_delivery, df_zig, faturamento_bruto_alimentos, faturamento_bruto_bebidas, faturamento_alimentos_delivery, faturamento_bebidas_delivery
 
 

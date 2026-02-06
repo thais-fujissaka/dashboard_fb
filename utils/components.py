@@ -8,6 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from streamlit_echarts import st_echarts
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from utils.queries_cmv import *
 
 def input_selecao_casas(lista_casas_retirar, key):
     # Dataframe com IDs e nomes das casas
@@ -49,6 +50,27 @@ def input_selecao_casas(lista_casas_retirar, key):
         id_zigpay = mapeamento_zigpay[casa]
 
     return id_casa, casa, id_zigpay
+
+def input_multiselecao_casas(lista_casas_retirar, key):
+    # Dataframe com IDs e nomes das casas
+    df_casas = get_casas_validas()
+    # Remove casas da lista_casas_retirar
+    df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
+
+    # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
+    df_permissao_casas = pd.DataFrame(st.session_state['casas_permitidas'], columns=["ID Loja"])
+    lista_ids_casas_acesso = df_permissao_casas["ID Loja"].to_list()
+    
+    df_casas = df_casas[df_casas["ID_Casa"].isin(lista_ids_casas_acesso)].sort_values(by="Casa").reset_index(drop=True)
+    lista_casas_validas = df_casas["Casa"].to_list()
+
+    lista_casas = st.multiselect("Casa", lista_casas_validas, key=key)
+    df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
+    df_validas = df_validas[df_validas["Casa"].isin(lista_casas)].sort_values(by="Casa").reset_index(drop=True)
+
+    df_result = df_casas.merge(df_validas, on="Casa", how="inner")
+    
+    return df_result
 
 
 def input_selecao_casas_analise_produtos(lista_casas_retirar, key):
