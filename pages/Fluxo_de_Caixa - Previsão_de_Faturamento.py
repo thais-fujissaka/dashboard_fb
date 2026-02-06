@@ -3,10 +3,10 @@ import streamlit as st
 import pandas as pd
 from utils.queries_fluxo_de_caixa import *
 from utils.functions.general_functions import *
+from utils.components import *
 from utils.functions.fluxo_de_caixa_previsao_faturamento import *
 from workalendar.america import Brazil
 from streamlit_echarts import st_echarts
-from utils.user import logout
 from datetime import datetime
 
 st.set_page_config(
@@ -23,9 +23,6 @@ with col:
   st.title('🪙 Previsão de Faturamento')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
-with col3:
-  if st.button("Logout"):
-    logout()
 
 config_sidebar()
 st.divider()
@@ -41,10 +38,12 @@ df_unificado = unificar_parciais(df_parciais)
 grouped_df = df_unificado.groupby(['Data_Parcial', 'Empresa'], as_index=False).agg({'Valor_Parcial': 'sum'})
 sorted_df = grouped_df.sort_values(by=['Data_Parcial', 'Empresa'])
 
-lojasComDados = preparar_dados_lojas_user_financeiro()
+# lojasComDados = preparar_dados_lojas_user_financeiro()
 data_inicio_default = datetime.today() - timedelta(days=8)
 data_fim_default = datetime.today() - timedelta(days=2)
-lojasSelecionadas, multiplicador, data_inicio, data_fim = criar_seletores_previsao(lojasComDados, data_inicio_default, data_fim_default)
+
+# Seletores
+lojasSelecionadas, multiplicador, data_inicio, data_fim = criar_seletores_previsao(data_inicio_default, data_fim_default)
 st.divider()
 
 sorted_df.rename(columns = {'Empresa': 'Loja', 'Data_Parcial': 'Data', 'Valor_Parcial': 'Valor Projetado'}, inplace=True)

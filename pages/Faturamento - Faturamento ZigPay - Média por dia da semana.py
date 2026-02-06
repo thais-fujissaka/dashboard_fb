@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.components import seletor_ano
+from utils.components import seletor_ano, input_selecao_casas
 from utils.functions.general_functions import config_sidebar
 from utils.queries_conciliacao import GET_CASAS
 from utils.queries_forecast import GET_ITENS_VENDIDOS_DIA
@@ -27,23 +27,15 @@ with col1:
     st.title(":moneybag: Faturamento ZigPay - Dias da semana")
 with col2:
     st.button(label="Atualizar dados", on_click=st.cache_data.clear)
-with col3:
-    if st.button("Logout"):
-        logout()
 st.divider()
 
 # Seletores
 col1, col2 = st.columns(2, vertical_alignment='center')
 
-df_casas = GET_CASAS()
-casas = df_casas['Casa'].tolist()
-casas = [c for c in casas if c not in ['All bar']]
-
 with col1:
-    casa = st.selectbox("Selecione uma casa:", casas)
-    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"])) 
-    id_casa = mapeamento_casas[casa] # Obtendo o ID da casa selecionada
-
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Todas as Casas']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
+  
 with col2: 
     ano = seletor_ano(2025, 2026, 'ano_faturamento_zig', 'Selecione um ano:')
 st.divider()

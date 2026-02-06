@@ -23,7 +23,7 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
     st.switch_page('Login.py')
 
 # Constantes
-CASAS_EXCLUIDAS = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas']
+CASAS_EXCLUIDAS = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas', 'Priceless', 'Escritório Fabrica de Bares']
 
 
 def main():
@@ -36,9 +36,6 @@ def main():
         st.title(":bar_chart: Painel de CMV")
     with col2:
         st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout'):
-            logout()
     st.divider()
  
     col1, col2 = st.columns([1, 1])

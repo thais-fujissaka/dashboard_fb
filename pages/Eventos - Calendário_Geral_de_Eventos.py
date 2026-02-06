@@ -39,14 +39,11 @@ def main():
         st.title("📅 Calendário Geral de Eventos")
     with col2:
         st.button(label='Atualizar', key='atualizar_calendario', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout_calendario'):
-            logout()
                
     st.divider()
 
     # Filtro de casa:
-    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
     id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
 
     if casa != 'Todas as Casas':

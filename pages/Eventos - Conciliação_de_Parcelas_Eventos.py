@@ -34,9 +34,6 @@ def main():
 		st.title(":left_right_arrow: Contas a Receber - Conciliação de Parcelas de Eventos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_conciliacao_vencimento_recebimento_eventos', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_conciliacao_vencimento_recebimento_eventos'):
-			logout()
 	st.divider()
 
 	# Recupera dados dos eventos e parcelas
@@ -75,7 +72,7 @@ def main():
 	# Seletores
 	col1, col2= st.columns([1, 1], gap="large")
 	with col1:
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 	with col2:
 		ano = seletor_ano(2024, 2026, key='ano_faturamento')

@@ -114,9 +114,15 @@ def GET_FATURAM_ZIG_AGREGADO(data_inicio, data_fim):
 def GET_ORCAM_FATURAM():
   return dataframe_query(f'''
   SELECT
-    te.ID AS ID_Loja,
-    te.NOME_FANTASIA AS Loja,
-    CONCAT(to2.ANO, '-', to2.MES) AS Ano_Mes,
+	CASE
+		WHEN te.ID IN (149) THEN 162
+		ELSE te.ID
+	END AS ID_Loja,
+	CASE
+		WHEN te.NOME_FANTASIA IN ('Priceless') THEN 'Terraço Notie'
+		ELSE te.NOME_FANTASIA
+	END AS Loja,
+	CONCAT(to2.ANO, '-', to2.MES) AS Ano_Mes,
     cast(date_format(cast(CONCAT(to2.ANO, '-', to2.MES, '-01') AS date), '%Y-%m-01') as date) AS Primeiro_Dia_Mes,
     to2.VALOR AS Orcamento_Faturamento,
     CASE

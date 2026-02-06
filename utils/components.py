@@ -8,6 +8,7 @@ from st_aggrid import AgGrid, GridOptionsBuilder, ColumnsAutoSizeMode
 from st_aggrid import GridUpdateMode, JsCode, StAggridTheme
 from streamlit_echarts import st_echarts
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from utils.queries_cmv import *
 
 def input_selecao_casas(lista_casas_retirar, key):
     # Dataframe com IDs e nomes das casas
@@ -21,8 +22,10 @@ def input_selecao_casas(lista_casas_retirar, key):
         lista_casas_validas = ["Todas as Casas"] + df_casas["Casa"].to_list()
 
     # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
-    user_email = st.session_state['user_email']
-    lista_ids_casas_acesso = st.secrets["user_access"][user_email]
+    user_login = st.session_state['user_login']
+    df_permissao_casas = pd.DataFrame(st.session_state['casas_permitidas'], columns=["ID Loja"])
+    lista_ids_casas_acesso = df_permissao_casas["ID Loja"].to_list()
+    
     if -1 not in lista_ids_casas_acesso:
         df_casas = df_casas[df_casas["ID_Casa"].isin(lista_ids_casas_acesso)].sort_values(by="Casa").reset_index(drop=True)
         lista_casas_validas = df_casas["Casa"].to_list()
@@ -48,6 +51,27 @@ def input_selecao_casas(lista_casas_retirar, key):
 
     return id_casa, casa, id_zigpay
 
+def input_multiselecao_casas(lista_casas_retirar, key):
+    # Dataframe com IDs e nomes das casas
+    df_casas = get_casas_validas()
+    # Remove casas da lista_casas_retirar
+    df_casas = df_casas[~df_casas["Casa"].isin(lista_casas_retirar)].sort_values(by="Casa").reset_index(drop=True)
+
+    # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
+    df_permissao_casas = pd.DataFrame(st.session_state['casas_permitidas'], columns=["ID Loja"])
+    lista_ids_casas_acesso = df_permissao_casas["ID Loja"].to_list()
+    
+    df_casas = df_casas[df_casas["ID_Casa"].isin(lista_ids_casas_acesso)].sort_values(by="Casa").reset_index(drop=True)
+    lista_casas_validas = df_casas["Casa"].to_list()
+
+    lista_casas = st.multiselect("Casa", lista_casas_validas, key=key)
+    df_validas = pd.DataFrame(lista_casas_validas, columns=["Casa"])
+    df_validas = df_validas[df_validas["Casa"].isin(lista_casas)].sort_values(by="Casa").reset_index(drop=True)
+
+    df_result = df_casas.merge(df_validas, on="Casa", how="inner")
+    
+    return df_result
+
 
 def input_selecao_casas_analise_produtos(lista_casas_retirar, key):
     # Dataframe com IDs e nomes das casas
@@ -57,8 +81,8 @@ def input_selecao_casas_analise_produtos(lista_casas_retirar, key):
     lista_casas_validas = df_casas["Casa"].to_list()
 
     # Se o usuário não tem acesso a todas as casas, mostra apenas as casas que ele tem acesso
-    user_email = st.session_state['user_email']
-    lista_ids_casas_acesso = st.secrets["user_access"][user_email]
+    user_login = st.session_state['user_login']
+    lista_ids_casas_acesso = st.secrets["user_access"][user_login]
     if -1 not in lista_ids_casas_acesso:
         df_casas = df_casas[df_casas["ID_Casa"].isin(lista_ids_casas_acesso)].sort_values(by="Casa").reset_index(drop=True)
         lista_casas_validas = df_casas["Casa"].to_list()
@@ -209,10 +233,10 @@ def seletor_vendedor(label, df_vendedores, key):
 def seletor_vendedor_logado(label, df_vendedores, lista_vendedores_logado, key):
 
     # Recupera o email do usuário
-    user_email = st.session_state["user_email"]
+    user_login = st.session_state["user_login"]
 
     # Verifica se o usuário tem acesso a todos os vendedores
-    if user_email in st.secrets["comissions_total_access"]["users"]:
+    if user_login in st.secrets["comissions_total_access"]["users"]:
         lista_vendedores = df_vendedores['ID - Responsavel'].tolist()
         lista_vendedores.insert(0, "Todos os vendedores")
     else:

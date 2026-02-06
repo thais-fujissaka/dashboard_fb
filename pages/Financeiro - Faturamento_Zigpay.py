@@ -4,7 +4,6 @@ from utils.queries_financeiro import *
 from utils.functions.financeiro_faturamento_zigpay import *
 from utils.functions.general_functions import *
 from utils.components import *
-from utils.user import logout
 
 st.set_page_config(
   layout = 'wide',
@@ -23,14 +22,35 @@ def main():
     st.title(':moneybag: Faturamento Zigpay')
   with col2:
     st.button(label="Atualizar", on_click = st.cache_data.clear)
-  with col3:
-    if st.button("Logout"):
-      logout()
   st.divider()
 
-  lojasComDados = preparar_dados_lojas_user_financeiro()
   data_inicio_default, data_fim_default = get_first_and_last_day_of_month()
-  lojas_selecionadas, data_inicio, data_fim = criar_seletores(lojasComDados, data_inicio_default, data_fim_default)
+
+  # Seletores
+  col1, col2, col3 = st.columns([2, 1, 1])
+  with col1:
+     # Filtro de casa:
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Edificio Rolim', 'Priceless']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
+    lojas_selecionadas = [casa]
+  with col2:
+    data_inicio = st.date_input(
+        'Data de Início',
+        value=data_inicio_default,
+        key='data_inicio_input',
+        format="DD/MM/YYYY"
+    )
+  with col3:
+    data_fim = st.date_input(
+        'Data de Fim',
+        value=data_fim_default,
+        key='data_fim_input',
+        format="DD/MM/YYYY"
+    )
+
+    # Converte as datas selecionadas para o formato Timestamp
+    data_inicio = pd.to_datetime(data_inicio)
+    data_fim = pd.to_datetime(data_fim)
 
   st.divider()
 

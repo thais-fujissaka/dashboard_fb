@@ -24,7 +24,11 @@ if 'loggedIn' not in st.session_state or not st.session_state['loggedIn']:
 # Personaliza menu lateral
 config_sidebar()
 
-st.title(":material/currency_exchange: Fluxo Realizado")
+col1, col2 = st.columns([5, 1], vertical_alignment='center')
+with col1:
+    st.title(":material/currency_exchange: Fluxo Realizado")
+with col2:
+    st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
 st.divider()
 
 # Recuperando dados

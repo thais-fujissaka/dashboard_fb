@@ -35,9 +35,6 @@ def main():
 		st.header(":no_entry_sign: Auditoria de Eventos - Alteração de Confirmados")
 	with col2:
 		st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout'):
-			logout()
 	st.divider()
 
 	st.warning(':warning: Eventos e parcelas de eventos não devem ser alterados após a confirmação do evento.')
@@ -54,7 +51,7 @@ def main():
 	col1, col2, col3 = st.columns(3)
 	with col1:
 		# Filtro de casa:
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
 		id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='seletor_casas_eventos_confirmados')
 		if id_casa != -1:
 			df_logs_eventos = df_logs_eventos[df_logs_eventos['ID Casa'] == id_casa]

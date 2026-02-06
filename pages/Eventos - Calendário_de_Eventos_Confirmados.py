@@ -39,9 +39,6 @@ def main():
         st.title("📅 Calendário de Eventos Confirmados")
     with col2:
         st.button(label='Atualizar', key='atualizar_calendario', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout_calendario'):
-            logout()
     st.divider()
 
     # Filtro eventos confirmados

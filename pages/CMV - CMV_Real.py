@@ -75,29 +75,11 @@ with col:
   st.title('⚖ CMV Real')
 with col2:
   st.button(label="Atualizar", on_click = st.cache_data.clear)
-with col3:
-  if st.button("Logout"):
-    logout()
-
 st.divider()
 
-lojasComDados = preparar_dados_lojas_user_financeiro()
-
-if 'Notiê - Priceless' in lojasComDados:
-  lojasComDados.remove('Notiê - Priceless')
-if 'Blue Note - São Paulo' in lojasComDados and 'Blue Note SP (Novo)' in lojasComDados:
-  lojasComDados.remove('Blue Note - São Paulo')
-  lojasComDados.remove('Blue Note SP (Novo)')
-  lojasComDados.append('Blue Note - Agregado')
-if 'Girondino - CCBB' in lojasComDados and 'Girondino ' in lojasComDados:
-  lojasComDados.remove('Girondino - CCBB')
-  lojasComDados.remove('Girondino ')
-  lojasComDados.append('Girondino - Agregado')
-
-lojasComDados.sort()
 
 data_inicio_default, data_fim_default = get_first_and_last_day_of_month()
-lojas_selecionadas, data_inicio, data_fim = criar_seletores_cmv(lojasComDados, data_inicio_default, data_fim_default)
+lojas_selecionadas, data_inicio, data_fim = criar_seletores_cmv(data_inicio_default, data_fim_default)
 st.divider()
 
 data_inicio_mes_anterior = (data_inicio.replace(day=1) - timedelta(days=1)).replace(day=1)

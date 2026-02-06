@@ -2,11 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from utils.queries_fluxo_de_caixa import *
-from workalendar.america import Brazil
+from utils.components import *
 from utils.functions.general_functions import *
-import openpyxl
-import os
-
 
 
 # Função para criar os dados parciais
@@ -25,12 +22,14 @@ def criar_parciais(df):
 
   return df_parciais
 
-def criar_seletores_previsao(LojasComDados, data_inicio_default, data_fim_default):
+def criar_seletores_previsao(data_inicio_default, data_fim_default):
   col1, col2, col3, col4 = st.columns([4, 1, 2, 2])
 
   # Adiciona seletores
   with col1:
-    lojas_selecionadas = st.multiselect(label='Selecione Lojas', options=LojasComDados, key='lojas_multiselect')
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Edificio Rolim', 'Priceless']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
+    lojas_selecionadas = [casa]
   with col2:
     multiplicador = st.number_input("Multiplicador", value=1.0)
   with col3:

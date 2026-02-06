@@ -73,13 +73,10 @@ def main():
 		st.header(":receipt: Auditoria de Eventos - Preenchimento dos Lançamentos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar_informacoes_eventos', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout_informacoes_eventos'):
-			logout()
 	st.divider()
 
 	# Filtro de casa:
-	lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+	lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
 	id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='seletor_casas_auditoria')
 	if id_casa != -1:
 		df_eventos = df_eventos[df_eventos['ID Casa'] == id_casa]

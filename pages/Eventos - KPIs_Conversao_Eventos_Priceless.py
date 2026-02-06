@@ -62,15 +62,12 @@ def main():
         st.title("📈 KPI's de Vendas - Conversão de Eventos")
     with col2:
         st.button(label='Atualizar', key='atualizar_kpis_vendas', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout_kpis_vendas'):
-            logout()
     st.divider()
 
     # Adiciona selecao de mes e ano
     col0, col1, col2, col3, col4= st.columns([0.5, 0.25, 0.25, 0.4, 1])
     with col0:
-        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
+        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'The Cavern']
         id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='calendario')
     with col1:
         ano = seletor_ano(2025, 2026, key="seletor_ano_kpi_conversao_eventos_priceless")

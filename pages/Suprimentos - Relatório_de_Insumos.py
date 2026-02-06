@@ -27,9 +27,6 @@ def main():
 		st.title("📦 Relatório de Insumos - Suprimentos")
 	with col2:
 		st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-	with col3:
-		if st.button('Logout', key='logout'):
-			logout()
 	st.divider()
 	
 	inputs_expenses_base = inputs_expenses()
@@ -63,15 +60,14 @@ def main():
 		inputsExpenses = inputsExpenses[inputsExpenses['Data Competencia'].between(data_inicio, data_fim)]
 		# Casas
 		with col2:
-			companies_filtered = st.multiselect(
-				'Selecione a(s) Casa(s):',
-				options=sorted(inputsExpenses['Casa'].dropna().unique()),
-				placeholder='Casas'
-			)
+			lista_casas_retirar = []
+			df_companies_filtered = input_multiselecao_casas(lista_casas_retirar, 'casas_suprimentos')
+			companies_filtered = df_companies_filtered['Casa'].to_list()
 		st.divider()
-		# Caso nenhum esteja selecionado mostra todos
-		if not companies_filtered:
-			companies_filtered = inputsExpenses['Casa'].dropna().unique()
+
+		if len(companies_filtered) == 0:
+				st.warning('Nenhuma loja selecionada')
+				st.stop()
 
 		inputsExpenses_filtered = inputsExpenses[inputsExpenses['Casa'].isin(companies_filtered)]
 		inputs_expenses_base_casa = inputs_expenses_base[inputs_expenses_base['Casa'].isin(companies_filtered)]

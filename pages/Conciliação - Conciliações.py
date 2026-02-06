@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import datetime
-import calendar
+from utils.components import input_selecao_casas
 from utils.functions.general_functions_conciliacao import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.conciliacoes import *
@@ -52,21 +52,9 @@ end_date = pd.to_datetime(d_final)
 if start_date > end_date:
     st.warning("A data de fim deve ser maior que a data de início!")
 
-else:
-    # Filtrando casas
-    casas = df_casas['Casa'].tolist()
-    
-    # Troca o valor na lista
-    casas = ["Todas as casas" if c == "All bar" else c for c in casas]
-    casa = st.selectbox("Casa", casas)
-    if casa == "Todas as casas":
-        casa = "All bar"
-
-    # Definindo um dicionário para mapear nomes de casas a IDs de casas
-    mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-
-    # Obtendo o ID da casa selecionada
-    id_casa = mapeamento_casas[casa]
+else: # Seletor de casa
+    lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Todas as Casas']
+    id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
     
     st.divider()
 

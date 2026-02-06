@@ -25,20 +25,17 @@ def main():
     permissoes, user_name, email = config_permissoes_user()
 
     # Header
-    col1, col2, col3 = st.columns([6, 1, 1], vertical_alignment="center")
+    col1, col2 = st.columns([6, 2], vertical_alignment="center")
     with col1:
         st.title(":material/rubric: CMV Teórico - Análise de Fichas Técnicas")
     with col2:
-        st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout'):
-            logout()
+        st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear, icon='🔄', width='stretch')
     st.divider()
 
     # Seletores
     col_casa, col_mes, col_ano, col_periodo = st.columns([1, 1, 1, 1])
     with col_casa:
-        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas']
+        lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim', 'Todas as Casas', 'Priceless', 'Escritório Fabrica de Bares']
         id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, 'selecao_casa')
     with col_mes:
         nome_mes, mes = seletor_mes_produtos('mes', 'Mês de Referência de Compra de Insumos', 'Base de cálculo dos custos médios de insumos')

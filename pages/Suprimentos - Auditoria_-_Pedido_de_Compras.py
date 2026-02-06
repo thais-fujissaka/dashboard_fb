@@ -26,9 +26,6 @@ def main():
         st.title(":shopping_cart: Auditoria - Pedido de Compras")
     with col2:
         st.button(label='Atualizar', key='atualizar', on_click=st.cache_data.clear)
-    with col3:
-        if st.button('Logout', key='logout'):
-            logout()
     st.divider()
     
     # Seletores
@@ -43,16 +40,12 @@ def main():
         # Puxando a base de empresas
         companies_ = companies(data_inicio, data_fim)
         # Filtro de Casas
-        row_companies2 = st.columns([1,1,1])
-        with row_companies2[1]:
-            companies_selected = st.multiselect(
-                'Selecione a(s) Casa(s):',
-                options=sorted(companies_['Casa'].dropna().unique()),
-                placeholder='Casas'
-            )
+        df_companies_selected = input_multiselecao_casas(lista_casas_retirar=[], key='casas_pedido_compras')
+        companies_selected = df_companies_selected['Casa'].to_list()
         # Caso nenhum esteja selecionado mostra todos
         if not companies_selected:
-            companies_selected = companies_['Casa'].dropna().unique()
+            st.warning('Nenhuma casa selecionada')
+            st.stop()
 
         with st.expander('Compras Sem Pedido', expanded=True):
             st.warning('Não devem ocorrer')

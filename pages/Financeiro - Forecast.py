@@ -1,4 +1,5 @@
 import streamlit as st
+from utils.components import input_selecao_casas
 from utils.functions.forecast import *
 from utils.functions.general_functions import config_sidebar
 from utils.functions.general_functions_conciliacao import *
@@ -29,7 +30,6 @@ st.divider()
 
 
 # Dados - Faturamento Diário
-df_casas = GET_CASAS()
 (df_teste, df_faturamento_agregado_dia, 
  df_faturamento_eventos, 
  df_parc_receitas_extr, 
@@ -39,20 +39,12 @@ df_casas = GET_CASAS()
 # Filtrando Datas
 datas = calcular_datas()
 
-# Seletor de casa
-casas = df_casas['Casa'].tolist()
-
-# Troca o valor na lista
-casas = [c for c in casas if c not in ['All bar', 'Sanduiche comunicação LTDA ', 'Tempus Fugit  Ltda ', 'Blue Note SP (Novo)']]
-casa = st.selectbox("Selecione uma casa:", casas)
 st.divider()
 
-# Definindo um dicionário para mapear nomes de casas a IDs de casas
-mapeamento_casas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
-
-# Obtendo o ID da casa selecionada
-id_casa = mapeamento_casas[casa]
-
+# Seletor de casa
+lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Todas as Casas']
+id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
+  
 tab1, tab2, tab3 = st.tabs(['Projeção Faturamento - Mês corrente', 'Projeção Faturamento - Próximos meses', 'Projeção - Despesas'])
 
 ###################### PROJEÇÃO DE FATURAMENTO - MÊS CORRENTE ###################### 

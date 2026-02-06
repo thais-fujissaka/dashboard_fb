@@ -5,7 +5,6 @@ from utils.functions.general_functions import *
 from utils.functions.fluxo_de_caixa_projecao import *
 # from utils.constants.general_constants import lojasAgrupadas
 from datetime import datetime
-from utils.user import logout
 from utils.components import button_download
 
 
@@ -26,10 +25,7 @@ with col1:
     st.title(":material/chart_data: Projeção - Despesas")
 with col2:
     st.button(label="Atualizar dados", on_click=st.cache_data.clear)
-with col3:
-    if st.button("Logout"):
-        logout()
-
+    
 st.write("")
 seletor_status_despesa = st.segmented_control(
     label="Selecione o Status das Despesas:",

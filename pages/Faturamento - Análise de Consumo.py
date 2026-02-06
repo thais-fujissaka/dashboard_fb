@@ -27,17 +27,14 @@ with col:
 	st.title(":material/restaurant: Análise de Consumo")
 with col2:
 	st.button(label="Atualizar", on_click=st.cache_data.clear)
-with col3:
-	if st.button("Logout"):
-		logout()
 
 seletores_container = st.container(border=True)
 with seletores_container:
 	col1, col2, col3 = st.columns([2, 1, 1])
 	with col1:
 		# Seleção da casa
-		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Edificio Rolim']
-		id_casa, casa, id_zigpay = input_selecao_casas_analise_produtos(
+		lista_retirar_casas = ['Bar Léo - Vila Madalena', 'Edificio Rolim', 'Priceless']
+		id_casa, casa, id_zigpay = input_selecao_casas(
 			lista_retirar_casas, key="seletor_casa_analise_consumo"
         )
 	with col2:
