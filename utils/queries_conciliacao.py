@@ -100,8 +100,14 @@ def GET_PARCELAS_RECEIT_EXTR():
     df_parc_receit_extr = dataframe_query('''
       SELECT 
       vpa.ID as 'ID_Receita',
-      te.ID as 'ID_Casa',
-      te.NOME_FANTASIA as 'Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
       trec.NOME as 'Cliente',
       tre.DATA_OCORRENCIA as 'Data_Ocorrencia',
       vpa.DATA_VENCIMENTO as 'Vencimento_Parcela',
@@ -135,8 +141,14 @@ def GET_CUSTOS_BLUEME_SEM_PARC():
     df_custos_blueme_sem_parcelam = dataframe_query('''
       SELECT 
       tdr.ID as 'ID_Despesa',
-      te.ID as 'ID_Casa',
-      te.NOME_FANTASIA as 'Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
       tf.CORPORATE_NAME as 'Fornecedor',
       tdr.VALOR_LIQUIDO as 'Valor',
       tdr.VENCIMENTO as 'Data_Vencimento',
@@ -195,8 +207,14 @@ def GET_CUSTOS_BLUEME_COM_PARC():
       SELECT
       tdp.ID as 'ID_Parcela',
       tdr.ID as 'ID_Despesa',
-      te.NOME_FANTASIA as 'Casa',
-      te.ID as 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
       tdr.FK_LOJA_CNPJ as 'CNPJ_Loja',
       tf.CORPORATE_NAME as 'Fornecedor',
       CASE
@@ -268,8 +286,14 @@ def GET_EXTRATOS_BANCARIOS():
     teb.ID as 'ID_Extrato_Bancario',
     tcb.ID as 'ID_Conta_Bancaria',
     tcb.NOME_DA_CONTA as 'Nome_Conta_Bancaria',
-    te.ID as 'ID_Casa',
-    te.NOME_FANTASIA as 'Casa',
+    CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
     teb.DATA_TRANSACAO as 'Data_Transacao',
     CASE 
         WHEN teb.FK_TIPO_CREDITO_DEBITO = 100 THEN 'CREDITO'
@@ -332,8 +356,14 @@ def GET_TESOURARIA():
     df_tesouraria = dataframe_query('''
     SELECT 
     ttt.ID as 'ID_Transacao_Tesouraria',
-    te2.ID as 'ID_Casa',
-    te2.NOME_FANTASIA as 'Casa',
+    CASE
+        WHEN te2.ID IN (161, 162) THEN 149 
+        ELSE te2.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te2.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te2.NOME_FANTASIA                                                                 
+      END AS 'Casa',
     ttt.FK_EMPRESA_TESOURARIA as 'ID_Empresa_Tesouraria',
     te.NOME_FANTASIA as 'Empresa_Tesouraria',
     ttt.DATA_TRANSACAO as 'Data_Transacao',
@@ -352,8 +382,14 @@ def GET_TESOURARIA():
 def GET_AJUSTES():
     df_ajustes_conciliacao = dataframe_query('''
       SELECT 
-      tac.FK_EMPRESA AS 'ID_Casa',
-      te.NOME_FANTASIA as 'Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
       tac.DATA_AJUSTE AS 'Data_Ajuste',
       tac.VALOR AS 'Valor',
       tcac.DESCRICAO AS 'Categoria',
@@ -372,8 +408,14 @@ def GET_BLOQUEIOS_JUDICIAIS():
     df_bloqueios_judiciais = dataframe_query('''
       SELECT
       tbj.ID as 'ID_Bloqueio',
-      te.ID as 'ID_Casa',
-      te.NOME_FANTASIA as 'Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
       tbj.DATA_TRANSACAO as 'Data_Transacao',
       tcb.ID as 'ID_Conta_Bancaria',
       tcb.NOME_DA_CONTA as 'Nome da Conta',
@@ -410,8 +452,14 @@ def GET_ORCAMENTOS():
     df_orcamentos = dataframe_query('''
       SELECT 
       to2.ID as 'ID_Orcamento',
-      te.ID as 'ID_Casa',
-      te.NOME_FANTASIA as 'Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 149 
+        ELSE te.ID                                                                 
+      END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
       tccg.ID as 'ID_Class_Cont_1',
       tccg.DESCRICAO as 'Class_Cont_1',
       tccg2.ID as 'ID_Class_Cont_2',
@@ -498,8 +546,14 @@ def GET_EVENTOS_FATURAM_AGREGADO():
     df_eventos_faturam_agregado = dataframe_query('''
       SELECT 
         tep.ID AS ID_Faturam_Agregado,
-        tep.FK_EMPRESA AS ID_Casa,
-        te.NOME_FANTASIA AS Casa,
+        CASE
+          WHEN te.ID IN (161, 162) THEN 149 
+          ELSE te.ID                                                                 
+        END AS 'ID_Casa',
+      CASE
+        WHEN te.ID IN (161, 162) THEN 'Priceless' 
+        ELSE te.NOME_FANTASIA                                                                 
+      END AS 'Casa',
         YEAR(tpep.DATA_RECEBIMENTO_PARCELA) as Ano,
         MONTH(tpep.DATA_RECEBIMENTO_PARCELA) as Mes,
         SUM(tpep.VALOR_PARCELA) as Valor_Bruto,
@@ -521,8 +575,14 @@ def GET_EVENTOS():
     df_eventos = dataframe_query('''
       SELECT tep.ID AS 'ID_Evento',
           tep.NOME_EVENTO AS 'Nome_Evento',
-          tep.FK_EMPRESA AS 'ID_Casa',
-          te.NOME_FANTASIA AS 'Casa',
+          CASE
+            WHEN te.ID IN (161, 162) THEN 149 
+            ELSE te.ID                                                                 
+          END AS 'ID_Casa',
+          CASE
+            WHEN te.ID IN (161, 162) THEN 'Priceless' 
+            ELSE te.NOME_FANTASIA                                                                 
+          END AS 'Casa',
           tpep.ID AS 'ID_Parcela',
           tpep.VALOR_PARCELA AS 'Valor_Parcela',
           tpep.DATA_VENCIMENTO_PARCELA AS 'Vencimento_Parcela',
