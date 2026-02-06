@@ -97,6 +97,14 @@ def main():
         # Recupera a permissao de casas
         df_lojas_user = GET_LOJAS_USER(login)
         casas_permitidas = df_lojas_user.to_dict("records")
+        if not casas_permitidas and cargo == "Gazit":
+            casas_permitidas = [
+                {"ID Loja": 149, "Loja": "Priceless"},
+            ]
+        elif not casas_permitidas:
+            print("Nenhuma permissão de casas encontrada")
+            st.error("Nenhuma permissão de casas encontrada")
+            st.stop()
         st.session_state["casas_permitidas"] = casas_permitidas
 
         cargo_abas = GET_ABAS_CARGOS(cargo)
@@ -108,7 +116,7 @@ def main():
 
         # Verifica a primeira permissão do usuário
         if not abas_permitidas:
-            redirect_page = "pages/Eventos - Gazit.py" # Gazit
+            redirect_page = "Login.py" # Gazit
             st.switch_page(redirect_page)
         else:
             id_aba = abas_permitidas[0]["ID Aba"]
