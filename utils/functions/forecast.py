@@ -74,20 +74,23 @@ def lista_dias_mes_anterior_atual(ano_atual, mes_atual, df_faturamento_agregado_
     if mes_atual == 1:
         ano_inicio = ano_atual - 1
         mes_inicio = 12
+    elif mes_atual == 2:
+        ano_inicio = ano_atual - 1
+        mes_inicio = 12
     else:
         ano_inicio = ano_atual
         mes_inicio = mes_atual - 1
 
     ano_fim = ano_atual + 1
     mes_fim = 12
-
+    
     df_dias_mes = criar_df_dias_intervalo(
         ano_inicio=ano_inicio,
-        mes_inicio=mes_inicio - 1, # Por enquanto, só temos dados de faturamento agregado até nov/2025
+        mes_inicio=mes_inicio, # Por enquanto, só temos dados de faturamento agregado até nov/2025
         ano_fim=ano_fim,
         mes_fim=mes_fim
     )
-
+    
     categorias = (
         df_faturamento_agregado_mes_corrente['Categoria']
         .dropna()
@@ -363,7 +366,7 @@ def projecao_faturamento_meses_seguintes(df_faturamento_orcamento, df_meses_futu
         left_on=['Ano', 'Mês', 'Categoria'],
         right_on=['Ano', 'Meses_Ano', 'Categoria']
     )
-    
+   
     df_meses_seguintes['Projeção Atingimento'] = None
     df_meses_seguintes['Valor Projetado'] = None
     
@@ -487,6 +490,7 @@ def exibe_faturamento_meses_anteriores(df_faturamento_meses_futuros, ano_atual, 
         (df_faturamento_meses_futuros['Mês'] < mes_atual) &
         (df_faturamento_meses_futuros['Categoria'] != 'Serviço')
     ]
+        ano_exibido = ano_atual
 
     df_faturamento_meses_anteriores = df_faturamento_meses_anteriores[['Categoria', 'Mês', 'Orçamento', 'Valor Bruto', 'Atingimento Real', 'Projeção Atingimento', 'Valor Projetado']]
     df_faturamento_meses_anteriores = df_faturamento_meses_anteriores.rename(columns={'Valor Projetado':'Faturamento Projetado'})
