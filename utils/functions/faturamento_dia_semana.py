@@ -44,7 +44,7 @@ def prepara_dados_faturamento_casa(df_faturamento_diario, casa):
 def concatena_meses_reais_projetados(df_dias_futuros_mes, df_faturamento_diario_casa, id_casa, casa, ano):
     # Usa a projeção para o mês corrente (ainda não está finalizado) e para o próximo ano
     if ano == datas['ano_atual']:
-        df_projecao_futuro = df_dias_futuros_mes[df_dias_futuros_mes['Data Evento'].dt.month >= datas['mes_atual']]
+        df_projecao_futuro = df_dias_futuros_mes[df_dias_futuros_mes['Data Evento'].dt.year == datas['ano_atual']]
     else:
         df_projecao_futuro = df_dias_futuros_mes
     df_projecao_futuro = df_projecao_futuro[['ID_Casa', 'Casa', 'Categoria', 'Data Evento', 'Valor Final', 'Dia Semana', 'Nome Mes', 'Mes_Ano']]
