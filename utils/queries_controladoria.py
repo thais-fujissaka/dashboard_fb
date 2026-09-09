@@ -72,13 +72,13 @@ def GET_LOGS_DESPESAS():
       CASE
         WHEN te.ID = 177 THEN 176  -- The Cavern  
         WHEN te.ID IN (161, 162, 179) THEN 149  -- Priceless
-        WHEN te.ID IN (131, 178) THEN 110  -- Blue Note                  
+        WHEN te.ID = 131 THEN 110  -- Blue Note (Sala 2 = 178 e casa propria)                  
         ELSE te.ID                                                           
 			END AS 'ID Casa',
       CASE                   
         WHEN te.ID = 177 THEN 'The Cavern'   
         WHEN te.ID IN (161, 162, 179) THEN 'Priceless'
-        WHEN te.ID IN (131, 178) THEN 'Blue Note - São Paulo'                    
+        WHEN te.ID = 131 THEN 'Blue Note - São Paulo'                    
         ELSE te.NOME_FANTASIA           
 			END AS 'Casa',
 			au.FULL_NAME as 'Nome Usuário',

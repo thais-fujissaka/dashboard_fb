@@ -10,7 +10,7 @@ proposital: em vez de rodar 1x por ID bruto de casa (`{{id_loja}}`, padrão do s
 standalone via `_rodar_por_loja`), cada query aqui recebe a lista já resolvida de IDs
 brutos (`ids_brutos`) e usa `FK_EMPRESA IN (...)` — 1 roundtrip por query em vez de N,
 funciona igual para casa simples (1 ID) ou casa agregada (Girondino = 156+160, Blue Note
-= 131+110+178 etc.).
+= 131+110 etc.).
 
 Metodologia de preço (cascata MEDIA_MES do mês anterior -> ULTIMA_LOCAL mais recente,
 conversão de unidade KG/L) fica em `utils/functions/cmv_teorico_fichas_oficiais.py` —
@@ -50,7 +50,8 @@ SUBSTITUICOES_IDS_CASA = {
     162: 149,
     179: 149,
     110: 131,
-    178: 131,
+    # Blue Note SP (Sala 2) (178) NAO entra: casa propria desde 2026-09-09.
+    # Agregado = 110 + 131.
     160: 156,
     177: 176,
     181: 156,

@@ -268,12 +268,17 @@ def prepara_dados_faturamento_orcamentos_mensais(id_casa, df_orcamentos, df_fatu
         (df_faturamento_agregado_mes['Ano'] <= ano_atual)
     ].copy()
 
-    if id_casa in [110, 128, 145]: # Apenas casas que tem Bilheteria
-        if id_casa == 110: # Blue Note
-            # Caso - Abril
-            df_faturamento_mes_casa = df_faturamento_mes_casa.drop_duplicates(subset=['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mês'], keep='first')
-            # Bilheteria vem das Receitas Extraordinárias
-            df_bilheteria = df_demais_receitas_extr[(df_demais_receitas_extr['Casa'] == 'Blue Note - São Paulo') & (df_demais_receitas_extr['Classificacao'] == 'Bilheteria')].copy()
+    if id_casa in [110, 128, 145, 178]: # Apenas casas que tem Bilheteria
+        if id_casa in (110, 178): # Blue Note e Blue Note SP (Sala 2) — ambas são sala de show
+            # Caso - Abril: workaround da agregação 110+131, que gera 2 linhas no mesmo
+            # grão (uma por empresa bruta). Não se aplica à Sala 2, que é empresa única —
+            # ali o keep='first' só poderia descartar linha legítima.
+            if id_casa == 110:
+                df_faturamento_mes_casa = df_faturamento_mes_casa.drop_duplicates(subset=['ID_Casa', 'Casa', 'Categoria', 'Ano', 'Mês'], keep='first')
+            # Bilheteria vem das Receitas Extraordinárias. Filtra pela casa selecionada
+            # (antes era o literal 'Blue Note - São Paulo', que impedia reuso pela Sala 2).
+            nome_casa = df_faturamento_mes_casa['Casa'].iloc[0] if not df_faturamento_mes_casa.empty else None
+            df_bilheteria = df_demais_receitas_extr[(df_demais_receitas_extr['Casa'] == nome_casa) & (df_demais_receitas_extr['Classificacao'] == 'Bilheteria')].copy()
             df_bilheteria['Mês'] = df_bilheteria['Data_Ocorrencia'].dt.month
             df_bilheteria['Ano'] = df_bilheteria['Data_Ocorrencia'].dt.year
             df_bilheteria = df_bilheteria.groupby(['Casa', 'Ano', 'Mês'], as_index=False)['Valor Bruto'].sum()
@@ -387,6 +392,19 @@ def lista_meses_ano(lista_itens_faturamento):
 
 
 # Função para cálculo da projeção - meses seguintes
+# Atingimento do orçamento (%) assumido quando não há nenhum mês apurado na janela de
+# referência — ver projecao_faturamento_meses_seguintes. 100 significa "a casa entrega
+# exatamente o que foi orçado", a premissa mais neutra disponível para casa sem histórico.
+#
+# Vale para o dashboard inteiro, não só para casa nova (decisão do Gabriel, 2026-09-09).
+# Também corrige um erro que já existia: categoria que só passa a ser orçada no meio do
+# ano tem os dois meses anteriores com orçamento zero, então o atingimento sai indefinido
+# e o mês projetava zero mesmo havendo orçamento. Em 2026 isso atinge, além da Sala 2,
+# algumas categorias pontuais de Nuv Gastrobar, Ultra Evil, Love Cabaret, Riviera Bar e
+# Eventos Couvert do Blue Note. Conferir os valores na apuração, não aqui.
+ATINGIMENTO_PADRAO_SEM_HISTORICO = 100
+
+
 def projecao_faturamento_meses_seguintes(df_faturamento_orcamento, df_meses_futuros_com_categorias, ano_atual, mes_atual):
     # Merge com df que contém todos os meses (ano anterior e corrente)
     df_meses_seguintes = df_faturamento_orcamento.merge(
@@ -430,6 +448,14 @@ def projecao_faturamento_meses_seguintes(df_faturamento_orcamento, df_meses_futu
 
                     if not valores_para_media.empty:
                         media = valores_para_media.mean()
+                        if pd.isna(media):
+                            # Janela sem nenhum atingimento apurado. Acontece com casa
+                            # recém-aberta, cujo orçamento começa no meio do ano: os dois
+                            # meses anteriores não têm orçamento, o atingimento sai
+                            # indefinido e o indefinido cascateia mês a mês, zerando a DRE
+                            # inteira. Sem histórico, a premissa é seguir o próprio
+                            # orçamento. Não afeta casa com histórico, onde a média existe.
+                            media = ATINGIMENTO_PADRAO_SEM_HISTORICO
                         df_meses_seguintes.at[i, 'Projeção Atingimento'] = media
 
     # Define valor de faturamento projetado baseado na projeção (%) de atingimento do orçamento
@@ -652,7 +678,7 @@ def projecao_imposto_simples(df_gorjeta, df_salarios, df_faturamento, df_aliquot
         )
         df_base_imposto = df_faturamento[['Data', 'Valor']]
     
-    elif casa == 'Blue Note - São Paulo': # Calcula imposto sobre (Alimentos + Bebidas) * 25%
+    elif casa in ['Blue Note - São Paulo', 'Blue Note SP (Sala 2)']: # Calcula imposto sobre (Alimentos + Bebidas) * 25%
         df_faturamento = df_faturamento[df_faturamento['Categoria'].isin(['Alimentos', 'Bebidas'])].copy()
         df_faturamento = df_faturamento.groupby(['Ano', 'Mês', 'Data'], as_index=False)[['Valor Bruto', 'Valor Projetado']].sum()
         df_faturamento['Valor'] = np.where(
@@ -676,13 +702,22 @@ def projecao_imposto_simples(df_gorjeta, df_salarios, df_faturamento, df_aliquot
         )
         df_base_imposto = pd.concat([df_gorjeta[['Data', 'Valor']], df_salarios[['Data', 'Valor']]])
         df_base_imposto = df_base_imposto.groupby('Data', as_index=False)['Valor'].sum() # Soma gorjeta e salários por mês
-    
+
+    else: # Casa sem regra de base definida — devolve o DRE de imposto de renda intacto
+        return df_impostos_renda_dre
+
+    if df_base_imposto.empty:
+        return df_impostos_renda_dre
+
     primeiro_ano = df_base_imposto['Data'].dt.year.min() # Primeiro ano da projeção (2025)
-    valor_base = df_base_imposto.loc[ # Pega o acumulado de janeiro do ano seguinte
+    janeiro_ano_seguinte = df_base_imposto.loc[ # Pega o acumulado de janeiro do ano seguinte
         (df_base_imposto['Data'].dt.year == primeiro_ano + 1)
         & (df_base_imposto['Data'].dt.month == 1),
         'Valor'
-    ].iloc[0]
+    ]
+    if janeiro_ano_seguinte.empty: # Casa nova: não há ano completo para servir de base
+        return df_impostos_renda_dre
+    valor_base = janeiro_ano_seguinte.iloc[0]
 
     df_base_imposto.loc[df_base_imposto['Data'].dt.year == primeiro_ano, 'Valor'] = valor_base # Aplica em todos os meses do primeiro ano
     df_base_imposto['Acumulado_12M'] = df_base_imposto['Valor'].shift(1).rolling(12, min_periods=12).sum() # Acumulado de cada mês - soma os 12 meses anteriores
@@ -708,7 +743,13 @@ def projecao_imposto_simples(df_gorjeta, df_salarios, df_faturamento, df_aliquot
         (df_imposto['Acumulado_12M'] <= df_imposto['MAXIMO_RECEITA_BRUTA']))]
     
     # Calcula alíquota real e valor do imposto por mês
-    df_imposto['Aliquota Real'] = ((df_imposto['Acumulado_12M'] * (df_imposto['ALIQUOTA'] / 100)) - df_imposto['VALOR_DEDUZIR']) / df_imposto['Acumulado_12M']
+    # Casa recém-aberta tem Acumulado_12M zerado — sem a guarda, a divisão devolve
+    # infinito ou indefinido e contamina o valor do imposto.
+    df_imposto['Aliquota Real'] = np.where(
+        df_imposto['Acumulado_12M'] > 0,
+        ((df_imposto['Acumulado_12M'] * (df_imposto['ALIQUOTA'] / 100)) - df_imposto['VALOR_DEDUZIR']) / df_imposto['Acumulado_12M'].replace(0, np.nan),
+        0,
+    )
     df_imposto['Valor Imposto'] = df_imposto['Aliquota Real'] * df_imposto['Valor']
 
     if casa == 'Bar Léo - Centro': # Calcula valor recolhimento ICMS
@@ -808,10 +849,10 @@ def config_compras(data_inicio, data_fim, loja):
     # PEDIDO_PERIODO_LOJA acima): esta query "sem pedido" também não canonicaliza casa
     # agregada — diferente da versão usada pela aba CMV Real (utils/functions/cmv.py::
     # substituicao_ids), que já resolve isso. Sem esse fix, itens "sem pedido" da empresa
-    # 131/178 (Blue Note SP Novo/Sala 2) ficavam fora da soma de Compras do Forecast.
+    # 131 (Blue Note SP Novo) ficava fora da soma de Compras do Forecast.
+    # 2026-09-09: a Sala 2 (178) saiu daqui — virou casa própria, com Forecast próprio.
     df1['Casa'] = df1['Casa'].replace({
         'Blue Note SP (Novo)': 'Blue Note - São Paulo',
-        'Blue Note SP (Sala 2)': 'Blue Note - São Paulo',
     })
     df1['Primeiro_Dia_Mes'] = pd.to_datetime(df1['Primeiro_Dia_Mes'], errors='coerce')
     df1['Mes_Ano'] = df1['Primeiro_Dia_Mes'].dt.strftime('%Y-%m')
@@ -1137,6 +1178,11 @@ def merge_e_calculo_para_cmv(df_faturamento_zig, df_compras, df_valoracao_estoqu
 
 
 # Utiliza o df de faturamento projetado criado anteriormente (para projetar o cmv para os prox meses)
+# Teto de CMV (%) considerado plausível para um mês em regime. Acima disso o mês é
+# tratado como atípico (estocagem de abertura) e sai da janela de referência da projeção.
+CMV_PERCENTUAL_MAXIMO_PLAUSIVEL = 100
+
+
 def calcula_cmv_proximos_meses(df_faturamento_meses_futuros, df_calculo_cmv, ano_atual, mes_atual):
     df_resgata_faturamento_meses_futuros = df_faturamento_meses_futuros[
         (df_faturamento_meses_futuros['Ano'] >= ano_atual - 1) &
@@ -1190,6 +1236,19 @@ def calcula_cmv_proximos_meses(df_faturamento_meses_futuros, df_calculo_cmv, ano
         valores_para_soma_cmvs = historico['CMV_Usado'].fillna(historico['CMV Projetado']).astype(float)
         valores_para_soma_faturamento = historico['Faturamento_Usado'].fillna(historico['Valor Projetado']).astype(float)
 
+        # Descarta da janela o mês cujo CMV supera o próprio faturamento. Numa operação
+        # em regime isso é impossível: só acontece em mês de estocagem, quando a casa
+        # compra o estoque inicial e ainda quase não vendeu (caso real: Blue Note SP
+        # (Sala 2) em ago/2026, mês de abertura com apenas 2 dias de venda).
+        # Sem o descarte, esse número vira a premissa dos meses seguintes.
+        atipico = (
+            (valores_para_soma_faturamento > 0)
+            & (valores_para_soma_cmvs > valores_para_soma_faturamento * (CMV_PERCENTUAL_MAXIMO_PLAUSIVEL / 100))
+        )
+        if atipico.any() and not atipico.all():
+            valores_para_soma_cmvs = valores_para_soma_cmvs[~atipico]
+            valores_para_soma_faturamento = valores_para_soma_faturamento[~atipico]
+
         soma_cmvs = valores_para_soma_cmvs.sum()
         soma_faturamentos = valores_para_soma_faturamento.sum()
         
@@ -1241,7 +1300,7 @@ def merge_despesas_complexas(df_tabela_primaria, df_tabela_secundaria, df_tabela
 
         if class_cont == 'Mão de Obra - Benefícios': # Alimentação Funcionário envolve CMV e Cartão Black
             # Consumo Interno - CMV
-            if casa not in ['Blue Note - São Paulo']:
+            if casa not in ['Blue Note - São Paulo', 'Blue Note SP (Sala 2)']:
                 df_tabela_terciaria['Classificacao_Contabil_2'] = '  -  Alimentação Funcionário'
                 df_tabela_terciaria = df_tabela_terciaria[['Casa', 'Mês', 'Ano', 'Classificacao_Contabil_2', 'Consumo Interno']]
                 df_tabela_terciaria = df_tabela_terciaria.rename(columns={'Consumo Interno': 'Custo Real'})
@@ -1249,7 +1308,7 @@ def merge_despesas_complexas(df_tabela_primaria, df_tabela_secundaria, df_tabela
                 df_tabela_resultante = df_tabela_resultante.groupby(['Casa', 'Mês', 'Ano', 'Classificacao_Contabil_2'], as_index=False)['Custo Real'].sum()
 
             # Consumo - Cartão Black
-            if casa not in ['Arcos', 'Blue Note - São Paulo', 'Love Cabaret']: # Era pra adicionar 'Ultra Evil Premium Ltda '
+            if casa not in ['Arcos', 'Blue Note - São Paulo', 'Blue Note SP (Sala 2)', 'Love Cabaret']: # Era pra adicionar 'Ultra Evil Premium Ltda '
                 df_tabela_quaternaria_filtrada = df_tabela_quaternaria[df_tabela_quaternaria['Casa'] == casa].copy()
                 df_tabela_quaternaria_filtrada = df_tabela_quaternaria_filtrada.groupby(['Casa', 'Mês', 'Ano'], as_index=False)['Valor Cartão Black'].sum()
                 df_tabela_resultante = pd.merge(
@@ -1446,7 +1505,7 @@ def prepara_dados_custos_mensais(df_custos_gerais, df_faturamento_meses_futuros,
         df_custos_filtrado = df_descontos_filtrado.copy()
     
     # Implementa cálculo de Sistema de Franquias - Fee Gestão FB para casas 100% FB (meses passados para ser possível projetar)
-    elif class_cont == 'Sistema de Franquias' and casa not in ['Arcos', 'Blue Note - São Paulo', 'Love Cabaret', 'Ultra Evil Premium Ltda ']:
+    elif class_cont == 'Sistema de Franquias' and casa not in ['Arcos', 'Blue Note - São Paulo', 'Blue Note SP (Sala 2)', 'Love Cabaret', 'Ultra Evil Premium Ltda ']:
         df_custos_filtrado = df_valor_fee_gestao.copy()
         df_custos_filtrado['Data_Competencia'] = pd.to_datetime({
             'year': df_custos_filtrado['Ano'],
@@ -1577,7 +1636,7 @@ def organiza_despesas_orcamentos(df_custos, df_orcamentos, casa, lista_completa_
     return df_resultante
 
 
-def projecao_custos_proximos_meses(df_merge_custos_faturamentos_mensais, class_cont_custo, ano_atual, mes_atual):
+def projecao_custos_proximos_meses(df_merge_custos_faturamentos_mensais, class_cont_custo, ano_atual, mes_atual, casa=None):
     # Cria coluna da porcentagem custo/faturamento a ser projetada
     df_merge_custos_faturamentos_mensais['Custo Percentual Projetado'] = None
     df_merge_custos_faturamentos_mensais['Custo Projetado'] = None
@@ -1638,7 +1697,10 @@ def projecao_custos_proximos_meses(df_merge_custos_faturamentos_mensais, class_c
                     df_merge_custos_faturamentos_mensais['Custo Projetado'] = (df_merge_custos_faturamentos_mensais['Custo Percentual Projetado'] / 100) * df_merge_custos_faturamentos_mensais['Faturamento Projetado']
 
     # Premissa 3: 5% do Faturamento Estimado - Sistema de Franquias
-    elif class_cont_custo == 'Sistema de Franquias':
+    # Só vale para casa 100% FB — mesma lista de exceção de merge_despesas_complexas
+    # (Fee Gestão FB). Sem o filtro por casa, o Blue Note e a Sala 2 ganhavam uma despesa
+    # projetada de 5% do faturamento que não existe no realizado deles.
+    elif class_cont_custo == 'Sistema de Franquias' and casa not in ['Arcos', 'Blue Note - São Paulo', 'Blue Note SP (Sala 2)', 'Love Cabaret', 'Ultra Evil Premium Ltda ']:
         df_merge_custos_faturamentos_mensais['Custo Projetado'] = 0.05 * df_merge_custos_faturamentos_mensais['Faturamento Projetado']
 
     # Premissa 2: Igual ao mês anterior - PJ, Salários, Custo de Ocupação, Informática e TI, Serviços de Terceiros, Locação de Equipamentos
@@ -1888,7 +1950,7 @@ def loop_prepara_dados_despesas(lista_categorias_despesas, df_descontos, df_cons
         else: # Se não tem ajuste, mantém as despesas originais
             df_despesas_com_ajustes = df_despesas_mensais_passadas.copy()
 
-        df_projecao_despesa = projecao_custos_proximos_meses(df_despesas_com_ajustes, categoria_despesa, datas['ano_atual'], datas['mes_atual'])
+        df_projecao_despesa = projecao_custos_proximos_meses(df_despesas_com_ajustes, categoria_despesa, datas['ano_atual'], datas['mes_atual'], casa)
         if categoria_despesa == 'Gorjeta': # Guarda para utilizar no cálculo do Imposto Simples
             df_gorjeta = df_projecao_despesa.copy()
         if categoria_despesa == 'Mão de Obra - Salários':
@@ -1902,6 +1964,18 @@ def loop_prepara_dados_despesas(lista_categorias_despesas, df_descontos, df_cons
 
 
 ############################################ CRIAÇÃO LAYOUT E ESTILOS - DRE ############################################
+def _indice_ancora(df, categoria):
+    """Posição da última linha de `categoria`, para inserir um bloco logo abaixo dela.
+
+    Devolve -1 quando a âncora não existe, o que faz o bloco entrar no topo em vez de
+    quebrar. Casa sem lançamento nem orçamento de uma categoria não gera a linha-âncora
+    (caso real: Blue Note SP (Sala 2), que não tem 'Descontos - Operação'), e aí
+    `index.max()` devolve NaN e o fatiamento seguinte estoura TypeError.
+    """
+    encontrados = df[df['Categoria'] == categoria].index
+    return int(encontrados.max()) if len(encontrados) else -1
+
+
 def aplica_layout_dre(df_faturamento_meses_passados_futuros, df_layout_impostos_venda, df_layout_impostos_renda, df_cmv_projetado, df_projecao_despesas, mes_selecionado, ano_selecionado):
     # Formata dados de faturamento
     df_layout_faturamento = df_faturamento_meses_passados_futuros[
@@ -1930,7 +2004,7 @@ def aplica_layout_dre(df_faturamento_meses_passados_futuros, df_layout_impostos_
 
     # --------- Inserções de itens calculados previamente --------- #
     # Impostos sobre Venda - depois de 'Descontos sobre Venda'
-    indice = df_layout_despesas[df_layout_despesas['Categoria'] == 'Descontos - Operação'].index.max()
+    indice = _indice_ancora(df_layout_despesas, 'Descontos - Operação')
     df_parte1 = df_layout_despesas.loc[:indice]
     df_parte2 = df_layout_despesas.loc[indice+1:]
 
@@ -1941,7 +2015,7 @@ def aplica_layout_dre(df_faturamento_meses_passados_futuros, df_layout_impostos_
     ]).reset_index(drop=True)
 
     # CMV - depois de 'Impostos sobre Venda'
-    indice = df_layout_despesas_final[df_layout_despesas_final['Categoria'] == 'ISS'].index.max()
+    indice = _indice_ancora(df_layout_despesas_final, 'ISS')
     df_parte1 = df_layout_despesas_final.loc[:indice]
     df_parte2 = df_layout_despesas_final.loc[indice+1:]
 
@@ -1952,7 +2026,7 @@ def aplica_layout_dre(df_faturamento_meses_passados_futuros, df_layout_impostos_
     ]).reset_index(drop=True)
 
     # Impostos de Renda - depois de (-) Despesas de Patrocínio
-    indice = df_layout_despesas_final[df_layout_despesas_final['Categoria'] == '(-) Despesas de Patrocínio'].index.max()
+    indice = _indice_ancora(df_layout_despesas_final, '(-) Despesas de Patrocínio')
     df_parte1 = df_layout_despesas_final.loc[:indice]
     df_parte2 = df_layout_despesas_final.loc[indice+1:]
 
@@ -2013,7 +2087,7 @@ def define_linhas_calculadas(df_dre, colunas_valores, lista_categorias_despesas,
 
     # RECEITA LIQUIDA
     receita_liquida = soma_categorias(df_final, ['Faturamento', 'Desconto sobre Venda', 'Impostos sobre Venda'], colunas_valores)
-    df_final = insere_nova_linha(df_final, colunas_valores, receita_liquida, mapa_insercao['RECEITA LÍQUIDA'], 'Categoria', 'RECEITA LÍQUIDA')
+    df_final = insere_nova_linha(df_final, colunas_valores, receita_liquida, mapa_insercao.get('RECEITA LÍQUIDA', 'RECEITA LÍQUIDA'), 'Categoria', 'RECEITA LÍQUIDA')
 
     # % sobre Receita Bruta - CMV
     receita_bruta = soma_categorias(df_final, ['Alimentos', 'Bebidas', 'Eventos A&B', 'Delivery'], colunas_valores)
@@ -2026,12 +2100,12 @@ def define_linhas_calculadas(df_dre, colunas_valores, lista_categorias_despesas,
 
     # % sobre Receita Artístico
     porc_receita_artistico = custos_artistico.div(faturamento_artistico.replace(0, np.nan)).fillna(0).round(2)
-    df_final = insere_nova_linha(df_final, colunas_valores, porc_receita_artistico, mapa_insercao['Custos Artístico Geral'], 'Categoria', '% sobre Receita Artístico')
+    df_final = insere_nova_linha(df_final, colunas_valores, porc_receita_artistico, mapa_insercao.get('Custos Artístico Geral', 'Custos Artístico Geral'), 'Categoria', '% sobre Receita Artístico')
 
     # % sobre Receita de Eventos
     faturamento_eventos = soma_categorias(df_final, ['Eventos A&B', 'Eventos Locações', 'Eventos Couvert'], colunas_valores)
     porc_receita_eventos = (custos_eventos / faturamento_eventos.replace(0, np.nan)).round(2)
-    df_final = insere_nova_linha(df_final, colunas_valores, porc_receita_eventos, mapa_insercao['Custos de Eventos'], 'Categoria', '% sobre Receita de Eventos')
+    df_final = insere_nova_linha(df_final, colunas_valores, porc_receita_eventos, mapa_insercao.get('Custos de Eventos', 'Custos de Eventos'), 'Categoria', '% sobre Receita de Eventos')
 
     # MARGEM BRUTA DE CONTRIBUIÇÃO
     margem_bruta_contribuicao = soma_categorias(
@@ -2039,7 +2113,7 @@ def define_linhas_calculadas(df_dre, colunas_valores, lista_categorias_despesas,
         ['RECEITA LÍQUIDA', 'Deduções sobre Venda', 'Gorjeta', 'Custos de Eventos', 'Custos Artístico Geral', 'Custo Mercadoria Vendida'], 
         colunas_valores
     )
-    df_final = insere_nova_linha(df_final, colunas_valores, margem_bruta_contribuicao, mapa_insercao['Deduções sobre Venda'], 'Categoria', 'MARGEM BRUTA DE CONTRIBUIÇÃO')
+    df_final = insere_nova_linha(df_final, colunas_valores, margem_bruta_contribuicao, mapa_insercao.get('Deduções sobre Venda', 'Deduções sobre Venda'), 'Categoria', 'MARGEM BRUTA DE CONTRIBUIÇÃO')
     lista_categorias_despesas.append('MARGEM BRUTA DE CONTRIBUIÇÃO')
 
     # PESSOAL
@@ -2057,7 +2131,7 @@ def define_linhas_calculadas(df_dre, colunas_valores, lista_categorias_despesas,
         ['PESSOAL', 'Custo de Ocupação', 'Utilidades', 'Informática e TI', 'Manutenção', 'Marketing', 'Serviços de Terceiros', 'Locação de Equipamentos', 'Sistema de Franquias'],
         colunas_valores
     )
-    df_final = insere_nova_linha(df_final, colunas_valores, total_despesas_operativas, mapa_insercao['Sistema de Franquias'], 'Categoria', 'TOTAL - DESPESAS OPERATIVAS')
+    df_final = insere_nova_linha(df_final, colunas_valores, total_despesas_operativas, mapa_insercao.get('Sistema de Franquias', 'Sistema de Franquias'), 'Categoria', 'TOTAL - DESPESAS OPERATIVAS')
     lista_categorias_despesas.append('TOTAL - DESPESAS OPERATIVAS')
     
     # EBTIDA e EBIT
@@ -2085,7 +2159,7 @@ def define_linhas_calculadas(df_dre, colunas_valores, lista_categorias_despesas,
 
     # Total - Variações s/ Resultado Líquido
     total_variacoes = soma_categorias(df_final, ['(-) CAPEX (Investimentos)', '(+/-) Outras variações no fluxo de caixa'], colunas_valores)
-    df_final = insere_nova_linha(df_final, colunas_valores, total_variacoes, mapa_insercao['Dividendos e Remunerações Variáveis'], 'Categoria', 'Total - Variações s/ Resultado Líquido')
+    df_final = insere_nova_linha(df_final, colunas_valores, total_variacoes, mapa_insercao.get('Dividendos e Remunerações Variáveis', 'Dividendos e Remunerações Variáveis'), 'Categoria', 'Total - Variações s/ Resultado Líquido')
 
     # FCF
     fcf = soma_categorias(df_final, ['Resultado Líquido', 'Total - Variações s/ Resultado Líquido'], colunas_valores)
