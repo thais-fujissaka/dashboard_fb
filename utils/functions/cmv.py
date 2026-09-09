@@ -338,20 +338,17 @@ def config_valoracao_estoque(data_inicio, data_fim, loja):
 
   df_valoracao_estoque = GET_VALORACAO_ESTOQUE(loja, data_inicio_nova)
 
-  # Fix 2026-08-11 (achado real: Blue Note - São Paulo, jul/2026 — "LA CAMPANA SELECCION
-  # DE TERROIR 750ML", 3un, R$604,32, ID_Contagem 99745 e 103983 — mesma contagem
-  # reenviada 2x). GET_VALORACAO_ESTOQUE traz a linha crua de T_VALORACAO_ESTOQUE/
-  # T_CONTAGEM_INSUMOS sem dedupe — um reenvio duplicado da mesma contagem (mesma
-  # loja+insumo+quantidade+valor) soma 2x o estoque daquele item, inflando "Estoque
-  # Atual"/"Estoque Mes Anterior" e o CMV% calculado nesta página. Mesmo fix já aplicado
-  # no lado do script standalone (transform.calcular_variacao_estoque, 2026-08) — não
-  # dedupe por FK_CONTAGEM/ID_Contagem (cada reenvio tem um ID diferente), e sim pela
-  # tupla loja+insumo+quantidade+valor, que é o que identifica a MESMA contagem física
-  # reenviada. Casas agregadas (>1 loja bruta contando o mesmo insumo com o mesmo
-  # valor) continuam somando normalmente, pois ID_Loja também entra na chave.
-  df_valoracao_estoque = df_valoracao_estoque.drop_duplicates(
-    subset=['ID_Loja', 'ID_Insumo', 'Quantidade', 'Valor_em_Estoque']
-  )
+  # Fix 2026-08-11 revertido em 2026-09-02 (decisão do usuário): GET_VALORACAO_ESTOQUE
+  # traz a linha crua de T_VALORACAO_ESTOQUE/T_CONTAGEM_INSUMOS sem dedupe. Até aqui,
+  # linhas com mesma loja+insumo+quantidade+valor (achado real: Blue Note - São Paulo,
+  # jul/2026, "LA CAMPANA SELECCION DE TERROIR 750ML", ID_Contagem 99745/103983) eram
+  # tratadas como reenvio duplicado da mesma contagem e descartadas automaticamente
+  # antes de somar. Com múltiplas contagens por casa em pontos de estoque diferentes
+  # (BlueMe), essa combinação pode ser 2 contagens físicas legítimas, então decidir
+  # sozinho ficou arriscado demais — agora soma tudo como está. A checagem de duplicata
+  # continua existindo (script Mini_Gabu/BlueMe Dashboard, transform.
+  # flag_contagens_duplicadas); se for de fato reenvio, a correção é excluir a
+  # contagem errada em T_CONTAGEM_INSUMOS e reapurar.
 
   df_valoracao_estoque.drop(['DATA_CONTAGEM'], axis=1, inplace=True)
 
@@ -374,6 +371,28 @@ def config_valoracao_estoque(data_inicio, data_fim, loja):
 def config_diferenca_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior):
   df_valoracao_estoque_atual = df_valoracao_estoque_atual.copy()
   df_valoracao_estoque_mes_anterior = df_valoracao_estoque_mes_anterior.copy()
+
+  # Fix 2026-09-02 (achado real: Bar Brahma - Centro, ago/2026 — "ABACAXI PEROLA KG",
+  # ID_Insumo 19787, aparecia em 2 linhas na Diferença de Estoque com a MESMA
+  # "Valor em Estoque Mes Anterior" repetida). Na BlueMe um mesmo insumo pode ter
+  # mais de uma contagem no mesmo mês/loja (ex.: contado na Cozinha E no Estoque —
+  # 2 linhas em T_CONTAGEM_INSUMOS para o mesmo ID_Insumo, ver GET_VALORACAO_ESTOQUE).
+  # Isso é correto por si só, mas o outer merge abaixo é feito por insumo: se o mês
+  # atual tem N contagens do insumo e o mês anterior tem M, o merge gera N×M linhas
+  # (produto cartesiano) e repete o valor do outro mês em cada uma — inflando/
+  # distorcendo a "Diferença Valor Estoque". Agregando (somando Quantidade e
+  # Valor_em_Estoque) por insumo dentro de cada mês ANTES do merge, cada insumo vira
+  # 1 linha por mês e a comparação fica correta.
+  chave_insumo = ['ID_Loja', 'Loja', 'ID_Insumo', 'Insumo', 'Unidade_Medida', 'ID_Nivel_4', 'Categoria']
+  df_valoracao_estoque_atual = df_valoracao_estoque_atual.groupby(chave_insumo, as_index=False).agg({
+    'Quantidade': 'sum',
+    'Valor_em_Estoque': 'sum'
+  })
+  df_valoracao_estoque_mes_anterior = df_valoracao_estoque_mes_anterior.groupby(chave_insumo, as_index=False).agg({
+    'Quantidade': 'sum',
+    'Valor_em_Estoque': 'sum'
+  })
+
   df_valoracao_estoque_atual.rename(columns={'Valor_em_Estoque': 'Valor_em_Estoque_Atual', 'Quantidade': 'Quantidade_Atual'}, inplace=True)
   df_valoracao_estoque_mes_anterior.rename(columns={'Valor_em_Estoque': 'Valor_em_Estoque_Mes_Anterior', 'Quantidade': 'Quantidade_Mes_Anterior'}, inplace=True)
   df_diferenca_estoque = pd.merge(df_valoracao_estoque_atual, df_valoracao_estoque_mes_anterior, on=['ID_Loja', 'Loja', 'ID_Insumo', 'Insumo', 'Unidade_Medida','ID_Nivel_4', 'Categoria'], how='outer')
@@ -457,8 +476,18 @@ def config_variacao_estoque(df_valoracao_estoque_atual, df_valoracao_estoque_mes
   variacao_estoque_alimentos = valoracao_estoque_atual_alimentos - valoracao_estoque_mes_anterior_alimentos
   variacao_estoque_bebidas = valoracao_estoque_atual_bebidas - valoracao_estoque_mes_anterior_bebidas
 
-  df_valoracao_estoque_atual = df_valoracao_estoque_atual.rename(columns={'Valor_em_Estoque': 'Estoque Atual', 'Quantidade': 'Quantidade Atual'})
-  df_valoracao_estoque_mes_anterior = df_valoracao_estoque_mes_anterior.rename(columns={'Valor_em_Estoque': 'Estoque Mes Anterior', 'Quantidade': 'Quantidade Mes Anterior'})
+  # Fix 2026-09-02 (mesma causa raiz do fix em config_diferenca_estoque): um insumo
+  # com mais de uma contagem no mesmo mês/loja (ex.: Cozinha + Estoque) gera múltiplas
+  # linhas por ID_Insumo em df_valoracao_estoque_atual/mes_anterior. O merge por
+  # insumo abaixo faz produto cartesiano entre as contagens do mês atual e do mês
+  # anterior, inflando "Estoque Mes Anterior"/"Estoque Atual" agregados por categoria.
+  # Agregar por insumo dentro de cada mês ANTES do merge resolve.
+  chave_insumo = ['ID_Loja', 'Loja', 'Categoria', 'ID_Insumo', 'Insumo', 'Unidade_Medida']
+  df_valoracao_estoque_atual = df_valoracao_estoque_atual.groupby(chave_insumo, as_index=False).agg({'Valor_em_Estoque': 'sum'})
+  df_valoracao_estoque_mes_anterior = df_valoracao_estoque_mes_anterior.groupby(chave_insumo, as_index=False).agg({'Valor_em_Estoque': 'sum'})
+
+  df_valoracao_estoque_atual = df_valoracao_estoque_atual.rename(columns={'Valor_em_Estoque': 'Estoque Atual'})
+  df_valoracao_estoque_mes_anterior = df_valoracao_estoque_mes_anterior.rename(columns={'Valor_em_Estoque': 'Estoque Mes Anterior'})
 
   df_variacao_estoque = pd.merge(df_valoracao_estoque_mes_anterior, df_valoracao_estoque_atual, on=['ID_Loja', 'Loja', 'Categoria', 'ID_Insumo', 'Insumo', 'Unidade_Medida'], how='outer').fillna(0)
   df_variacao_estoque = df_variacao_estoque.rename(columns={'ID_Loja': 'ID Loja', 'Unidade_Medida': 'Unidade de Medida', 'ID_Insumo': 'ID Insumo'})
