@@ -79,35 +79,34 @@ def input_selecao_casas_agregadas(lista_casas_retirar, key):
     girondino_ids = [156, 160]
     terraco_notie_ids = [149, 162, 179]
 
+    def remover_casas(lista, casas_para_remover):
+        for nome_casa in casas_para_remover:
+            if nome_casa in lista:
+                lista.remove(nome_casa)
+
     # Se algum Blue Note está na permissão, adiciona Blue Note - Agregado
     if any(num in blue_note_ids for num in lista_ids_casas_validas):
         if 'Blue Note - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "Blue Note - Agregado")
-            lista_casas_validas.remove("Blue Note - São Paulo")
-            lista_casas_validas.remove("Blue Note SP (Novo)")
-            lista_casas_validas.remove("Blue Note SP (Sala 2)")
+            remover_casas(lista_casas_validas, ["Blue Note - São Paulo", "Blue Note SP (Novo)", "Blue Note SP (Sala 2)"])
 
     # Se algum The Cavern está na permissão, adiciona The Cavern - Agregado
     if any(num in the_cavern_ids for num in lista_ids_casas_validas):
         if 'The Cavern - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "The Cavern - Agregado")
-            lista_casas_validas.remove("The Cavern")
-            lista_casas_validas.remove("The Cavern - Almoço")
-    
+            remover_casas(lista_casas_validas, ["The Cavern", "The Cavern - Almoço"])
+
     # Se algum Girondino está na permissão, adiciona Girondino - Agregado
     if any(num in girondino_ids for num in lista_ids_casas_validas):
         if 'Girondino - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "Girondino - Agregado")
-            lista_casas_validas.remove("Girondino")
-            lista_casas_validas.remove("Girondino - CCBB")
+            remover_casas(lista_casas_validas, ["Girondino", "Girondino - CCBB"])
 
     # Se algum Terraço Notie está na permissão, adiciona Terraço Notie - Agregado
     if any(num in terraco_notie_ids for num in lista_ids_casas_validas):
         if 'Terraço Notie - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "Terraço Notie - Agregado")
-            lista_casas_validas.remove("Terraço Notie")
-            lista_casas_validas.remove("Terraço Notie Novo")
-            lista_casas_validas.remove("Priceless")
+            remover_casas(lista_casas_validas, ["Terraço Notie", "Terraço Notie Novo", "Priceless"])
 
     lista_casas_validas.sort()
 
