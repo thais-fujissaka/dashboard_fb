@@ -20,7 +20,8 @@ def substituicao_ids(df, colNome, colID):
     162: 149,
     179: 149,
     110: 131,
-    178: 131,
+    # Blue Note SP (Sala 2) (178) NAO entra: casa propria desde 2026-09-09.
+    # Agregado = 110 + 131.
     160: 156,
     177: 176,
     181: 156
@@ -40,7 +41,6 @@ def substituicao_ids(df, colNome, colID):
     'Priceless': 'Terraço Notie - Agregado',
     'Blue Note - São Paulo': 'Blue Note - Agregado',
     'Blue Note SP (Novo)': 'Blue Note - Agregado',
-    'Blue Note SP (Sala 2)': 'Blue Note - Agregado',
     'Girondino - CCBB': 'Girondino - Agregado',
     'Girondino': 'Girondino - Agregado',
     'Delivery Girondino': 'Girondino - Agregado',

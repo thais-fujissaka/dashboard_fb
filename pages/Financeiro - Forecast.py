@@ -30,7 +30,7 @@ st.divider()
 # Seletores de casa e data
 col1, col2, col3 = st.columns(3)
 with col1: # Casas sem DRE
-    lista_retirar_casas = ['Todas as Casas', 'Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Blue Note SP (Sala 2)', 'Brahminha', 'Edificio Rolim', 'Sanduiche comunicação LTDA ', 'Terraço Notie', 'Terraço Notie Novo', 'Tempus Fugit  Ltda ', 'The Cavern - Almoço']
+    lista_retirar_casas = ['Todas as Casas', 'Bar Léo - Vila Madalena', 'Blue Note SP (Novo)', 'Brahminha', 'Edificio Rolim', 'Sanduiche comunicação LTDA ', 'Terraço Notie', 'Terraço Notie Novo', 'Tempus Fugit  Ltda ', 'The Cavern - Almoço']
     id_casa, casa, id_zigpay = input_selecao_casas(lista_retirar_casas, key='faturamento_bruto')
 with col2:
     mes_selecionado = int(seletor_mes('Selecione um mês', 'mes_forecast'))
@@ -190,11 +190,19 @@ else:
     # Calcula Impostos sobre Venda
     df_faturamento_para_impostos = df_faturamento_meses_futuros.copy()
     df_parametros_impostos_venda = df_parametros_impostos[(df_parametros_impostos['Casa'] == casa) & (df_parametros_impostos['Classificacao_Contabil_1'] == 'Impostos sobre Venda')].copy()
+    if df_parametros_impostos_venda.empty:
+        # Sem linha em T_PARAMETROS_CALCULO_IMPOSTOS a lista sai vazia e o remove('ICMS')
+        # abaixo estoura ValueError, derrubando a página inteira. Falha legível em vez
+        # de stack trace — o cadastro é da controladoria, não do código.
+        st.warning(f'Casa "{casa}" sem parâmetros de impostos cadastrados. '
+                   'Cadastrar em T_PARAMETROS_CALCULO_IMPOSTOS antes de projetar.')
+        st.stop()
     lista_impostos_venda = df_parametros_impostos_venda['Classificacao_Contabil_2'].unique().tolist()
     lista_impostos_venda = lista_impostos_venda + ['PIS / COFINS']
     # Coloca ICMS na segunda posição
-    lista_impostos_venda.remove('ICMS')
-    lista_impostos_venda.insert(1, 'ICMS') 
+    if 'ICMS' in lista_impostos_venda:
+        lista_impostos_venda.remove('ICMS')
+        lista_impostos_venda.insert(1, 'ICMS') 
     df_impostos_meses_futuros = lista_meses_ano(lista_impostos_venda)
 
     df_projecao_impostos_venda = projecao_impostos_venda(df_faturamento_para_impostos, lista_impostos_venda, df_impostos_meses_futuros, df_parametros_impostos_venda, casa)
@@ -353,7 +361,12 @@ else:
                 ordem_class_cont_2 = df['Classificacao_Contabil_2'].unique().tolist()
                 ordem_class_cont_2 = [class_cont_2 for class_cont_2 in ordem_class_cont_2 if class_cont_2 != class_cont_1]
                 ordem_class_cont_2.sort() # Ordena lista de class. cont. 2
-                mapa_insercao[class_cont_1] = ordem_class_cont_2[-1] # Última class. cont. 2
+                if ordem_class_cont_2: # Casa sem nenhuma class. cont. 2 nessa categoria
+                    mapa_insercao[class_cont_1] = ordem_class_cont_2[-1] # Última class. cont. 2
+                else:
+                    # Sem subcategoria, a âncora é a própria categoria — evita IndexError
+                    # aqui e KeyError adiante, em define_linhas_calculadas.
+                    mapa_insercao[class_cont_1] = class_cont_1
 
     colunas_valores = (df_layout_dre.select_dtypes(include='number').drop(columns=['Percentual Real (do Orçamento)']).columns)
     df_layout_dre = define_linhas_calculadas(df_layout_dre, colunas_valores, lista_categorias_despesas, mapa_insercao)

@@ -340,7 +340,7 @@ def GET_EVENTOS_REBATE_FORNEC_PRICELESS():
           vpa.ID AS 'ID_receita', 
           CASE
               WHEN te.ID IN (161, 162) THEN 'Priceless'
-              WHEN te.ID IN (131, 178) THEN 'Blue Note - São Paulo'                                                             
+              WHEN te.ID = 131 THEN 'Blue Note - São Paulo'                                                             
               ELSE te.NOME_FANTASIA
           END AS 'Casa', 
           trec.NOME AS 'Cliente',
@@ -440,7 +440,7 @@ def GET_DEMAIS_RECEITAS_EXTR():
           vpa.ID AS 'ID_receita',                  
           CASE
               WHEN te.ID IN (161, 162) THEN 'Priceless'
-              WHEN te.ID IN (131, 178) THEN 'Blue Note - São Paulo'                                                             
+              WHEN te.ID = 131 THEN 'Blue Note - São Paulo'                                                             
               ELSE te.NOME_FANTASIA
           END AS 'Casa', 
           trec.NOME AS 'Cliente', 
@@ -1248,13 +1248,11 @@ def GET_INSUMOS_AGRUPADOS_BLUE_ME_POR_CATEG_COM_PEDIDO_PERIODO_LOJA():
       SELECT
         tdr.ID AS tdr_ID,
         CASE
-          WHEN te.ID = 131 THEN 110 -- Blue Note
-          WHEN te.ID = 178 THEN 110 -- Blue Note
+          WHEN te.ID = 131 THEN 110 -- Blue Note (Sala 2 = 178 e casa propria)
           ELSE te.ID
         END AS ID_Casa,
         CASE
           WHEN te.NOME_FANTASIA = 'Blue Note SP (Novo)' THEN 'Blue Note - São Paulo'
-          WHEN te.NOME_FANTASIA = 'Blue Note SP (Sala 2)' THEN 'Blue Note - São Paulo'
           ELSE te.NOME_FANTASIA
         END AS Casa,
         tdr.VALOR_LIQUIDO AS Valor_Liquido,

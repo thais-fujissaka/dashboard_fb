@@ -93,7 +93,7 @@ mapeamento_lojas = dict(zip(df_casas["Casa"], df_casas["ID_Casa"]))
 
 # Obtendo os IDs das casas selecionadas
 ids_casas_selecionadas = []
-casas_selecionadas = [casa for casa in casas_selecionadas if casa not in ['Blue Note SP (Sala 2)', 'Terraço Notie']]
+casas_selecionadas = [casa for casa in casas_selecionadas if casa not in ['Terraço Notie']]
 for casa in casas_selecionadas:
     if casa == "Todas as casas":
         # pega todos os IDs exceto o "All bar"

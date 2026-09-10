@@ -43,9 +43,6 @@ with st.container(border=True):
 
     if casa == 'Girondino - Consolidado': id_casa = 156
     elif casa == 'Terraço Notie': id_casa = 149
-    # GET_CASAS normaliza ID 178 para 110 (mesma empresa bruta), então não existe linha
-    # própria para 178 em df_casas/mapeamento_casas — precisa do hardcode aqui.
-    elif casa == 'Blue Note SP (Sala 2)': id_casa = 178
     else: id_casa = mapeamento_casas[casa]
 
 
@@ -68,6 +65,8 @@ with st.container(border=True):
     # Casas com mais de um place
     # 2026-08-14: Blue Note SP (Sala 2) (178) separado do Blue Note - São Paulo (110+131)
     # para ter DRE próprio — antes as 3 empresas brutas eram agregadas num único download.
+    # 2026-09-09: a separação passou a valer no dashboard inteiro (GET_CASAS não mapeia
+    # mais 178 -> 110), então o hardcode de id_casa que existia acima virou desnecessário.
     if casa == 'Blue Note - São Paulo': ids_casa_query = [110, 131]
     elif casa in ['Priceless', 'Terraço Notie']: ids_casa_query = [149, 161, 162, 179]
     elif casa == 'Girondino - Consolidado': ids_casa_query = [156, 160]

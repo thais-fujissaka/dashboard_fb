@@ -64,6 +64,20 @@ def input_selecao_casas(lista_casas_retirar, key, adicionar_delivery=None, agreg
 
     return id_casa, casa, id_zigpay
 
+def _remover_se_presente(lista, *nomes):
+    """Remove nomes da lista ignorando os que nao estao la.
+
+    `list.remove` lanca ValueError quando o nome falta, e isso acontece de verdade:
+    a permissao de casa e por usuario, entao um usuario pode ter acesso a uma casa do
+    grupo e nao a outra (caso real: usuario 1064 tem Blue Note - Sao Paulo e Blue Note
+    SP (Novo), mas nao a Sala 2). Antes disso, o seletor agregado quebrava a tela
+    inteira para esse usuario.
+    """
+    for nome in nomes:
+        if nome in lista:
+            lista.remove(nome)
+
+
 def input_selecao_casas_agregadas(lista_casas_retirar, key):
 
     # Mostra apenas as casas que o usuário tem acesso
@@ -74,7 +88,9 @@ def input_selecao_casas_agregadas(lista_casas_retirar, key):
     lista_casas_validas = df_permissao_casas["Loja"].to_list()
     lista_ids_casas_validas = df_permissao_casas["ID Loja"].to_list()
 
-    blue_note_ids = [110, 131, 178]
+    # Blue Note SP (Sala 2) (178) NAO entra: casa propria desde 2026-09-09.
+    # Agregado = 110 + 131, e a Sala 2 aparece sozinha no seletor.
+    blue_note_ids = [110, 131]
     the_cavern_ids = [176, 177]
     girondino_ids = [156, 160]
     terraco_notie_ids = [149, 162, 179]
@@ -88,25 +104,25 @@ def input_selecao_casas_agregadas(lista_casas_retirar, key):
     if any(num in blue_note_ids for num in lista_ids_casas_validas):
         if 'Blue Note - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "Blue Note - Agregado")
-            remover_casas(lista_casas_validas, ["Blue Note - São Paulo", "Blue Note SP (Novo)", "Blue Note SP (Sala 2)"])
+            _remover_se_presente(lista_casas_validas, "Blue Note - São Paulo", "Blue Note SP (Novo)")
 
     # Se algum The Cavern está na permissão, adiciona The Cavern - Agregado
     if any(num in the_cavern_ids for num in lista_ids_casas_validas):
         if 'The Cavern - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "The Cavern - Agregado")
-            remover_casas(lista_casas_validas, ["The Cavern", "The Cavern - Almoço"])
-
+            _remover_se_presente(lista_casas_validas, "The Cavern", "The Cavern - Almoço")
+    
     # Se algum Girondino está na permissão, adiciona Girondino - Agregado
     if any(num in girondino_ids for num in lista_ids_casas_validas):
         if 'Girondino - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "Girondino - Agregado")
-            remover_casas(lista_casas_validas, ["Girondino", "Girondino - CCBB"])
+            _remover_se_presente(lista_casas_validas, "Girondino", "Girondino - CCBB")
 
     # Se algum Terraço Notie está na permissão, adiciona Terraço Notie - Agregado
     if any(num in terraco_notie_ids for num in lista_ids_casas_validas):
         if 'Terraço Notie - Agregado' not in lista_casas_retirar:
             lista_casas_validas.insert(0, "Terraço Notie - Agregado")
-            remover_casas(lista_casas_validas, ["Terraço Notie", "Terraço Notie Novo", "Priceless"])
+            _remover_se_presente(lista_casas_validas, "Terraço Notie", "Terraço Notie Novo", "Priceless")
 
     lista_casas_validas.sort()
 
